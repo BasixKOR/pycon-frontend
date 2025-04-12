@@ -4,5 +4,6 @@ import mdx from "@mdx-js/rollup";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/frontend/",
   plugins: [react(), mdx()],
 });

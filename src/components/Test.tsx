@@ -12,7 +12,6 @@ import {
   Stack,
 } from "@mui/material";
 import styled from "@emotion/styled";
-import { css } from "@emotion/react";
 
 // styled 컴포넌트 방식
 const StyledCard = styled(Card)`
@@ -23,19 +22,6 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledCardContent = styled(CardContent)`
-  animation: fadeIn 0.5s ease-in;
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-`;
-
-// 재사용 가능한 스타일
-const fadeIn = css`
   animation: fadeIn 0.5s ease-in;
   @keyframes fadeIn {
     from {
