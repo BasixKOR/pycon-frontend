@@ -105,4 +105,4 @@ class ShopAPIClient {
   }
 }
 
-export const shopAPIClient = new ShopAPIClient(import.meta.env.VITE_SHOP_URL)
+export const shopAPIClient = new ShopAPIClient(import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN)
