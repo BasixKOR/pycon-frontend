@@ -5,23 +5,23 @@ import ShopAPISchema from "@pyconkr-shop/schemas";
 export const redirectToProvider = async (
   socialSignInInfo: ShopAPISchema.SocialSignInRequest
 ) => {
-  const f = document.createElement("form");
-  f.method = "POST";
-  f.action = `${process.env.REACT_APP_PYCONKR_API}/authn/social/browser/v1/auth/provider/redirect`;
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `${process.env.REACT_APP_PYCONKR_API}/authn/social/browser/v1/auth/provider/redirect`;
 
   Object.entries({
     ...socialSignInInfo,
     csrfmiddlewaretoken: shopAPIClient.getCSRFToken() ?? "",
   }).forEach(([key, value]) => {
-    const d = document.createElement("input");
-    d.type = "hidden";
-    d.name = key;
-    d.value = value;
-    f.appendChild(d);
+    const inputElement = document.createElement("input");
+    inputElement.type = "hidden";
+    inputElement.name = key;
+    inputElement.value = value;
+    form.appendChild(inputElement);
   });
-  document.body.appendChild(f);
-  f.submit();
-  document.body.removeChild(f);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
 };
 
 namespace ShopAPIRoute {
