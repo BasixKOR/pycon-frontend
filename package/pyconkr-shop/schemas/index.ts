@@ -182,12 +182,12 @@ export const isObjectErrorResponseSchema = (
     R.isPlainObject(obj) &&
     R.isString(obj.type) &&
     R.isArray(obj.errors) &&
-    obj.errors.every(() => {
+    obj.errors.every((error) => {
       return (
-        R.isPlainObject(obj) &&
-        R.isString(obj.code) &&
-        R.isString(obj.detail) &&
-        (obj.attr === null || R.isString(obj.attr))
+        R.isPlainObject(error) &&
+        R.isString(error.code) &&
+        R.isString(error.detail) &&
+        (error.attr === null || R.isString(error.attr))
       );
     })
   );
