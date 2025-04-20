@@ -26,24 +26,24 @@ namespace ShopAPIRoute {
   export const signInWithSNS = async (
     socialSignInInfo: ShopAPISchema.SocialSignInRequest
   ) => {
-    const f = document.createElement("form");
-    f.method = "POST";
-    f.action = `${shopAPIClient.baseURL}/authn/social/browser/v1/auth/provider/redirect`;
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${shopAPIClient.baseURL}/authn/social/browser/v1/auth/provider/redirect`;
 
     Object.entries({
       ...socialSignInInfo,
       csrfmiddlewaretoken: shopAPIClient.getCSRFToken() ?? "",
       process: "login",
     }).forEach(([key, value]) => {
-      const d = document.createElement("input");
-      d.type = "hidden";
-      d.name = key;
-      d.value = value;
-      f.appendChild(d);
+      const inputElement = document.createElement("input");
+      inputElement.type = "hidden";
+      inputElement.name = key;
+      inputElement.value = value;
+      form.appendChild(inputElement);
     });
-    document.body.appendChild(f);
-    f.submit();
-    document.body.removeChild(f);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
   };
 
   /**
