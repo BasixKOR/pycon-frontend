@@ -14,7 +14,7 @@ export const startPortOnePurchase = (
     return
   }
 
-  IMP.init(import.meta.env.VITE_IMP_ACCOUNT_ID)
+  IMP.init(import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID)
   IMP.request_pay(
     {
       pg: "kcp",
