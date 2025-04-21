@@ -11,7 +11,8 @@ const QUERY_KEYS = {
 };
 
 const MUTATION_KEYS = {
-  USER_SIGN_IN: ["mutation", "user", "sign_in"],
+  USER_SIGN_IN_EMAIL: ["mutation", "user", "sign_in", "email"],
+  USER_SIGN_IN_SNS: ["mutation", "user", "sign_in", "sns"],
   CART_ITEM_APPEND: ["mutation", "cart", "item", "append"],
   CART_ITEM_REMOVE: ["mutation", "cart", "item", "remove"],
   CART_ORDER_START: ["mutation", "cart_order", "start"],
@@ -35,13 +36,13 @@ namespace ShopAPIHook {
 
   export const useSignInWithEmailMutation = () =>
     useMutation({
-      mutationKey: MUTATION_KEYS.USER_SIGN_IN,
+      mutationKey: MUTATION_KEYS.USER_SIGN_IN_EMAIL,
       mutationFn: ShopAPIRoute.signInWithEmail,
     });
 
   export const useSignInWithSNSMutation = () =>
     useMutation({
-      mutationKey: MUTATION_KEYS.USER_SIGN_IN,
+      mutationKey: MUTATION_KEYS.USER_SIGN_IN_SNS,
       mutationFn: ShopAPIRoute.signInWithSNS,
     });
 
