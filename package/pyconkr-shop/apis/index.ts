@@ -43,7 +43,7 @@ namespace ShopAPIRoute {
     });
     document.body.appendChild(form);
     form.submit();
-    document.body.removeChild(form);
+    setTimeout(() => document.body.removeChild(form), 100);
   };
 
   /**
