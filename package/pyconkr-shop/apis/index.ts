@@ -5,16 +5,22 @@ import ShopAPISchema from "@pyconkr-shop/schemas";
 namespace ShopAPIRoute {
   /**
    * 로그인합니다.
-   * @param username - 사용자 이름
-   * @param password - 비밀번호
+   * @param data - 로그인 정보
+   * @param data.username - 사용자 이름
+   * @param data.password - 비밀번호
    * @returns 로그인 정보
    * @throws 401 - 로그인 정보가 없습니다.
    */
-  export const signInWithEmail = (data: ShopAPISchema.EmailSignInRequest) =>
-    shopAPIClient.post<
-      ShopAPISchema.UserStatus,
+  export const signInWithEmail = (data: ShopAPISchema.EmailSignInRequest) => {
+    const requestPayload = {
+      ...data,
+      csrfmiddlewaretoken: shopAPIClient.getCSRFToken() ?? "",
+    };
+    return shopAPIClient.post<
+      ShopAPISchema.UserSignedInStatus,
       ShopAPISchema.EmailSignInRequest
-    >("authn/social/browser/v1/auth/login", data);
+    >("authn/social/browser/v1/auth/login", requestPayload);
+  };
 
   /**
    * SNS로 로그인합니다.
@@ -51,7 +57,7 @@ namespace ShopAPIRoute {
    * @throws 401 - 로그아웃이 성공할 시에도 항상 401 에러가 발생합니다.
    */
   export const signOut = () =>
-    shopAPIClient.delete<ShopAPISchema.UserStatus>(
+    shopAPIClient.delete<ShopAPISchema.UserSignedInStatus>(
       "authn/social/browser/v1/auth/session"
     );
 
@@ -61,7 +67,7 @@ namespace ShopAPIRoute {
    * @throws 401 - 로그인 정보가 없습니다.
    */
   export const retrieveUserInfo = () =>
-    shopAPIClient.get<ShopAPISchema.UserStatus>(
+    shopAPIClient.get<ShopAPISchema.UserSignedInStatus>(
       "authn/social/browser/v1/auth/session"
     );
 
@@ -80,7 +86,7 @@ namespace ShopAPIRoute {
    * @returns 현재 장바구니 상태
    */
   export const retrieveCart = () =>
-    shopAPIClient.get<ShopAPISchema.Order>("v1/orders/cart/");
+    shopAPIClient.get<ShopAPISchema.OrderProductItem[]>("v1/orders/cart/");
 
   /**
    * 장바구니에 상품을 추가합니다.
@@ -158,10 +164,10 @@ namespace ShopAPIRoute {
 
   /**
    * 결제 완료된 주문 내역을 환불 시도합니다.
-   * @param orderId - 환불할 주문 내역의 UUID
+   * @param data.orderId - 환불할 주문 내역의 UUID
    */
-  export const refundAllItemsInOrder = (orderId: string) =>
-    shopAPIClient.delete<void>(`v1/orders/${orderId}/`);
+  export const refundAllItemsInOrder = (data: { order_id: string }) =>
+    shopAPIClient.delete<void>(`v1/orders/${data.order_id}/`);
 }
 
 export default ShopAPIRoute;

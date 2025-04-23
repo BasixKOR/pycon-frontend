@@ -29,7 +29,7 @@ namespace ShopAPISchema {
     password: string;
   };
 
-  export type UserStatus = {
+  export type UserSignedInStatus = {
     status: number;
     meta: {
       is_authenticated: true;
@@ -48,7 +48,9 @@ namespace ShopAPISchema {
         email: string;
       }[];
     };
-  } | {
+  }
+
+  export type UserNotSignedInStatus = {
     status: number;
     meta: {
       is_authenticated: false;

@@ -13,6 +13,7 @@ const QUERY_KEYS = {
 const MUTATION_KEYS = {
   USER_SIGN_IN_EMAIL: ["mutation", "user", "sign_in", "email"],
   USER_SIGN_IN_SNS: ["mutation", "user", "sign_in", "sns"],
+  USER_SIGN_OUT: ["mutation", "user", "sign_out"],
   CART_ITEM_APPEND: ["mutation", "cart", "item", "append"],
   CART_ITEM_REMOVE: ["mutation", "cart", "item", "remove"],
   CART_ORDER_START: ["mutation", "cart_order", "start"],
@@ -22,14 +23,15 @@ const MUTATION_KEYS = {
 };
 
 namespace ShopAPIHook {
-  export const useIsSignedIn = () =>
+  export const useUserStatus = () =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.USER,
       queryFn: async () => {
         try {
-          return (await ShopAPIRoute.retrieveUserInfo()).meta.is_authenticated;
+          const userInfo = await ShopAPIRoute.retrieveUserInfo();
+          return userInfo.meta.is_authenticated === true ? userInfo : null;
         } catch (e) {
-          return false;
+          return null;
         }
       },
     });
@@ -38,12 +40,45 @@ namespace ShopAPIHook {
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_EMAIL,
       mutationFn: ShopAPIRoute.signInWithEmail,
+      meta: {
+        invalidates: [
+          QUERY_KEYS.USER,
+          QUERY_KEYS.CART_INFO,
+          QUERY_KEYS.ORDER_LIST,
+        ],
+      },
     });
 
   export const useSignInWithSNSMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_SNS,
       mutationFn: ShopAPIRoute.signInWithSNS,
+      meta: {
+        invalidates: [
+          QUERY_KEYS.USER,
+          QUERY_KEYS.CART_INFO,
+          QUERY_KEYS.ORDER_LIST,
+        ],
+      },
+    });
+
+  export const useSignOutMutation = () =>
+    useMutation({
+      mutationKey: MUTATION_KEYS.USER_SIGN_OUT,
+      mutationFn: async () => {
+        try {
+          return await ShopAPIRoute.signOut();
+        } catch (e) {
+          return null;
+        }
+      },
+      meta: {
+        invalidates: [
+          QUERY_KEYS.USER,
+          QUERY_KEYS.CART_INFO,
+          QUERY_KEYS.ORDER_LIST,
+        ],
+      },
     });
 
   export const useProducts = (qs?: ShopAPISchema.ProductListQueryParams) =>
@@ -62,24 +97,28 @@ namespace ShopAPIHook {
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
       mutationFn: ShopAPIRoute.appendItemToCart,
+      meta: { invalidates: [QUERY_KEYS.CART_INFO] },
     });
 
   export const useRemoveItemFromCartMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_REMOVE,
       mutationFn: ShopAPIRoute.removeItemFromCart,
+      meta: { invalidates: [QUERY_KEYS.CART_INFO] },
     });
 
   export const usePrepareOneItemOrderMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.ONE_ITEM_ORDER_START,
       mutationFn: ShopAPIRoute.prepareOneItemOrder,
+      meta: { invalidates: [QUERY_KEYS.CART_INFO, QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const usePrepareOrderMutation = () =>
+  export const usePrepareCartOrderMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ORDER_START,
       mutationFn: ShopAPIRoute.prepareCartOrder,
+      meta: { invalidates: [QUERY_KEYS.CART_INFO, QUERY_KEYS.ORDER_LIST] },
     });
 
   export const useOrders = () =>
@@ -92,12 +131,14 @@ namespace ShopAPIHook {
     useMutation({
       mutationKey: MUTATION_KEYS.ONE_ITEM_REFUND,
       mutationFn: ShopAPIRoute.refundOneItemFromOrder,
+      meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 
   export const useOrderRefundMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.ALL_ORDER_REFUND,
       mutationFn: ShopAPIRoute.refundAllItemsInOrder,
+      meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 }
 
