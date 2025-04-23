@@ -6,7 +6,7 @@ namespace ShopAPIRoute {
   /**
    * 로그인합니다.
    * @param data - 로그인 정보
-   * @param data.username - 사용자 이름
+   * @param data.email - 사용자 이름
    * @param data.password - 비밀번호
    * @returns 로그인 정보
    * @throws 401 - 로그인 정보가 없습니다.
