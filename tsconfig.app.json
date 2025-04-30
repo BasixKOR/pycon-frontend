@@ -23,5 +23,5 @@
     "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": false
   },
-  "include": ["src"]
+  "include": ["src", "emotion.d.ts"]
 }
