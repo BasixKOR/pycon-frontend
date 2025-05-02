@@ -41,7 +41,7 @@ export default function Header() {
 
 const HeaderContainer = styled.header`
   background-color: ${({ theme }) => theme.palette.primary.light};
-  font-color: ${({ theme }) => theme.palette.primary.dark};
+  color: ${({ theme }) => theme.palette.primary.dark};
   font-size: 0.8125rem;
   font-weight: 500;
   width: 100%;
