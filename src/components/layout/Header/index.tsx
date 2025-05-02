@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 import { useMenu } from "../../../hooks/useMenu";
+import LanguageSelector from "../LanguageSelector";
+import LoginButton from "../LoginButton";
 
 interface SubMenuItem {
   text: string;
@@ -71,17 +73,8 @@ export default function Header({ menus }: HeaderProps) {
         </HeaderNav>
       </nav>
       <HeaderLeft>
-        <HeaderItem>
-          <img
-            src="src/assets/langIcon.png"
-            width={25}
-            height={25}
-            alt="langIcon"
-          />
-          <span>KO</span>
-          <span>EN</span>
-        </HeaderItem>
-        <div>로그인</div>
+        <LanguageSelector />
+        <LoginButton />
       </HeaderLeft>
     </HeaderContainer>
   );
@@ -133,11 +126,11 @@ const HeaderLeft = styled.div`
   gap: 1.125rem;
 `;
 
-const HeaderItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-`;
+// const HeaderItem = styled.div`
+//   display: flex;
+//   align-items: center;
+//   gap: 0.625rem;
+// `;
 
 const SubMenu = styled.ul`
   position: absolute;

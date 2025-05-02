@@ -11,6 +11,7 @@ export const muiTheme = createTheme({
       main: "#259299",
       light: "#B6D8D7",
       dark: "#126D7F",
+      nonFocus: "#7AB2B3",
     },
     secondary: {
       main: "#259299",
