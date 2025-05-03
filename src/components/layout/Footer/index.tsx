@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
-import { useEmail } from "../../../hooks/useEmail";
-import MessageIcon from "../../../assets/Footer/message.svg?react";
-import FacebookIcon from "../../../assets/Footer/facebook.svg?react";
-import YoutubeIcon from "../../../assets/Footer/youtube.svg?react";
-import XIcon from "../../../assets/Footer/x.svg?react";
-import GithubIcon from "../../../assets/Footer/github.svg?react";
-import InstagramIcon from "../../../assets/Footer/instagram.svg?react";
-import LinkedinIcon from "../../../assets/Footer/linkedin.svg?react";
-import BlogIcon from "../../../assets/Footer/blog.svg?react";
-import FlickrIcon from "../../../assets/Footer/flickr.svg?react";
+import { useEmail } from "@/hooks/useEmail";
+import MessageIcon from "@/assets/Footer/message.svg?react";
+import FacebookIcon from "@/assets/Footer/facebook.svg?react";
+import YoutubeIcon from "@/assets/Footer/youtube.svg?react";
+import XIcon from "@/assets/Footer/x.svg?react";
+import GithubIcon from "@/assets/Footer/github.svg?react";
+import InstagramIcon from "@/assets/Footer/instagram.svg?react";
+import LinkedinIcon from "@/assets/Footer/linkedin.svg?react";
+import BlogIcon from "@/assets/Footer/blog.svg?react";
+import FlickrIcon from "@/assets/Footer/flickr.svg?react";
 
 interface LinkItem {
   text: string;
@@ -89,8 +89,8 @@ export default function Footer({
           ))}
         </FooterLinks>
         <FooterIcons>
-          <IconLink onClick={sendEmail}>
-            <MessageIcon width={20} height={20} />
+          <IconLink onClick={sendEmail} aria-label="이메일 보내기">
+            <MessageIcon width={20} height={20} aria-hidden="true" />
           </IconLink>
           {icons.map((icon) => (
             <IconLink
@@ -98,8 +98,9 @@ export default function Footer({
               href={icon.href}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`${icon.alt}로 이동`}
             >
-              <icon.icon width={20} height={20} />
+              <icon.icon width={20} height={20} aria-hidden="true" />
             </IconLink>
           ))}
         </FooterIcons>
