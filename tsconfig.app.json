@@ -29,5 +29,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "emotion.d.ts"]
+  "include": ["src", "package", "emotion.d.ts"]
 }
