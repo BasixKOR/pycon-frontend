@@ -1,7 +1,23 @@
 import styled from "@emotion/styled";
+import { useEmail } from "../../../hooks/useEmail";
+import MessageIcon from "../../../assets/Footer/message.svg?react";
+import FacebookIcon from "../../../assets/Footer/facebook.svg?react";
+import YoutubeIcon from "../../../assets/Footer/youtube.svg?react";
+import XIcon from "../../../assets/Footer/x.svg?react";
+import GithubIcon from "../../../assets/Footer/github.svg?react";
+import InstagramIcon from "../../../assets/Footer/instagram.svg?react";
+import LinkedinIcon from "../../../assets/Footer/linkedin.svg?react";
+import BlogIcon from "../../../assets/Footer/blog.svg?react";
+import FlickrIcon from "../../../assets/Footer/flickr.svg?react";
 
 interface LinkItem {
   text: string;
+  href: string;
+}
+
+interface IconItem {
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  alt: string;
   href: string;
 }
 
@@ -9,7 +25,39 @@ interface FooterProps {
   slogan?: string;
   description?: string;
   links?: LinkItem[];
+  icons?: IconItem[];
 }
+
+const defaultIcons: IconItem[] = [
+  {
+    icon: FacebookIcon,
+    alt: "facebook",
+    href: "https://www.facebook.com/pyconkorea/",
+  },
+  {
+    icon: YoutubeIcon,
+    alt: "youtube",
+    href: "https://www.youtube.com/c/PyConKRtube",
+  },
+  { icon: XIcon, alt: "x", href: "https://x.com/PyConKR" },
+  { icon: GithubIcon, alt: "github", href: "https://github.com/pythonkr" },
+  {
+    icon: InstagramIcon,
+    alt: "instagram",
+    href: "https://www.instagram.com/pycon_korea/",
+  },
+  {
+    icon: LinkedinIcon,
+    alt: "linkedin",
+    href: "https://www.linkedin.com/company/pyconkorea/",
+  },
+  { icon: BlogIcon, alt: "blog", href: "https://blog.pycon.kr/" },
+  {
+    icon: FlickrIcon,
+    alt: "flickr",
+    href: "https://www.flickr.com/photos/126829363@N08/",
+  },
+];
 
 export default function Footer({
   slogan = "Weave with Python, 파이콘 한국 2025",
@@ -19,7 +67,10 @@ export default function Footer({
     { text: "서비스 이용 약관", href: "#" },
     { text: "개인 정보 처리 방침", href: "#" },
   ],
+  icons = defaultIcons,
 }: FooterProps) {
+  const { sendEmail } = useEmail();
+
   return (
     <FooterContainer>
       <FooterContent>
@@ -38,56 +89,19 @@ export default function Footer({
           ))}
         </FooterLinks>
         <FooterIcons>
-          <img
-            src="src/assets/Footer/message.svg"
-            alt="message"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/facebook.svg"
-            alt="facebook"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/youtube.svg"
-            alt="youtube"
-            width={20}
-            height={20}
-          />
-          <img src="src/assets/Footer/x.svg" alt="x" width={20} height={20} />
-
-          <img
-            src="src/assets/Footer/github.svg"
-            alt="github"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/instagram.svg"
-            alt="instagram"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/linkedin.svg"
-            alt="linkedin"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/blog.svg"
-            alt="blog"
-            width={20}
-            height={20}
-          />
-          <img
-            src="src/assets/Footer/flickr.svg"
-            alt="flickr"
-            width={20}
-            height={20}
-          />
+          <IconLink onClick={sendEmail}>
+            <MessageIcon width={20} height={20} />
+          </IconLink>
+          {icons.map((icon) => (
+            <IconLink
+              key={icon.alt}
+              href={icon.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <icon.icon width={20} height={20} />
+            </IconLink>
+          ))}
         </FooterIcons>
       </FooterContent>
     </FooterContainer>
@@ -140,4 +154,21 @@ const Link = styled.a`
 const Separator = styled.span`
   color: ${({ theme }) => theme.palette.common.white};
   opacity: 0.5;
+`;
+
+const IconLink = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;

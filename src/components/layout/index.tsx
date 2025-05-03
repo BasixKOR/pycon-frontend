@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import styled from "@emotion/styled";
 
 const headerMenus = [
   {
@@ -45,14 +46,24 @@ const headerMenus = [
   },
 ];
 
+const LayoutContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+`;
+
+const MainContent = styled.main`
+  flex: 1;
+`;
+
 export default function MainLayout() {
   return (
-    <>
+    <LayoutContainer>
       <Header menus={headerMenus} />
-      <main>
+      <MainContent>
         <Outlet />
-      </main>
+      </MainContent>
       <Footer />
-    </>
+    </LayoutContainer>
   );
 }
