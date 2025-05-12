@@ -1,18 +1,17 @@
 import React from "react";
 
-import { Box, Button } from '@mui/material';
-import { MdiTestPage } from "@src/debug/page/mdi_test";
-import { ShopTestPage } from '@src/debug/page/shop_test';
-
-type SelectedTabType = "shop" | "mdi";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import MainLayout from "./components/layout";
+import { Test } from "./components/pages/test";
 
 export const App: React.FC = () => {
-  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>("shop");
-
-  return <Box>
-    <Button variant="contained" onClick={() => setSelectedTab("shop")}>Shop Test</Button>
-    <Button variant="contained" onClick={() => setSelectedTab("mdi")}>MDI Test</Button>
-    {selectedTab === "shop" && <ShopTestPage />}
-    {selectedTab === "mdi" && <MdiTestPage />}
-  </Box>
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Test />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }

@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { Global } from "@emotion/react";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
 import { wrap } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,7 +9,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
 
 import { App } from "./App.tsx";
-import { theme } from "./theme";
+import { globalStyles, muiTheme } from "./styles/globalStyles";
 
 declare module '@tanstack/react-query' {
   interface Register {
@@ -56,9 +57,10 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={muiTheme}>
         <SnackbarProvider>
           <CssBaseline />
+          <Global styles={globalStyles} />
           <ErrorBoundariedApp />
         </SnackbarProvider>
       </ThemeProvider>
