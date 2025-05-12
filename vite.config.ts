@@ -7,7 +7,7 @@ import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/frontend/",
+  base: "/",
   envDir: "./dotenv",
   plugins: [react(), mdx(), mkcert({ hosts: ["local.dev.pycon.kr"] }), svgr()],
   resolve: {
