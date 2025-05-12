@@ -168,6 +168,20 @@ namespace ShopAPIRoute {
    */
   export const refundAllItemsInOrder = (data: { order_id: string }) =>
     shopAPIClient.delete<void>(`v1/orders/${data.order_id}/`);
+
+  /**
+   * 결제 완료된 주문의 사용자 정의 응답용 상품 옵션을 수정합니다.
+   * @param data.order_id - 수정할 주문 내역의 UUID
+   * @param data.order_product_relation_id - 수정할 주문 내역 내 상품의 UUID
+   * @param data.options - 수정할 상품 옵션 정보
+   * @param data.options[].order_product_option_relation - 수정할 상품 옵션의 UUID
+   * @param data.options[].custom_response - 수정할 상품 옵션에 대한 사용자 정의 응답
+   */
+  export const patchOrderOptions = async (data: ShopAPISchema.OrderOptionsPatchRequest) =>
+    shopAPIClient.patch<ShopAPISchema.Order, ShopAPISchema.OrderOptionsPatchRequest['options']>(
+      `v1/orders/${data.order_id}/products/${data.order_product_relation_id}/options/`,
+      data.options
+    );
 }
 
 export default ShopAPIRoute;
