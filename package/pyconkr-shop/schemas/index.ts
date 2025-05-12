@@ -73,18 +73,25 @@ namespace ShopAPISchema {
     name: string;
     additional_price: number;
     max_quantity_per_user: number;
-    leftover_stock: number;
+    leftover_stock: number | null;
   };
 
   export type OptionGroup = {
     id: string;
     name: string;
+
     min_quantity_per_product: number;
     max_quantity_per_product: number;
-    is_custom_response: boolean;
-    custom_response_pattern: string | null;
     options: Option[];
-  };
+  } & (
+    {
+      is_custom_response: false;
+      custom_response_pattern: null;
+    } | {
+      is_custom_response: true;
+      custom_response_pattern: string;
+    }
+  );
 
   export type ProductListQueryParams = {
     category_group?: string;
@@ -124,28 +131,43 @@ namespace ShopAPISchema {
 
   export type OrderProductItem = {
     id: string;
-    status: PaymentHistoryStatus;
+    status: OrderProductItemStatus;
     price: number;
     additional_price: number;
+    not_refundable_reason: string | null;
     product: {
       id: string;
       name: string;
       price: number;
       image: string | null;
     };
-    options: {
-      product_option_group: {
-        id: string;
-        name: string;
-        is_custom_response: boolean;
-      };
-      product_option: {
-        id: string;
-        name: string;
-        additional_price: number;
-      } | null;
-      custom_response: string | null;
-    }[];
+    options: (
+      {
+        product_option_group: {
+          id: string;
+          name: string;
+          is_custom_response: false;
+          custom_response_pattern: null;
+          response_modifiable_ends_at: string | null;
+        }
+        product_option: {
+          id: string;
+          name: string;
+          additional_price: number;
+        };
+        custom_response: null;
+      } | {
+        product_option_group: {
+          id: string;
+          name: string;
+          is_custom_response: true;
+          custom_response_pattern: string;
+          response_modifiable_ends_at: string | null;
+        }
+        product_option: null;
+        custom_response: string;
+      }
+    )[];
   };
 
   export type Order = {
@@ -154,6 +176,7 @@ namespace ShopAPISchema {
     first_paid_price: number;
     current_paid_price: number;
     current_status: PaymentHistoryStatus;
+    not_fully_refundable_reason: string | null;
     created_at: string;
 
     payment_histories: PaymentHistory[];
@@ -174,6 +197,15 @@ namespace ShopAPISchema {
   export type OneItemRefundRequest = {
     order_id: string;
     order_product_relation_id: string;
+  };
+
+  export type OrderOptionsPatchRequest = {
+    order_id: string
+    order_product_relation_id: string;
+    options: {
+      order_product_option_relation: string
+      custom_response: string
+    }[]
   };
 }
 

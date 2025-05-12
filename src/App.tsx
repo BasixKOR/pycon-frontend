@@ -1,8 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./components/layout";
-import Test from "./components/Test";
+import React from "react";
 
-function App() {
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import MainLayout from "./components/layout";
+import { Test } from "./components/pages/test";
+
+export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -13,5 +15,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

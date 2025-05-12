@@ -140,6 +140,13 @@ namespace ShopAPIHook {
       mutationFn: ShopAPIRoute.refundAllItemsInOrder,
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
+
+  export const useOptionsOfOneItemInOrderPatchMutation = () =>
+    useMutation({
+      mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
+      mutationFn: ShopAPIRoute.patchOrderOptions,
+      meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
+    });
 }
 
 export default ShopAPIHook;

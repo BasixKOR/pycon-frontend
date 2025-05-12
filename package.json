@@ -19,6 +19,7 @@
     "@mdx-js/mdx": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
+    "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.0.2",
     "@pyconkr-common": "link:package/pyconkr-common",
     "@pyconkr-shop": "link:package/pyconkr-shop",
@@ -28,10 +29,12 @@
     "axios": "^1.8.4",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "globals": "^15.15.0",
     "notistack": "^3.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.3"
+    "react-router-dom": "^7.5.3",
+    "remeda": "^2.21.3"
   },
 
   "devDependencies": {
@@ -49,14 +52,13 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "gh-pages": "^6.3.0",
-    "globals": "^15.15.0",
     "iamport-typings": "^1.4.0",
     "prettier": "^3.5.3",
-    "remeda": "^2.21.3",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "vite-plugin-mdx": "^3.6.1",
+    "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-svgr": "^4.3.0"
 
   },
