@@ -1,17 +1,18 @@
-import { useState } from "react";
-import { MDXProvider } from "@mdx-js/react";
-import * as runtime from "react/jsx-runtime";
+
+import styled from "@emotion/styled";
 import { evaluate } from "@mdx-js/mdx";
+import { MDXProvider } from "@mdx-js/react";
 import {
   Box,
   Button,
-  TextField,
-  Typography,
   Card,
   CardContent,
   Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
-import styled from "@emotion/styled";
+import React, { useState } from "react";
+import * as runtime from "react/jsx-runtime";
 
 // styled 컴포넌트 방식
 const StyledCard = styled(Card)`
@@ -33,7 +34,7 @@ const StyledCardContent = styled(CardContent)`
   }
 `;
 
-export default function Test() {
+export const MdiTestPage: React.FC = () => {
   const [mdxInput, setMdxInput] = useState("");
   const [Content, setContent] = useState<React.ComponentType>(() => () => null);
   const [count, setCount] = useState(0);
