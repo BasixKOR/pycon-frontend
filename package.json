@@ -19,6 +19,7 @@
     "@mdx-js/mdx": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
+    "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.0.2",
     "@pyconkr-common": "link:package/pyconkr-common",
     "@pyconkr-shop": "link:package/pyconkr-shop",
@@ -54,7 +55,8 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
-    "vite-plugin-mdx": "^3.6.1"
+    "vite-plugin-mdx": "^3.6.1",
+    "vite-plugin-mkcert": "^1.17.8"
   },
   "packageManager": "pnpm@10.7.1+sha512.2d92c86b7928dc8284f53494fb4201f983da65f0fb4f0d40baafa5cf628fa31dae3e5968f12466f17df7e97310e30f343a648baea1b9b350685dafafffdf5808"
 }
