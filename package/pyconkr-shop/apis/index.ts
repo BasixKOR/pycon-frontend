@@ -86,7 +86,7 @@ namespace ShopAPIRoute {
    * @returns 현재 장바구니 상태
    */
   export const retrieveCart = () =>
-    shopAPIClient.get<ShopAPISchema.OrderProductItem[]>("v1/orders/cart/");
+    shopAPIClient.get<ShopAPISchema.Order>("v1/orders/cart/");
 
   /**
    * 장바구니에 상품을 추가합니다.
@@ -138,7 +138,7 @@ namespace ShopAPIRoute {
    */
   export const prepareCartOrder = () =>
     shopAPIClient.post<ShopAPISchema.Order, undefined>(
-      "v1/orders/cart/",
+      "v1/orders/",
       undefined
     );
 
