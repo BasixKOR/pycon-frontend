@@ -80,7 +80,7 @@ export const ShopCartList: React.FC<{ onPaymentCompleted?: () => void; }> = ({ o
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { data } = ShopAPIHook.useCart();
 
-      return data.products.length === 0
+      return !data.hasOwnProperty('products') || data.products.length === 0
         ? <Typography variant="body1" color="error">장바구니가 비어있어요!</Typography>
         : <>
           {data.products.map((prodRel) => <ShopCartItem key={prodRel.id} cartProdRel={prodRel} disabled={disabled} removeItemFromCartFunc={removeItemFromCart} />)}
