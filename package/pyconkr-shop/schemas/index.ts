@@ -1,6 +1,8 @@
 import * as R from "remeda";
 
 namespace ShopAPISchema {
+  export type EmptyObject = Record<string, never>;
+
   export type DetailedErrorSchema = {
     code: string;
     detail: string;
