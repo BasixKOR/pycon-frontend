@@ -10,7 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install -g pnpm && pnpm install
-      - run: pnpm build
+      - run: mkdir -p dist
+      - run: pnpm build:@apps/pyconkr && cp -r apps/pyconkr/dist/* dist/
+      - run: pnpm build:@frontend && cp packages/common/dist/common.esm.js{,.map} dist/ && cp packages/shop/dist/shop.esm.js{,.map} dist/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

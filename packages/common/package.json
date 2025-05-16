@@ -1,0 +1,11 @@
+{
+  "name": "@frontend/common",
+  "type": "module",
+  "main": "./src/index.tsx",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "@apps/pyconkr": "link:."
+  }
+}

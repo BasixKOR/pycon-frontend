@@ -1,0 +1,11 @@
+{
+  "name": "@frontend/shop",
+  "type": "module",
+  "main": "./src/index.tsx",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "@frontend/common": "workspace:^"
+  }
+}

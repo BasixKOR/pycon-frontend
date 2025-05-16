@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -27,9 +26,7 @@
     "baseUrl": ".",
     "paths": {
       "@apps/pyconkr/*": ["apps/pyconkr/*"],
-      "@frontend/common/*": ["packages/common/*"],
-      "@frontend/shop/*": ["packages/shop/*"],
     }
   },
-  "include": ["apps", "packages", "types", "eslint.config.js"]
+  "include": ["src", "vite.config.ts", "vite-env.d.ts", "../../types"],
 }
