@@ -3,7 +3,7 @@ import * as React from "react";
 import { CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 
-import ShopHooks from "../hooks";
+import ShopHooks from "../../hooks";
 
 type SignInGuardProps = {
   children: React.ReactNode;
