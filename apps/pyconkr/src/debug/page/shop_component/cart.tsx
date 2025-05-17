@@ -136,7 +136,7 @@ export const ShopCartList: React.FC<{ onPaymentCompleted?: () => void }> = ({
       <Typography variant="h5" gutterBottom>
         Cart List
       </Typography>
-      <Shop.Components.ShopSignInGuard>
+      <Shop.Components.SignInGuard>
         <ErrorBoundary
           fallback={<div>장바구니 정보를 불러오는 중 문제가 발생했습니다.</div>}
         >
@@ -144,7 +144,7 @@ export const ShopCartList: React.FC<{ onPaymentCompleted?: () => void }> = ({
             <WrappedShopCartList />
           </Suspense>
         </ErrorBoundary>
-      </Shop.Components.ShopSignInGuard>
+      </Shop.Components.SignInGuard>
     </>
   );
 };

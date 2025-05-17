@@ -4,7 +4,7 @@ import {
 } from "./option_group_input";
 import { PriceDisplay as PriceDisplayComponent } from "./price_display";
 import { ShopContextProvider as ShopContextProviderComponent } from "./shop_context";
-import { ShopSignInGuard as ShopSignInGuardComponent } from "./signin_guard";
+import { SignInGuard as SignInGuardComponent } from "./signin_guard";
 
 namespace ShopComponents {
   export const ShopContextProvider = ShopContextProviderComponent;
@@ -12,7 +12,7 @@ namespace ShopComponents {
   export const OrderProductRelationOptionInput =
     OrderProductRelationOptionInputComponent;
   export const PriceDisplay = PriceDisplayComponent;
-  export const ShopSignInGuard = ShopSignInGuardComponent;
+  export const SignInGuard = SignInGuardComponent;
 }
 
 export default ShopComponents;

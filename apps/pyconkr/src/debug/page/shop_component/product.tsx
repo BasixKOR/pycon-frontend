@@ -146,7 +146,7 @@ const ShopProductItem: React.FC<{
         <Common.Components.MDXRenderer text={product.description || ""} />
         <br />
         <Divider />
-        <Shop.Components.ShopSignInGuard
+        <Shop.Components.SignInGuard
           fallback={
             <NotPurchasable>
               로그인 후 장바구니에 담거나 구매할 수 있어요.
@@ -180,7 +180,7 @@ const ShopProductItem: React.FC<{
           ) : (
             <NotPurchasable>{notPurchasableReason}</NotPurchasable>
           )}
-        </Shop.Components.ShopSignInGuard>
+        </Shop.Components.SignInGuard>
       </AccordionDetails>
       {R.isNullish(notPurchasableReason) && (
         <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>

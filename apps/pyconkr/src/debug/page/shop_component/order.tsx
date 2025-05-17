@@ -222,7 +222,7 @@ export const ShopOrderList: React.FC = () => {
       <Typography variant="h5" gutterBottom>
         Order List
       </Typography>
-      <Shop.Components.ShopSignInGuard>
+      <Shop.Components.SignInGuard>
         <ErrorBoundary
           fallback={<div>주문 내역을 불러오는 중 문제가 발생했습니다.</div>}
         >
@@ -230,7 +230,7 @@ export const ShopOrderList: React.FC = () => {
             <WrappedOrderList />
           </Suspense>
         </ErrorBoundary>
-      </Shop.Components.ShopSignInGuard>
+      </Shop.Components.SignInGuard>
     </>
   );
 };
