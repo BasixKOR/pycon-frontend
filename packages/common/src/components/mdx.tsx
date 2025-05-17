@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as runtime from "react/jsx-runtime";
+import * as R from "remeda";
 
 import { evaluate, EvaluateOptions } from "@mdx-js/mdx";
-import { CircularProgress, Typography } from "@mui/material";
+import { Button, CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import components, { MuiMdxComponentsOptions } from 'mui-mdx-components';
-import * as R from "remeda";
 
 import { useCommonContext } from '../hooks/useCommonContext';
 
@@ -26,11 +26,45 @@ const MDXComponents: MuiMdxComponentsOptions = {
   }
 }
 
-const useMDX = (text: string) => {
-  const { baseUrl } = useCommonContext();
-  const options: EvaluateOptions = { ...runtime, baseUrl }
+const SimplifiedMDXErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => {
+  return <>
+    <Typography variant="body2" color="error">
+      페이지를 그리던 중 문제가 발생했습니다, 잠시 후 다시 시도해주세요.<br />
+      만약 문제가 계속 발생한다면, 파이콘 한국 준비 위원회에게 알려주세요!<br />
+      <br />
+      Problem occurred while drawing the page, please try again later.<br />
+      If the problem persists, please let the PyCon Korea organizing committee know!
+    </Typography>
+    <br />
+    <Button variant="outlined" onClick={reset}>다시 시도 | Retry</Button>
+  </>;
+}
 
-  return useSuspenseQuery({
+const DetailedMDXErrorFallback: React.FC<{ error: Error, reset: () => void }> = ({ error, reset }) => {
+  const errorObject = Object.getOwnPropertyNames(error).reduce((acc, key) => ({ ...acc, [key]: (error as unknown as { [key: string]: unknown })[key] }), {});
+  return <>
+    <Typography variant="body2" color="error">MDX 변환 오류: {error.message}</Typography>
+    <details open>
+      <summary>오류 상세</summary>
+      <pre style={{
+        whiteSpace: "pre-wrap",
+        backgroundColor: "#f5f5f5",
+        padding: "1em",
+        borderRadius: "4px",
+        userSelect: "text",
+      }}>
+        <code>{JSON.stringify(errorObject, null, 2)}</code>
+      </pre>
+    </details>
+    <br />
+    <Button variant="outlined" onClick={reset}>다시 시도</Button>
+  </>;
+};
+
+const InnerMDXRenderer: React.FC<{ text: string, baseUrl: string }> = ({ text, baseUrl }) => {
+  const options: EvaluateOptions = { ...runtime, baseUrl };
+
+  const { data } = useSuspenseQuery({
     queryKey: ["mdx", text],
     queryFn: async () => {
       const { default: RenderResult } = await evaluate(text, options);
@@ -39,30 +73,21 @@ const useMDX = (text: string) => {
       </div>
     },
   });
-}
 
-const MDXErrorFallback: React.FC<{ error: Error }> = ({ error }) => {
-  console.error(error);
-  return (
-    <Typography variant="body2" color="error">
-      MDX 변환 오류: {error.message}
-    </Typography>
-  );
-};
-
-const InnerMDXRenderer: React.FC<{ text: string }> = ({ text }) => {
-  const { data } = useMDX(text);
   return <>{data}</>;
 }
 
 export const MDXRenderer: React.FC<{ text: string }> = ({ text }) => {
   // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
   // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
-  let processedText = text.split("\n").map((line) => R.isEmpty(line.trim()) ? "" : `${line.trim()}  `).join("\n").replaceAll("\n\n", "\n<br />\n");
+  const { baseUrl, debug } = useCommonContext();
 
-  return <ErrorBoundary fallback={MDXErrorFallback}>
+  const ErrorHandler = debug ? DetailedMDXErrorFallback : SimplifiedMDXErrorFallback;
+  const processedText = text.split("\n").map((line) => R.isEmpty(line.trim()) ? "" : `${line.trim()}  `).join("\n").replaceAll("\n\n", "\n<br />\n");
+
+  return <ErrorBoundary fallback={ErrorHandler}>
     <Suspense fallback={<CircularProgress />}>
-      <InnerMDXRenderer text={processedText} />
+      <InnerMDXRenderer text={processedText} baseUrl={baseUrl} />
     </Suspense>
   </ErrorBoundary>
 };
