@@ -160,6 +160,7 @@ const ShopProductItem: React.FC<{
                 <Stack spacing={2}>
                   {product.option_groups.map((group) => (
                     <Shop.Components.OptionGroupInput
+                      key={group.id}
                       optionGroup={group}
                       options={group.options}
                       defaultValue={group?.options[0]?.id || ""}
