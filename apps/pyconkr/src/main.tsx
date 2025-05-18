@@ -37,6 +37,8 @@ const queryClient = new QueryClient({
 const CommonOptions: Common.Contexts.ContextOptions = {
   debug: import.meta.env.MODE === "development",
   baseUrl: '.',
+  backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  backendApiTimeout: 10000,
 };
 
 const ShopOptions: Shop.Contexts.ContextOptions = {
