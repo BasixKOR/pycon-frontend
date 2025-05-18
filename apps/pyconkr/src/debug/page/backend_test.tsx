@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as R from "remeda";
 
-import { Button, MenuItem, Select, Stack } from '@mui/material';
+import { Button, CircularProgress, MenuItem, Select, Stack } from '@mui/material';
 import { ErrorBoundary, Suspense } from '@suspensive/react';
 
 import * as Common from "@frontend/common";
@@ -38,7 +38,7 @@ const PageIdSelector: React.FC<{ inputRef: React.Ref<HTMLSelectElement> }> = ({ 
 
 const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary fallback={Common.Components.ErrorFallback}>
-    <Suspense>
+    <Suspense fallback={<CircularProgress />}>
       {children}
     </Suspense>
   </ErrorBoundary>
