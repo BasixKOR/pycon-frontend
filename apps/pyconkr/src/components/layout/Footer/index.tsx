@@ -65,7 +65,7 @@ export default function Footer({
   ],
   icons = defaultIcons,
 }: FooterProps) {
-  const { sendEmail } = Common.Hooks.useEmail();
+  const { sendEmail } = Common.Hooks.Common.useEmail();
 
   return (
     <FooterContainer>

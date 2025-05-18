@@ -58,7 +58,7 @@ const lineFormatterForMDX = (line: string) => {
 export const MDXRenderer: React.FC<{ text: string }> = ({ text }) => {
   // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
   // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
-  const { baseUrl, debug } = Hooks.useCommonContext();
+  const { baseUrl } = Hooks.Common.useCommonContext();
 
   const processedText = text
     .split("\n")
