@@ -16,19 +16,21 @@ namespace BackendAPISchemas {
 
   export type FlattenedSiteMapSchema = {
     id: string;
+    route_code: string;
     name: string;
     order: number;
     parent_sitemap: string | null;
     page: string;
-  }
+  };
 
   export type NestedSiteMapSchema = {
     id: string;
+    route_code: string;
     name: string;
     order: number;
     page: string;
-    children: NestedSiteMapSchema[];
-  }
+    children: { [key: string]: NestedSiteMapSchema };
+  };
 
   export type SectionSchema = {
     id: string;
@@ -36,7 +38,7 @@ namespace BackendAPISchemas {
 
     order: number;
     body: string;
-  }
+  };
 
   export type PageSchema = {
     id: string;
@@ -44,7 +46,7 @@ namespace BackendAPISchemas {
     title: string;
     subtitle: string;
     sections: SectionSchema[];
-  }
+  };
 
   export const isObjectErrorResponseSchema = (
     obj?: unknown
