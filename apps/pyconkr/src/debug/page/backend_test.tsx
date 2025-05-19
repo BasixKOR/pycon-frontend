@@ -7,32 +7,15 @@ import { ErrorBoundary, Suspense } from '@suspensive/react';
 import * as Common from "@frontend/common";
 
 const SiteMapRenderer: React.FC = () => {
-  const { data } = Common.Hooks.BackendAPI.useNestedSiteMapQuery();
-  return <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(data, null, 2)}</pre>
-};
-
-const parseCss = (t: unknown): React.CSSProperties => R.isString(t) && !R.isEmpty(t) && JSON.parse(t)
-
-const PageRenderer: React.FC<{ id: string }> = ({ id }) => {
-  const { data } = Common.Hooks.BackendAPI.usePageQuery(id);
-
-  return <div style={parseCss(data.css)}>
-    {
-      data.sections.map(
-        (s) => <div style={parseCss(s.css)} key={s.id}>
-          <Common.Components.MDXRenderer text={s.body} />
-        </div>
-      )
-    }
-  </div>
+  const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery();
+  return <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(Common.Utils.buildNestedSiteMap(data), null, 2)}</pre>
 };
 
 const PageIdSelector: React.FC<{ inputRef: React.Ref<HTMLSelectElement> }> = ({ inputRef }) => {
   const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery();
-  const pageIdList = data.map((sitemap) => sitemap.page);
 
   return <Select inputRef={inputRef}>
-    {pageIdList.map((pageId) => <MenuItem key={pageId} value={pageId}>{pageId}</MenuItem>)}
+    {data.map((siteMap) => <MenuItem key={siteMap.id} value={siteMap.page}>{siteMap.name}</MenuItem>)}
   </Select>
 }
 
@@ -56,6 +39,6 @@ export const BackendTestPage: React.FC = () => {
     <br />
     <Button variant="outlined" onClick={() => setPageId(inputRef.current?.value ?? null)}>페이지 렌더링</Button>
     <br />
-    {R.isString(pageId) ? <SuspenseWrapper><PageRenderer id={pageId} /></SuspenseWrapper> : <>페이지를 선택해주세요.</>}
+    {R.isString(pageId) ? <SuspenseWrapper><Common.Components.PageRenderer id={pageId} /></SuspenseWrapper> : <>페이지를 선택해주세요.</>}
   </Stack>
 }
