@@ -6,10 +6,11 @@ import { CircularProgress } from '@mui/material';
 import { ErrorBoundary, Suspense } from '@suspensive/react';
 
 import styled from '@emotion/styled';
-import Components from '../components';
 import Hooks from "../hooks";
 import Schemas from "../schemas";
 import Utils from '../utils';
+import { ErrorFallback } from './error_handler';
+import { MDXRenderer } from './mdx';
 
 const InitialPageStyle: React.CSSProperties = {
   width: '100%',
@@ -31,7 +32,7 @@ export const PageRenderer: React.FC<{ id: string }> = ({ id }) => {
     {
       data.sections.map(
         (s) => <div style={{ ...InitialSectionStyle, ...Utils.parseCss(s.css) }} key={s.id}>
-          <Components.MDXRenderer text={s.body} />
+          <MDXRenderer text={s.body} />
         </div>
       )
     }
@@ -71,7 +72,7 @@ const FullPage = styled.div`
 `
 
 export const DynamicRoutePage: React.FC = () => <FullPage>
-  <ErrorBoundary fallback={Components.ErrorFallback}>
+  <ErrorBoundary fallback={ErrorFallback}>
     <Suspense fallback={<CircularProgress />}>
       <AsyncDynamicRoutePage />
     </Suspense>
