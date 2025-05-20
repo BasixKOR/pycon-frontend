@@ -42,7 +42,7 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => 
 
 export const ErrorFallback: React.FC<{ error: Error, reset: () => void }> = ({ error, reset }) => {
   const InnerErrorFallback: React.FC<{ error: Error, reset: () => void }> = ({ error, reset }) => {
-    const { debug } = CommonContext.useCommonContext();
+    const { debug } = CommonContext.Common.useCommonContext();
     return debug ? <DetailedErrorFallback error={error} reset={reset} /> : <SimplifiedErrorFallback reset={reset} />;
   }
 
