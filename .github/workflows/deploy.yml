@@ -21,7 +21,7 @@ on:
 
 permissions:
   id-token : write
-  contents: read 
+  contents: read
 
 jobs:
   build:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@master
         with:
-          role-session-name: GitHubActions
+          role-session-name: ${{ github.run_id }}
           role-to-assume: ${{ secrets.AWS_FRONTEND_DEPLOYMENT_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
