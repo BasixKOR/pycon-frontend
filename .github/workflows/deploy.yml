@@ -30,8 +30,8 @@ jobs:
     env:
       API_STAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev' }}
       BUMP_RULE: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && '--mode development' || '' }}
-      AWS_S3_BUCKET: ${{ github.event_name == 'workflow_dispatch' && secrets.AWS_S3_BUCKET_PROD || secrets.AWS_S3_BUCKET_DEV }}
-      AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ github.event_name == 'workflow_dispatch' && secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_PROD || secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV }}
+      AWS_S3_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_BUCKET_DEV || secrets.AWS_S3_BUCKET_PROD }}
+      AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_PROD }}
 
     steps:
       - uses: actions/checkout@master
