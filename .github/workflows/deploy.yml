@@ -1,32 +1,60 @@
-name: Deploy to GitHub Pages
+name: Deploy to AWS S3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
 
 on:
+  workflow_dispatch:
+    inputs:
+      WORKFLOW_PHASE:
+        description: "Environment to deploy to"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
   push:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm install -g pnpm && pnpm install
-      - run: mkdir -p dist
-      - run: pnpm build:@apps/pyconkr && cp -r apps/pyconkr/dist/* dist/
-      - run: pnpm build:@frontend && cp packages/common/dist/common.esm.js{,.map} dist/ && cp packages/shop/dist/shop.esm.js{,.map} dist/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
 
-  deploy:
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    env:
+      API_STAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev' }}
+      BUMP_RULE: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && '--mode development' || '' }}
+      AWS_S3_BUCKET: ${{ github.event_name == 'workflow_dispatch' && secrets.AWS_S3_BUCKET_PROD || secrets.AWS_S3_BUCKET_DEV }}
+      AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ github.event_name == 'workflow_dispatch' && secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_PROD || secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV }}
+
     steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+      - uses: actions/checkout@master
+
+      - uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-session-name: GitHubActions
+          role-to-assume: ${{ secrets.AWS_FRONTEND_DEPLOYMENT_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
+
+      - run: mkdir -p dist
+
+      - run: pnpm build:@apps/pyconkr ${{ env.BUMP_RULE }} && cp -r apps/pyconkr/dist/* dist/
+
+      - run: pnpm build:@frontend && cp packages/common/dist/common.esm.js{,.map} dist/ && cp packages/shop/dist/shop.esm.js{,.map} dist/
+
+      - run: aws s3 cp --recursive ./dist s3://${{ env.AWS_S3_BUCKET }}/
+
+      - run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
