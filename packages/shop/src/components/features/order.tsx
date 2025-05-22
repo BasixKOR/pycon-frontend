@@ -45,8 +45,8 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
     orderRefundMutation.isPending ||
     oneItemRefundMutation.isPending ||
     optionsOfOneItemInOrderPatchMutation.isPending;
-  const btnDisabled =
-    isPending || !R.isNullish(order.not_fully_refundable_reason);
+  const refundBtnDisabled = isPending || !R.isNullish(order.not_fully_refundable_reason);
+  const receipyBtnDisabled = isPending || order.current_status === "pending";
   const btnText = R.isNullish(order.not_fully_refundable_reason)
     ? "주문 전체 환불"
     : order.current_status === "refunded"
@@ -187,7 +187,7 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
           variant="contained"
           sx={{ width: "100%" }}
           onClick={openReceipt}
-          disabled={btnDisabled}
+          disabled={receipyBtnDisabled}
         >
           영수증
         </Button>
@@ -195,7 +195,7 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
           variant="contained"
           sx={{ width: "100%" }}
           onClick={refundOrder}
-          disabled={btnDisabled}
+          disabled={refundBtnDisabled}
         >
           {btnText}
         </Button>
