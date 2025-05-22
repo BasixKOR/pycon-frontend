@@ -8,22 +8,23 @@ import ShopContext from '../contexts';
 import ShopSchemas from "../schemas";
 
 const QUERY_KEYS = {
-  USER: ["query", "user"],
-  PRODUCT_LIST: ["query", "products"],
-  CART_INFO: ["query", "cart"],
-  ORDER_LIST: ["query", "orders"],
+  BASE: ["query", "shop"],
+  USER: ["query", "shop", "user"],
+  PRODUCT_LIST: ["query", "shop", "products"],
+  CART_INFO: ["query", "shop", "cart"],
+  ORDER_LIST: ["query", "shop", "orders"],
 };
 
 const MUTATION_KEYS = {
-  USER_SIGN_IN_EMAIL: ["mutation", "user", "sign_in", "email"],
-  USER_SIGN_IN_SNS: ["mutation", "user", "sign_in", "sns"],
-  USER_SIGN_OUT: ["mutation", "user", "sign_out"],
-  CART_ITEM_APPEND: ["mutation", "cart", "item", "append"],
-  CART_ITEM_REMOVE: ["mutation", "cart", "item", "remove"],
-  CART_ORDER_START: ["mutation", "cart_order", "start"],
-  ONE_ITEM_ORDER_START: ["mutation", "one_item_order", "start"],
-  ALL_ORDER_REFUND: ["mutation", "all_order_refund"],
-  ONE_ITEM_REFUND: ["mutation", "one_item_refund"],
+  USER_SIGN_IN_EMAIL: ["mutation", "shop", "user", "sign_in", "email"],
+  USER_SIGN_IN_SNS: ["mutation", "shop", "user", "sign_in", "sns"],
+  USER_SIGN_OUT: ["mutation", "shop", "user", "sign_out"],
+  CART_ITEM_APPEND: ["mutation", "shop", "cart", "item", "append"],
+  CART_ITEM_REMOVE: ["mutation", "shop", "cart", "item", "remove"],
+  CART_ORDER_START: ["mutation", "shop", "cart_order", "start"],
+  ONE_ITEM_ORDER_START: ["mutation", "shop", "one_item_order", "start"],
+  ALL_ORDER_REFUND: ["mutation", "shop", "all_order_refund"],
+  ONE_ITEM_REFUND: ["mutation", "shop", "one_item_refund"],
 };
 
 namespace ShopHooks {
@@ -43,59 +44,29 @@ namespace ShopHooks {
   export const useUserStatus = () =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.USER,
-      queryFn: async () => {
-        try {
-          const userInfo = await clientDecorator(ShopAPIs.retrieveUserInfo)();
-          return userInfo.meta.is_authenticated === true ? userInfo : null;
-        } catch (e) {
-          return null;
-        }
-      },
+      queryFn: clientDecorator(ShopAPIs.retrieveUserInfo),
+      retry: 3,
     });
 
   export const useSignInWithEmailMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_EMAIL,
       mutationFn: clientDecorator(ShopAPIs.signInWithEmail),
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
   export const useSignInWithSNSMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_SNS,
       mutationFn: clientDecorator(ShopAPIs.signInWithSNS),
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
   export const useSignOutMutation = () =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_OUT,
-      mutationFn: async () => {
-        try {
-          return await clientDecorator(ShopAPIs.signOut)();
-        } catch (e) {
-          return null;
-        }
-      },
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      mutationFn: clientDecorator(ShopAPIs.signOut),
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
   export const useProducts = (qs?: ShopSchemas.ProductListQueryParams) =>
