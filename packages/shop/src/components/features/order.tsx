@@ -31,16 +31,14 @@ const PaymentHistoryStatusTranslated: {
   refunded: "환불됨",
 };
 
-const OrderItem: React.FC<{
-  order: ShopSchemas.Order;
-  disabled?: boolean;
-}> = ({ order, disabled }) => {
+const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({ order, disabled }) => {
+  const { shopApiDomain } = ShopHooks.useShopContext();
   const orderRefundMutation = ShopHooks.useOrderRefundMutation();
   const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation();
   const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation();
 
   const refundOrder = () => orderRefundMutation.mutate({ order_id: order.id });
-  const openReceipt = () => window.open(ShopUtils.getReceiptUrlFromOrder(order), "_blank");
+  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
 
   const isPending =
     disabled ||
