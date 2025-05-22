@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import LanguageSelector from "../LanguageSelector";
 import LoginButton from "../LoginButton";
 import Nav from "../Nav";
+import BreadCrumb from "../BreadCrumb";
 
 interface HeaderProps {}
 
@@ -12,16 +13,19 @@ export default function Header({}: HeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <HeaderContainer>
-      <HeaderLogo onClick={() => navigate("/")}>
-        <Common.Components.PythonKorea style={{ width: 40, height: 40 }} />
-      </HeaderLogo>
-      <Nav />
-      <HeaderLeft>
-        <LanguageSelector />
-        <LoginButton />
-      </HeaderLeft>
-    </HeaderContainer>
+    <>
+      <HeaderContainer>
+        <HeaderLogo onClick={() => navigate("/")}>
+          <Common.Components.PythonKorea style={{ width: 40, height: 40 }} />
+        </HeaderLogo>
+        <Nav />
+        <HeaderLeft>
+          <LanguageSelector />
+          <LoginButton />
+        </HeaderLeft>
+      </HeaderContainer>
+      <BreadCrumb />
+    </>
   );
 }
 

@@ -21,12 +21,6 @@ const menus = [
           { text: "2022", href: "/2022" },
           { text: "2021", href: "/2021" },
           { text: "2020", href: "/2020" },
-          { text: "2019", href: "/2019" },
-          { text: "2018", href: "/2018" },
-          { text: "2017", href: "/2017" },
-          { text: "2016", href: "/2016" },
-          { text: "2015", href: "/2015" },
-          { text: "2014", href: "/2014" },
         ],
       },
       { text: "파이콘 한국 건강 관련 안내", href: "/health" },
@@ -78,7 +72,6 @@ export default function Nav() {
   const [isSubMenuHovered, setIsSubMenuHovered] = useState(false);
   const [hoveredSubItem, setHoveredSubItem] = useState<string | null>(null);
   const lastActiveMenuRef = useRef<string | null>(null);
-  const [forceOpenMenu, setForceOpenMenu] = useState(false);
 
   useEffect(() => {
     if (hoveredMenu || focusedMenu) {
@@ -86,21 +79,12 @@ export default function Nav() {
     }
   }, [hoveredMenu, focusedMenu]);
 
-  const showSubmenu =
-    forceOpenMenu || !!hoveredMenu || !!focusedMenu || isSubMenuHovered;
+  const showSubmenu = !!hoveredMenu || !!focusedMenu || isSubMenuHovered;
   const activeMenu =
     hoveredMenu ||
     focusedMenu ||
-    (isSubMenuHovered ? lastActiveMenuRef.current : null) ||
-    (forceOpenMenu ? "파이콘 한국" : null);
+    (isSubMenuHovered ? lastActiveMenuRef.current : null);
   const currentMenu = menus.find((menu) => menu.text === activeMenu);
-
-  const toggleTestMode = () => {
-    setForceOpenMenu(!forceOpenMenu);
-    if (!forceOpenMenu && !hoveredSubItem) {
-      setHoveredSubItem("역대 파이콘 행사");
-    }
-  };
 
   const hasActiveThirdLevel = useMemo(() => {
     if (!hoveredSubItem || !currentMenu) return false;
@@ -112,10 +96,6 @@ export default function Nav() {
 
   return (
     <>
-      <TestButton onClick={toggleTestMode}>
-        {forceOpenMenu ? "테스트 모드 끄기" : "테스트 모드 켜기"}
-      </TestButton>
-
       <NavMainContainer>
         <HeaderNav>
           {menus.map((menu) => (
@@ -140,7 +120,10 @@ export default function Nav() {
       {showSubmenu && currentMenu && (
         <NavSubContainer
           onMouseEnter={() => setIsSubMenuHovered(true)}
-          onMouseLeave={() => !forceOpenMenu && setIsSubMenuHovered(false)}
+          onMouseLeave={() => {
+            setIsSubMenuHovered(false);
+            setHoveredSubItem(null);
+          }}
         >
           <SubMenuWrapper>
             <CategoryTitle>{currentMenu.text}</CategoryTitle>
@@ -152,7 +135,6 @@ export default function Nav() {
                       <SecondLevelItem
                         key={subItem.text}
                         onMouseEnter={() => setHoveredSubItem(subItem.text)}
-                        onMouseLeave={() => setHoveredSubItem(null)}
                         className={
                           hoveredSubItem === subItem.text ? "active" : ""
                         }
@@ -170,7 +152,13 @@ export default function Nav() {
                 <>
                   <ThirdLevelDivider />
 
-                  <ThirdLevelSection>
+                  <ThirdLevelSection
+                    onMouseEnter={() => {
+                      if (hoveredSubItem) {
+                        setHoveredSubItem(hoveredSubItem);
+                      }
+                    }}
+                  >
                     {currentMenu.subMenu.map((subItem) => {
                       const hasThirdLevel =
                         subItem.subMenu && subItem.subMenu.length > 0;
@@ -212,8 +200,12 @@ const NavSubContainer = styled.div`
   width: 100vw;
   height: auto;
   min-height: 150px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.7);
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0.45)
+  );
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
   position: fixed;
   left: 0;
   top: 60px;
@@ -369,18 +361,18 @@ const SecondLevelItem = styled.li`
 const ThirdLevelDivider = styled.div`
   width: 1px;
   height: auto;
-  background-color: #b6d8d7;
+  background-color: ${({ theme }) => theme.palette.primary.light};
   margin: 0;
   flex-shrink: 0;
   align-self: stretch;
 `;
 
 const ThirdLevelSection = styled.div`
-  height: auto;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-width: 220px;
-  width: 220px;
   padding-left: 30px;
 `;
 
@@ -401,36 +393,19 @@ const ThirdLevelList = styled.ul`
 const ThirdLevelItem = styled.li`
   width: auto;
   text-align: right;
+  min-width: 40px;
 
   a {
     color: ${({ theme }) => theme.palette.primary.dark};
     text-decoration: none;
     font-size: 10px;
-    font-weight: 400;
     display: inline-block;
     white-space: nowrap;
+    font-variation-settings: "wght" 400;
 
     &:hover,
     &:focus {
       font-weight: 700;
     }
-  }
-`;
-
-const TestButton = styled.button`
-  position: fixed;
-  top: 10px;
-  right: 30px;
-  z-index: 2000;
-  background: #259299;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-
-  &:hover {
-    background: #126d7f;
   }
 `;
