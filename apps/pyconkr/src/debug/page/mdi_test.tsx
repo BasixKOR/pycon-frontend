@@ -1,8 +1,10 @@
 import React from "react";
 
 import { Box, Button, Card, CardContent, TextField, Typography } from "@mui/material";
+import type { MDXComponents } from "mdx/types.js";
 
 import * as Common from "@frontend/common";
+import * as Shop from "@frontend/shop";
 
 const LOCAL_STEORAGE_KEY = "mdi_test_input";
 const MDX_TEST_STRING = `\
@@ -74,6 +76,16 @@ HTML 태그 중 일부를 사용할 수 있어요!
 */ }
 `
 
+const PyConMDXComponents: MDXComponents = {
+  Shop__Common__PriceDisplay: Shop.Components.Common.PriceDisplay,
+  Shop__Common__SignInGuard: Shop.Components.Common.SignInGuard,
+  Shop__Common__ContextProvider: Shop.Components.Common.ShopContextProvider,
+  Shop__Feature__CartStatus: Shop.Components.Features.CartStatus,
+  Shop__Feature__ProductList: Shop.Components.Features.ProductList,
+  Shop__Feature__OrderList: Shop.Components.Features.OrderList,
+  Shop__Feature__UserInfo: Shop.Components.Features.UserInfo,
+}
+
 const getMdxInputFromLocalStorage: () => string = () => {
   const input = localStorage.getItem(LOCAL_STEORAGE_KEY);
   return input ? input : "";
@@ -86,20 +98,25 @@ const setMdxInputToLocalStorage: (input: string) => string = (input) => {
 
 export const MdiTestPage: React.FC = () => {
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
-  const [mdxInput, setMdxInput] = React.useState(getMdxInputFromLocalStorage());
+  const [state, setState] = React.useState<{ text: string, resetKey: string }>({
+    text: getMdxInputFromLocalStorage(),
+    resetKey: window.crypto.randomUUID()
+  });
+
+  const setMDXInput = (text: string) => setState({ text: setMdxInputToLocalStorage(text), resetKey: window.crypto.randomUUID() });
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>MDX 에디터</Typography>
-      <TextField inputRef={inputRef} defaultValue={mdxInput} multiline fullWidth minRows={4} sx={{ my: 2 }} />
-      <Button variant="contained" onClick={() => inputRef.current && setMdxInput(setMdxInputToLocalStorage(inputRef.current.value))}>변환</Button>
+      <TextField inputRef={inputRef} defaultValue={state.text} multiline fullWidth minRows={4} sx={{ my: 2 }} />
+      <Button variant="contained" onClick={() => inputRef.current && setMDXInput(inputRef.current.value)}>변환</Button>
       &nbsp;
-      <Button variant="contained" onClick={() => setMdxInput(MDX_TEST_STRING)}>테스트용 Help Text 로딩</Button>
+      <Button variant="contained" onClick={() => setMDXInput(MDX_TEST_STRING)}>테스트용 Help Text 로딩</Button>
       <br />
       <br />
       <Card>
         <CardContent>
-          <Common.Components.MDXRenderer text={mdxInput} />
+          <Common.Components.MDXRenderer {...state} components={PyConMDXComponents} />
         </CardContent>
       </Card>
     </Box>

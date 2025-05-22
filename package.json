@@ -46,6 +46,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@tanstack/react-query-devtools": "^5.76.1",
+    "@types/mdx": "^2.0.13",
     "@types/node": "^22.15.18",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
