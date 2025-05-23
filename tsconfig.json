@@ -26,7 +26,7 @@
     /* Paths */
     "baseUrl": ".",
     "paths": {
-      "@apps/pyconkr/*": ["apps/pyconkr/*"],
+      "@apps/pyconkr/*": ["apps/pyconkr/src/*"],
       "@frontend/common/*": ["packages/common/*"],
       "@frontend/shop/*": ["packages/shop/*"],
     }
