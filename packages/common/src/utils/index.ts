@@ -1,3 +1,5 @@
+import * as R from "remeda";
+
 import {
   buildNestedSiteMap as _buildNestedSiteMap,
   findSiteMapUsingRoute as _findSiteMapUsingRoute,
@@ -16,6 +18,7 @@ namespace Utils {
   export const getCookie = _getCookie;
   export const isFormValid = _isFormValid;
   export const getFormValue = _getFormValue;
+  export const isFilledString = (obj: unknown): obj is string => R.isString(obj) && !R.isEmpty(obj);
 }
 
 export default Utils;
