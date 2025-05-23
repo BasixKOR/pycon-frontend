@@ -33,9 +33,10 @@ const PaymentHistoryStatusTranslated: {
 
 const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({ order, disabled }) => {
   const { shopApiDomain } = ShopHooks.useShopContext();
-  const orderRefundMutation = ShopHooks.useOrderRefundMutation();
-  const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation();
-  const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const orderRefundMutation = ShopHooks.useOrderRefundMutation(shopAPIClient);
+  const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation(shopAPIClient);
+  const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation(shopAPIClient);
 
   const refundOrder = () => orderRefundMutation.mutate({ order_id: order.id });
   const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
@@ -207,7 +208,8 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
 export const OrderList: React.FC = () => {
   const WrappedOrderList: React.FC = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { data } = ShopHooks.useOrders();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useOrders(shopAPIClient);
 
     return (
       <List>

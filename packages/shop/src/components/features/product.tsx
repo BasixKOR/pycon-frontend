@@ -95,8 +95,9 @@ const ProductItem: React.FC<{
   const optionFormRef = React.useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
-  const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation();
-  const addItemToCartMutation = ShopHooks.useAddItemToCartMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
+  const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
 
   const addItemToCart = () =>
     addItemToCartMutation.mutate(
@@ -199,9 +200,10 @@ const ProductItem: React.FC<{
   );
 };
 
-export const ProductList: React.FC = () => {
+export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
   const WrappedProductList: React.FC = () => {
-    const { data } = ShopHooks.useProducts();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
     return (
       <List>
         {data.map((product) => (

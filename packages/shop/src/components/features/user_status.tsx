@@ -14,9 +14,10 @@ import ShopHooks from '../../hooks';
 
 export const UserInfo: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
-  const signInWithEmailMutation = ShopHooks.useSignInWithEmailMutation();
-  const SignInWithSNSMutation = ShopHooks.useSignInWithSNSMutation();
-  const signOutMutation = ShopHooks.useSignOutMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const signInWithEmailMutation = ShopHooks.useSignInWithEmailMutation(shopAPIClient);
+  const SignInWithSNSMutation = ShopHooks.useSignInWithSNSMutation(shopAPIClient);
+  const signOutMutation = ShopHooks.useSignOutMutation(shopAPIClient);
 
   const signInWithGoogle = () =>
     SignInWithSNSMutation.mutate({
@@ -42,7 +43,8 @@ export const UserInfo: React.FC = () => {
 
   const WrappedUserStatus: React.FC = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { data } = ShopHooks.useUserStatus();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useUserStatus(shopAPIClient);
 
     return data && data.meta.is_authenticated === true ? (
       <Stack>
