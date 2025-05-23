@@ -7,7 +7,6 @@ import { BackendAPIClient } from '../apis/client';
 import BackendContext from '../contexts';
 
 const QUERY_KEYS = {
-  SITEMAP: ["query", "sitemap"],
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
 };
@@ -19,20 +18,19 @@ namespace BackendAPIHooks {
     return context;
   }
 
-  const clientDecorator = <T = CallableFunction>(func:(client: BackendAPIClient) => T): T => {
+  export const useBackendClient = () => {
     const { backendApiDomain, backendApiTimeout } = useBackendContext();
-    return func(new BackendAPIClient(backendApiDomain, backendApiTimeout));
+    return new BackendAPIClient(backendApiDomain, backendApiTimeout);
   }
 
-  export const useFlattenSiteMapQuery = () => useSuspenseQuery({
+  export const useFlattenSiteMapQuery = (client: BackendAPIClient) => useSuspenseQuery({
     queryKey: QUERY_KEYS.SITEMAP_LIST,
-    queryFn: clientDecorator(BackendAPIs.listSiteMaps),
-    meta: { invalidates: [ QUERY_KEYS.SITEMAP ] },
+    queryFn: BackendAPIs.listSiteMaps(client),
   });
 
-  export const usePageQuery = (id: string) => useSuspenseQuery({
+  export const usePageQuery = (client: BackendAPIClient, id: string) => useSuspenseQuery({
     queryKey: [ ...QUERY_KEYS.PAGE, id ],
-    queryFn: () => clientDecorator(BackendAPIs.retrievePage)(id),
+    queryFn: () => (BackendAPIs.retrievePage)(client)(id),
   });
 }
 
