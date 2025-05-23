@@ -38,8 +38,8 @@ const lineFormatterForMDX = (line: string) => {
   return `${trimmedLine}  \n`;
 }
 
-export const MDXRenderer: React.FC<{ text: string; components?: MDXComponents, resetKey?: string }> = ({ text, components, resetKey }) => {
-  const { baseUrl } = Hooks.Common.useCommonContext();
+export const MDXRenderer: React.FC<{ text: string; resetKey?: string }> = ({ text, resetKey }) => {
+  const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
   const [state, setState] = React.useState<{ component: React.ReactNode, resetKey: string }>({
     component: <CircularProgress />,
     resetKey: window.crypto.randomUUID(),
@@ -56,7 +56,7 @@ export const MDXRenderer: React.FC<{ text: string; components?: MDXComponents, r
           // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
           const processedText = text.split("\n").map(lineFormatterForMDX).join("").replaceAll("\n\n", "\n<br />\n");
           const { default: RenderResult } = await evaluate(processedText, { ...runtime, ...provider, baseUrl });
-          setRenderResult(<RenderResult components={muiComponents({ overrides: { ...CustomMDXComponents, ...components } })} />);
+          setRenderResult(<RenderResult components={muiComponents({ overrides: { ...CustomMDXComponents, ...(mdxComponents || {}) } })} />);
         } catch (error) {
           setRenderResult(<ErrorFallback error={error as Error} reset={setRandomResetKey} />);
         }

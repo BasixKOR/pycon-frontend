@@ -1,3 +1,4 @@
+import { MDXComponents } from 'mdx/types';
 import * as React from "react";
 
 namespace GlobalContext {
@@ -6,6 +7,7 @@ namespace GlobalContext {
     debug?: boolean;
     backendApiDomain: string;
     backendApiTimeout: number;
+    mdxComponents?: MDXComponents;
   }
 
   export const context = React.createContext<ContextOptions>({
