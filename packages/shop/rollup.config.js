@@ -39,6 +39,7 @@ export default {
     "@mui/material",
     "@suspensive/react",
     "@tanstack/react-query",
+    "@frontend/common",
   ],
   plugins: [
     json(),
