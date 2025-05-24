@@ -11,7 +11,8 @@ type SignInGuardProps = {
 };
 
 const InnerSignInGuard: React.FC<SignInGuardProps> = ({ children, fallback }) => {
-  const { data } = ShopHooks.useUserStatus();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const { data } = ShopHooks.useUserStatus(shopAPIClient);
   const renderedFallback = fallback || <Typography variant="h6" gutterBottom>로그인 후 이용해주세요.</Typography>;
   return data?.meta?.is_authenticated === true ? children : renderedFallback;
 };
