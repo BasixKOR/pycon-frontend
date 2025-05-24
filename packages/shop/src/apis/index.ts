@@ -44,18 +44,31 @@ namespace ShopAPIs {
 
   /**
    * 로그아웃합니다.
-   * @throws 401 - 로그아웃이 성공할 시에도 항상 401 에러가 발생합니다.
    */
-  export const signOut = (client: ShopAPIClient) => () =>
-    client.delete<ShopSchemas.UserSignedInStatus>("authn/social/browser/v1/auth/session");
+  export const signOut = (client: ShopAPIClient) => async () => {
+    try {
+      await client.delete<ShopSchemas.UserSignedInStatus>("authn/social/browser/v1/auth/session");
+    } catch (error) {
+    }
+    return Promise.resolve({});
+  }
 
   /**
    * 로그인 정보를 조회합니다.
    * @returns 로그인 정보
-   * @throws 401 - 로그인 정보가 없습니다.
    */
-  export const retrieveUserInfo = (client: ShopAPIClient) => () =>
-    client.get<ShopSchemas.UserSignedInStatus>("authn/social/browser/v1/auth/session");
+  export const retrieveUserInfo = (client: ShopAPIClient) => async () => {
+    try {
+      const response = await client.get<ShopSchemas.UserSignedInStatus>("authn/social/browser/v1/auth/session");
+      if (response.meta.is_authenticated) {
+        return response;
+      } else {
+        throw new Error("User is not authenticated");
+      }
+    } catch (error) {
+    }
+    return Promise.resolve(null);
+  }
 
   /**
    * 노출 중인 모든 상품의 목록을 가져옵니다.

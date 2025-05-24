@@ -69,8 +69,9 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
   onPaymentCompleted,
 }) => {
   const queryClient = useQueryClient();
-  const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation();
-  const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
+  const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
 
   const removeItemFromCart = (cartProductId: string) =>
     removeItemFromCartMutation.mutate({ cartProductId });
@@ -100,7 +101,7 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
 
   const WrappedShopCartList: React.FC = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { data } = ShopHooks.useCart();
+    const { data } = ShopHooks.useCart(shopAPIClient);
 
     return !data.hasOwnProperty("products") || data.products.length === 0 ? (
       <Typography variant="body1" color="error">

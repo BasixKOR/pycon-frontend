@@ -8,22 +8,23 @@ import ShopContext from '../contexts';
 import ShopSchemas from "../schemas";
 
 const QUERY_KEYS = {
-  USER: ["query", "user"],
-  PRODUCT_LIST: ["query", "products"],
-  CART_INFO: ["query", "cart"],
-  ORDER_LIST: ["query", "orders"],
+  BASE: ["query", "shop"],
+  USER: ["query", "shop", "user"],
+  PRODUCT_LIST: ["query", "shop", "products"],
+  CART_INFO: ["query", "shop", "cart"],
+  ORDER_LIST: ["query", "shop", "orders"],
 };
 
 const MUTATION_KEYS = {
-  USER_SIGN_IN_EMAIL: ["mutation", "user", "sign_in", "email"],
-  USER_SIGN_IN_SNS: ["mutation", "user", "sign_in", "sns"],
-  USER_SIGN_OUT: ["mutation", "user", "sign_out"],
-  CART_ITEM_APPEND: ["mutation", "cart", "item", "append"],
-  CART_ITEM_REMOVE: ["mutation", "cart", "item", "remove"],
-  CART_ORDER_START: ["mutation", "cart_order", "start"],
-  ONE_ITEM_ORDER_START: ["mutation", "one_item_order", "start"],
-  ALL_ORDER_REFUND: ["mutation", "all_order_refund"],
-  ONE_ITEM_REFUND: ["mutation", "one_item_refund"],
+  USER_SIGN_IN_EMAIL: ["mutation", "shop", "user", "sign_in", "email"],
+  USER_SIGN_IN_SNS: ["mutation", "shop", "user", "sign_in", "sns"],
+  USER_SIGN_OUT: ["mutation", "shop", "user", "sign_out"],
+  CART_ITEM_APPEND: ["mutation", "shop", "cart", "item", "append"],
+  CART_ITEM_REMOVE: ["mutation", "shop", "cart", "item", "remove"],
+  CART_ORDER_START: ["mutation", "shop", "cart_order", "start"],
+  ONE_ITEM_ORDER_START: ["mutation", "shop", "one_item_order", "start"],
+  ALL_ORDER_REFUND: ["mutation", "shop", "all_order_refund"],
+  ONE_ITEM_REFUND: ["mutation", "shop", "one_item_refund"],
 };
 
 namespace ShopHooks {
@@ -35,133 +36,103 @@ namespace ShopHooks {
     return context;
   }
 
-  const clientDecorator = <T = CallableFunction>(func:(client: ShopAPIClient) => T): T => {
+  export const useShopClient = () => {
     const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } = useShopContext();
-    return func(new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout));
+    return new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout);
   }
 
-  export const useUserStatus = () =>
+  export const useUserStatus = (client: ShopAPIClient) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.USER,
-      queryFn: async () => {
-        try {
-          const userInfo = await clientDecorator(ShopAPIs.retrieveUserInfo)();
-          return userInfo.meta.is_authenticated === true ? userInfo : null;
-        } catch (e) {
-          return null;
-        }
-      },
+      queryFn: ShopAPIs.retrieveUserInfo(client),
+      retry: 3,
     });
 
-  export const useSignInWithEmailMutation = () =>
+  export const useSignInWithEmailMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_EMAIL,
-      mutationFn: clientDecorator(ShopAPIs.signInWithEmail),
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      mutationFn: ShopAPIs.signInWithEmail(client),
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
-  export const useSignInWithSNSMutation = () =>
+  export const useSignInWithSNSMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_SNS,
-      mutationFn: clientDecorator(ShopAPIs.signInWithSNS),
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      mutationFn: ShopAPIs.signInWithSNS(client),
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
-  export const useSignOutMutation = () =>
+  export const useSignOutMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_OUT,
-      mutationFn: async () => {
-        try {
-          return await clientDecorator(ShopAPIs.signOut)();
-        } catch (e) {
-          return null;
-        }
-      },
-      meta: {
-        invalidates: [
-          QUERY_KEYS.USER,
-          QUERY_KEYS.CART_INFO,
-          QUERY_KEYS.ORDER_LIST,
-        ],
-      },
+      mutationFn: ShopAPIs.signOut(client),
+      meta: { invalidates: [ QUERY_KEYS.BASE ] },
     });
 
-  export const useProducts = (qs?: ShopSchemas.ProductListQueryParams) =>
+  export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.PRODUCT_LIST,
-      queryFn: () => clientDecorator(ShopAPIs.listProducts)(qs),
+      queryFn: () => ShopAPIs.listProducts(client)(qs),
     });
 
-  export const useCart = () =>
+  export const useCart = (client: ShopAPIClient) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.CART_INFO,
-      queryFn: clientDecorator(ShopAPIs.retrieveCart),
+      queryFn: ShopAPIs.retrieveCart(client),
     });
 
-  export const useAddItemToCartMutation = () =>
+  export const useAddItemToCartMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
-      mutationFn: clientDecorator(ShopAPIs.appendItemToCart),
+      mutationFn: ShopAPIs.appendItemToCart(client),
       meta: { invalidates: [QUERY_KEYS.CART_INFO] },
     });
 
-  export const useRemoveItemFromCartMutation = () =>
+  export const useRemoveItemFromCartMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_REMOVE,
-      mutationFn: clientDecorator(ShopAPIs.removeItemFromCart),
+      mutationFn: ShopAPIs.removeItemFromCart(client),
       meta: { invalidates: [QUERY_KEYS.CART_INFO] },
     });
 
-  export const usePrepareOneItemOrderMutation = () =>
+  export const usePrepareOneItemOrderMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.ONE_ITEM_ORDER_START,
-      mutationFn: clientDecorator(ShopAPIs.prepareOneItemOrder),
+      mutationFn: ShopAPIs.prepareOneItemOrder(client),
       meta: { invalidates: [QUERY_KEYS.CART_INFO, QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const usePrepareCartOrderMutation = () =>
+  export const usePrepareCartOrderMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ORDER_START,
-      mutationFn: clientDecorator(ShopAPIs.prepareCartOrder),
+      mutationFn: ShopAPIs.prepareCartOrder(client),
       meta: { invalidates: [QUERY_KEYS.CART_INFO, QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const useOrders = () =>
+  export const useOrders = (client: ShopAPIClient) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.ORDER_LIST,
-      queryFn: clientDecorator(ShopAPIs.listOrders),
+      queryFn: ShopAPIs.listOrders(client),
     });
 
-  export const useOneItemRefundMutation = () =>
+  export const useOneItemRefundMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.ONE_ITEM_REFUND,
-      mutationFn: clientDecorator(ShopAPIs.refundOneItemFromOrder),
+      mutationFn: ShopAPIs.refundOneItemFromOrder(client),
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const useOrderRefundMutation = () =>
+  export const useOrderRefundMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.ALL_ORDER_REFUND,
-      mutationFn: clientDecorator(ShopAPIs.refundAllItemsInOrder),
+      mutationFn: ShopAPIs.refundAllItemsInOrder(client),
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const useOptionsOfOneItemInOrderPatchMutation = () =>
+  export const useOptionsOfOneItemInOrderPatchMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
-      mutationFn: clientDecorator(ShopAPIs.patchOrderOptions),
+      mutationFn: ShopAPIs.patchOrderOptions(client),
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 }

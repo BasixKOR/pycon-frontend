@@ -31,24 +31,23 @@ const PaymentHistoryStatusTranslated: {
   refunded: "환불됨",
 };
 
-const OrderItem: React.FC<{
-  order: ShopSchemas.Order;
-  disabled?: boolean;
-}> = ({ order, disabled }) => {
-  const orderRefundMutation = ShopHooks.useOrderRefundMutation();
-  const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation();
-  const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation();
+const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({ order, disabled }) => {
+  const { shopApiDomain } = ShopHooks.useShopContext();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const orderRefundMutation = ShopHooks.useOrderRefundMutation(shopAPIClient);
+  const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation(shopAPIClient);
+  const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation(shopAPIClient);
 
   const refundOrder = () => orderRefundMutation.mutate({ order_id: order.id });
-  const openReceipt = () => window.open(ShopUtils.getReceiptUrlFromOrder(order), "_blank");
+  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
 
   const isPending =
     disabled ||
     orderRefundMutation.isPending ||
     oneItemRefundMutation.isPending ||
     optionsOfOneItemInOrderPatchMutation.isPending;
-  const btnDisabled =
-    isPending || !R.isNullish(order.not_fully_refundable_reason);
+  const refundBtnDisabled = isPending || !R.isNullish(order.not_fully_refundable_reason);
+  const receipyBtnDisabled = isPending || order.current_status === "pending";
   const btnText = R.isNullish(order.not_fully_refundable_reason)
     ? "주문 전체 환불"
     : order.current_status === "refunded"
@@ -189,7 +188,7 @@ const OrderItem: React.FC<{
           variant="contained"
           sx={{ width: "100%" }}
           onClick={openReceipt}
-          disabled={btnDisabled}
+          disabled={receipyBtnDisabled}
         >
           영수증
         </Button>
@@ -197,7 +196,7 @@ const OrderItem: React.FC<{
           variant="contained"
           sx={{ width: "100%" }}
           onClick={refundOrder}
-          disabled={btnDisabled}
+          disabled={refundBtnDisabled}
         >
           {btnText}
         </Button>
@@ -209,7 +208,8 @@ const OrderItem: React.FC<{
 export const OrderList: React.FC = () => {
   const WrappedOrderList: React.FC = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { data } = ShopHooks.useOrders();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useOrders(shopAPIClient);
 
     return (
       <List>
