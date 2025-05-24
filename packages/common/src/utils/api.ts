@@ -48,4 +48,9 @@ export const findSiteMapUsingRoute = (route: string, siteMapData: BackendAPISche
   return currentSitemap;
 };
 
-export const parseCss = (t: unknown): React.CSSProperties => (R.isString(t) && !R.isEmpty(t) && JSON.parse(t)) || {};
+export const parseCss = (t: unknown): React.CSSProperties => {
+  try {
+    if (R.isString(t) && !R.isEmpty(t)) return JSON.parse(t);
+  } catch (e) {}
+  return {};
+};

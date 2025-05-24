@@ -2,45 +2,28 @@ import * as React from "react";
 import * as runtime from "react/jsx-runtime";
 import * as R from "remeda";
 
-import { evaluate, EvaluateOptions } from "@mdx-js/mdx";
+import { evaluate } from "@mdx-js/mdx";
+import * as provider from "@mdx-js/react";
 import { CircularProgress } from "@mui/material";
-import { ErrorBoundary, Suspense } from "@suspensive/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import components, { MuiMdxComponentsOptions } from 'mui-mdx-components';
+import { ErrorBoundary } from "@suspensive/react";
+import type { MDXComponents } from "mdx/types";
+import muiComponents from 'mui-mdx-components';
 
-import Components from "../components";
 import Hooks from "../hooks";
+import { ErrorFallback } from "./error_handler";
 
-const MDXComponents: MuiMdxComponentsOptions = {
-  overrides: {
-    'h1': (props) => <h1 {...props} />,
-    'h2': (props) => <h2 {...props} />,
-    'h3': (props) => <h3 {...props} />,
-    'h4': (props) => <h4 {...props} />,
-    'h5': (props) => <h5 {...props} />,
-    'h6': (props) => <h6 {...props} />,
-    'strong': (props) => <strong {...props} />,
-    'em': (props) => <em {...props} />,
-    'ul': (props) => <ul {...props} />,
-    'ol': (props) => <ol {...props} />,
-    'li': (props) => <li {...props} />,
-  }
-}
-
-const InnerMDXRenderer: React.FC<{ text: string, baseUrl: string }> = ({ text, baseUrl }) => {
-  const options: EvaluateOptions = { ...runtime, baseUrl };
-
-  const { data } = useSuspenseQuery({
-    queryKey: ["mdx", text],
-    queryFn: async () => {
-      const { default: RenderResult } = await evaluate(text, options);
-      return <div className="markdown-body">
-        <RenderResult components={components(MDXComponents)} />
-      </div>
-    },
-  });
-
-  return <>{data}</>;
+const CustomMDXComponents: MDXComponents = {
+  'h1': (props) => <h1 {...props} />,
+  'h2': (props) => <h2 {...props} />,
+  'h3': (props) => <h3 {...props} />,
+  'h4': (props) => <h4 {...props} />,
+  'h5': (props) => <h5 {...props} />,
+  'h6': (props) => <h6 {...props} />,
+  'strong': (props) => <strong {...props} />,
+  'em': (props) => <em {...props} />,
+  'ul': (props) => <ul {...props} />,
+  'ol': (props) => <ol {...props} />,
+  'li': (props) => <li {...props} />,
 }
 
 const lineFormatterForMDX = (line: string) => {
@@ -55,20 +38,31 @@ const lineFormatterForMDX = (line: string) => {
   return `${trimmedLine}  \n`;
 }
 
-export const MDXRenderer: React.FC<{ text: string }> = ({ text }) => {
-  // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
-  // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
-  const { baseUrl } = Hooks.Common.useCommonContext();
+export const MDXRenderer: React.FC<{ text: string; resetKey?: string }> = ({ text, resetKey }) => {
+  const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
+  const [state, setState] = React.useState<{ component: React.ReactNode, resetKey: string }>({
+    component: <CircularProgress />,
+    resetKey: window.crypto.randomUUID(),
+  })
 
-  const processedText = text
-    .split("\n")
-    .map(lineFormatterForMDX)
-    .join("")
-    .replaceAll("\n\n", "\n<br />\n");
+  const setRenderResult = (component: React.ReactNode) => setState((prev) => ({ ...prev, component: component }));
+  const setRandomResetKey = () => setState((prev) => ({ ...prev, resetKey: window.crypto.randomUUID() }))
 
-  return <ErrorBoundary fallback={Components.ErrorFallback}>
-    <Suspense fallback={<CircularProgress />}>
-      <InnerMDXRenderer text={processedText} baseUrl={baseUrl} />
-    </Suspense>
-  </ErrorBoundary>
+  React.useEffect(() => {
+    (
+      async () => {
+        try {
+          // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
+          // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
+          const processedText = text.split("\n").map(lineFormatterForMDX).join("").replaceAll("\n\n", "\n<br />\n");
+          const { default: RenderResult } = await evaluate(processedText, { ...runtime, ...provider, baseUrl });
+          setRenderResult(<RenderResult components={muiComponents({ overrides: { ...CustomMDXComponents, ...(mdxComponents || {}) } })} />);
+        } catch (error) {
+          setRenderResult(<ErrorFallback error={error as Error} reset={setRandomResetKey} />);
+        }
+      }
+    )();
+  }, [text, resetKey, state.resetKey]);
+
+  return <ErrorBoundary fallback={ErrorFallback} resetKeys={[text, resetKey, state.resetKey]}>{state.component}</ErrorBoundary>
 };

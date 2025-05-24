@@ -13,7 +13,8 @@ export const App: React.FC = () => {
       <Routes>
         <Route element={<MainLayout />}>
           { IS_DEBUG_ENV && <Route path="/debug" element={<Test />} /> }
-          <Route path="*" element={<Common.Components.DynamicRoutePage />} />
+          <Route path="/pages/:id" element={<Common.Components.PageIdParamRenderer />} />
+          <Route path="*" element={<Common.Components.RouteRenderer />} />
         </Route>
       </Routes>
     </BrowserRouter>

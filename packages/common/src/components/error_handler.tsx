@@ -6,6 +6,7 @@ import { Suspense } from "@suspensive/react";
 import CommonContext from '../hooks/';
 
 const DetailedErrorFallback: React.FC<{ error: Error, reset: () => void }> = ({ error, reset }) => {
+  console.error(error);
   const errorObject = Object.getOwnPropertyNames(error).reduce((acc, key) => ({ ...acc, [key]: (error as unknown as { [key: string]: unknown })[key] }), {});
   return <>
     <Typography variant="body2" color="error">error.message = {error.message}</Typography>
