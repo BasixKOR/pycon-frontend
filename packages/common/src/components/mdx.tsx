@@ -38,15 +38,15 @@ const lineFormatterForMDX = (line: string) => {
   return `${trimmedLine}  \n`;
 }
 
-export const MDXRenderer: React.FC<{ text: string; resetKey?: string }> = ({ text, resetKey }) => {
+export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ text, resetKey }) => {
   const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
-  const [state, setState] = React.useState<{ component: React.ReactNode, resetKey: string }>({
+  const [state, setState] = React.useState<{ component: React.ReactNode, resetKey: number }>({
     component: <CircularProgress />,
-    resetKey: window.crypto.randomUUID(),
+    resetKey: Math.random(),
   })
 
   const setRenderResult = (component: React.ReactNode) => setState((prev) => ({ ...prev, component: component }));
-  const setRandomResetKey = () => setState((prev) => ({ ...prev, resetKey: window.crypto.randomUUID() }))
+  const setRandomResetKey = () => setState((prev) => ({ ...prev, resetKey: Math.random() }))
 
   React.useEffect(() => {
     (

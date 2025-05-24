@@ -19,12 +19,12 @@ const setMdxInputToLocalStorage: (input: string) => string = (input) => {
 
 export const MdiTestPage: React.FC = () => {
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
-  const [state, setState] = React.useState<{ text: string, resetKey: string }>({
+  const [state, setState] = React.useState<{ text: string, resetKey: number }>({
     text: getMdxInputFromLocalStorage(),
-    resetKey: window.crypto.randomUUID()
+    resetKey: Math.random()
   });
 
-  const setMDXInput = (text: string) => setState({ text: setMdxInputToLocalStorage(text), resetKey: window.crypto.randomUUID() });
+  const setMDXInput = (text: string) => setState({ text: setMdxInputToLocalStorage(text), resetKey: Math.random() });
 
   return (
     <Stack direction="row" spacing={2} sx={{ width: "100%", flexGrow: 1, p: 2 }}>
