@@ -212,8 +212,10 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ sectionId, defaultValue, i
       ]}
       style={TextEditorStyle}
     />
-    <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-      {submitActions && submitActions.map((buttonProps, index) => <Button key={index} {...buttonProps} />)}
-    </Stack>
+    {
+      submitActions && <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+        {submitActions.map((buttonProps, index) => <Button key={index} {...buttonProps} />)}
+      </Stack>
+    }
   </Stack>;
 };
