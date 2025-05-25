@@ -40,7 +40,6 @@ export default {
     "@mui/material",
     "@suspensive/react",
     "@tanstack/react-query",
-    "@uiw/react-md-editor",
   ],
   plugins: [
     css(),
