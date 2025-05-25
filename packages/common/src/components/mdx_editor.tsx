@@ -3,7 +3,7 @@ import * as React from "react";
 import { Apps, Save } from "@mui/icons-material";
 import { Button, ButtonProps, MenuItem, Select, Stack, Typography } from "@mui/material";
 import MDEditor, { GroupOptions, RefMDEditor, commands } from '@uiw/react-md-editor';
-import * as CryptoJS from "crypto-js";
+// import * as CryptoJS from "crypto-js";
 import type { MDXComponents } from "mdx/types";
 
 import Hooks from "../hooks";
@@ -40,38 +40,38 @@ const TextEditorStyle: React.CSSProperties = {
 
 const getDefaultValueFromLocalStorage = (sectionId?: string): string => localStorage.getItem(LOCAL_STORAGE_KEY + (sectionId || "unknown")) ?? "";
 
-const calculateMD5FromFileBase64 = (fileBase64: string): string => CryptoJS.MD5(CryptoJS.enc.Base64.parse(fileBase64)).toString();
+// const calculateMD5FromFileBase64 = (fileBase64: string): string => CryptoJS.MD5(CryptoJS.enc.Base64.parse(fileBase64)).toString();
 
-const onFileInEvent: React.DragEventHandler<HTMLDivElement> = (event) => {
-  event.preventDefault();
-  event.stopPropagation();
+// const onFileInEvent: React.DragEventHandler<HTMLDivElement> = (event) => {
+//   event.preventDefault();
+//   event.stopPropagation();
 
-  if (!event.dataTransfer) { // Might be a drag event
-    alert('이 브라우저는 해당 동작을 지원하지 않습니다.');
-    return;
-  }
+//   if (!event.dataTransfer) { // Might be a drag event
+//     alert('이 브라우저는 해당 동작을 지원하지 않습니다.');
+//     return;
+//   }
 
-  const images = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith("image/"))
-  if (images.length === 0) {
-    alert('이미지 파일만 첨부할 수 있어요.');
-    return;
-  }
+//   const images = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith("image/"))
+//   if (images.length === 0) {
+//     alert('이미지 파일만 첨부할 수 있어요.');
+//     return;
+//   }
 
-  images.forEach(
-    (item) => {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-        if (!e.target || typeof e.target.result !== "string") return;
-        console.log(`이미지 MD5 해시: ${calculateMD5FromFileBase64(e.target.result.split(',')[1])}`);
-      }
-      reader.onerror = (e) => {
-        console.error('Error reading file:', e);
-        alert('파일을 읽는 중 오류가 발생했습니다.');
-      };
-      reader.readAsDataURL(item);
-    }
-  );
-}
+//   images.forEach(
+//     (item) => {
+//       let reader = new FileReader();
+//       reader.onload = (e) => {
+//         if (!e.target || typeof e.target.result !== "string") return;
+//         console.log(`이미지 MD5 해시: ${calculateMD5FromFileBase64(e.target.result.split(',')[1])}`);
+//       }
+//       reader.onerror = (e) => {
+//         console.error('Error reading file:', e);
+//         alert('파일을 읽는 중 오류가 발생했습니다.');
+//       };
+//       reader.readAsDataURL(item);
+//     }
+//   );
+// }
 
 const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoType[]) => GroupOptions["children"] = (registeredComponentList) => ({ close, getState, textApi }) => {
   const componentSelectorRef = React.useRef<HTMLSelectElement>(null);
@@ -163,7 +163,7 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ sectionId, defaultValue, i
       highlightEnable={true}
       ref={setRef}
       value={value}
-      onChange={(v, e, s) => setValue(v || "")}
+      onChange={(v) => setValue(v || "")}
       commands={[
         commands.group(
           [

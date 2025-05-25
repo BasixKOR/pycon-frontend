@@ -1,6 +1,7 @@
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve, { nodeResolve } from "@rollup/plugin-node-resolve";
+import css from "rollup-plugin-import-css";
 import typescript from "rollup-plugin-typescript2";
 
 export default {
@@ -39,9 +40,11 @@ export default {
     "@mui/material",
     "@suspensive/react",
     "@tanstack/react-query",
+    "@uiw/react-md-editor",
     "@frontend/common",
   ],
   plugins: [
+    css(),
     json(),
     typescript({ tsconfig: "./tsconfig.json" }),
     resolve(),
