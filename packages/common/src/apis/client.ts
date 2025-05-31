@@ -1,10 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as R from "remeda";
 
-import BackendAPISchemas from '../schemas/backendAPI';
-import { getCookie } from '../utils/cookie';
+import BackendAPISchemas from "../schemas/backendAPI";
+import { getCookie } from "../utils/cookie";
 
-const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
+const DEFAULT_ERROR_MESSAGE =
+  "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {
   type: "unknown",
   errors: [{ code: "unknown", detail: DEFAULT_ERROR_MESSAGE, attr: null }],
@@ -61,11 +62,15 @@ export class BackendAPIClientError extends Error {
   }
 }
 
-type AxiosRequestWithoutPayload = <T = any, R = AxiosResponse<T>, D = any>(
+type AxiosRequestWithoutPayload = <
+  T = unknown,
+  R = AxiosResponse<T>,
+  D = unknown,
+>(
   url: string,
   config?: AxiosRequestConfig<D>
 ) => Promise<R>;
-type AxiosRequestWithPayload = <T = any, R = AxiosResponse<T>, D = any>(
+type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>
@@ -80,12 +85,17 @@ export class BackendAPIClient {
     baseURL: string,
     timeout: number,
     csrfCookieName: string = "csrftoken",
-    withCredentials: boolean = false,
+    withCredentials: boolean = false
   ) {
     const headers = { "Content-Type": "application/json" };
     this.baseURL = baseURL;
     this.csrfCookieName = csrfCookieName;
-    this.backendAPI = axios.create({ baseURL, timeout, headers, withCredentials});
+    this.backendAPI = axios.create({
+      baseURL,
+      timeout,
+      headers,
+      withCredentials,
+    });
 
     if (withCredentials) {
       this.backendAPI.interceptors.request.use(
@@ -105,7 +115,7 @@ export class BackendAPIClient {
   _safe_request_without_payload(
     requestFunc: AxiosRequestWithoutPayload
   ): AxiosRequestWithoutPayload {
-    return async <T = any, R = AxiosResponse<T>, D = any>(
+    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
       url: string,
       config?: AxiosRequestConfig<D>
     ) => {
@@ -120,7 +130,7 @@ export class BackendAPIClient {
   _safe_request_with_payload(
     requestFunc: AxiosRequestWithPayload
   ): AxiosRequestWithPayload {
-    return async <T = any, R = AxiosResponse<T>, D = any>(
+    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
       url: string,
       data: D,
       config?: AxiosRequestConfig<D>
@@ -133,7 +143,7 @@ export class BackendAPIClient {
     };
   }
 
-  async get<T, D = any>(
+  async get<T, D = unknown>(
     url: string,
     config?: AxiosRequestConfig<D>
   ): Promise<T> {
@@ -184,7 +194,7 @@ export class BackendAPIClient {
       >(url, data, config)
     ).data;
   }
-  async delete<T, D = any>(
+  async delete<T, D = unknown>(
     url: string,
     config?: AxiosRequestConfig<D>
   ): Promise<T> {

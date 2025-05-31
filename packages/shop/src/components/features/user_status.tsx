@@ -1,5 +1,4 @@
-import * as React from "react";
-
+import * as Common from "@frontend/common";
 import {
   Button,
   CircularProgress,
@@ -8,15 +7,17 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import * as React from "react";
 
-import * as Common from "@frontend/common";
-import ShopHooks from '../../hooks';
+import ShopHooks from "../../hooks";
 
 export const UserInfo: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const shopAPIClient = ShopHooks.useShopClient();
-  const signInWithEmailMutation = ShopHooks.useSignInWithEmailMutation(shopAPIClient);
-  const SignInWithSNSMutation = ShopHooks.useSignInWithSNSMutation(shopAPIClient);
+  const signInWithEmailMutation =
+    ShopHooks.useSignInWithEmailMutation(shopAPIClient);
+  const SignInWithSNSMutation =
+    ShopHooks.useSignInWithSNSMutation(shopAPIClient);
   const signOutMutation = ShopHooks.useSignOutMutation(shopAPIClient);
 
   const signInWithGoogle = () =>
@@ -42,7 +43,6 @@ export const UserInfo: React.FC = () => {
     signOutMutation.isPending;
 
   const WrappedUserStatus: React.FC = () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const shopAPIClient = ShopHooks.useShopClient();
     const { data } = ShopHooks.useUserStatus(shopAPIClient);
 
@@ -99,9 +99,13 @@ export const UserInfo: React.FC = () => {
     );
   };
 
-  return <ErrorBoundary fallback={<div>로그인 정보를 불러오는 중 문제가 발생했습니다.</div>}>
-    <Suspense fallback={<CircularProgress />}>
-      <WrappedUserStatus />
-    </Suspense>
-  </ErrorBoundary>;
+  return (
+    <ErrorBoundary
+      fallback={<div>로그인 정보를 불러오는 중 문제가 발생했습니다.</div>}
+    >
+      <Suspense fallback={<CircularProgress />}>
+        <WrappedUserStatus />
+      </Suspense>
+    </ErrorBoundary>
+  );
 };

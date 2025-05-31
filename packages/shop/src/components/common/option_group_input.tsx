@@ -1,6 +1,3 @@
-import * as React from "react";
-import * as R from "remeda";
-
 import {
   FormControl,
   InputLabel,
@@ -9,10 +6,12 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import * as React from "react";
+import * as R from "remeda";
 
+import { PriceDisplay } from "./price_display";
 import ShopSchemas from "../../schemas";
 import ShopAPIUtil from "../../utils";
-import { PriceDisplay } from "./price_display";
 
 type CommonOptionGroupType = {
   id: string;

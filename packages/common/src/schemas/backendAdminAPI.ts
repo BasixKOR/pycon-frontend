@@ -1,4 +1,3 @@
-
 import { RJSFSchema, UiSchema } from "@rjsf/utils";
 
 namespace BackendAdminAPISchemas {
@@ -51,9 +50,9 @@ namespace BackendAdminAPISchemas {
     body_en: string | null;
   };
 
-  export type PageSectionBulkUpdateSchema = PageSectionSchema | Omit<PageSectionSchema, "id">;
-
-  export const _dummy = (_1: PageSectionSchema[]) => console.log("This is a dummy function to ensure the module is not empty.");
+  export type PageSectionBulkUpdateSchema =
+    | PageSectionSchema
+    | Omit<PageSectionSchema, "id">;
 }
 
 export default BackendAdminAPISchemas;

@@ -1,7 +1,6 @@
-import * as React from "react";
-
 import { CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import * as React from "react";
 
 import ShopHooks from "../../hooks";
 
@@ -10,17 +9,31 @@ type SignInGuardProps = {
   fallback?: React.ReactNode;
 };
 
-const InnerSignInGuard: React.FC<SignInGuardProps> = ({ children, fallback }) => {
+const InnerSignInGuard: React.FC<SignInGuardProps> = ({
+  children,
+  fallback,
+}) => {
   const shopAPIClient = ShopHooks.useShopClient();
   const { data } = ShopHooks.useUserStatus(shopAPIClient);
-  const renderedFallback = fallback || <Typography variant="h6" gutterBottom>로그인 후 이용해주세요.</Typography>;
+  const renderedFallback = fallback || (
+    <Typography variant="h6" gutterBottom>
+      로그인 후 이용해주세요.
+    </Typography>
+  );
   return data?.meta?.is_authenticated === true ? children : renderedFallback;
 };
 
-export const SignInGuard: React.FC<SignInGuardProps> = ({ children, fallback }) => {
-  return <ErrorBoundary fallback={<>로그인 정보를 불러오는 중 문제가 발생했습니다.</>}>
-    <Suspense fallback={<CircularProgress />}>
-      <InnerSignInGuard fallback={fallback}>{children}</InnerSignInGuard>
-    </Suspense>
-  </ErrorBoundary>
+export const SignInGuard: React.FC<SignInGuardProps> = ({
+  children,
+  fallback,
+}) => {
+  return (
+    <ErrorBoundary
+      fallback={<>로그인 정보를 불러오는 중 문제가 발생했습니다.</>}
+    >
+      <Suspense fallback={<CircularProgress />}>
+        <InnerSignInGuard fallback={fallback}>{children}</InnerSignInGuard>
+      </Suspense>
+    </ErrorBoundary>
+  );
 };

@@ -1,12 +1,12 @@
-import BackendAPIHooks from './useAPI';
-import BackendAdminAPIHooks from './useAdminAPI';
-import { useCommonContext as useCommonContextHook } from './useCommonContext';
-import { useEmail as useEmailHook } from './useEmail';
+import BackendAPIHooks from "./useAPI";
+import BackendAdminAPIHooks from "./useAdminAPI";
+import { useCommonContext as useCommonContextHook } from "./useCommonContext";
+import { useEmail as useEmailHook } from "./useEmail";
 
 export namespace CommonHooks {
   export const useCommonContext = useCommonContextHook;
   export const useEmail = useEmailHook;
-};
+}
 
 namespace Hooks {
   export const Common = CommonHooks;

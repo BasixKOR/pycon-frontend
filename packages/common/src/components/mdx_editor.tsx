@@ -1,9 +1,12 @@
-import * as React from "react";
-
 import { Apps } from "@mui/icons-material";
 import { Button, MenuItem, Select, Stack, Typography } from "@mui/material";
-import MDEditor, { GroupOptions, ICommand, commands } from '@uiw/react-md-editor';
+import MDEditor, {
+  GroupOptions,
+  ICommand,
+  commands,
+} from "@uiw/react-md-editor";
 import type { MDXComponents } from "mdx/types";
+import * as React from "react";
 // import * as CryptoJS from "crypto-js";
 
 import Hooks from "../hooks";
@@ -12,7 +15,7 @@ type CustomComponentInfoType = {
   k: string; // key
   n: string; // name
   v?: MDXComponents[string]; // value
-}
+};
 
 type MDXEditorProps = {
   disabled?: boolean;
@@ -23,14 +26,14 @@ type MDXEditorProps = {
 
 const TextEditorStyle: React.CSSProperties = {
   flexGrow: 1,
-  width: '100%',
-  maxWidth: '100%',
+  width: "100%",
+  maxWidth: "100%",
 
-  wordBreak: 'break-word',
-  whiteSpace: 'pre-wrap',
-  overflowWrap: 'break-word',
+  wordBreak: "break-word",
+  whiteSpace: "pre-wrap",
+  overflowWrap: "break-word",
 
-  fieldSizing: 'content',
+  fieldSizing: "content",
 } as React.CSSProperties;
 
 // const calculateMD5FromFileBase64 = (fileBase64: string): string => CryptoJS.MD5(CryptoJS.enc.Base64.parse(fileBase64)).toString();
@@ -66,102 +69,162 @@ const TextEditorStyle: React.CSSProperties = {
 //   );
 // }
 
-const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoType[]) => GroupOptions["children"] = (registeredComponentList) => ({ close, getState, textApi }) => {
-  const componentSelectorRef = React.useRef<HTMLSelectElement>(null);
+const getCustomComponentSelector: (
+  registeredComponentList: CustomComponentInfoType[]
+) => GroupOptions["children"] =
+  (registeredComponentList) =>
+  ({ close, getState, textApi }) => {
+    const componentSelectorRef = React.useRef<HTMLSelectElement>(null);
 
-  const onInsertBtnClick = () => {
-    if (!textApi || !getState || !registeredComponentList?.length || !componentSelectorRef.current) return undefined;
+    const onInsertBtnClick = () => {
+      if (
+        !textApi ||
+        !getState ||
+        !registeredComponentList?.length ||
+        !componentSelectorRef.current
+      )
+        return undefined;
 
-    const state = getState();
-    if (!state) return undefined;
+      const state = getState();
+      if (!state) return undefined;
 
-    const selectedComponentData = registeredComponentList.find(({ k }) => k === componentSelectorRef?.current?.value);
-    if (!selectedComponentData) return undefined;
+      const selectedComponentData = registeredComponentList.find(
+        ({ k }) => k === componentSelectorRef?.current?.value
+      );
+      if (!selectedComponentData) return undefined;
 
-    let newText = `<${selectedComponentData.k} />`;
-    if (state.selectedText) {
-      newText += `\n${state.selectedText}`;
-      if (state.selection.start - 1 !== -1 && state.text[state.selection.start - 1] !== "\n") newText = `\n${newText}`;
-    } else {
-      if (state.selection.start - 1 !== -1 && state.text[state.selection.start - 1] !== "\n") newText = `\n${newText}`;
-      if (state.selection.end !== state.text.length && state.text[state.selection.end] !== "\n") newText += "\n";
-    }
+      let newText = `<${selectedComponentData.k} />`;
+      if (state.selectedText) {
+        newText += `\n${state.selectedText}`;
+        if (
+          state.selection.start - 1 !== -1 &&
+          state.text[state.selection.start - 1] !== "\n"
+        )
+          newText = `\n${newText}`;
+      } else {
+        if (
+          state.selection.start - 1 !== -1 &&
+          state.text[state.selection.start - 1] !== "\n"
+        )
+          newText = `\n${newText}`;
+        if (
+          state.selection.end !== state.text.length &&
+          state.text[state.selection.end] !== "\n"
+        )
+          newText += "\n";
+      }
 
-    textApi.replaceSelection(newText);
-    close();
-  }
+      textApi.replaceSelection(newText);
+      close();
+    };
 
-  return <Stack spacing={1} sx={{ p: 1, flexGrow: 1, minWidth: 200 }}>
-    <Typography variant="subtitle1" color="text.secondary">컴포넌트 삽입</Typography>
-    <Select inputRef={componentSelectorRef} defaultValue="" size="small" fullWidth>
-      {registeredComponentList.map(({ k, n }) => <MenuItem key={k} value={k}>{n}</MenuItem>)}
-    </Select>
-    <Button size="small" variant="contained" onClick={onInsertBtnClick}>삽입</Button>
-    <Button size="small" variant="outlined" sx={{ flexGrow: 1 }} onClick={close}>닫기</Button>
-  </Stack>;
-}
+    return (
+      <Stack spacing={1} sx={{ p: 1, flexGrow: 1, minWidth: 200 }}>
+        <Typography variant="subtitle1" color="text.secondary">
+          컴포넌트 삽입
+        </Typography>
+        <Select
+          inputRef={componentSelectorRef}
+          defaultValue=""
+          size="small"
+          fullWidth
+        >
+          {registeredComponentList.map(({ k, n }) => (
+            <MenuItem key={k} value={k}>
+              {n}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button size="small" variant="contained" onClick={onInsertBtnClick}>
+          삽입
+        </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          sx={{ flexGrow: 1 }}
+          onClick={close}
+        >
+          닫기
+        </Button>
+      </Stack>
+    );
+  };
 
-export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, onChange, extraCommands }) => {
+export const MDXEditor: React.FC<MDXEditorProps> = ({
+  disabled,
+  defaultValue,
+  onChange,
+  extraCommands,
+}) => {
   const { mdxComponents } = Hooks.Common.useCommonContext();
 
   const registeredComponentList: CustomComponentInfoType[] = [
     { k: "", n: "", v: undefined },
     ...Object.entries(mdxComponents ?? {}).map(([k, v]) => {
-      const splicedKey = k.replace(/__/g, '.').split('.');
-      const n = [...splicedKey.slice(0, -1).map((word) => word.toLowerCase()), splicedKey[splicedKey.length - 1]].join('.');
+      const splicedKey = k.replace(/__/g, ".").split(".");
+      const n = [
+        ...splicedKey.slice(0, -1).map((word) => word.toLowerCase()),
+        splicedKey[splicedKey.length - 1],
+      ].join(".");
       return { k, n, v };
-    })
+    }),
   ];
 
-  return <Stack direction="column" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
-    <MDEditor
-      data-color-mode="light"
-      textareaProps={{ disabled }}
-      preview="edit"
-      highlightEnable={true}
-      height="none"
-      minHeight={0}
-      value={defaultValue}
-      onChange={onChange}
-      commands={[
-        commands.group(
-          [
-            commands.title1,
-            commands.title2,
-            commands.title3,
-            commands.title4,
-            commands.title5,
-            commands.title6,
-          ],
-          {
-            name: 'title',
-            groupName: 'title',
-            buttonProps: { 'aria-label': 'Insert title' }
-          }
-        ),
-        commands.bold,
-        commands.italic,
-        commands.code,
-        commands.link,
-        commands.divider,
-        commands.quote,
-        commands.codeBlock,
-        commands.hr,
-        commands.image,
-        commands.divider,
-        commands.unorderedListCommand,
-        commands.orderedListCommand,
-        commands.divider,
-        commands.group([], {
-          name: 'custom components',
-          groupName: 'custom components',
-          icon: <Apps style={{ fontSize: 12 }} />,
-          children: getCustomComponentSelector(registeredComponentList),
-          buttonProps: { 'aria-label': 'Insert custom component' }
-        }),
-      ]}
-      extraCommands={extraCommands}
-      style={TextEditorStyle}
-    />
-  </Stack>;
+  return (
+    <Stack
+      direction="column"
+      spacing={2}
+      sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
+    >
+      <MDEditor
+        data-color-mode="light"
+        textareaProps={{ disabled }}
+        preview="edit"
+        highlightEnable={true}
+        height="none"
+        minHeight={0}
+        value={defaultValue}
+        onChange={onChange}
+        commands={[
+          commands.group(
+            [
+              commands.title1,
+              commands.title2,
+              commands.title3,
+              commands.title4,
+              commands.title5,
+              commands.title6,
+            ],
+            {
+              name: "title",
+              groupName: "title",
+              buttonProps: { "aria-label": "Insert title" },
+            }
+          ),
+          commands.bold,
+          commands.italic,
+          commands.code,
+          commands.link,
+          commands.divider,
+          commands.quote,
+          commands.codeBlock,
+          commands.hr,
+          commands.image,
+          commands.divider,
+          commands.unorderedListCommand,
+          commands.orderedListCommand,
+          commands.divider,
+          commands.group([], {
+            name: "custom components",
+            groupName: "custom components",
+            icon: <Apps style={{ fontSize: 12 }} />,
+            children: getCustomComponentSelector(registeredComponentList),
+            buttonProps: { "aria-label": "Insert custom component" },
+          }),
+        ]}
+        extraCommands={extraCommands}
+        style={TextEditorStyle}
+      />
+    </Stack>
+  );
 };

@@ -1,5 +1,5 @@
-import CommonComponents from './common';
-import FeatureComponents from './features';
+import CommonComponents from "./common";
+import FeatureComponents from "./features";
 
 namespace ShopComponents {
   export const Common = CommonComponents;
