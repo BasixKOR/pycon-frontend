@@ -144,15 +144,16 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
             }
 
             setFormDataState(
-              await Common.BackendAdminAPIs.retrieve<Record<string, string>>(
+              (await Common.BackendAdminAPIs.retrieve<Record<string, string>>(
                 backendAdminClient,
                 app,
                 resource,
                 id
-              )()
+              )()) || {}
             );
           })();
-        }, [app, id, resource, backendAdminClient]);
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [app, resource, id]);
 
         const onSubmitButtonClick: React.MouseEventHandler<
           HTMLButtonElement

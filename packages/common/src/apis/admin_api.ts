@@ -31,8 +31,10 @@ namespace BackendAdminAPIs {
 
   export const retrieve =
     <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
-    () =>
-      client.get<T>(`v1/admin-api/${app}/${resource}/${id}/`);
+    () => {
+      if (!id) return Promise.resolve(null);
+      return client.get<T>(`v1/admin-api/${app}/${resource}/${id}/`);
+    };
 
   export const create =
     <T>(client: BackendAPIClient, app: string, resource: string) =>
