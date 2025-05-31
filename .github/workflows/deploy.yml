@@ -40,7 +40,8 @@ jobs:
       BUMP_RULE: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && '--mode development' || '' }}
       AWS_S3_PYCONKR_FRONTEND_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_PYCONKR_FRONTEND_BUCKET_DEV || secrets.AWS_S3_PYCONKR_FRONTEND_BUCKET_PROD }}
       AWS_S3_PYCONKR_ADMIN_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_DEV || secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_PROD }}
-      AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_PROD }}
+      AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID_PROD }}
+      AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID_PROD }}
       DEPLOY_TARGET_APPLICATION: ${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && 'pyconkr' || 'pyconkr-admin' }}
 
     steps:
@@ -69,4 +70,4 @@ jobs:
 
       - run: aws s3 cp --recursive ./dist s3://${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_S3_PYCONKR_FRONTEND_BUCKET || env.AWS_S3_PYCONKR_ADMIN_BUCKET }}/
 
-      - run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+      - run: aws cloudfront create-invalidation --distribution-id ${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID || env.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID }} --paths "/*"
