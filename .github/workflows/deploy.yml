@@ -65,7 +65,7 @@ jobs:
 
       - run: mkdir -p dist
 
-      - run: pnpm build:@apps/${{ env.DEPLOY_TARGET_APPLICATION }} ${{ env.BUMP_RULE }} && cp -r apps/${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_S3_PYCONKR_FRONTEND_BUCKET || env.AWS_S3_PYCONKR_ADMIN_BUCKET }}/dist/* dist/
+      - run: pnpm build:@apps/${{ env.DEPLOY_TARGET_APPLICATION }} ${{ env.BUMP_RULE }} && cp -r apps/${{ env.DEPLOY_TARGET_APPLICATION }}/dist/* dist/
 
       - run: aws s3 cp --recursive ./dist s3://${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_S3_PYCONKR_FRONTEND_BUCKET || env.AWS_S3_PYCONKR_ADMIN_BUCKET }}/
 
