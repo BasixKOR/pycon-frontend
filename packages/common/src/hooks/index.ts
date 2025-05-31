@@ -1,4 +1,5 @@
 import BackendAPIHooks from './useAPI';
+import BackendAdminAPIHooks from './useAdminAPI';
 import { useCommonContext as useCommonContextHook } from './useCommonContext';
 import { useEmail as useEmailHook } from './useEmail';
 
@@ -10,6 +11,7 @@ export namespace CommonHooks {
 namespace Hooks {
   export const Common = CommonHooks;
   export const BackendAPI = BackendAPIHooks;
+  export const BackendAdminAPI = BackendAdminAPIHooks;
 }
 
 export default Hooks;
