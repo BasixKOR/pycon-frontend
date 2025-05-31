@@ -1,3 +1,4 @@
+import { AxiosError, AxiosResponse } from 'axios';
 import * as React from "react";
 import { useLocation, useParams } from 'react-router-dom';
 import * as R from "remeda";
@@ -5,10 +6,9 @@ import * as R from "remeda";
 import { CircularProgress } from '@mui/material';
 import { ErrorBoundary, Suspense } from '@suspensive/react';
 
-import { AxiosError, AxiosResponse } from 'axios';
 import { BackendAPIClientError } from '../apis/client';
 import Hooks from "../hooks";
-import Schemas from "../schemas";
+import BackendAPISchemas from '../schemas/backendAPI';
 import Utils from '../utils';
 import { ErrorFallback } from './error_handler';
 import { MDXRenderer } from './mdx';
@@ -29,7 +29,7 @@ const LoginRequired: React.FC = () => <>401 Login Required</>;
 const PermissionDenied: React.FC = () => <>403 Permission Denied</>;
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 
-const throwPageNotFound = (message: string) => {
+const throwPageNotFound: (message: string) => never = (message) => {
   const errorStr = `RouteRenderer: ${message}`;
   const axiosError = new AxiosError(errorStr, errorStr, undefined, undefined, { status: 404 } as AxiosResponse);
   throw new BackendAPIClientError(axiosError);
@@ -80,7 +80,7 @@ export const RouteRenderer: React.FC = ErrorBoundary.with(
       const nestedSiteMap = Utils.buildNestedSiteMap(data);
 
       const currentRouteCodes = ['', ...location.pathname.split('/').filter((code) => !R.isEmpty(code))];
-      let currentSitemap: Schemas.NestedSiteMapSchema | undefined = nestedSiteMap[currentRouteCodes[0]];
+      let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | undefined = nestedSiteMap[currentRouteCodes[0]];
       if (currentSitemap === undefined) throwPageNotFound(`Route ${location} not found`);
 
       for (const routeCode of currentRouteCodes.slice(1))

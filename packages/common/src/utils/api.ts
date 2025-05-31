@@ -1,6 +1,6 @@
 import * as R from "remeda";
 
-import BackendAPISchemas from "../schemas";
+import BackendAPISchemas from "../schemas/backendAPI";
 
 export const buildNestedSiteMap: (
   flattened: BackendAPISchemas.FlattenedSiteMapSchema[]
