@@ -1,6 +1,6 @@
 import * as R from "remeda";
 
-import BackendAPISchemas from "../schemas";
+import BackendAPISchemas from "../schemas/backendAPI";
 
 export const buildNestedSiteMap: (
   flattened: BackendAPISchemas.FlattenedSiteMapSchema[]
@@ -8,10 +8,13 @@ export const buildNestedSiteMap: (
   const map: Record<string, BackendAPISchemas.NestedSiteMapSchema> = {};
   const roots: BackendAPISchemas.NestedSiteMapSchema[] = [];
 
-  const siteMapIdRouteCodeMap = flattened.reduce((acc, item) => {
-    acc[item.id] = item.route_code;
-    return acc;
-  }, {} as Record<string, string>);
+  const siteMapIdRouteCodeMap = flattened.reduce(
+    (acc, item) => {
+      acc[item.id] = item.route_code;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   flattened.forEach((item) => {
     map[item.id] = {
@@ -22,26 +25,39 @@ export const buildNestedSiteMap: (
 
   flattened.forEach((item) => {
     if (item.parent_sitemap) {
-      map[item.parent_sitemap].children[siteMapIdRouteCodeMap[item.id]] = map[item.id];
+      map[item.parent_sitemap].children[siteMapIdRouteCodeMap[item.id]] =
+        map[item.id];
     } else {
       roots.push(map[item.id]);
     }
   });
 
-  return roots.reduce((acc, item) => {
-    acc[item.route_code] = item;
-    return acc;
-  }, {} as Record<string, BackendAPISchemas.NestedSiteMapSchema>);
+  return roots.reduce(
+    (acc, item) => {
+      acc[item.route_code] = item;
+      return acc;
+    },
+    {} as Record<string, BackendAPISchemas.NestedSiteMapSchema>
+  );
 };
 
-export const findSiteMapUsingRoute = (route: string, siteMapData: BackendAPISchemas.NestedSiteMapSchema): BackendAPISchemas.NestedSiteMapSchema | null => {
-  const currentRouteCodes = ['', ...route.split('/').filter((code) => !R.isEmpty(code))];
+export const findSiteMapUsingRoute = (
+  route: string,
+  siteMapData: BackendAPISchemas.NestedSiteMapSchema
+): BackendAPISchemas.NestedSiteMapSchema | null => {
+  const currentRouteCodes = [
+    "",
+    ...route.split("/").filter((code) => !R.isEmpty(code)),
+  ];
 
-  let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | null | undefined = siteMapData.children[currentRouteCodes[0]];
+  let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | null | undefined =
+    siteMapData.children[currentRouteCodes[0]];
   if (currentSitemap === undefined) return null;
 
   for (const routeCode of currentRouteCodes.slice(1)) {
-    if ((currentSitemap = currentSitemap.children[routeCode] || null) === null) {
+    if (
+      (currentSitemap = currentSitemap.children[routeCode] || null) === null
+    ) {
       break;
     }
   }
@@ -51,6 +67,9 @@ export const findSiteMapUsingRoute = (route: string, siteMapData: BackendAPISche
 export const parseCss = (t: unknown): React.CSSProperties => {
   try {
     if (R.isString(t) && !R.isEmpty(t)) return JSON.parse(t);
-  } catch (e) {}
-  return {};
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_) {
+    // Ignore parsing errors
+  }
+  return {} as React.CSSProperties;
 };

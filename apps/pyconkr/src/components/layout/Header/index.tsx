@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-
 import * as Common from "@frontend/common";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+
 import { useMenu } from "../../../hooks/useMenu";
 import LanguageSelector from "../LanguageSelector";
 import LoginButton from "../LoginButton";
@@ -31,11 +31,11 @@ export default function Header({ menus }: HeaderProps) {
     handleKeyDown,
     handleBlur,
   } = useMenu();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <HeaderContainer>
-      <HeaderLogo onClick={() => navigate('/')}>
+      <HeaderLogo onClick={() => navigate("/")}>
         <Common.Components.PythonKorea style={{ width: 40, height: 40 }} />
       </HeaderLogo>
 

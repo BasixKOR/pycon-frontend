@@ -1,16 +1,27 @@
-import * as React from "react";
-
 import styled from "@emotion/styled";
-import { Language } from '@mui/icons-material';
+import { Language } from "@mui/icons-material";
+import * as React from "react";
 
 export default function LanguageSelector() {
   const [selectedLang, setSelectedLang] = React.useState<"KO" | "EN">("KO");
 
   return (
     <LanguageContainer>
-      <Language sx={{ color: (theme) => theme.palette.primary.nonFocus, w: 25, h: 25, }} />
-      <LanguageItem isSelected={selectedLang === "KO"} onClick={() => setSelectedLang("KO")}>KO</LanguageItem>
-      <LanguageItem isSelected={selectedLang === "EN"} onClick={() => setSelectedLang("EN")}>EN</LanguageItem>
+      <Language
+        sx={{ color: (theme) => theme.palette.primary.nonFocus, w: 25, h: 25 }}
+      />
+      <LanguageItem
+        isSelected={selectedLang === "KO"}
+        onClick={() => setSelectedLang("KO")}
+      >
+        KO
+      </LanguageItem>
+      <LanguageItem
+        isSelected={selectedLang === "EN"}
+        onClick={() => setSelectedLang("EN")}
+      >
+        EN
+      </LanguageItem>
     </LanguageContainer>
   );
 }

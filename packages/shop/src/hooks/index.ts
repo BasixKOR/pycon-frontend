@@ -1,10 +1,9 @@
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
 
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-
 import ShopAPIs from "../apis";
-import { ShopAPIClient } from '../apis/client';
-import ShopContext from '../contexts';
+import { ShopAPIClient } from "../apis/client";
+import ShopContext from "../contexts";
 import ShopSchemas from "../schemas";
 
 const QUERY_KEYS = {
@@ -34,12 +33,17 @@ namespace ShopHooks {
       throw new Error("useShopContext must be used within a ShopProvider");
     }
     return context;
-  }
+  };
 
   export const useShopClient = () => {
-    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } = useShopContext();
-    return new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout);
-  }
+    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } =
+      useShopContext();
+    return new ShopAPIClient(
+      shopApiDomain,
+      shopApiCSRFCookieName,
+      shopApiTimeout
+    );
+  };
 
   export const useUserStatus = (client: ShopAPIClient) =>
     useSuspenseQuery({
@@ -52,24 +56,27 @@ namespace ShopHooks {
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_EMAIL,
       mutationFn: ShopAPIs.signInWithEmail(client),
-      meta: { invalidates: [ QUERY_KEYS.BASE ] },
+      meta: { invalidates: [QUERY_KEYS.BASE] },
     });
 
   export const useSignInWithSNSMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_IN_SNS,
       mutationFn: ShopAPIs.signInWithSNS(client),
-      meta: { invalidates: [ QUERY_KEYS.BASE ] },
+      meta: { invalidates: [QUERY_KEYS.BASE] },
     });
 
   export const useSignOutMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_OUT,
       mutationFn: ShopAPIs.signOut(client),
-      meta: { invalidates: [ QUERY_KEYS.BASE ] },
+      meta: { invalidates: [QUERY_KEYS.BASE] },
     });
 
-  export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
+  export const useProducts = (
+    client: ShopAPIClient,
+    qs?: ShopSchemas.ProductListQueryParams
+  ) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.PRODUCT_LIST,
       queryFn: () => ShopAPIs.listProducts(client)(qs),
@@ -129,7 +136,9 @@ namespace ShopHooks {
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const useOptionsOfOneItemInOrderPatchMutation = (client: ShopAPIClient) =>
+  export const useOptionsOfOneItemInOrderPatchMutation = (
+    client: ShopAPIClient
+  ) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
       mutationFn: ShopAPIs.patchOrderOptions(client),
