@@ -15,6 +15,14 @@ on:
         options:
           - dev
           - prod
+      APPLICATION:
+        description: "Application to deploy"
+        required: true
+        default: pyconkr
+        type: choice
+        options:
+          - pyconkr-frontend
+          - pyconkr-admin
   push:
     branches:
       - "main"
@@ -30,8 +38,10 @@ jobs:
     env:
       API_STAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev' }}
       BUMP_RULE: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && '--mode development' || '' }}
-      AWS_S3_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_BUCKET_DEV || secrets.AWS_S3_BUCKET_PROD }}
+      AWS_S3_PYCONKR_FRONTEND_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_PYCONKR_FRONTEND_BUCKET_DEV || secrets.AWS_S3_PYCONKR_FRONTEND_BUCKET_PROD }}
+      AWS_S3_PYCONKR_ADMIN_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_DEV || secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_PROD }}
       AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_PROD }}
+      DEPLOY_TARGET_APPLICATION: ${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && 'pyconkr' || 'pyconkr-admin' }}
 
     steps:
       - uses: actions/checkout@master
@@ -55,10 +65,8 @@ jobs:
 
       - run: mkdir -p dist
 
-      - run: pnpm build:@apps/pyconkr ${{ env.BUMP_RULE }} && cp -r apps/pyconkr/dist/* dist/
+      - run: pnpm build:@apps/${{ env.DEPLOY_TARGET_APPLICATION }} ${{ env.BUMP_RULE }} && cp -r apps/pyconkr/dist/* dist/
 
-      - run: pnpm build:@frontend && cp packages/common/dist/common.esm.js{,.map} dist/ && cp packages/shop/dist/shop.esm.js{,.map} dist/
-
-      - run: aws s3 cp --recursive ./dist s3://${{ env.AWS_S3_BUCKET }}/
+      - run: aws s3 cp --recursive ./dist s3://${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_S3_PYCONKR_FRONTEND_BUCKET || env.AWS_S3_PYCONKR_ADMIN_BUCKET }}/
 
       - run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
