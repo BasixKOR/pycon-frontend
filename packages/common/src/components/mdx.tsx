@@ -4,10 +4,11 @@ import * as R from "remeda";
 
 import { evaluate } from "@mdx-js/mdx";
 import * as provider from "@mdx-js/react";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow } from "@mui/material";
 import { ErrorBoundary } from "@suspensive/react";
 import type { MDXComponents } from "mdx/types";
 import muiComponents from 'mui-mdx-components';
+import remarkGfm from 'remark-gfm';
 
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
@@ -24,6 +25,13 @@ const CustomMDXComponents: MDXComponents = {
   'ul': (props) => <ul {...props} />,
   'ol': (props) => <ol {...props} />,
   'li': (props) => <li {...props} />,
+  'table': (props) => <TableContainer><Table {...props} /></TableContainer>,
+  'thead': (props) => <TableHead {...props} />,
+  'tbody': (props) => <TableBody {...props} />,
+  'tfoot': (props) => <TableFooter {...props} />, // MDX에서는 <tfoot>을 사용하지 않지만, 호환성을 위해 추가합니다.
+  'tr': (props) => <TableRow {...props} />,
+  'th': (props) => <TableCell {...props} />,
+  'td': (props) => <TableCell {...props} />,
 }
 
 const lineFormatterForMDX = (line: string) => {
@@ -34,6 +42,9 @@ const lineFormatterForMDX = (line: string) => {
   // import문을 위한 꼼수 - import문 다음 줄은 반드시 빈 줄이어야 합니다.
   // 그러나 \n\n으로 변환할 경우, 다음 단계에서 <br />로 변환되므로, import문 다음에 공백이 있는 줄을 넣어서 <br />로 변환되지 않도록 합니다.
   if (trimmedLine.startsWith("import")) return `${trimmedLine}\n \n`;
+
+  // Table인 경우, 뒤에 공백을 추가하지 않습니다.
+  if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|")) return `${trimmedLine}\n`;
 
   return `${trimmedLine}  \n`;
 }
@@ -55,7 +66,7 @@ export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ tex
           // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
           // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
           const processedText = text.split("\n").map(lineFormatterForMDX).join("").replaceAll("\n\n", "\n<br />\n");
-          const { default: RenderResult } = await evaluate(processedText, { ...runtime, ...provider, baseUrl });
+          const { default: RenderResult } = await evaluate(processedText, { ...runtime, ...provider, baseUrl, remarkPlugins: [remarkGfm] });
           setRenderResult(<RenderResult components={muiComponents({ overrides: { ...CustomMDXComponents, ...(mdxComponents || {}) } })} />);
         } catch (error) {
           setRenderResult(<ErrorFallback error={error as Error} reset={setRandomResetKey} />);
