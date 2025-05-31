@@ -10,6 +10,10 @@ import {
   getFormValue as _getFormValue,
   isFormValid as _isFormValid,
 } from "./form";
+import {
+  filterReadOnlyPropertiesInJsonSchema as _filterReadOnlyPropertiesInJsonSchema,
+  filterWritablePropertiesInJsonSchema as _filterWritablePropertiesInJsonSchema,
+} from './json_schema';
 
 namespace Utils {
   export const buildNestedSiteMap = _buildNestedSiteMap;
@@ -19,6 +23,8 @@ namespace Utils {
   export const isFormValid = _isFormValid;
   export const getFormValue = _getFormValue;
   export const isFilledString = (obj: unknown): obj is string => R.isString(obj) && !R.isEmpty(obj);
+  export const filterWritablePropertiesInJsonSchema = _filterWritablePropertiesInJsonSchema;
+  export const filterReadOnlyPropertiesInJsonSchema = _filterReadOnlyPropertiesInJsonSchema;
 }
 
 export default Utils;
