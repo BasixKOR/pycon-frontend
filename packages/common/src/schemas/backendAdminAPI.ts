@@ -15,7 +15,7 @@ namespace BackendAdminAPISchemas {
   export type AdminSchemaDefinition = {
     schema: RJSFSchema;
     ui_schema: UiSchema;
-    translation_fields: { [key: string]: string };
+    translation_fields: string[];
   };
 
   export type UserSchema = {
