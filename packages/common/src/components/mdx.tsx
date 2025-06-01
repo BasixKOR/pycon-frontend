@@ -20,6 +20,7 @@ import * as R from "remeda";
 
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
+import { rtrim } from "../utils/string";
 
 const REGISTERED_KEYWORDS = [
   "import",
@@ -69,9 +70,9 @@ const CustomMDXComponents: MDXComponents = {
 };
 
 const lineFormatterForMDX = (line: string) => {
-  const trimmedLine = line.trim();
+  if (R.isEmpty(line.trim())) return "\n";
 
-  if (R.isEmpty(trimmedLine)) return "\n";
+  const trimmedLine = rtrim(line);
 
   // import / export / const문을 위한 꼼수 - import문 다음 줄은 반드시 빈 줄이어야 합니다.
   // 그러나 \n\n으로 변환할 경우, 다음 단계에서 <br />로 변환되므로, import문 다음에 공백이 있는 줄을 넣어서 <br />로 변환되지 않도록 합니다.
