@@ -1,61 +1,6 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
-const menus = [
-  {
-    text: "파이콘 한국",
-    subMenu: [
-      { text: "파이콘 한국 소개", href: "/about" },
-      { text: "파이콘 한국 2025", href: "/2025" },
-      { text: "파이콘 한국 행동강령(CoC)", href: "/coc" },
-      { text: "파이썬 사용자 모임", href: "/user-group" },
-      {
-        text: "역대 파이콘 행사",
-        href: "/past-events",
-        subMenu: [
-          { text: "2025", href: "/2025" },
-          { text: "2024", href: "/2024" },
-          { text: "2023", href: "/2023" },
-          { text: "2022", href: "/2022" },
-          { text: "2021", href: "/2021" },
-          { text: "2020", href: "/2020" },
-        ],
-      },
-      { text: "파이콘 한국 건강 관련 안내", href: "/health" },
-    ],
-  },
-  {
-    text: "프로그램",
-    subMenu: [
-      { text: "튜토리얼", href: "/tutorial" },
-      { text: "스프린트", href: "/sprint" },
-      { text: "포스터 세션", href: "/poster" },
-    ],
-  },
-  {
-    text: "세션",
-    subMenu: [
-      { text: "세션 목록", href: "/sessions" },
-      { text: "세션 시간표", href: "/schedule" },
-    ],
-  },
-  {
-    text: "구매",
-    subMenu: [
-      { text: "티켓 구매", href: "/tickets" },
-      { text: "굿즈 구매", href: "/goods" },
-      { text: "결제 내역", href: "/payments" },
-    ],
-  },
-  {
-    text: "후원하기",
-    subMenu: [
-      { text: "후원사 안내", href: "/sponsors" },
-      { text: "개인 후원자", href: "/individual-sponsors" },
-    ],
-  },
-];
-
 export default function BreadCrumb() {
   const [breadcrumbInfo, setBreadcrumbInfo] = useState({
     paths: [{ text: "홈", href: "/" }],
