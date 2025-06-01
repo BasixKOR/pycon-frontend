@@ -21,6 +21,28 @@ import * as R from "remeda";
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
 
+const REGISTERED_KEYWORDS = [
+  "import",
+  "export",
+  "const",
+  "let",
+  "function",
+  "class",
+  "if",
+  "else",
+  "for",
+  "while",
+  "return",
+  "switch",
+  "case",
+  "break",
+  "continue",
+  ",",
+  ";",
+  "{",
+  "}",
+];
+
 const CustomMDXComponents: MDXComponents = {
   h1: (props) => <h1 {...props} />,
   h2: (props) => <h2 {...props} />,
@@ -51,9 +73,11 @@ const lineFormatterForMDX = (line: string) => {
 
   if (R.isEmpty(trimmedLine)) return "\n";
 
-  // import문을 위한 꼼수 - import문 다음 줄은 반드시 빈 줄이어야 합니다.
+  // import / export / const문을 위한 꼼수 - import문 다음 줄은 반드시 빈 줄이어야 합니다.
   // 그러나 \n\n으로 변환할 경우, 다음 단계에서 <br />로 변환되므로, import문 다음에 공백이 있는 줄을 넣어서 <br />로 변환되지 않도록 합니다.
-  if (trimmedLine.startsWith("import")) return `${trimmedLine}\n \n`;
+  if (REGISTERED_KEYWORDS.some((keyword) => trimmedLine.startsWith(keyword) || trimmedLine.endsWith(keyword))) {
+    return `${trimmedLine}\n \n`;
+  }
 
   // Table인 경우, 뒤에 공백을 추가하지 않습니다.
   if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|")) return `${trimmedLine}\n`;
