@@ -23,17 +23,27 @@ const TabList: { [key in SelectedTabType]: React.ReactNode } = {
 };
 
 export const Test: React.FC = () => {
-  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>(getTabFromLocalStorage());
-  const selectTab = (tab: SelectedTabType) => setSelectedTab(setTabToLocalStorage(tab));
+  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>(
+    getTabFromLocalStorage()
+  );
+  const selectTab = (tab: SelectedTabType) =>
+    setSelectedTab(setTabToLocalStorage(tab));
   const TabButton: React.FC<{ tab: SelectedTabType }> = ({ tab }) => (
-    <Button variant={selectedTab === tab ? "contained" : "outlined"} onClick={() => selectTab(tab)}>
+    <Button
+      variant={selectedTab === tab ? "contained" : "outlined"}
+      onClick={() => selectTab(tab)}
+    >
       {tab} Test
     </Button>
   );
 
   return (
     <Stack>
-      <Stack direction="row" spacing={2} sx={{ width: "100%", justifyContent: "center" }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ width: "100%", justifyContent: "center" }}
+      >
         {Object.keys(TabList).map((tab) => (
           <TabButton key={tab} tab={tab as SelectedTabType} />
         ))}
