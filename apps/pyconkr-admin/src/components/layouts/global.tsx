@@ -1,5 +1,6 @@
 import { ChevronLeft, Menu } from "@mui/icons-material";
 import {
+  Backdrop,
   Box,
   CssBaseline,
   Divider,
@@ -163,6 +164,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
             <Outlet />
           </PageInnerContainer>
         </PageOuterContainer>
+        <Backdrop open={state.showDrawer} onClick={toggleDrawer} />
       </Box>
     </Box>
   );
