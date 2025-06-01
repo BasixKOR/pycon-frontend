@@ -33,26 +33,34 @@ export default function Sponsor() {
   if (!isVisible) return null;
 
   return (
-    <SponsorContainer>
-      <SponsorTitle>후원사 목록</SponsorTitle>
-      <SponsorGrid>
+    <SponsorSection aria-label="후원사 섹션">
+      <SponsorTitle as="h4" role="heading" aria-level={4}>
+        후원사 목록
+      </SponsorTitle>
+      <SponsorGrid role="list" aria-label="후원사 목록 그리드">
         {sponsors.map((sponsor) => (
-          <SponsorItem key={sponsor.id}>
-            <sponsor.Logo />
+          <SponsorItem key={sponsor.id} role="listitem">
+            <SponsorButton
+              type="button"
+              aria-label={`${sponsor.name} 상세 정보 보기`}
+            >
+              <span className="sr-only">{sponsor.name}</span>
+              <sponsor.Logo aria-hidden="true" />
+            </SponsorButton>
           </SponsorItem>
         ))}
       </SponsorGrid>
-    </SponsorContainer>
+    </SponsorSection>
   );
 }
 
-const SponsorContainer = styled.div`
+const SponsorSection = styled.section`
   width: 1067px;
   margin: 0 auto;
   margin-bottom: 140px;
 `;
 
-const SponsorTitle = styled.h5`
+const SponsorTitle = styled.h4`
   font-weight: 600;
   font-size: 37px;
   text-align: center;
@@ -71,7 +79,49 @@ const SponsorGrid = styled.div`
 const SponsorItem = styled.div`
   width: 240px;
   height: 75px;
+`;
+
+const SponsorButton = styled.button`
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:focus {
+    outline: 2px solid #007aff;
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #007aff;
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 `;
