@@ -1,10 +1,11 @@
+import * as Common from "@frontend/common";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as R from "remeda";
 
-import * as Common from "@frontend/common";
 import ShopSchemas from "../schemas";
 
-const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
+const DEFAULT_ERROR_MESSAGE =
+  "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {
   type: "unknown",
   errors: [{ code: "unknown", detail: DEFAULT_ERROR_MESSAGE, attr: null }],
@@ -60,11 +61,15 @@ export class ShopAPIClientError extends Error {
   }
 }
 
-type AxiosRequestWithoutPayload = <T = any, R = AxiosResponse<T>, D = any>(
+type AxiosRequestWithoutPayload = <
+  T = unknown,
+  R = AxiosResponse<T>,
+  D = unknown,
+>(
   url: string,
   config?: AxiosRequestConfig<D>
 ) => Promise<R>;
-type AxiosRequestWithPayload = <T = any, R = AxiosResponse<T>, D = any>(
+type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>
@@ -75,11 +80,7 @@ export class ShopAPIClient {
   protected readonly csrfCookieName: string;
   private readonly shopAPI: AxiosInstance;
 
-  constructor(
-    baseURL: string,
-    csrfCookieName: string,
-    timeout: number
-  ) {
+  constructor(baseURL: string, csrfCookieName: string, timeout: number) {
     this.baseURL = baseURL;
     this.csrfCookieName = csrfCookieName;
     this.shopAPI = axios.create({
@@ -100,7 +101,7 @@ export class ShopAPIClient {
   _safe_request_without_payload(
     requestFunc: AxiosRequestWithoutPayload
   ): AxiosRequestWithoutPayload {
-    return async <T = any, R = AxiosResponse<T>, D = any>(
+    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
       url: string,
       config?: AxiosRequestConfig<D>
     ) => {
@@ -115,7 +116,7 @@ export class ShopAPIClient {
   _safe_request_with_payload(
     requestFunc: AxiosRequestWithPayload
   ): AxiosRequestWithPayload {
-    return async <T = any, R = AxiosResponse<T>, D = any>(
+    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
       url: string,
       data: D,
       config?: AxiosRequestConfig<D>
@@ -132,7 +133,7 @@ export class ShopAPIClient {
     return Common.Utils.getCookie(this.csrfCookieName);
   }
 
-  async get<T, D = any>(
+  async get<T, D = unknown>(
     url: string,
     config?: AxiosRequestConfig<D>
   ): Promise<T> {
@@ -183,7 +184,7 @@ export class ShopAPIClient {
       >(url, data, config)
     ).data;
   }
-  async delete<T, D = any>(
+  async delete<T, D = unknown>(
     url: string,
     config?: AxiosRequestConfig<D>
   ): Promise<T> {

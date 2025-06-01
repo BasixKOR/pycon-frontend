@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { ExpandMore } from "@mui/icons-material";
 import {
   Accordion,
@@ -14,6 +12,8 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
+import * as React from "react";
+import * as R from "remeda";
 
 import ShopHooks from "../../hooks";
 import ShopSchemas from "../../schemas";
@@ -69,8 +69,11 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
   onPaymentCompleted,
 }) => {
   const queryClient = useQueryClient();
-  const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation();
-  const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const cartOrderStartMutation =
+    ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
+  const removeItemFromCartMutation =
+    ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
 
   const removeItemFromCart = (cartProductId: string) =>
     removeItemFromCartMutation.mutate({ cartProductId });
@@ -85,13 +88,13 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
             onPaymentCompleted?.();
           },
           (response) => alert("결제를 실패했습니다!\n" + response.error_msg),
-          () => { }
+          () => {}
         );
       },
       onError: (error) =>
         alert(
           error.message ||
-          "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+            "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
         ),
     });
 
@@ -99,10 +102,9 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
     removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
 
   const WrappedShopCartList: React.FC = () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { data } = ShopHooks.useCart();
+    const { data } = ShopHooks.useCart(shopAPIClient);
 
-    return !data.hasOwnProperty("products") || data.products.length === 0 ? (
+    return !R.isArray(data.products) || data.products.length === 0 ? (
       <Typography variant="body1" color="error">
         장바구니가 비어있어요!
       </Typography>
@@ -134,11 +136,15 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
     );
   };
 
-  return <CommonComponents.SignInGuard>
-    <ErrorBoundary fallback={<div>장바구니 정보를 불러오는 중 문제가 발생했습니다.</div>}>
-      <Suspense fallback={<CircularProgress />}>
-        <WrappedShopCartList />
-      </Suspense>
-    </ErrorBoundary>
-  </CommonComponents.SignInGuard>;
+  return (
+    <CommonComponents.SignInGuard>
+      <ErrorBoundary
+        fallback={<div>장바구니 정보를 불러오는 중 문제가 발생했습니다.</div>}
+      >
+        <Suspense fallback={<CircularProgress />}>
+          <WrappedShopCartList />
+        </Suspense>
+      </ErrorBoundary>
+    </CommonComponents.SignInGuard>
+  );
 };

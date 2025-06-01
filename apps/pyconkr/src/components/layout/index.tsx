@@ -23,8 +23,16 @@ const LayoutContainer = styled.div`
 
 const MainContent = styled.main`
   flex: 1;
+
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  > * {
+    flex-grow: 1;
+  }
 `;

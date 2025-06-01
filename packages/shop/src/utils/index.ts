@@ -1,6 +1,5 @@
 import * as R from "remeda";
 
-import ShopHooks from '../hooks';
 import ShopSchemas from "../schemas";
 import { startPortOnePurchase as _startPortOnePurchase } from "./portone";
 
@@ -29,11 +28,6 @@ namespace ShopAPIUtil {
 
     return false;
   };
-
-  export const getReceiptUrlFromOrder = (order: ShopSchemas.Order) => {
-    const { shopApiDomain } = ShopHooks.useShopContext();
-    return `${shopApiDomain}/v1/orders/${order.id}/receipt/`;
-  }
 
   export const startPortOnePurchase = _startPortOnePurchase;
 }

@@ -1,44 +1,57 @@
-import * as React from "react";
-import * as R from "remeda";
-
-import { Button, CircularProgress, MenuItem, Select, Stack } from '@mui/material';
-import { ErrorBoundary, Suspense } from '@suspensive/react';
-
 import * as Common from "@frontend/common";
+import {
+  CircularProgress,
+  MenuItem,
+  Select,
+  SelectProps,
+  Stack,
+} from "@mui/material";
+import { Suspense } from "@suspensive/react";
+import * as React from "react";
 
-const SiteMapRenderer: React.FC = () => {
-  const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery();
-  return <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(Common.Utils.buildNestedSiteMap(data), null, 2)}</pre>
-};
+const SiteMapRenderer: React.FC = Suspense.with(
+  { fallback: <CircularProgress /> },
+  () => {
+    const backendClient = Common.Hooks.BackendAPI.useBackendClient();
+    const { data } =
+      Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
+    return (
+      <pre style={{ whiteSpace: "pre-wrap" }}>
+        {JSON.stringify(Common.Utils.buildNestedSiteMap(data), null, 2)}
+      </pre>
+    );
+  }
+);
 
-const PageIdSelector: React.FC<{ inputRef: React.Ref<HTMLSelectElement> }> = ({ inputRef }) => {
-  const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery();
+const PageIdSelector: React.FC<{ onChange: SelectProps["onChange"] }> =
+  Suspense.with({ fallback: <CircularProgress /> }, ({ onChange }) => {
+    const backendClient = Common.Hooks.BackendAPI.useBackendClient();
+    const { data } =
+      Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
 
-  return <Select inputRef={inputRef}>
-    {data.map((siteMap) => <MenuItem key={siteMap.id} value={siteMap.page}>{siteMap.name}</MenuItem>)}
-  </Select>
-}
-
-const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ErrorBoundary fallback={Common.Components.ErrorFallback}>
-    <Suspense fallback={<CircularProgress />}>
-      {children}
-    </Suspense>
-  </ErrorBoundary>
-)
+    return (
+      <Select onChange={onChange}>
+        {data.map((s) => (
+          <MenuItem key={s.id} value={s.page}>
+            {s.name}
+          </MenuItem>
+        ))}
+      </Select>
+    );
+  });
 
 export const BackendTestPage: React.FC = () => {
-  const inputRef = React.useRef<HTMLSelectElement>(null);
   const [pageId, setPageId] = React.useState<string | null>(null);
 
-  return <Stack>
-    <br />
-    <SuspenseWrapper><SiteMapRenderer /></SuspenseWrapper>
-    <br />
-    <SuspenseWrapper><PageIdSelector inputRef={inputRef} /></SuspenseWrapper>
-    <br />
-    <Button variant="outlined" onClick={() => setPageId(inputRef.current?.value ?? null)}>페이지 렌더링</Button>
-    <br />
-    {R.isString(pageId) ? <SuspenseWrapper><Common.Components.PageRenderer id={pageId} /></SuspenseWrapper> : <>페이지를 선택해주세요.</>}
-  </Stack>
-}
+  return (
+    <Stack spacing={2}>
+      <SiteMapRenderer />
+      <PageIdSelector onChange={(e) => setPageId(e.target.value as string)} />
+      {Common.Utils.isFilledString(pageId) ? (
+        <Common.Components.PageRenderer id={pageId} />
+      ) : (
+        <>페이지를 선택해주세요.</>
+      )}
+    </Stack>
+  );
+};

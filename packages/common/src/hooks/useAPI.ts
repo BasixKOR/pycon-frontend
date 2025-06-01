@@ -1,13 +1,11 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
-
 import BackendAPIs from "../apis";
-import { BackendAPIClient } from '../apis/client';
-import BackendContext from '../contexts';
+import { BackendAPIClient } from "../apis/client";
+import BackendContext from "../contexts";
 
 const QUERY_KEYS = {
-  SITEMAP: ["query", "sitemap"],
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
 };
@@ -15,25 +13,27 @@ const QUERY_KEYS = {
 namespace BackendAPIHooks {
   export const useBackendContext = () => {
     const context = React.useContext(BackendContext.context);
-    if (!context) throw new Error("useBackendContext must be used within a CommonProvider");
+    if (!context)
+      throw new Error("useBackendContext must be used within a CommonProvider");
     return context;
-  }
+  };
 
-  const clientDecorator = <T = CallableFunction>(func:(client: BackendAPIClient) => T): T => {
+  export const useBackendClient = () => {
     const { backendApiDomain, backendApiTimeout } = useBackendContext();
-    return func(new BackendAPIClient(backendApiDomain, backendApiTimeout));
-  }
+    return new BackendAPIClient(backendApiDomain, backendApiTimeout);
+  };
 
-  export const useFlattenSiteMapQuery = () => useSuspenseQuery({
-    queryKey: QUERY_KEYS.SITEMAP_LIST,
-    queryFn: clientDecorator(BackendAPIs.listSiteMaps),
-    meta: { invalidates: [ QUERY_KEYS.SITEMAP ] },
-  });
+  export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>
+    useSuspenseQuery({
+      queryKey: QUERY_KEYS.SITEMAP_LIST,
+      queryFn: BackendAPIs.listSiteMaps(client),
+    });
 
-  export const usePageQuery = (id: string) => useSuspenseQuery({
-    queryKey: [ ...QUERY_KEYS.PAGE, id ],
-    queryFn: () => clientDecorator(BackendAPIs.retrievePage)(id),
-  });
+  export const usePageQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PAGE, id],
+      queryFn: () => BackendAPIs.retrievePage(client)(id),
+    });
 }
 
 export default BackendAPIHooks;

@@ -1,6 +1,4 @@
-import * as React from "react";
-import * as R from "remeda";
-
+import * as Common from "@frontend/common";
 import { ExpandMore } from "@mui/icons-material";
 import {
   Accordion,
@@ -17,12 +15,13 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
+import * as React from "react";
+import * as R from "remeda";
 
-import * as Common from "@frontend/common";
-import ShopHooks from '../../hooks';
-import ShopSchemas from '../../schemas';
-import ShopUtils from '../../utils';
-import CommonComponents from '../common';
+import ShopHooks from "../../hooks";
+import ShopSchemas from "../../schemas";
+import ShopUtils from "../../utils";
+import CommonComponents from "../common";
 
 const getCartAppendRequestPayload = (
   product: ShopSchemas.Product,
@@ -95,8 +94,11 @@ const ProductItem: React.FC<{
   const optionFormRef = React.useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
-  const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation();
-  const addItemToCartMutation = ShopHooks.useAddItemToCartMutation();
+  const shopAPIClient = ShopHooks.useShopClient();
+  const oneItemOrderStartMutation =
+    ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
+  const addItemToCartMutation =
+    ShopHooks.useAddItemToCartMutation(shopAPIClient);
 
   const addItemToCart = () =>
     addItemToCartMutation.mutate(
@@ -199,9 +201,12 @@ const ProductItem: React.FC<{
   );
 };
 
-export const ProductList: React.FC = () => {
+export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (
+  qs
+) => {
   const WrappedProductList: React.FC = () => {
-    const { data } = ShopHooks.useProducts();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
     return (
       <List>
         {data.map((product) => (
@@ -211,9 +216,13 @@ export const ProductList: React.FC = () => {
     );
   };
 
-  return <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
-    <Suspense fallback={<CircularProgress />}>
-      <WrappedProductList />
-    </Suspense>
-  </ErrorBoundary>;
+  return (
+    <ErrorBoundary
+      fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}
+    >
+      <Suspense fallback={<CircularProgress />}>
+        <WrappedProductList />
+      </Suspense>
+    </ErrorBoundary>
+  );
 };

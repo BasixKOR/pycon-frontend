@@ -1,15 +1,13 @@
 import styled from "@emotion/styled";
-
 import * as Common from "@frontend/common";
 import { useNavigate } from "react-router-dom";
+
+import BreadCrumb from "../BreadCrumb";
 import LanguageSelector from "../LanguageSelector";
 import LoginButton from "../LoginButton";
 import Nav from "../Nav";
-import BreadCrumb from "../BreadCrumb";
 
-interface HeaderProps {}
-
-export default function Header({}: HeaderProps) {
+const Header: React.FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -55,3 +53,5 @@ const HeaderLeft = styled.div`
   align-items: center;
   gap: 1.125rem;
 `;
+
+export default Header;
