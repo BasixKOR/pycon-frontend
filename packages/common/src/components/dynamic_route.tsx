@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { AxiosError, AxiosResponse } from "axios";
 import * as React from "react";
@@ -12,17 +12,22 @@ import Utils from "../utils";
 import { ErrorFallback } from "./error_handler";
 import { MDXRenderer } from "./mdx";
 
-const InitialPageStyle: React.CSSProperties = {
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "column",
-};
+const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
+  (additionalStyle) => (theme) => ({
+    width: "100%",
+    marginTop: theme.spacing(8),
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    ...additionalStyle,
+  });
 
-const InitialSectionStyle: React.CSSProperties = {
-  width: "100%",
-};
+const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
+  (additionalStyle) => () => ({
+    width: "100%",
+    ...additionalStyle,
+  });
 
 const LoginRequired: React.FC = () => <>401 Login Required</>;
 const PermissionDenied: React.FC = () => <>403 Permission Denied</>;
@@ -57,15 +62,21 @@ export const PageRenderer: React.FC<{ id?: string }> = ErrorBoundary.with(
   Suspense.with({ fallback: <CircularProgress /> }, ({ id }) => {
     const backendClient = Hooks.BackendAPI.useBackendClient();
     const { data } = Hooks.BackendAPI.usePageQuery(backendClient, id || "");
+    const commonStackStyle = {
+      justifyContent: "flex-start",
+      alignItems: "center",
+    };
 
     return (
-      <div style={{ ...InitialPageStyle, ...Utils.parseCss(data.css) }}>
+      <Stack {...commonStackStyle} sx={initialPageStyle(Utils.parseCss(data.css))}>
         {data.sections.map((s) => (
-          <div style={{ ...InitialSectionStyle, ...Utils.parseCss(s.css) }} key={s.id}>
-            <MDXRenderer text={s.body} />
-          </div>
+          <Stack {...commonStackStyle} sx={initialSectionStyle(Utils.parseCss(s.css))} key={s.id}>
+            <Box sx={{ maxWidth: "1000px" }}>
+              <MDXRenderer text={s.body} />
+            </Box>
+          </Stack>
         ))}
-      </div>
+      </Stack>
     );
   })
 );
