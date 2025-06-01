@@ -114,6 +114,9 @@ importers:
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
+      '@types/kakaomaps':
+        specifier: ^1.1.5
+        version: 1.1.5
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -1076,6 +1079,9 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+
+  '@types/kakaomaps@1.1.5':
+    resolution: {integrity: sha512-9atA+NoyN9l/PgE6XraFqbwspG7o/ZqkGc1PA/nWrjXB7TGeuVgUqFBvHsURbmiXbqHNLQ4Em1+8g3LXxg2i8g==}
 
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
@@ -4475,6 +4481,8 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
+
+  '@types/kakaomaps@1.1.5': {}
 
   '@types/mdast@4.0.4':
     dependencies:
