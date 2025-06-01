@@ -28,7 +28,7 @@ import { addErrorSnackbar, addSnackbar } from "../../utils/snackbar";
 import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
 
 type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
-type onSubmitType = (data: EditorFormDataEventType, event: React.FormEvent<unknown>) => void;
+type onSubmitType = (data: Record<string, string>, event: React.FormEvent<unknown>) => void;
 
 type AppResourceType = { app: string; resource: string };
 type AppResourceIdType = AppResourceType & { id?: string };
@@ -97,9 +97,12 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
       const { data: schemaInfo } = Common.Hooks.BackendAdminAPI.useSchemaQuery(backendAdminClient, app, resource);
 
-      const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
-        setEditorState((ps) => ({ ...ps, tab: selectedTab }));
-      const setFormDataState = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));
+      const setTab = (_: React.SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
+      const setFormDataState = (newFormData?: Record<string, string>) =>
+        setEditorState((ps) => {
+          const formData = newFormData ? { ...ps.formData, ...newFormData } : ps.formData;
+          return { ...ps, formData };
+        });
       const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
       const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
 
@@ -140,14 +143,18 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () =>
         formRef.current && formRef.current.submit();
 
-      const onSubmitFunc: onSubmitType = (data, event) => {
-        beforeSubmit?.(data, event);
-        submitMutation.mutate(data.formData || {}, {
-          onSuccess: () => {
+      const onSubmitFunc = (data: EditorFormDataEventType, event: React.FormEvent) => {
+        // react-jsonschema-form에서 주는 formData에는 translation_fields로 필터링된 필드가 빠져있어,
+        // 사용자가 특정 탭에서 수정한 후 다른 탭으로 이동해서 수정하게 되면 이전 탭의 수정 내용이 사라지는 문제가 발생함.
+        // 따라서, onChange로 항상 값이 추적되는 editorState.formData를 가장 우선적으로 사용함.
+        const newFormData = editorState.formData || data.formData || {};
+        beforeSubmit?.(newFormData, event);
+        submitMutation.mutate(newFormData, {
+          onSuccess: (newFormData) => {
             addSnackbar(id ? "저장했습니다." : "페이지를 생성했습니다.", "success");
-            afterSubmit?.(data, event);
+            afterSubmit?.(newFormData, event);
 
-            if (!id && data.formData?.id) navigate(`/${app}/${resource}/${data.formData?.id}`);
+            if (!id && newFormData.id) navigate(`/${app}/${resource}/${newFormData.id}`);
           },
           onError: addErrorSnackbar,
         });
