@@ -2,6 +2,14 @@ import "@emotion/react";
 import { type Theme as MuiTheme } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
+  interface Palette {
+    highlight: PaletteColor;
+  }
+
+  interface PaletteOptions {
+    highlight: PaletteColor;
+  }
+
   interface PaletteColor {
     nonFocus?: string;
   }

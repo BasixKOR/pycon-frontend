@@ -18,6 +18,12 @@ export const muiTheme = createTheme({
       light: "#B6D8D7",
       dark: "#126D7F",
     },
+    highlight: {
+      main: "#E17101",
+      light: "#EE8D74",
+      dark: "#C66900",
+      contrastText: "#FFFFFF",
+    },
     text: {
       primary: "#000000",
       secondary: "#666666",
