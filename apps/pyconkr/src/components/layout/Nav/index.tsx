@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { useMenu } from "../../../hooks/useMenu";
 import { useState, useEffect, useRef, useMemo } from "react";
+
+import { useMenu } from "../../../hooks/useMenu";
 
 const menus = [
   {

@@ -25,7 +25,7 @@ const Header: React.FC = () => {
       <BreadCrumb />
     </>
   );
-}
+};
 
 const HeaderContainer = styled.header`
   background-color: ${({ theme }) => theme.palette.primary.light};

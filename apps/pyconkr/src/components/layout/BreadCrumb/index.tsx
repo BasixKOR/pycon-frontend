@@ -56,6 +56,7 @@ const menus = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function findBreadcrumbInfo(path: string) {
   if (path === "/" || path === "") {
     return {
@@ -66,7 +67,7 @@ function findBreadcrumbInfo(path: string) {
 
   const normalizedPath = path.replace(/^\/|\/$/g, "");
 
-  let breadcrumbPaths = [{ text: "홈", href: "/" }];
+  const breadcrumbPaths = [{ text: "홈", href: "/" }];
   let pageTitle = "";
 
   for (const menu of menus) {
