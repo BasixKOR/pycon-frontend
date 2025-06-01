@@ -2,12 +2,13 @@ import { Button, Stack } from "@mui/material";
 import * as React from "react";
 
 import { BackendTestPage } from "../../debug/page/backend_test";
+import { ComponentTestPage } from "../../debug/page/component_test";
 import { MapTestPage } from "../../debug/page/map_test";
 import { MdiTestPage } from "../../debug/page/mdi_test";
 import { ShopTestPage } from "../../debug/page/shop_test";
 
 const LOCAL_STORAGE_KEY = "selectedTab";
-type SelectedTabType = "shop" | "mdi" | "backend" | "map";
+type SelectedTabType = "shop" | "mdi" | "backend" | "map" | "component";
 
 const getTabFromLocalStorage = (): SelectedTabType =>
   (localStorage.getItem(LOCAL_STORAGE_KEY) as SelectedTabType) || "shop";
@@ -22,6 +23,7 @@ const TabList: { [key in SelectedTabType]: React.ReactNode } = {
   mdi: <MdiTestPage />,
   backend: <BackendTestPage />,
   map: <MapTestPage />,
+  component: <ComponentTestPage />,
 };
 
 export const Test: React.FC = () => {
