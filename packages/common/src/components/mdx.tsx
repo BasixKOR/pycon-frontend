@@ -20,6 +20,7 @@ import * as R from "remeda";
 
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
+import { StyledDivider } from "./mdx_components/styled_divider";
 
 const REGISTERED_KEYWORDS = [
   "import",
@@ -51,6 +52,7 @@ const CustomMDXComponents: MDXComponents = {
   h5: (props) => <h5 {...props} />,
   h6: (props) => <h6 {...props} />,
   strong: (props) => <strong {...props} />,
+  hr: (props) => <StyledDivider {...props} />,
   em: (props) => <em {...props} />,
   ul: (props) => <ul {...props} />,
   ol: (props) => <ol {...props} />,
