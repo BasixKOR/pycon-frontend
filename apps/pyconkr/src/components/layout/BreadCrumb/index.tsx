@@ -56,51 +56,6 @@ const menus = [
   },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function findBreadcrumbInfo(path: string) {
-  if (path === "/" || path === "") {
-    return {
-      paths: [{ text: "홈", href: "/" }],
-      title: "홈",
-    };
-  }
-
-  const normalizedPath = path.replace(/^\/|\/$/g, "");
-
-  const breadcrumbPaths = [{ text: "홈", href: "/" }];
-  let pageTitle = "";
-
-  for (const menu of menus) {
-    for (const subMenu of menu.subMenu) {
-      const subMenuPath = subMenu.href.replace(/^\/|\/$/g, "");
-
-      if (subMenuPath === normalizedPath) {
-        breadcrumbPaths.push({ text: menu.text, href: subMenu.href });
-        pageTitle = subMenu.text;
-        return { paths: breadcrumbPaths, title: pageTitle };
-      }
-
-      if (subMenu.subMenu) {
-        for (const thirdMenu of subMenu.subMenu) {
-          const thirdMenuPath = thirdMenu.href.replace(/^\/|\/$/g, "");
-
-          if (thirdMenuPath === normalizedPath) {
-            breadcrumbPaths.push({ text: menu.text, href: subMenu.href });
-            breadcrumbPaths.push({ text: subMenu.text, href: subMenu.href });
-            pageTitle = thirdMenu.text;
-            return { paths: breadcrumbPaths, title: pageTitle };
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    paths: [{ text: "홈", href: "/" }],
-    title: normalizedPath.charAt(0).toUpperCase() + normalizedPath.slice(1),
-  };
-}
-
 export default function BreadCrumb() {
   const [breadcrumbInfo, setBreadcrumbInfo] = useState({
     paths: [{ text: "홈", href: "/" }],
