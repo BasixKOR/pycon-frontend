@@ -45,12 +45,12 @@ const REGISTERED_KEYWORDS = [
 ];
 
 const CustomMDXComponents: MDXComponents = {
-  h1: (props) => <h1 {...props} />,
-  h2: (props) => <h2 {...props} />,
-  h3: (props) => <h3 {...props} />,
-  h4: (props) => <h4 {...props} />,
-  h5: (props) => <h5 {...props} />,
-  h6: (props) => <h6 {...props} />,
+  h1: (props) => <h1 style={{ margin: 0 }} {...props} />,
+  h2: (props) => <h2 style={{ margin: 0 }} {...props} />,
+  h3: (props) => <h3 style={{ margin: 0 }} {...props} />,
+  h4: (props) => <h4 style={{ margin: 0 }} {...props} />,
+  h5: (props) => <h5 style={{ margin: 0 }} {...props} />,
+  h6: (props) => <h6 style={{ margin: 0 }} {...props} />,
   strong: (props) => <strong {...props} />,
   hr: (props) => <StyledDivider {...props} />,
   em: (props) => <em {...props} />,
