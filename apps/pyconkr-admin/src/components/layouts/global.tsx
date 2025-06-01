@@ -1,6 +1,8 @@
 import { ChevronLeft, Menu } from "@mui/icons-material";
 import {
+  Backdrop,
   Box,
+  Chip,
   CssBaseline,
   Divider,
   IconButton,
@@ -21,16 +23,23 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import { MiniVariantAppBar, MiniVariantDrawer } from "./sidebar";
 
-export type RouteDef = {
-  icon: typeof SvgIcon;
-  title: string;
-  app: string;
-  resource: string;
-  route?: string; // If specified, this will be used as the route instead of the default one
-  isAdminPage?: boolean;
-  hideOnSidebar?: boolean;
-  placeOnBottom?: boolean;
-};
+export type RouteDef =
+  | {
+      type: "routeDefinition";
+      key: string; // Unique key for the route
+      icon: typeof SvgIcon;
+      title: string;
+      app: string;
+      resource: string;
+      route?: string; // If specified, this will be used as the route instead of the default one
+      hideOnSidebar?: boolean;
+      placeOnBottom?: boolean;
+    }
+  | {
+      type: "separator";
+      key: string; // Unique key for the route
+      title: string;
+    };
 
 type LayoutState = {
   showDrawer: boolean;
@@ -64,35 +73,61 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
   const toggleDrawer = () =>
     dispatch((ps) => ({ ...ps, showDrawer: !ps.showDrawer }));
 
-  const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) => (
-    <ListItem
-      key={`${routeInfo.app}-${routeInfo.resource}`}
-      sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}}
-      disablePadding
-    >
-      <ListItemButton
-        sx={{
-          minHeight: 48,
-          px: 2.5,
-          justifyContent: state.showDrawer ? "initial" : "center",
-        }}
-        onClick={() =>
-          navigate(routeInfo.route || `/${routeInfo.app}/${routeInfo.resource}`)
-        }
+  const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) =>
+    routeInfo.type === "separator" ? (
+      <ListItem key={routeInfo.title} disablePadding sx={{ minHeight: 48 }}>
+        {state.showDrawer ? (
+          <ListItemButton disabled>
+            <ListItemText primary={routeInfo.title} />
+          </ListItemButton>
+        ) : (
+          <Stack
+            alignItems="center"
+            sx={(t) => ({
+              width: t.spacing(7),
+              [t.breakpoints.up("sm")]: { width: t.spacing(8) },
+            })}
+          >
+            <Chip
+              label={routeInfo.title}
+              variant="outlined"
+              size="small"
+              sx={{ flexGrow: 0 }}
+            />
+          </Stack>
+        )}
+      </ListItem>
+    ) : (
+      <ListItem
+        key={`${routeInfo.app}-${routeInfo.resource}`}
+        sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}}
+        disablePadding
       >
-        <ListItemIcon
+        <ListItemButton
           sx={{
-            minWidth: 0,
-            justifyContent: "center",
-            mr: state.showDrawer ? 3 : "auto",
+            minHeight: 48,
+            px: 2.5,
+            justifyContent: state.showDrawer ? "initial" : "center",
           }}
+          onClick={() =>
+            navigate(
+              routeInfo.route || `/${routeInfo.app}/${routeInfo.resource}`
+            )
+          }
         >
-          <routeInfo.icon />
-        </ListItemIcon>
-        {state.showDrawer && <ListItemText primary={routeInfo.title} />}
-      </ListItemButton>
-    </ListItem>
-  );
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              justifyContent: "center",
+              mr: state.showDrawer ? 3 : "auto",
+            }}
+          >
+            <routeInfo.icon />
+          </ListItemIcon>
+          {state.showDrawer && <ListItemText primary={routeInfo.title} />}
+        </ListItemButton>
+      </ListItem>
+    );
 
   const menuButtonStyle: (t: Theme) => React.CSSProperties = (t) => ({
     width: `calc(${t.spacing(7)} + 1px)`,
@@ -151,9 +186,9 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
           <Divider />
           <Stack sx={{ height: "100%" }}>
             {routes
-              .filter((r) => !r.hideOnSidebar)
+              .filter((r) => r.type === "separator" || !r.hideOnSidebar)
               .map((r) => (
-                <SidebarItem key={`${r.app}-${r.resource}`} routeInfo={r} />
+                <SidebarItem key={r.key} routeInfo={r} />
               ))}
           </Stack>
         </MiniVariantDrawer>
@@ -163,6 +198,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
             <Outlet />
           </PageInnerContainer>
         </PageOuterContainer>
+        <Backdrop open={state.showDrawer} onClick={toggleDrawer} />
       </Box>
     </Box>
   );

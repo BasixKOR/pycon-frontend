@@ -19,27 +19,42 @@ import { AdminCMSPageEditor } from "./components/pages/page/editor";
 
 export const RouteDefinitions: RouteDef[] = [
   {
+    type: "separator",
+    key: "cms-separator",
+    title: "CMS",
+  },
+  {
+    type: "routeDefinition",
+    key: "cms-sitemap",
     icon: AccountTree,
-    title: "CMS - 사이트맵 관리",
+    title: "사이트맵 관리",
     app: "cms",
     resource: "sitemap",
-    isAdminPage: true,
   },
   {
+    type: "routeDefinition",
+    key: "cms-page",
     icon: Article,
-    title: "CMS - 페이지 관리",
+    title: "페이지 관리",
     app: "cms",
     resource: "page",
-    isAdminPage: true,
   },
   {
+    type: "separator",
+    key: "file-separator",
+    title: "파일",
+  },
+  {
+    type: "routeDefinition",
+    key: "file-publicfile",
     icon: FilePresent,
     title: "외부 노출 파일 관리",
     app: "file",
     resource: "publicfile",
-    isAdminPage: true,
   },
   {
+    type: "routeDefinition",
+    key: "user-userext",
     icon: AccountCircle,
     title: "로그인 / 로그아웃",
     app: "user",
@@ -62,7 +77,7 @@ const buildDefaultRoutes = (app: string, resource: string) => {
 };
 
 export const RegisteredRoutes = {
-  ...RouteDefinitions.filter((r) => r.isAdminPage).reduce(
+  ...RouteDefinitions.filter((r) => r.type === "routeDefinition").reduce(
     (acc, { app, resource }) => {
       return {
         ...acc,

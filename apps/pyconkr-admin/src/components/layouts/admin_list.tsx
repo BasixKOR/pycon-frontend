@@ -10,6 +10,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -43,6 +44,10 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
+        <Typography variant="h5">
+          {app.toUpperCase()} &gt; {resource.toUpperCase()} &gt; 목록
+        </Typography>
+        <br />
         <Box>
           <Button
             variant="contained"
