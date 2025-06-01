@@ -21,6 +21,7 @@ import * as R from "remeda";
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
 import { StyledDivider } from "./mdx_components/styled_divider";
+import { SubContentContainer } from "./mdx_components/sub_content_container";
 
 const REGISTERED_KEYWORDS = [
   "import",
@@ -68,6 +69,7 @@ const CustomMDXComponents: MDXComponents = {
   tr: (props) => <TableRow {...props} />,
   th: (props) => <TableCell {...props} />,
   td: (props) => <TableCell {...props} />,
+  Content: (props) => <SubContentContainer {...props} />,
 };
 
 const lineFormatterForMDX = (line: string) => {
