@@ -9,6 +9,10 @@ import { ErrorFallback as ErrorFallbackComponent } from "./error_handler";
 import { MDXRenderer as MDXRendererComponent } from "./mdx";
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
+import {
+  PrimaryStyledDetails as PrimaryStyledDetailsComponent,
+  HighlightedStyledDetails as SecondaryStyledDetailsComponent,
+} from "./mdx_components/styled_details";
 import { MDXEditor as MDXEditorComponent } from "./mdx_editor";
 import { PythonKorea as PythonKoreaComponent } from "./pythonkorea";
 
@@ -24,6 +28,8 @@ namespace Components {
   export const ErrorFallback = ErrorFallbackComponent;
 
   export namespace MDX {
+    export const PrimaryStyledDetails = PrimaryStyledDetailsComponent;
+    export const SecondaryStyledDetails = SecondaryStyledDetailsComponent;
     export const Map = MapComponent;
     export type MapPropType = MapComponentPropType;
   }
