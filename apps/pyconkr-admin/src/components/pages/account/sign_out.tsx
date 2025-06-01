@@ -8,11 +8,8 @@ import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
 
 export const SignOutPage: React.FC = () => {
   const navigate = useNavigate();
-  const backendAdminAPIClient =
-    Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const signOutMutation = Common.Hooks.BackendAdminAPI.useSignOutMutation(
-    backendAdminAPIClient
-  );
+  const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+  const signOutMutation = Common.Hooks.BackendAdminAPI.useSignOutMutation(backendAdminAPIClient);
 
   const handleSignOut = () => {
     signOutMutation.mutate(undefined, {
@@ -26,9 +23,7 @@ export const SignOutPage: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
-      const userInfo = await Common.BackendAdminAPIs.me(
-        backendAdminAPIClient
-      )();
+      const userInfo = await Common.BackendAdminAPIs.me(backendAdminAPIClient)();
       if (!userInfo) {
         addSnackbar("로그아웃 상태입니다!", "error");
         navigate("/");
@@ -51,12 +46,7 @@ export const SignOutPage: React.FC = () => {
     >
       <Typography variant="h5">정말 로그아웃하시겠습니까?</Typography>
       <br />
-      <Button
-        variant="contained"
-        onClick={handleSignOut}
-        disabled={signOutMutation.isPending}
-        startIcon={<Logout />}
-      >
+      <Button variant="contained" onClick={handleSignOut} disabled={signOutMutation.isPending} startIcon={<Logout />}>
         로그아웃
       </Button>
     </Stack>

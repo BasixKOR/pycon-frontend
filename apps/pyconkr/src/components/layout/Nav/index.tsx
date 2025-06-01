@@ -60,15 +60,7 @@ const menus = [
 ];
 
 export default function Nav() {
-  const {
-    hoveredMenu,
-    focusedMenu,
-    menuRefs,
-    setHoveredMenu,
-    setFocusedMenu,
-    handleKeyDown,
-    handleBlur,
-  } = useMenu();
+  const { hoveredMenu, focusedMenu, menuRefs, setHoveredMenu, setFocusedMenu, handleKeyDown, handleBlur } = useMenu();
 
   const [isSubMenuHovered, setIsSubMenuHovered] = useState(false);
   const [hoveredSubItem, setHoveredSubItem] = useState<string | null>(null);
@@ -81,17 +73,12 @@ export default function Nav() {
   }, [hoveredMenu, focusedMenu]);
 
   const showSubmenu = !!hoveredMenu || !!focusedMenu || isSubMenuHovered;
-  const activeMenu =
-    hoveredMenu ||
-    focusedMenu ||
-    (isSubMenuHovered ? lastActiveMenuRef.current : null);
+  const activeMenu = hoveredMenu || focusedMenu || (isSubMenuHovered ? lastActiveMenuRef.current : null);
   const currentMenu = menus.find((menu) => menu.text === activeMenu);
 
   const hasActiveThirdLevel = useMemo(() => {
     if (!hoveredSubItem || !currentMenu) return false;
-    const activeSubItem = currentMenu.subMenu.find(
-      (item) => item.text === hoveredSubItem
-    );
+    const activeSubItem = currentMenu.subMenu.find((item) => item.text === hoveredSubItem);
     return activeSubItem?.subMenu && activeSubItem.subMenu.length > 0;
   }, [currentMenu, hoveredSubItem]);
 
@@ -136,9 +123,7 @@ export default function Nav() {
                       <SecondLevelItem
                         key={subItem.text}
                         onMouseEnter={() => setHoveredSubItem(subItem.text)}
-                        className={
-                          hoveredSubItem === subItem.text ? "active" : ""
-                        }
+                        className={hoveredSubItem === subItem.text ? "active" : ""}
                       >
                         <a href={subItem.href} tabIndex={0}>
                           {subItem.text}
@@ -161,8 +146,7 @@ export default function Nav() {
                     }}
                   >
                     {currentMenu.subMenu.map((subItem) => {
-                      const hasThirdLevel =
-                        subItem.subMenu && subItem.subMenu.length > 0;
+                      const hasThirdLevel = subItem.subMenu && subItem.subMenu.length > 0;
                       const isActive = hoveredSubItem === subItem.text;
 
                       if (!hasThirdLevel || !isActive) return null;
@@ -202,10 +186,7 @@ const NavSubContainer = styled.div`
   height: auto;
   min-height: 150px;
   background-color: rgba(255, 255, 255, 0.7);
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0.7),
-    rgba(255, 255, 255, 0.45)
-  );
+  background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.45));
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
   position: fixed;
   left: 0;

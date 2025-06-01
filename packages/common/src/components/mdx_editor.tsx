@@ -1,10 +1,6 @@
 import { Apps } from "@mui/icons-material";
 import { Button, MenuItem, Select, Stack, Typography } from "@mui/material";
-import MDEditor, {
-  GroupOptions,
-  ICommand,
-  commands,
-} from "@uiw/react-md-editor";
+import MDEditor, { GroupOptions, ICommand, commands } from "@uiw/react-md-editor";
 import type { MDXComponents } from "mdx/types";
 import * as React from "react";
 // import * as CryptoJS from "crypto-js";
@@ -69,49 +65,29 @@ const TextEditorStyle: React.CSSProperties = {
 //   );
 // }
 
-const getCustomComponentSelector: (
-  registeredComponentList: CustomComponentInfoType[]
-) => GroupOptions["children"] =
+const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoType[]) => GroupOptions["children"] =
   (registeredComponentList) =>
   ({ close, getState, textApi }) => {
     const componentSelectorRef = React.useRef<HTMLSelectElement>(null);
 
     const onInsertBtnClick = () => {
-      if (
-        !textApi ||
-        !getState ||
-        !registeredComponentList?.length ||
-        !componentSelectorRef.current
-      )
-        return undefined;
+      if (!textApi || !getState || !registeredComponentList?.length || !componentSelectorRef.current) return undefined;
 
       const state = getState();
       if (!state) return undefined;
 
-      const selectedComponentData = registeredComponentList.find(
-        ({ k }) => k === componentSelectorRef?.current?.value
-      );
+      const selectedComponentData = registeredComponentList.find(({ k }) => k === componentSelectorRef?.current?.value);
       if (!selectedComponentData) return undefined;
 
       let newText = `<${selectedComponentData.k} />`;
       if (state.selectedText) {
         newText += `\n${state.selectedText}`;
-        if (
-          state.selection.start - 1 !== -1 &&
-          state.text[state.selection.start - 1] !== "\n"
-        )
+        if (state.selection.start - 1 !== -1 && state.text[state.selection.start - 1] !== "\n")
           newText = `\n${newText}`;
       } else {
-        if (
-          state.selection.start - 1 !== -1 &&
-          state.text[state.selection.start - 1] !== "\n"
-        )
+        if (state.selection.start - 1 !== -1 && state.text[state.selection.start - 1] !== "\n")
           newText = `\n${newText}`;
-        if (
-          state.selection.end !== state.text.length &&
-          state.text[state.selection.end] !== "\n"
-        )
-          newText += "\n";
+        if (state.selection.end !== state.text.length && state.text[state.selection.end] !== "\n") newText += "\n";
       }
 
       textApi.replaceSelection(newText);
@@ -123,12 +99,7 @@ const getCustomComponentSelector: (
         <Typography variant="subtitle1" color="text.secondary">
           컴포넌트 삽입
         </Typography>
-        <Select
-          inputRef={componentSelectorRef}
-          defaultValue=""
-          size="small"
-          fullWidth
-        >
+        <Select inputRef={componentSelectorRef} defaultValue="" size="small" fullWidth>
           {registeredComponentList.map(({ k, n }) => (
             <MenuItem key={k} value={k}>
               {n}
@@ -138,44 +109,29 @@ const getCustomComponentSelector: (
         <Button size="small" variant="contained" onClick={onInsertBtnClick}>
           삽입
         </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          sx={{ flexGrow: 1 }}
-          onClick={close}
-        >
+        <Button size="small" variant="outlined" sx={{ flexGrow: 1 }} onClick={close}>
           닫기
         </Button>
       </Stack>
     );
   };
 
-export const MDXEditor: React.FC<MDXEditorProps> = ({
-  disabled,
-  defaultValue,
-  onChange,
-  extraCommands,
-}) => {
+export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, onChange, extraCommands }) => {
   const { mdxComponents } = Hooks.Common.useCommonContext();
 
   const registeredComponentList: CustomComponentInfoType[] = [
     { k: "", n: "", v: undefined },
     ...Object.entries(mdxComponents ?? {}).map(([k, v]) => {
       const splicedKey = k.replace(/__/g, ".").split(".");
-      const n = [
-        ...splicedKey.slice(0, -1).map((word) => word.toLowerCase()),
-        splicedKey[splicedKey.length - 1],
-      ].join(".");
+      const n = [...splicedKey.slice(0, -1).map((word) => word.toLowerCase()), splicedKey[splicedKey.length - 1]].join(
+        "."
+      );
       return { k, n, v };
     }),
   ];
 
   return (
-    <Stack
-      direction="column"
-      spacing={2}
-      sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
-    >
+    <Stack direction="column" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <MDEditor
         data-color-mode="light"
         textareaProps={{ disabled }}
@@ -187,14 +143,7 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({
         onChange={onChange}
         commands={[
           commands.group(
-            [
-              commands.title1,
-              commands.title2,
-              commands.title3,
-              commands.title4,
-              commands.title5,
-              commands.title6,
-            ],
+            [commands.title1, commands.title2, commands.title3, commands.title4, commands.title5, commands.title6],
             {
               name: "title",
               groupName: "title",

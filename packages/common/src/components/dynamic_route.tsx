@@ -36,10 +36,7 @@ const throwPageNotFound: (message: string) => never = (message) => {
   throw new BackendAPIClientError(axiosError);
 };
 
-const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({
-  error,
-  reset,
-}) => {
+const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   if (error instanceof BackendAPIClientError) {
     switch (error.status) {
       case 401:
@@ -64,10 +61,7 @@ export const PageRenderer: React.FC<{ id?: string }> = ErrorBoundary.with(
     return (
       <div style={{ ...InitialPageStyle, ...Utils.parseCss(data.css) }}>
         {data.sections.map((s) => (
-          <div
-            style={{ ...InitialSectionStyle, ...Utils.parseCss(s.css) }}
-            key={s.id}
-          >
+          <div style={{ ...InitialSectionStyle, ...Utils.parseCss(s.css) }} key={s.id}>
             <MDXRenderer text={s.body} />
           </div>
         ))}
@@ -85,14 +79,9 @@ export const RouteRenderer: React.FC = ErrorBoundary.with(
     const { data } = Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
     const nestedSiteMap = Utils.buildNestedSiteMap(data);
 
-    const currentRouteCodes = [
-      "",
-      ...location.pathname.split("/").filter((code) => !R.isEmpty(code)),
-    ];
-    let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | undefined =
-      nestedSiteMap[currentRouteCodes[0]];
-    if (currentSitemap === undefined)
-      throwPageNotFound(`Route ${location} not found`);
+    const currentRouteCodes = ["", ...location.pathname.split("/").filter((code) => !R.isEmpty(code))];
+    let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | undefined = nestedSiteMap[currentRouteCodes[0]];
+    if (currentSitemap === undefined) throwPageNotFound(`Route ${location} not found`);
 
     for (const routeCode of currentRouteCodes.slice(1))
       if ((currentSitemap = currentSitemap.children[routeCode]) === undefined)
@@ -102,10 +91,7 @@ export const RouteRenderer: React.FC = ErrorBoundary.with(
   })
 );
 
-export const PageIdParamRenderer: React.FC = Suspense.with(
-  { fallback: <CircularProgress /> },
-  () => {
-    const { id } = useParams();
-    return <PageRenderer id={id} />;
-  }
-);
+export const PageIdParamRenderer: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
+  const { id } = useParams();
+  return <PageRenderer id={id} />;
+});

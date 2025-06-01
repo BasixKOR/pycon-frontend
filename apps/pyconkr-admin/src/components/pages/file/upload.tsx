@@ -25,12 +25,8 @@ const InnerPublicFileUploadPage: React.FC = () => {
   });
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const fileDragBoxRef = React.useRef<HTMLDivElement>(null);
-  const backendAdminClient =
-    Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const uploadPublicFileMutation =
-    Common.Hooks.BackendAdminAPI.useUploadPublicFileMutation(
-      backendAdminClient
-    );
+  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+  const uploadPublicFileMutation = Common.Hooks.BackendAdminAPI.useUploadPublicFileMutation(backendAdminClient);
 
   const forceRerender = React.useCallback(
     () =>
@@ -68,10 +64,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     const x = e.clientX,
       y = e.clientY,
       currentHoveredElement = document.elementFromPoint(x, y);
-    if (
-      !fileDragBoxRef.current.contains(currentHoveredElement) ||
-      (x === 0 && y === 0)
-    )
+    if (!fileDragBoxRef.current.contains(currentHoveredElement) || (x === 0 && y === 0))
       setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
   };
 
@@ -115,10 +108,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
 
       const items = event.clipboardData?.items;
       if (!items || items.length === 0) {
-        addSnackbar(
-          "클립보드에 파일이 없습니다. 파일을 선택해주세요.",
-          "error"
-        );
+        addSnackbar("클립보드에 파일이 없습니다. 파일을 선택해주세요.", "error");
         return;
       }
 
@@ -126,17 +116,13 @@ const InnerPublicFileUploadPage: React.FC = () => {
         for (let i = 0; i < items.length; i++) {
           if (items[i].kind === "file") {
             const file = items[i].getAsFile();
-            if (!file || !file.size || !file.type.startsWith("image/"))
-              continue;
+            if (!file || !file.size || !file.type.startsWith("image/")) continue;
 
             handleFile(file);
             return;
           }
         }
-        addSnackbar(
-          "클립보드에 이미지 파일이 없습니다. 이미지 파일을 선택해주세요.",
-          "error"
-        );
+        addSnackbar("클립보드에 이미지 파일이 없습니다. 이미지 파일을 선택해주세요.", "error");
       }
     },
     [handleFile]
@@ -175,26 +161,15 @@ const InnerPublicFileUploadPage: React.FC = () => {
     return () => document.removeEventListener("paste", onClipboardPaste);
   }, [onClipboardPaste, state.isMouseOnDragBox]);
 
-  const selectedFile =
-    (fileInputRef.current?.files?.length && fileInputRef.current.files[0]) ||
-    null;
+  const selectedFile = (fileInputRef.current?.files?.length && fileInputRef.current.files[0]) || null;
 
   return (
     <Stack spacing={2} sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
       <Typography variant="h5" gutterBottom>
         File &gt; PublicFile &gt; 새 파일 업로드
       </Typography>
-      <Input
-        inputRef={fileInputRef}
-        type="file"
-        name="file"
-        sx={{ display: "none" }}
-      />
-      <Button
-        variant="outlined"
-        onClick={onFileSelectButtonClick}
-        startIcon={<PermMedia />}
-      >
+      <Input inputRef={fileInputRef} type="file" name="file" sx={{ display: "none" }} />
+      <Button variant="outlined" onClick={onFileSelectButtonClick} startIcon={<PermMedia />}>
         파일 선택
       </Button>
       <Box

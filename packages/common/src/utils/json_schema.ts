@@ -8,9 +8,7 @@ export const filterWritablePropertiesInJsonSchema = (schema: JSONSchema7) => {
       .reduce(
         (acc, [propKey, propDef]) => ({
           ...acc,
-          [propKey]: filterWritablePropertiesInJsonSchema(
-            propDef as JSONSchema7
-          ),
+          [propKey]: filterWritablePropertiesInJsonSchema(propDef as JSONSchema7),
         }),
         {} as JSONSchema7["properties"]
       );
@@ -27,15 +25,11 @@ export const filterReadOnlyPropertiesInJsonSchema = (schema: JSONSchema7) => {
       .reduce(
         (acc, [propKey, propDef]) => ({
           ...acc,
-          [propKey]: filterReadOnlyPropertiesInJsonSchema(
-            propDef as JSONSchema7
-          ),
+          [propKey]: filterReadOnlyPropertiesInJsonSchema(propDef as JSONSchema7),
         }),
         {} as JSONSchema7["properties"]
       );
-    readOnlySchema.required = readOnlySchema.required?.filter(
-      (key) => key in (readOnlySchema?.properties || {})
-    );
+    readOnlySchema.required = readOnlySchema.required?.filter((key) => key in (readOnlySchema?.properties || {}));
   }
 
   return readOnlySchema;
@@ -52,20 +46,14 @@ export const filterPropertiesByLanguageInJsonSchema = (
   if (translation_fields.length === 0) return filteredSchema;
 
   const notSelectedLanguage = language === "ko" ? "en" : "ko";
-  const notSelectedLangFields = translation_fields.map(
-    (f) => `${f}_${notSelectedLanguage}`
-  );
+  const notSelectedLangFields = translation_fields.map((f) => `${f}_${notSelectedLanguage}`);
   if (filteredSchema.properties) {
     filteredSchema.properties = Object.entries(filteredSchema.properties)
       .filter(([key]) => !notSelectedLangFields.includes(key))
       .reduce(
         (acc, [propKey, propDef]) => ({
           ...acc,
-          [propKey]: filterPropertiesByLanguageInJsonSchema(
-            propDef as JSONSchema7,
-            translation_fields,
-            language
-          ),
+          [propKey]: filterPropertiesByLanguageInJsonSchema(propDef as JSONSchema7, translation_fields, language),
         }),
         {} as JSONSchema7["properties"]
       );

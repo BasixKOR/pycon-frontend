@@ -37,7 +37,7 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "prettier/prettier": "error",
+      "prettier/prettier": ["error", { printWidth: 120 }],
       "import/order": [
         "error",
         {

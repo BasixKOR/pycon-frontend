@@ -7,16 +7,9 @@ import { Navigate } from "react-router-dom";
 export const AccountRedirectPage: React.FC = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
-    const backendAdminAPIClient =
-      Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data } = Common.Hooks.BackendAdminAPI.useSignedInUserQuery(
-      backendAdminAPIClient
-    );
+    const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+    const { data } = Common.Hooks.BackendAdminAPI.useSignedInUserQuery(backendAdminAPIClient);
 
-    return data ? (
-      <Navigate to="/account/sign-out" replace />
-    ) : (
-      <Navigate to="/account/sign-in" replace />
-    );
+    return data ? <Navigate to="/account/sign-out" replace /> : <Navigate to="/account/sign-in" replace />;
   })
 );

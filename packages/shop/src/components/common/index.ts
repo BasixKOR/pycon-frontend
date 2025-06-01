@@ -9,8 +9,7 @@ import { SignInGuard as SignInGuard_ } from "./signin_guard";
 namespace CommonComponents {
   export const ShopContextProvider = ShopContextProvider_;
   export const OptionGroupInput = OptionGroupInput_;
-  export const OrderProductRelationOptionInput =
-    OrderProductRelationOptionInput_;
+  export const OrderProductRelationOptionInput = OrderProductRelationOptionInput_;
   export const PriceDisplay = PriceDisplay_;
   export const SignInGuard = SignInGuard_;
 }

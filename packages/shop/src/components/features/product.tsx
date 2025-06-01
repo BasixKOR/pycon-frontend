@@ -27,19 +27,15 @@ const getCartAppendRequestPayload = (
   product: ShopSchemas.Product,
   formRef: React.RefObject<HTMLFormElement | null>
 ): ShopSchemas.CartItemAppendRequest => {
-  if (!Common.Utils.isFormValid(formRef.current))
-    throw new Error("Form is not valid");
+  if (!Common.Utils.isFormValid(formRef.current)) throw new Error("Form is not valid");
 
   const options = Object.entries(
     Common.Utils.getFormValue<{ [key: string]: string }>({
       form: formRef.current,
     })
   ).map(([product_option_group, value]) => {
-    const optionGroup = product.option_groups.find(
-      (group) => group.id === product_option_group
-    );
-    if (!optionGroup)
-      throw new Error(`Option group ${product_option_group} not found`);
+    const optionGroup = product.option_groups.find((group) => group.id === product_option_group);
+    if (!optionGroup) throw new Error(`Option group ${product_option_group} not found`);
 
     const product_option = optionGroup.is_custom_response ? null : value;
     const custom_response = optionGroup.is_custom_response ? value : null;
@@ -48,9 +44,7 @@ const getCartAppendRequestPayload = (
   return { product: product.id, options };
 };
 
-const getProductNotPurchasableReason = (
-  product: ShopSchemas.Product
-): string | null => {
+const getProductNotPurchasableReason = (product: ShopSchemas.Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
   const now = new Date();
   const orderableStartsAt = new Date(product.orderable_starts_at);
@@ -59,15 +53,10 @@ const getProductNotPurchasableReason = (
     return `아직 구매할 수 없어요!\n(${orderableStartsAt.toLocaleString()}부터 구매하실 수 있어요.)`;
   if (orderableEndsAt < now) return "판매가 종료됐어요!";
 
-  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0)
-    return "상품이 품절되었어요!";
+  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0) return "상품이 품절되었어요!";
   if (
     product.option_groups.some(
-      (og) =>
-        !R.isEmpty(og.options) &&
-        og.options.every(
-          (o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0
-        )
+      (og) => !R.isEmpty(og.options) && og.options.every((o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0)
     )
   )
     return "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!";
@@ -77,11 +66,7 @@ const getProductNotPurchasableReason = (
 
 const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <Typography
-      variant="body1"
-      color="error"
-      sx={{ width: "100%", textAlign: "center", mt: "2rem", mb: "1rem" }}
-    >
+    <Typography variant="body1" color="error" sx={{ width: "100%", textAlign: "center", mt: "2rem", mb: "1rem" }}>
       {children}
     </Typography>
   );
@@ -95,45 +80,32 @@ const ProductItem: React.FC<{
 
   const queryClient = useQueryClient();
   const shopAPIClient = ShopHooks.useShopClient();
-  const oneItemOrderStartMutation =
-    ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
-  const addItemToCartMutation =
-    ShopHooks.useAddItemToCartMutation(shopAPIClient);
+  const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
+  const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
 
-  const addItemToCart = () =>
-    addItemToCartMutation.mutate(
-      getCartAppendRequestPayload(product, optionFormRef)
-    );
+  const addItemToCart = () => addItemToCartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef));
   const oneItemOrderStart = () =>
-    oneItemOrderStartMutation.mutate(
-      getCartAppendRequestPayload(product, optionFormRef),
-      {
-        onSuccess: (order: ShopSchemas.Order) => {
-          ShopUtils.startPortOnePurchase(
-            order,
-            () => {
-              queryClient.invalidateQueries();
-              queryClient.resetQueries();
-              onPaymentCompleted?.();
-            },
-            (response) => alert("결제를 실패했습니다!\n" + response.error_msg),
-            () => {}
-          );
-        },
-        onError: (error) =>
-          alert(
-            error.message ||
-              "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
-          ),
-      }
-    );
+    oneItemOrderStartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef), {
+      onSuccess: (order: ShopSchemas.Order) => {
+        ShopUtils.startPortOnePurchase(
+          order,
+          () => {
+            queryClient.invalidateQueries();
+            queryClient.resetQueries();
+            onPaymentCompleted?.();
+          },
+          (response) => alert("결제를 실패했습니다!\n" + response.error_msg),
+          () => {}
+        );
+      },
+      onError: (error) => alert(error.message || "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."),
+    });
 
   const formOnSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
-  const disabled =
-    oneItemOrderStartMutation.isPending || addItemToCartMutation.isPending;
+  const disabled = oneItemOrderStartMutation.isPending || addItemToCartMutation.isPending;
 
   const notPurchasableReason = getProductNotPurchasableReason(product);
   const actionButtonProps: ButtonProps = {
@@ -152,11 +124,7 @@ const ProductItem: React.FC<{
         <br />
         <Divider />
         <CommonComponents.SignInGuard
-          fallback={
-            <NotPurchasable>
-              로그인 후 장바구니에 담거나 구매할 수 있어요.
-            </NotPurchasable>
-          }
+          fallback={<NotPurchasable>로그인 후 장바구니에 담거나 구매할 수 있어요.</NotPurchasable>}
         >
           {R.isNullish(notPurchasableReason) ? (
             <>
@@ -178,8 +146,7 @@ const ProductItem: React.FC<{
               <Divider />
               <br />
               <Typography variant="h6" sx={{ textAlign: "right" }}>
-                결제 금액:{" "}
-                <CommonComponents.PriceDisplay price={product.price} />
+                결제 금액: <CommonComponents.PriceDisplay price={product.price} />
               </Typography>
             </>
           ) : (
@@ -201,9 +168,7 @@ const ProductItem: React.FC<{
   );
 };
 
-export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (
-  qs
-) => {
+export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
   const WrappedProductList: React.FC = () => {
     const shopAPIClient = ShopHooks.useShopClient();
     const { data } = ShopHooks.useProducts(shopAPIClient, qs);
@@ -217,9 +182,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (
   };
 
   return (
-    <ErrorBoundary
-      fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}
-    >
+    <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
       <Suspense fallback={<CircularProgress />}>
         <WrappedProductList />
       </Suspense>

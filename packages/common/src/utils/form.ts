@@ -5,9 +5,7 @@ export type FormResultObject = {
   [k: string]: FormDataEntryValue | boolean | null;
 };
 
-export const isFormValid = (
-  form: HTMLFormElement | null | undefined
-): form is HTMLFormElement => {
+export const isFormValid = (form: HTMLFormElement | null | undefined): form is HTMLFormElement => {
   if (!(R.isObjectType(form) && form instanceof HTMLFormElement)) return false;
 
   if (!form.checkValidity()) {
@@ -27,11 +25,7 @@ export function getFormValue<T>(_: {
     [k: string]: FormDataEntryValue | boolean | null;
   } = Object.fromEntries(new FormData(_.form));
   Object.keys(formData)
-    .filter(
-      (key) =>
-        (_.fieldToExcludeWhenFalse ?? []).includes(key) ||
-        (_.fieldToNullWhenFalse ?? []).includes(key)
-    )
+    .filter((key) => (_.fieldToExcludeWhenFalse ?? []).includes(key) || (_.fieldToNullWhenFalse ?? []).includes(key))
     .filter((key) => R.isEmpty(formData[key] as string))
     .forEach((key) => {
       if ((_.fieldToExcludeWhenFalse ?? []).includes(key)) {

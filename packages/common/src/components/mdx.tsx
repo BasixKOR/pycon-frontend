@@ -56,16 +56,12 @@ const lineFormatterForMDX = (line: string) => {
   if (trimmedLine.startsWith("import")) return `${trimmedLine}\n \n`;
 
   // Table인 경우, 뒤에 공백을 추가하지 않습니다.
-  if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|"))
-    return `${trimmedLine}\n`;
+  if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|")) return `${trimmedLine}\n`;
 
   return `${trimmedLine}  \n`;
 };
 
-export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({
-  text,
-  resetKey,
-}) => {
+export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ text, resetKey }) => {
   const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
   const [state, setState] = React.useState<{
     component: React.ReactNode;
@@ -75,21 +71,15 @@ export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({
     resetKey: Math.random(),
   });
 
-  const setRenderResult = (component: React.ReactNode) =>
-    setState((prev) => ({ ...prev, component: component }));
-  const setRandomResetKey = () =>
-    setState((prev) => ({ ...prev, resetKey: Math.random() }));
+  const setRenderResult = (component: React.ReactNode) => setState((prev) => ({ ...prev, component: component }));
+  const setRandomResetKey = () => setState((prev) => ({ ...prev, resetKey: Math.random() }));
 
   React.useEffect(() => {
     (async () => {
       try {
         // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,
         // 편의성을 위해 렌더러 단에서 공백 2개를 추가하고 연속 줄바꿈을 <br />로 변환합니다.
-        const processedText = text
-          .split("\n")
-          .map(lineFormatterForMDX)
-          .join("")
-          .replaceAll("\n\n", "\n<br />\n");
+        const processedText = text.split("\n").map(lineFormatterForMDX).join("").replaceAll("\n\n", "\n<br />\n");
         const { default: RenderResult } = await evaluate(processedText, {
           ...runtime,
           ...provider,
@@ -104,18 +94,13 @@ export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({
           />
         );
       } catch (error) {
-        setRenderResult(
-          <ErrorFallback error={error as Error} reset={setRandomResetKey} />
-        );
+        setRenderResult(<ErrorFallback error={error as Error} reset={setRandomResetKey} />);
       }
     })();
   }, [text, resetKey, state.resetKey, baseUrl, mdxComponents]);
 
   return (
-    <ErrorBoundary
-      fallback={ErrorFallback}
-      resetKeys={[text, resetKey, state.resetKey]}
-    >
+    <ErrorBoundary fallback={ErrorFallback} resetKeys={[text, resetKey, state.resetKey]}>
       {state.component}
     </ErrorBoundary>
   );

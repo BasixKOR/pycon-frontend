@@ -8,7 +8,5 @@ type ShopContextProps = {
 };
 
 export const ShopContextProvider: React.FC<ShopContextProps> = (props) => (
-  <ShopContext.context.Provider value={props.options}>
-    {props.children}
-  </ShopContext.context.Provider>
+  <ShopContext.context.Provider value={props.options}>{props.children}</ShopContext.context.Provider>
 );

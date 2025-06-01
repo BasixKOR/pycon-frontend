@@ -122,11 +122,7 @@ namespace ShopSchemas {
     tag_names: string[];
   };
 
-  export type PaymentHistoryStatus =
-    | "pending"
-    | "completed"
-    | "partial_refunded"
-    | "refunded";
+  export type PaymentHistoryStatus = "pending" | "completed" | "partial_refunded" | "refunded";
 
   export type PaymentHistory = {
     price: number;
@@ -215,9 +211,7 @@ namespace ShopSchemas {
     }[];
   };
 
-  export const isObjectErrorResponseSchema = (
-    obj?: unknown
-  ): obj is ShopSchemas.ErrorResponseSchema => {
+  export const isObjectErrorResponseSchema = (obj?: unknown): obj is ShopSchemas.ErrorResponseSchema => {
     return (
       R.isPlainObject(obj) &&
       R.isString(obj.type) &&

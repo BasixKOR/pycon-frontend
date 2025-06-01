@@ -1,11 +1,5 @@
 import * as Common from "@frontend/common";
-import {
-  Button,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
@@ -14,10 +8,8 @@ import ShopHooks from "../../hooks";
 export const UserInfo: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const shopAPIClient = ShopHooks.useShopClient();
-  const signInWithEmailMutation =
-    ShopHooks.useSignInWithEmailMutation(shopAPIClient);
-  const SignInWithSNSMutation =
-    ShopHooks.useSignInWithSNSMutation(shopAPIClient);
+  const signInWithEmailMutation = ShopHooks.useSignInWithEmailMutation(shopAPIClient);
+  const SignInWithSNSMutation = ShopHooks.useSignInWithSNSMutation(shopAPIClient);
   const signOutMutation = ShopHooks.useSignOutMutation(shopAPIClient);
 
   const signInWithGoogle = () =>
@@ -37,10 +29,7 @@ export const UserInfo: React.FC = () => {
     );
   };
 
-  const disabled =
-    SignInWithSNSMutation.isPending ||
-    signInWithEmailMutation.isPending ||
-    signOutMutation.isPending;
+  const disabled = SignInWithSNSMutation.isPending || signInWithEmailMutation.isPending || signOutMutation.isPending;
 
   const WrappedUserStatus: React.FC = () => {
     const shopAPIClient = ShopHooks.useShopClient();
@@ -49,12 +38,7 @@ export const UserInfo: React.FC = () => {
     return data && data.meta.is_authenticated === true ? (
       <Stack>
         <Typography variant="body1">User: {data.data.user.username}</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => signOutMutation.mutate()}
-          disabled={disabled}
-        >
+        <Button variant="contained" color="primary" onClick={() => signOutMutation.mutate()} disabled={disabled}>
           Sign Out
         </Button>
       </Stack>
@@ -87,12 +71,7 @@ export const UserInfo: React.FC = () => {
             Sign In
           </Button>
         </form>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={signInWithGoogle}
-          disabled={disabled}
-        >
+        <Button variant="contained" color="primary" onClick={signInWithGoogle} disabled={disabled}>
           Sign In with Google
         </Button>
       </Stack>
@@ -100,9 +79,7 @@ export const UserInfo: React.FC = () => {
   };
 
   return (
-    <ErrorBoundary
-      fallback={<div>로그인 정보를 불러오는 중 문제가 발생했습니다.</div>}
-    >
+    <ErrorBoundary fallback={<div>로그인 정보를 불러오는 중 문제가 발생했습니다.</div>}>
       <Suspense fallback={<CircularProgress />}>
         <WrappedUserStatus />
       </Suspense>

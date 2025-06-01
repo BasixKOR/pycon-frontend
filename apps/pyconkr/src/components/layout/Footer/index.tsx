@@ -1,15 +1,6 @@
 import styled from "@emotion/styled";
 import * as Common from "@frontend/common";
-import {
-  Article,
-  Email,
-  Facebook,
-  GitHub,
-  Instagram,
-  LinkedIn,
-  X,
-  YouTube,
-} from "@mui/icons-material";
+import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, X, YouTube } from "@mui/icons-material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";

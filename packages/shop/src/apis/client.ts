@@ -4,8 +4,7 @@ import * as R from "remeda";
 
 import ShopSchemas from "../schemas";
 
-const DEFAULT_ERROR_MESSAGE =
-  "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
+const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {
   type: "unknown",
   errors: [{ code: "unknown", detail: DEFAULT_ERROR_MESSAGE, attr: null }],
@@ -34,9 +33,7 @@ export class ShopAPIClientError extends Error {
               errors: [
                 {
                   code: "unknown",
-                  detail: R.isString(response.data)
-                    ? response.data
-                    : DEFAULT_ERROR_MESSAGE,
+                  detail: R.isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
                   attr: null,
                 },
               ],
@@ -61,11 +58,7 @@ export class ShopAPIClientError extends Error {
   }
 }
 
-type AxiosRequestWithoutPayload = <
-  T = unknown,
-  R = AxiosResponse<T>,
-  D = unknown,
->(
+type AxiosRequestWithoutPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
   url: string,
   config?: AxiosRequestConfig<D>
 ) => Promise<R>;
@@ -98,13 +91,8 @@ export class ShopAPIClient {
     );
   }
 
-  _safe_request_without_payload(
-    requestFunc: AxiosRequestWithoutPayload
-  ): AxiosRequestWithoutPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
-      url: string,
-      config?: AxiosRequestConfig<D>
-    ) => {
+  _safe_request_without_payload(requestFunc: AxiosRequestWithoutPayload): AxiosRequestWithoutPayload {
+    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
       try {
         return await requestFunc<T, R, D>(url, config);
       } catch (error) {
@@ -113,9 +101,7 @@ export class ShopAPIClient {
     };
   }
 
-  _safe_request_with_payload(
-    requestFunc: AxiosRequestWithPayload
-  ): AxiosRequestWithPayload {
+  _safe_request_with_payload(requestFunc: AxiosRequestWithPayload): AxiosRequestWithPayload {
     return async <T = unknown, R = AxiosResponse<T>, D = unknown>(
       url: string,
       data: D,
@@ -133,67 +119,19 @@ export class ShopAPIClient {
     return Common.Utils.getCookie(this.csrfCookieName);
   }
 
-  async get<T, D = unknown>(
-    url: string,
-    config?: AxiosRequestConfig<D>
-  ): Promise<T> {
-    return (
-      await this._safe_request_without_payload(this.shopAPI.get)<
-        T,
-        AxiosResponse<T>,
-        D
-      >(url, config)
-    ).data;
+  async get<T, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T> {
+    return (await this._safe_request_without_payload(this.shopAPI.get)<T, AxiosResponse<T>, D>(url, config)).data;
   }
-  async post<T, D>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>
-  ): Promise<T> {
-    return (
-      await this._safe_request_with_payload(this.shopAPI.post)<
-        T,
-        AxiosResponse<T>,
-        D
-      >(url, data, config)
-    ).data;
+  async post<T, D>(url: string, data: D, config?: AxiosRequestConfig<D>): Promise<T> {
+    return (await this._safe_request_with_payload(this.shopAPI.post)<T, AxiosResponse<T>, D>(url, data, config)).data;
   }
-  async put<T, D>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>
-  ): Promise<T> {
-    return (
-      await this._safe_request_with_payload(this.shopAPI.put)<
-        T,
-        AxiosResponse<T>,
-        D
-      >(url, data, config)
-    ).data;
+  async put<T, D>(url: string, data: D, config?: AxiosRequestConfig<D>): Promise<T> {
+    return (await this._safe_request_with_payload(this.shopAPI.put)<T, AxiosResponse<T>, D>(url, data, config)).data;
   }
-  async patch<T, D>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>
-  ): Promise<T> {
-    return (
-      await this._safe_request_with_payload(this.shopAPI.patch)<
-        T,
-        AxiosResponse<T>,
-        D
-      >(url, data, config)
-    ).data;
+  async patch<T, D>(url: string, data: D, config?: AxiosRequestConfig<D>): Promise<T> {
+    return (await this._safe_request_with_payload(this.shopAPI.patch)<T, AxiosResponse<T>, D>(url, data, config)).data;
   }
-  async delete<T, D = unknown>(
-    url: string,
-    config?: AxiosRequestConfig<D>
-  ): Promise<T> {
-    return (
-      await this._safe_request_without_payload(this.shopAPI.delete)<
-        T,
-        AxiosResponse<T>,
-        D
-      >(url, config)
-    ).data;
+  async delete<T, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T> {
+    return (await this._safe_request_without_payload(this.shopAPI.delete)<T, AxiosResponse<T>, D>(url, config)).data;
   }
 }

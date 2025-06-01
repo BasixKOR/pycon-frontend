@@ -13,8 +13,7 @@ const QUERY_KEYS = {
 namespace BackendAPIHooks {
   export const useBackendContext = () => {
     const context = React.useContext(BackendContext.context);
-    if (!context)
-      throw new Error("useBackendContext must be used within a CommonProvider");
+    if (!context) throw new Error("useBackendContext must be used within a CommonProvider");
     return context;
   };
 

@@ -1,15 +1,6 @@
 import * as Common from "@frontend/common";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  ButtonProps,
-  CircularProgress,
-  Divider,
-  Stack,
-  Tab,
-  Tabs,
-} from "@mui/material";
+import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { commands } from "@uiw/react-md-editor";
 import * as React from "react";
@@ -57,11 +48,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({
   });
 
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
-    >
+    <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <Stack sx={{ flexGrow: 1, width: "50%" }}>
         <Common.Components.MDXEditor
           disabled={disabled}
@@ -88,14 +75,10 @@ const SectionEditorField: React.FC<SectionEditorPropType> = ({
   onChange,
   onDelete,
 }) => {
-  const onFieldChange = (key: "body_ko" | "body_en", value?: string) =>
-    onChange({ ...defaultValue, [key]: value });
+  const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
 
   return (
-    <Stack
-      direction="row"
-      sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}
-    >
+    <Stack direction="row" sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
       <SectionTextEditor
         disabled={disabled}
         onInsertNewSection={onInsertNewSection}
@@ -117,23 +100,19 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const { frontendDomain } = Common.Hooks.Common.useCommonContext();
-    const backendAdminClient =
-      Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data: initialSections } =
-      Common.Hooks.BackendAdminAPI.useListPageSectionsQuery(
-        backendAdminClient,
-        id || ""
-      );
-    const [editorState, setEditorState] =
-      React.useState<AdminCMSPageEditorStateType>({
-        sections: initialSections,
-        tab: 0,
-      });
-    const bulkUpdateSectionsMutation =
-      Common.Hooks.BackendAdminAPI.useBulkUpdatePageSectionsMutation(
-        backendAdminClient,
-        id || ""
-      );
+    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+    const { data: initialSections } = Common.Hooks.BackendAdminAPI.useListPageSectionsQuery(
+      backendAdminClient,
+      id || ""
+    );
+    const [editorState, setEditorState] = React.useState<AdminCMSPageEditorStateType>({
+      sections: initialSections,
+      tab: 0,
+    });
+    const bulkUpdateSectionsMutation = Common.Hooks.BackendAdminAPI.useBulkUpdatePageSectionsMutation(
+      backendAdminClient,
+      id || ""
+    );
 
     const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
       setEditorState((ps) => ({ ...ps, tab: selectedTab }));
@@ -141,12 +120,7 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
     const openOnSiteButton: ButtonProps = {
       variant: "outlined",
       size: "small",
-      onClick: () =>
-        id &&
-        window.open(
-          `${frontendDomain || "https://pycon.kr"}/pages/${id}`,
-          "_blank"
-        ),
+      onClick: () => id && window.open(`${frontendDomain || "https://pycon.kr"}/pages/${id}`, "_blank"),
       startIcon: <OpenInNew />,
       children: "홈페이지에서 페이지 보기",
     };
@@ -164,10 +138,9 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
 
     const deleteSection = (index: number) => () => {
       setEditorState((ps) => {
-        const sections = [
-          ...(ps.sections || []).slice(0, index),
-          ...(ps.sections || []).slice(index + 1),
-        ].map((s, order) => ({ ...s, order })); // Reorder sections
+        const sections = [...(ps.sections || []).slice(0, index), ...(ps.sections || []).slice(index + 1)].map(
+          (s, order) => ({ ...s, order })
+        ); // Reorder sections
         return { ...ps, sections };
       });
     };
@@ -182,46 +155,24 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
 
     const onSubmit = () => {
       if (id) {
-        bulkUpdateSectionsMutation.mutate(
-          { sections: editorState.sections || [] },
-          { onError: addErrorSnackbar }
-        );
+        bulkUpdateSectionsMutation.mutate({ sections: editorState.sections || [] }, { onError: addErrorSnackbar });
       }
     };
 
     return (
-      <AdminEditor
-        app="cms"
-        resource="page"
-        id={id}
-        extraActions={[openOnSiteButton]}
-        afterSubmit={onSubmit}
-      >
+      <AdminEditor app="cms" resource="page" id={id} extraActions={[openOnSiteButton]} afterSubmit={onSubmit}>
         {id ? (
           <>
             <br />
             <Divider />
             <br />
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
-            >
-              <Tabs
-                orientation="vertical"
-                value={editorState.tab}
-                onChange={setTab}
-                scrollButtons={false}
-              >
+            <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
+              <Tabs orientation="vertical" value={editorState.tab} onChange={setTab} scrollButtons={false}>
                 <Tab wrapped label="한국어" />
                 <Tab wrapped label="영어" />
               </Tabs>
               <Stack sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
-                <Button
-                  size="small"
-                  onClick={insertNewSection(0)}
-                  startIcon={<Add />}
-                >
+                <Button size="small" onClick={insertNewSection(0)} startIcon={<Add />}>
                   맨 처음에 섹션 추가
                 </Button>
                 {editorState.sections?.map((section, index) => (
@@ -241,11 +192,7 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
             <br />
           </>
         ) : (
-          <Stack
-            justifyContent="center"
-            alignItems="center"
-            sx={{ color: "red" }}
-          >
+          <Stack justifyContent="center" alignItems="center" sx={{ color: "red" }}>
             먼저 페이지를 만든 후 섹션 추가 / 수정이 가능합니다.
           </Stack>
         )}

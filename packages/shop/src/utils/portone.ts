@@ -16,9 +16,7 @@ export const startPortOnePurchase = (
   }
 
   const portOneAccountId =
-    import.meta?.env?.VITE_PYCONKR_SHOP_PORTONE_ACCOUNT_ID ||
-    process?.env?.PYCONKR_SHOP_PORTONE_ACCOUNT_ID ||
-    "";
+    import.meta?.env?.VITE_PYCONKR_SHOP_PORTONE_ACCOUNT_ID || process?.env?.PYCONKR_SHOP_PORTONE_ACCOUNT_ID || "";
   if (!R.isString(portOneAccountId) || R.isEmpty(portOneAccountId)) {
     alert("PortOne 계정 ID가 설정되지 않았습니다.");
     return;

@@ -9,8 +9,7 @@ export const MdiTestPage: React.FC = () => {
     text: "",
     resetKey: Math.random(),
   });
-  const setMDXInput = (input?: string) =>
-    setState({ text: input || "", resetKey: Math.random() });
+  const setMDXInput = (input?: string) => setState({ text: input || "", resetKey: Math.random() });
 
   return (
     <Stack
@@ -26,10 +25,7 @@ export const MdiTestPage: React.FC = () => {
       }}
     >
       <Box sx={HalfWidthStyle}>
-        <Common.Components.MDXEditor
-          defaultValue={state.text}
-          onChange={setMDXInput}
-        />
+        <Common.Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
       </Box>
       <Box sx={HalfWidthStyle}>
         <Common.Components.MDXRenderer {...state} />

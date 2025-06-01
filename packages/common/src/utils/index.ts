@@ -6,10 +6,7 @@ import {
   parseCss as _parseCss,
 } from "./api";
 import { getCookie as _getCookie } from "./cookie";
-import {
-  getFormValue as _getFormValue,
-  isFormValid as _isFormValid,
-} from "./form";
+import { getFormValue as _getFormValue, isFormValid as _isFormValid } from "./form";
 import {
   filterPropertiesByLanguageInJsonSchema as _filterPropertiesByLanguageInJsonSchema,
   filterReadOnlyPropertiesInJsonSchema as _filterReadOnlyPropertiesInJsonSchema,
@@ -23,14 +20,10 @@ namespace Utils {
   export const getCookie = _getCookie;
   export const isFormValid = _isFormValid;
   export const getFormValue = _getFormValue;
-  export const isFilledString = (obj: unknown): obj is string =>
-    R.isString(obj) && !R.isEmpty(obj);
-  export const filterWritablePropertiesInJsonSchema =
-    _filterWritablePropertiesInJsonSchema;
-  export const filterReadOnlyPropertiesInJsonSchema =
-    _filterReadOnlyPropertiesInJsonSchema;
-  export const filterPropertiesByLanguageInJsonSchema =
-    _filterPropertiesByLanguageInJsonSchema;
+  export const isFilledString = (obj: unknown): obj is string => R.isString(obj) && !R.isEmpty(obj);
+  export const filterWritablePropertiesInJsonSchema = _filterWritablePropertiesInJsonSchema;
+  export const filterReadOnlyPropertiesInJsonSchema = _filterReadOnlyPropertiesInJsonSchema;
+  export const filterPropertiesByLanguageInJsonSchema = _filterPropertiesByLanguageInJsonSchema;
 }
 
 export default Utils;

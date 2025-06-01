@@ -27,15 +27,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { addErrorSnackbar, addSnackbar } from "../../utils/snackbar";
 import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
 
-type EditorFormDataEventType = IChangeEvent<
-  Record<string, string>,
-  RJSFSchema,
-  { [k in string]: unknown }
->;
-type onSubmitType = (
-  data: EditorFormDataEventType,
-  event: React.FormEvent<unknown>
-) => void;
+type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
+type onSubmitType = (data: EditorFormDataEventType, event: React.FormEvent<unknown>) => void;
 
 type AppResourceType = { app: string; resource: string };
 type AppResourceIdType = AppResourceType & { id?: string };
@@ -48,8 +41,7 @@ type AdminEditorPropsType = React.PropsWithChildren<{
 }>;
 
 const processFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-  if (!event.target.files || event.target.files.length === 0)
-    return Promise.resolve("");
+  if (!event.target.files || event.target.files.length === 0) return Promise.resolve("");
 
   const f = event.target.files[0];
   return new Promise((resolve) => {
@@ -77,11 +69,7 @@ const ReadOnlyValueField: React.FC<{
   if (uiSchema[name] && uiSchema[name]["ui:field"] === "file") {
     return (
       <Stack spacing={2} alignItems="flex-start">
-        <img
-          src={value as string}
-          alt={name}
-          style={{ maxWidth: "100%", maxHeight: "600px", objectFit: "contain" }}
-        />
+        <img src={value as string} alt={name} style={{ maxWidth: "100%", maxHeight: "600px", objectFit: "contain" }} />
         <a href={value as string}>링크</a>
       </Stack>
     );
@@ -95,322 +83,252 @@ type InnerAdminEditorStateType = {
   formData: Record<string, string> | undefined;
 };
 
-const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
-  ErrorBoundary.with(
-    { fallback: Common.Components.ErrorFallback },
-    Suspense.with(
-      { fallback: <CircularProgress /> },
-      ({
+const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoundary.with(
+  { fallback: Common.Components.ErrorFallback },
+  Suspense.with(
+    { fallback: <CircularProgress /> },
+    ({ app, resource, id, beforeSubmit, afterSubmit, extraActions, notModifiable, notDeletable, children }) => {
+      const navigate = useNavigate();
+      const formRef = React.useRef<Form<Record<string, string>, RJSFSchema, { [k in string]: unknown }> | null>(null);
+      const [editorState, setEditorState] = React.useState<InnerAdminEditorStateType>({
+        tab: 0,
+        formData: undefined,
+      });
+      const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+      const { data: schemaInfo } = Common.Hooks.BackendAdminAPI.useSchemaQuery(backendAdminClient, app, resource);
+
+      const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
+        setEditorState((ps) => ({ ...ps, tab: selectedTab }));
+      const setFormDataState = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));
+      const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
+      const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
+
+      const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<Record<string, string>>(
+        backendAdminClient,
+        app,
+        resource
+      );
+      const modifyMutation = Common.Hooks.BackendAdminAPI.useUpdateMutation<Record<string, string>>(
+        backendAdminClient,
         app,
         resource,
-        id,
-        beforeSubmit,
-        afterSubmit,
-        extraActions,
-        notModifiable,
-        notDeletable,
-        children,
-      }) => {
-        const navigate = useNavigate();
-        const formRef = React.useRef<Form<
-          Record<string, string>,
-          RJSFSchema,
-          { [k in string]: unknown }
-        > | null>(null);
-        const [editorState, setEditorState] =
-          React.useState<InnerAdminEditorStateType>({
-            tab: 0,
-            formData: undefined,
-          });
-        const backendAdminClient =
-          Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-        const { data: schemaInfo } =
-          Common.Hooks.BackendAdminAPI.useSchemaQuery(
-            backendAdminClient,
-            app,
-            resource
+        id || ""
+      );
+      const deleteMutation = Common.Hooks.BackendAdminAPI.useRemoveMutation(
+        backendAdminClient,
+        app,
+        resource,
+        id || "undefined"
+      );
+      const submitMutation = id ? modifyMutation : createMutation;
+
+      React.useEffect(() => {
+        (async () => {
+          if (!id) {
+            setFormDataState({});
+            return;
+          }
+
+          setFormDataState(
+            (await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)()) ||
+              {}
           );
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [app, resource, id]);
 
-        const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
-          setEditorState((ps) => ({ ...ps, tab: selectedTab }));
-        const setFormDataState = (formData?: Record<string, string>) =>
-          setEditorState((ps) => ({ ...ps, formData }));
-        const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
-        const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
+      const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () =>
+        formRef.current && formRef.current.submit();
 
-        const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<
-          Record<string, string>
-        >(backendAdminClient, app, resource);
-        const modifyMutation = Common.Hooks.BackendAdminAPI.useUpdateMutation<
-          Record<string, string>
-        >(backendAdminClient, app, resource, id || "");
-        const deleteMutation = Common.Hooks.BackendAdminAPI.useRemoveMutation(
-          backendAdminClient,
-          app,
-          resource,
-          id || "undefined"
-        );
-        const submitMutation = id ? modifyMutation : createMutation;
+      const onSubmitFunc: onSubmitType = (data, event) => {
+        beforeSubmit?.(data, event);
+        submitMutation.mutate(data.formData || {}, {
+          onSuccess: () => {
+            addSnackbar(id ? "저장했습니다." : "페이지를 생성했습니다.", "success");
+            afterSubmit?.(data, event);
 
-        React.useEffect(() => {
-          (async () => {
-            if (!id) {
-              setFormDataState({});
-              return;
-            }
+            if (!id && data.formData?.id) navigate(`/${app}/${resource}/${data.formData?.id}`);
+          },
+          onError: addErrorSnackbar,
+        });
+      };
 
-            setFormDataState(
-              (await Common.BackendAdminAPIs.retrieve<Record<string, string>>(
-                backendAdminClient,
-                app,
-                resource,
-                id
-              )()) || {}
-            );
-          })();
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [app, resource, id]);
-
-        const onSubmitButtonClick: React.MouseEventHandler<
-          HTMLButtonElement
-        > = () => formRef.current && formRef.current.submit();
-
-        const onSubmitFunc: onSubmitType = (data, event) => {
-          beforeSubmit?.(data, event);
-          submitMutation.mutate(data.formData || {}, {
+      const onDeleteFunc = () => {
+        if (window.confirm("정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+          deleteMutation.mutate(undefined, {
             onSuccess: () => {
-              addSnackbar(
-                id ? "저장했습니다." : "페이지를 생성했습니다.",
-                "success"
-              );
-              afterSubmit?.(data, event);
-
-              if (!id && data.formData?.id)
-                navigate(`/${app}/${resource}/${data.formData?.id}`);
+              addSnackbar("삭제했습니다.", "success");
+              navigate(`/${app}/${resource}`);
             },
             onError: addErrorSnackbar,
           });
+        }
+      };
+
+      const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
+
+      const writableSchema = Common.Utils.filterPropertiesByLanguageInJsonSchema(
+        Common.Utils.filterWritablePropertiesInJsonSchema(schemaInfo.schema),
+        schemaInfo.translation_fields,
+        selectedLanguage
+      );
+      const readOnlySchema = Common.Utils.filterPropertiesByLanguageInJsonSchema(
+        Common.Utils.filterReadOnlyPropertiesInJsonSchema(schemaInfo.schema),
+        schemaInfo.translation_fields,
+        selectedLanguage
+      );
+      const uiSchema: UiSchema = schemaInfo.ui_schema;
+      const disabled = createMutation.isPending || modifyMutation.isPending || deleteMutation.isPending;
+      const title = `${app.toUpperCase()} > ${resource.toUpperCase()} > ${id ? "편집: " + id : "새 객체 추가"}`;
+
+      const notSelectedLangFields = schemaInfo.translation_fields.map((f) => `${f}_${notSelectedLanguage}`);
+      const languageFilteredFormData = editorState.formData
+        ? Object.entries(editorState.formData)
+            .filter(([k]) => !notSelectedLangFields.includes(k))
+            .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as Record<string, string>)
+        : undefined;
+
+      const handleCtrlSAction: (this: GlobalEventHandlers, ev: KeyboardEvent) => void = (event) => {
+        if (event.key === "s" && (event.ctrlKey || event.metaKey)) {
+          console.log("Ctrl+S pressed, executing save action");
+          event.preventDefault();
+          event.stopPropagation();
+          formRef.current?.submit();
+        }
+      };
+
+      React.useEffect(() => {
+        document.addEventListener("keydown", handleCtrlSAction);
+        return () => {
+          console.log("Removing event listener for Ctrl+S action");
+          document.removeEventListener("keydown", handleCtrlSAction);
         };
+      }, []);
 
-        const onDeleteFunc = () => {
-          if (
-            window.confirm(
-              "정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-            )
-          ) {
-            deleteMutation.mutate(undefined, {
-              onSuccess: () => {
-                addSnackbar("삭제했습니다.", "success");
-                navigate(`/${app}/${resource}`);
-              },
-              onError: addErrorSnackbar,
-            });
-          }
-        };
+      if (editorState.formData === undefined) return <CircularProgress />;
 
-        const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
-
-        const writableSchema =
-          Common.Utils.filterPropertiesByLanguageInJsonSchema(
-            Common.Utils.filterWritablePropertiesInJsonSchema(
-              schemaInfo.schema
-            ),
-            schemaInfo.translation_fields,
-            selectedLanguage
-          );
-        const readOnlySchema =
-          Common.Utils.filterPropertiesByLanguageInJsonSchema(
-            Common.Utils.filterReadOnlyPropertiesInJsonSchema(
-              schemaInfo.schema
-            ),
-            schemaInfo.translation_fields,
-            selectedLanguage
-          );
-        const uiSchema: UiSchema = schemaInfo.ui_schema;
-        const disabled =
-          createMutation.isPending ||
-          modifyMutation.isPending ||
-          deleteMutation.isPending;
-        const title = `${app.toUpperCase()} > ${resource.toUpperCase()} > ${id ? "편집: " + id : "새 객체 추가"}`;
-
-        const notSelectedLangFields = schemaInfo.translation_fields.map(
-          (f) => `${f}_${notSelectedLanguage}`
-        );
-        const languageFilteredFormData = editorState.formData
-          ? Object.entries(editorState.formData)
-              .filter(([k]) => !notSelectedLangFields.includes(k))
-              .reduce(
-                (acc, [k, v]) => ({ ...acc, [k]: v }),
-                {} as Record<string, string>
-              )
-          : undefined;
-
-        const handleCtrlSAction: (
-          this: GlobalEventHandlers,
-          ev: KeyboardEvent
-        ) => void = (event) => {
-          if (event.key === "s" && (event.ctrlKey || event.metaKey)) {
-            console.log("Ctrl+S pressed, executing save action");
-            event.preventDefault();
-            event.stopPropagation();
-            formRef.current?.submit();
-          }
-        };
-
-        React.useEffect(() => {
-          document.addEventListener("keydown", handleCtrlSAction);
-          return () => {
-            console.log("Removing event listener for Ctrl+S action");
-            document.removeEventListener("keydown", handleCtrlSAction);
-          };
-        }, []);
-
-        if (editorState.formData === undefined) return <CircularProgress />;
-
-        return (
-          <Box sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
-            <Typography variant="h5">{title}</Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
-            >
-              <Tabs
-                orientation="vertical"
-                value={editorState.tab}
-                onChange={setTab}
-                scrollButtons={false}
-              >
-                <Tab wrapped label="한국어" />
-                <Tab wrapped label="영어" />
-              </Tabs>
-              <Box sx={{ flexGrow: 1 }}>
-                {id && (
-                  <>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>필드</TableCell>
-                          <TableCell>값</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {Object.keys(readOnlySchema.properties || {}).map(
-                          (key) => (
-                            <TableRow key={key}>
-                              <TableCell>{key}</TableCell>
-                              <TableCell>
-                                <ReadOnlyValueField
-                                  name={key}
-                                  value={languageFilteredFormData?.[key]}
-                                  uiSchema={uiSchema}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          )
-                        )}
-                      </TableBody>
-                    </Table>
-                    <br />
-                  </>
-                )}
-                <MuiForm
-                  ref={formRef}
-                  schema={writableSchema}
-                  uiSchema={{
-                    ...uiSchema,
-                    "ui:submitButtonOptions": { norender: true },
-                  }}
-                  validator={customizeValidator({ AjvClass: AjvDraft04 })}
-                  formData={languageFilteredFormData}
-                  liveValidate
-                  focusOnFirstError
-                  formContext={{ readonlyAsDisabled: true }}
-                  onChange={({ formData }) => setFormDataState(formData)}
-                  onSubmit={onSubmitFunc}
-                  disabled={disabled}
-                  showErrorList={false}
-                  fields={{ file: FileField }}
-                />
-              </Box>
-            </Stack>
-            {children}
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "flex-end" }}
-            >
-              {id ? (
+      return (
+        <Box sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
+          <Typography variant="h5">{title}</Typography>
+          <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
+            <Tabs orientation="vertical" value={editorState.tab} onChange={setTab} scrollButtons={false}>
+              <Tab wrapped label="한국어" />
+              <Tab wrapped label="영어" />
+            </Tabs>
+            <Box sx={{ flexGrow: 1 }}>
+              {id && (
                 <>
-                  {(extraActions || []).map((p, i) => (
-                    <Button key={i} {...p} />
-                  ))}
-                  <Button
-                    variant="outlined"
-                    color="info"
-                    onClick={goToCreateNew}
-                    disabled={disabled}
-                    startIcon={<Add />}
-                  >
-                    새 객체 추가
-                  </Button>
-                  {!notDeletable && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={onDeleteFunc}
-                      disabled={disabled}
-                      startIcon={<Delete />}
-                    >
-                      삭제
-                    </Button>
-                  )}
-                  {!notModifiable && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={onSubmitButtonClick}
-                      disabled={disabled}
-                      startIcon={<Edit />}
-                    >
-                      수정
-                    </Button>
-                  )}
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>필드</TableCell>
+                        <TableCell>값</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {Object.keys(readOnlySchema.properties || {}).map((key) => (
+                        <TableRow key={key}>
+                          <TableCell>{key}</TableCell>
+                          <TableCell>
+                            <ReadOnlyValueField
+                              name={key}
+                              value={languageFilteredFormData?.[key]}
+                              uiSchema={uiSchema}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <br />
                 </>
-              ) : (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  onClick={onSubmitButtonClick}
-                  disabled={disabled}
-                  startIcon={<Add />}
-                >
+              )}
+              <MuiForm
+                ref={formRef}
+                schema={writableSchema}
+                uiSchema={{
+                  ...uiSchema,
+                  "ui:submitButtonOptions": { norender: true },
+                }}
+                validator={customizeValidator({ AjvClass: AjvDraft04 })}
+                formData={languageFilteredFormData}
+                liveValidate
+                focusOnFirstError
+                formContext={{ readonlyAsDisabled: true }}
+                onChange={({ formData }) => setFormDataState(formData)}
+                onSubmit={onSubmitFunc}
+                disabled={disabled}
+                showErrorList={false}
+                fields={{ file: FileField }}
+              />
+            </Box>
+          </Stack>
+          {children}
+          <Stack direction="row" spacing={2} sx={{ justifyContent: "flex-end" }}>
+            {id ? (
+              <>
+                {(extraActions || []).map((p, i) => (
+                  <Button key={i} {...p} />
+                ))}
+                <Button variant="outlined" color="info" onClick={goToCreateNew} disabled={disabled} startIcon={<Add />}>
                   새 객체 추가
                 </Button>
-              )}
-            </Stack>
-          </Box>
-        );
-      }
-    )
-  );
+                {!notDeletable && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={onDeleteFunc}
+                    disabled={disabled}
+                    startIcon={<Delete />}
+                  >
+                    삭제
+                  </Button>
+                )}
+                {!notModifiable && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={onSubmitButtonClick}
+                    disabled={disabled}
+                    startIcon={<Edit />}
+                  >
+                    수정
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                onClick={onSubmitButtonClick}
+                disabled={disabled}
+                startIcon={<Add />}
+              >
+                새 객체 추가
+              </Button>
+            )}
+          </Stack>
+        </Box>
+      );
+    }
+  )
+);
 
-export const AdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = (
-  props
-) => (
+export const AdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = (props) => (
   <BackendAdminSignInGuard>
     <InnerAdminEditor {...props} />
   </BackendAdminSignInGuard>
 );
 
-export const AdminEditorCreateRoutePage: React.FC<
-  AppResourceType & AdminEditorPropsType
-> = (props) => <AdminEditor {...props} />;
+export const AdminEditorCreateRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = (props) => (
+  <AdminEditor {...props} />
+);
 
-export const AdminEditorModifyRoutePage: React.FC<
-  AppResourceType & AdminEditorPropsType
-> = Suspense.with({ fallback: <CircularProgress /> }, (props) => {
-  const { id } = useParams<{ id?: string }>();
-  return <AdminEditor {...props} id={id} />;
-});
+export const AdminEditorModifyRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = Suspense.with(
+  { fallback: <CircularProgress /> },
+  (props) => {
+    const { id } = useParams<{ id?: string }>();
+    return <AdminEditor {...props} id={id} />;
+  }
+);

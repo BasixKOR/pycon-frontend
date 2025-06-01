@@ -35,10 +35,7 @@ const CartItem: React.FC<{
       <Stack spacing={2} sx={{ width: "100%" }}>
         {cartProdRel.options.map((optionRel) => (
           <CommonComponents.OrderProductRelationOptionInput
-            key={
-              optionRel.product_option_group.id +
-              (optionRel.product_option?.id || "")
-            }
+            key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
             optionRel={optionRel}
             disabled
             disabledReason="상품 옵션을 수정하려면 장바구니에서 상품을 삭제한 후 다시 담아주세요."
@@ -65,18 +62,13 @@ const CartItem: React.FC<{
   </Accordion>
 );
 
-export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
-  onPaymentCompleted,
-}) => {
+export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({ onPaymentCompleted }) => {
   const queryClient = useQueryClient();
   const shopAPIClient = ShopHooks.useShopClient();
-  const cartOrderStartMutation =
-    ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
-  const removeItemFromCartMutation =
-    ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
+  const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
+  const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
 
-  const removeItemFromCart = (cartProductId: string) =>
-    removeItemFromCartMutation.mutate({ cartProductId });
+  const removeItemFromCart = (cartProductId: string) => removeItemFromCartMutation.mutate({ cartProductId });
   const startCartOrder = () =>
     cartOrderStartMutation.mutate(undefined, {
       onSuccess: (order: ShopSchemas.Order) => {
@@ -91,15 +83,10 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
           () => {}
         );
       },
-      onError: (error) =>
-        alert(
-          error.message ||
-            "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
-        ),
+      onError: (error) => alert(error.message || "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."),
     });
 
-  const disabled =
-    removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
+  const disabled = removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
 
   const WrappedShopCartList: React.FC = () => {
     const { data } = ShopHooks.useCart(shopAPIClient);
@@ -121,15 +108,9 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
         <br />
         <Divider />
         <Typography variant="h6" sx={{ textAlign: "end" }}>
-          결제 금액:{" "}
-          <CommonComponents.PriceDisplay price={data.first_paid_price} />
+          결제 금액: <CommonComponents.PriceDisplay price={data.first_paid_price} />
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={startCartOrder}
-          disabled={disabled}
-        >
+        <Button variant="contained" color="secondary" onClick={startCartOrder} disabled={disabled}>
           장바구니에 담긴 상품 결제
         </Button>
       </>
@@ -138,9 +119,7 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = ({
 
   return (
     <CommonComponents.SignInGuard>
-      <ErrorBoundary
-        fallback={<div>장바구니 정보를 불러오는 중 문제가 발생했습니다.</div>}
-      >
+      <ErrorBoundary fallback={<div>장바구니 정보를 불러오는 중 문제가 발생했습니다.</div>}>
         <Suspense fallback={<CircularProgress />}>
           <WrappedShopCartList />
         </Suspense>

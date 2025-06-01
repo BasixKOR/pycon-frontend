@@ -7,19 +7,11 @@ export default function LanguageSelector() {
 
   return (
     <LanguageContainer>
-      <Language
-        sx={{ color: (theme) => theme.palette.primary.nonFocus, w: 25, h: 25 }}
-      />
-      <LanguageItem
-        isSelected={selectedLang === "KO"}
-        onClick={() => setSelectedLang("KO")}
-      >
+      <Language sx={{ color: (theme) => theme.palette.primary.nonFocus, w: 25, h: 25 }} />
+      <LanguageItem isSelected={selectedLang === "KO"} onClick={() => setSelectedLang("KO")}>
         KO
       </LanguageItem>
-      <LanguageItem
-        isSelected={selectedLang === "EN"}
-        onClick={() => setSelectedLang("EN")}
-      >
+      <LanguageItem isSelected={selectedLang === "EN"} onClick={() => setSelectedLang("EN")}>
         EN
       </LanguageItem>
     </LanguageContainer>
@@ -34,7 +26,6 @@ const LanguageContainer = styled.div`
 
 const LanguageItem = styled.div<{ isSelected: boolean }>`
   cursor: pointer;
-  color: ${({ isSelected, theme }) =>
-    isSelected ? theme.palette.primary.dark : theme.palette.primary.nonFocus};
+  color: ${({ isSelected, theme }) => (isSelected ? theme.palette.primary.dark : theme.palette.primary.nonFocus)};
   transition: color 0.2s ease;
 `;

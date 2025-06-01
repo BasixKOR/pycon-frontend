@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  AppBarProps,
-  CSSObject,
-  Drawer,
-  Theme,
-  styled,
-} from "@mui/material";
+import { AppBar, AppBarProps, CSSObject, Drawer, Theme, styled } from "@mui/material";
 
 const drawerWidth = 240;
 

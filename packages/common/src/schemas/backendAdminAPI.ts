@@ -50,9 +50,7 @@ namespace BackendAdminAPISchemas {
     body_en: string | null;
   };
 
-  export type PageSectionBulkUpdateSchema =
-    | PageSectionSchema
-    | Omit<PageSectionSchema, "id">;
+  export type PageSectionBulkUpdateSchema = PageSectionSchema | Omit<PageSectionSchema, "id">;
 }
 
 export default BackendAdminAPISchemas;

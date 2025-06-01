@@ -34,13 +34,8 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource }) => {
     const navigate = useNavigate();
-    const backendAdminClient =
-      Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(
-      backendAdminClient,
-      app,
-      resource
-    );
+    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+    const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(backendAdminClient, app, resource);
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
@@ -49,11 +44,7 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
         </Typography>
         <br />
         <Box>
-          <Button
-            variant="contained"
-            onClick={() => navigate(`/${app}/${resource}/create`)}
-            startIcon={<Add />}
-          >
+          <Button variant="contained" onClick={() => navigate(`/${app}/${resource}/create`)} startIcon={<Add />}>
             새 객체 추가
           </Button>
         </Box>
@@ -73,16 +64,10 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
                   <Link to={`/${app}/${resource}/${item.id}`}>{item.id}</Link>
                 </TableCell>
                 <TableCell>
-                  <Link to={`/${app}/${resource}/${item.id}`}>
-                    {item.str_repr}
-                  </Link>
+                  <Link to={`/${app}/${resource}/${item.id}`}>{item.str_repr}</Link>
                 </TableCell>
-                <TableCell>
-                  {new Date(item.created_at).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  {new Date(item.updated_at).toLocaleString()}
-                </TableCell>
+                <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
+                <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

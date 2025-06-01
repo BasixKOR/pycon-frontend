@@ -36,13 +36,8 @@ namespace ShopHooks {
   };
 
   export const useShopClient = () => {
-    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } =
-      useShopContext();
-    return new ShopAPIClient(
-      shopApiDomain,
-      shopApiCSRFCookieName,
-      shopApiTimeout
-    );
+    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } = useShopContext();
+    return new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout);
   };
 
   export const useUserStatus = (client: ShopAPIClient) =>
@@ -73,10 +68,7 @@ namespace ShopHooks {
       meta: { invalidates: [QUERY_KEYS.BASE] },
     });
 
-  export const useProducts = (
-    client: ShopAPIClient,
-    qs?: ShopSchemas.ProductListQueryParams
-  ) =>
+  export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
     useSuspenseQuery({
       queryKey: QUERY_KEYS.PRODUCT_LIST,
       queryFn: () => ShopAPIs.listProducts(client)(qs),
@@ -136,9 +128,7 @@ namespace ShopHooks {
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
     });
 
-  export const useOptionsOfOneItemInOrderPatchMutation = (
-    client: ShopAPIClient
-  ) =>
+  export const useOptionsOfOneItemInOrderPatchMutation = (client: ShopAPIClient) =>
     useMutation({
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
       mutationFn: ShopAPIs.patchOrderOptions(client),

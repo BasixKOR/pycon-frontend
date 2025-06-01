@@ -1,14 +1,6 @@
-import {
-  AccountCircle,
-  AccountTree,
-  Article,
-  FilePresent,
-} from "@mui/icons-material";
+import { AccountCircle, AccountTree, Article, FilePresent } from "@mui/icons-material";
 
-import {
-  AdminEditorCreateRoutePage,
-  AdminEditorModifyRoutePage,
-} from "./components/layouts/admin_editor";
+import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./components/layouts/admin_editor";
 import { AdminList } from "./components/layouts/admin_list";
 import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
@@ -67,12 +59,8 @@ export const RouteDefinitions: RouteDef[] = [
 const buildDefaultRoutes = (app: string, resource: string) => {
   return {
     [`/${app}/${resource}/`]: <AdminList app={app} resource={resource} />,
-    [`/${app}/${resource}/create`]: (
-      <AdminEditorCreateRoutePage app={app} resource={resource} />
-    ),
-    [`/${app}/${resource}/:id`]: (
-      <AdminEditorModifyRoutePage app={app} resource={resource} />
-    ),
+    [`/${app}/${resource}/create`]: <AdminEditorCreateRoutePage app={app} resource={resource} />,
+    [`/${app}/${resource}/:id`]: <AdminEditorModifyRoutePage app={app} resource={resource} />,
   };
 };
 
@@ -89,14 +77,7 @@ export const RegisteredRoutes = {
   "/cms/page/create": <AdminCMSPageEditor />,
   "/cms/page/:id": <AdminCMSPageEditor />,
   "/file/publicfile/create": <PublicFileUploadPage />,
-  "/file/publicfile/:id": (
-    <AdminEditorModifyRoutePage
-      app="file"
-      resource="publicfile"
-      notModifiable
-      notDeletable
-    />
-  ),
+  "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/sign-out": <SignOutPage />,

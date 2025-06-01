@@ -1,11 +1,4 @@
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import * as React from "react";
 import * as R from "remeda";
 
@@ -25,17 +18,11 @@ type CustomResponseOptionGroupType = CommonOptionGroupType & {
   is_custom_response: true;
   custom_response_pattern: string;
 };
-type OptionGroupType =
-  | SelectableOptionGroupType
-  | CustomResponseOptionGroupType;
+type OptionGroupType = SelectableOptionGroupType | CustomResponseOptionGroupType;
 
-type SimplifiedOption = Pick<
-  ShopSchemas.Option,
-  "id" | "name" | "additional_price" | "leftover_stock"
->;
+type SimplifiedOption = Pick<ShopSchemas.Option, "id" | "name" | "additional_price" | "leftover_stock">;
 
-const isFilledString = (str: unknown): str is string =>
-  R.isString(str) && !R.isEmpty(str);
+const isFilledString = (str: unknown): str is string => R.isString(str) && !R.isEmpty(str);
 
 const SelectableOptionGroupInput: React.FC<{
   optionGroup: SelectableOptionGroupType;
@@ -45,15 +32,10 @@ const SelectableOptionGroupInput: React.FC<{
   disabledReason?: string;
 }> = ({ optionGroup, options, defaultValue, disabled, disabledReason }) => {
   const optionElements = options.map((option) => {
-    const isOptionOutOfStock =
-      R.isNumber(option.leftover_stock) && option.leftover_stock <= 0;
+    const isOptionOutOfStock = R.isNumber(option.leftover_stock) && option.leftover_stock <= 0;
 
     return (
-      <MenuItem
-        key={option.id}
-        value={option.id}
-        disabled={disabled || isOptionOutOfStock}
-      >
+      <MenuItem key={option.id} value={option.id} disabled={disabled || isOptionOutOfStock}>
         {option.name}
         {option.additional_price > 0 && (
           <>
@@ -81,11 +63,7 @@ const SelectableOptionGroupInput: React.FC<{
     </FormControl>
   );
 
-  return isFilledString(disabledReason) ? (
-    <Tooltip title={disabledReason}>{selectElement}</Tooltip>
-  ) : (
-    selectElement
-  );
+  return isFilledString(disabledReason) ? <Tooltip title={disabledReason}>{selectElement}</Tooltip> : selectElement;
 };
 
 const CustomResponseOptionGroupInput: React.FC<{
@@ -154,10 +132,7 @@ export const OrderProductRelationOptionInput: React.FC<{
   }[] = [];
 
   // type hinting을 위해 if문을 사용함
-  if (
-    optionRel.product_option_group.is_custom_response === false &&
-    R.isNonNull(optionRel.product_option)
-  ) {
+  if (optionRel.product_option_group.is_custom_response === false && R.isNonNull(optionRel.product_option)) {
     defaultValue = optionRel.product_option.id;
     guessedDisabledReason = "추가 비용이 발생하는 옵션은 수정할 수 없어요.";
     dummyOptions = [
@@ -178,9 +153,7 @@ export const OrderProductRelationOptionInput: React.FC<{
       optionGroup={optionRel.product_option_group}
       options={dummyOptions}
       defaultValue={defaultValue || undefined}
-      disabled={
-        disabled || !ShopAPIUtil.isOrderProductOptionModifiable(optionRel)
-      }
+      disabled={disabled || !ShopAPIUtil.isOrderProductOptionModifiable(optionRel)}
       disabledReason={disabledReason || guessedDisabledReason}
     />
   );

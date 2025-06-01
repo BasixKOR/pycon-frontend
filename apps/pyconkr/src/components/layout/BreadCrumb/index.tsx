@@ -37,10 +37,7 @@ const BreadCrumbContainer = styled.div`
   width: 100%;
   padding: 14px 117px;
   background-color: rgba(255, 255, 255, 0.7);
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0.7),
-    rgba(255, 255, 255, 0.45)
-  );
+  background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.45));
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;

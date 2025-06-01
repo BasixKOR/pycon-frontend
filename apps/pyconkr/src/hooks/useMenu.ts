@@ -16,10 +16,7 @@ export const useMenu = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        focusedMenu &&
-        !menuRefs.current[focusedMenu]?.contains(event.target as Node)
-      ) {
+      if (focusedMenu && !menuRefs.current[focusedMenu]?.contains(event.target as Node)) {
         setFocusedMenu(null);
       }
     };

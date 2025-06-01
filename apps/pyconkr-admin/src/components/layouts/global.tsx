@@ -70,8 +70,7 @@ const PageInnerContainer = styled(Box)(({ theme }) => ({
 export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
   const navigate = useNavigate();
   const [state, dispatch] = React.useState<LayoutState>({ showDrawer: false });
-  const toggleDrawer = () =>
-    dispatch((ps) => ({ ...ps, showDrawer: !ps.showDrawer }));
+  const toggleDrawer = () => dispatch((ps) => ({ ...ps, showDrawer: !ps.showDrawer }));
 
   const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) =>
     routeInfo.type === "separator" ? (
@@ -88,12 +87,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
               [t.breakpoints.up("sm")]: { width: t.spacing(8) },
             })}
           >
-            <Chip
-              label={routeInfo.title}
-              variant="outlined"
-              size="small"
-              sx={{ flexGrow: 0 }}
-            />
+            <Chip label={routeInfo.title} variant="outlined" size="small" sx={{ flexGrow: 0 }} />
           </Stack>
         )}
       </ListItem>
@@ -109,11 +103,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
             px: 2.5,
             justifyContent: state.showDrawer ? "initial" : "center",
           }}
-          onClick={() =>
-            navigate(
-              routeInfo.route || `/${routeInfo.app}/${routeInfo.resource}`
-            )
-          }
+          onClick={() => navigate(routeInfo.route || `/${routeInfo.app}/${routeInfo.resource}`)}
         >
           <ListItemIcon
             sx={{
@@ -141,15 +131,8 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
     <Box sx={{ width: "100%", height: "100%" }}>
       <CssBaseline />
       <MiniVariantAppBar position="fixed" open={state.showDrawer}>
-        <Toolbar
-          sx={{ justifyContent: "flex-start", gap: "1rem" }}
-          disableGutters
-        >
-          <Stack
-            justifyContent="center"
-            alignItems="center"
-            sx={menuButtonStyle}
-          >
+        <Toolbar sx={{ justifyContent: "flex-start", gap: "1rem" }} disableGutters>
+          <Stack justifyContent="center" alignItems="center" sx={menuButtonStyle}>
             <Tooltip title="Menu">
               <IconButton color="inherit" onClick={toggleDrawer}>
                 <Menu />
@@ -174,11 +157,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
 
       <Box sx={{ width: "100%", minHeight: "100%" }}>
         <MiniVariantDrawer variant="permanent" open={state.showDrawer}>
-          <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={(t) => t.mixins.toolbar}
-          >
+          <Stack alignItems="center" justifyContent="center" sx={(t) => t.mixins.toolbar}>
             <IconButton onClick={toggleDrawer}>
               <ChevronLeft />
             </IconButton>

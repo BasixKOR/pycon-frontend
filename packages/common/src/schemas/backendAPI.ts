@@ -48,9 +48,7 @@ namespace BackendAPISchemas {
     sections: SectionSchema[];
   };
 
-  export const isObjectErrorResponseSchema = (
-    obj?: unknown
-  ): obj is BackendAPISchemas.ErrorResponseSchema => {
+  export const isObjectErrorResponseSchema = (obj?: unknown): obj is BackendAPISchemas.ErrorResponseSchema => {
     return (
       R.isPlainObject(obj) &&
       R.isString(obj.type) &&

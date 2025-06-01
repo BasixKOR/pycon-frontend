@@ -9,11 +9,8 @@ import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const backendAdminAPIClient =
-    Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const signInMutation = Common.Hooks.BackendAdminAPI.useSignInMutation(
-    backendAdminAPIClient
-  );
+  const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+  const signInMutation = Common.Hooks.BackendAdminAPI.useSignInMutation(backendAdminAPIClient);
 
   const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,14 +31,9 @@ export const SignInPage: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
-      const userInfo = await Common.BackendAdminAPIs.me(
-        backendAdminAPIClient
-      )();
+      const userInfo = await Common.BackendAdminAPIs.me(backendAdminAPIClient)();
       if (userInfo) {
-        addSnackbar(
-          `이미 ${userInfo.username}님으로 로그인되어 있습니다!`,
-          "success"
-        );
+        addSnackbar(`이미 ${userInfo.username}님으로 로그인되어 있습니다!`, "success");
         navigate("/");
       }
     })();
@@ -52,25 +44,9 @@ export const SignInPage: React.FC = () => {
       <form ref={formRef} onSubmit={handleSignIn}>
         <Stack direction="column" spacing={2}>
           <Typography variant="h5">로그인</Typography>
-          <TextField
-            label="Email or Username"
-            name="identity"
-            required
-            disabled={signInMutation.isPending}
-          />
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            required
-            disabled={signInMutation.isPending}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={signInMutation.isPending}
-            startIcon={<Login />}
-          >
+          <TextField label="Email or Username" name="identity" required disabled={signInMutation.isPending} />
+          <TextField label="Password" name="password" type="password" required disabled={signInMutation.isPending} />
+          <Button type="submit" variant="contained" disabled={signInMutation.isPending} startIcon={<Login />}>
             로그인
           </Button>
         </Stack>

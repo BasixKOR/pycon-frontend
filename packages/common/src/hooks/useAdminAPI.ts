@@ -20,14 +20,8 @@ const MUTATION_KEYS = {
 
 namespace BackendAdminAPIHooks {
   export const useBackendAdminClient = () => {
-    const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName } =
-      BackendAPIHooks.useBackendContext();
-    return new BackendAPIClient(
-      backendApiDomain,
-      backendApiTimeout,
-      backendApiCSRFCookieName,
-      true
-    );
+    const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName } = BackendAPIHooks.useBackendContext();
+    return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, true);
   };
 
   export const useSignedInUserQuery = (client: BackendAPIClient) =>
@@ -48,64 +42,37 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.signOut(client),
     });
 
-  export const useSchemaQuery = (
-    client: BackendAPIClient,
-    app: string,
-    resource: string
-  ) =>
+  export const useSchemaQuery = (client: BackendAPIClient, app: string, resource: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.ADMIN_SCHEMA, app, resource],
       queryFn: BackendAdminAPIs.schema(client, app, resource),
     });
 
-  export const useListQuery = <T>(
-    client: BackendAPIClient,
-    app: string,
-    resource: string
-  ) =>
+  export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource],
       queryFn: BackendAdminAPIs.list<T>(client, app, resource),
     });
 
-  export const useRetrieveQuery = <T>(
-    client: BackendAPIClient,
-    app: string,
-    resource: string,
-    id: string
-  ) =>
+  export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, id],
       queryFn: BackendAdminAPIs.retrieve<T>(client, app, resource, id),
     });
 
-  export const useCreateMutation = <T>(
-    client: BackendAPIClient,
-    app: string,
-    resource: string
-  ) =>
+  export const useCreateMutation = <T>(client: BackendAPIClient, app: string, resource: string) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_CREATE, app, resource],
       mutationFn: BackendAdminAPIs.create<T>(client, app, resource),
     });
 
-  export const useUpdateMutation = <T>(
-    client: BackendAPIClient,
-    app: string,
-    resource: string,
-    id: string
-  ) =>
+  export const useUpdateMutation = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_UPDATE, app, resource, id],
       mutationFn: BackendAdminAPIs.update<T>(client, app, resource, id),
     });
 
-  export const useRemoveMutation = (
-    client: BackendAPIClient,
-    app: string,
-    resource: string,
-    id: string
-  ) =>
+  export const useRemoveMutation = (client: BackendAPIClient, app: string, resource: string, id: string) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_REMOVE, app, resource, id],
       mutationFn: BackendAdminAPIs.remove(client, app, resource, id),
@@ -117,27 +84,15 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.uploadPublicFile(client),
     });
 
-  export const useListPageSectionsQuery = (
-    client: BackendAPIClient,
-    pageId: string
-  ) =>
+  export const useListPageSectionsQuery = (client: BackendAPIClient, pageId: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.ADMIN_LIST, "cms", "page", pageId, "section"],
       queryFn: BackendAdminAPIs.listSections(client, pageId),
     });
 
-  export const useBulkUpdatePageSectionsMutation = (
-    client: BackendAPIClient,
-    pageId: string
-  ) =>
+  export const useBulkUpdatePageSectionsMutation = (client: BackendAPIClient, pageId: string) =>
     useMutation({
-      mutationKey: [
-        ...MUTATION_KEYS.ADMIN_UPDATE,
-        "cms",
-        "page",
-        pageId,
-        "section",
-      ],
+      mutationKey: [...MUTATION_KEYS.ADMIN_UPDATE, "cms", "page", pageId, "section"],
       mutationFn: BackendAdminAPIs.bulkUpdateSections(client, pageId),
     });
 }

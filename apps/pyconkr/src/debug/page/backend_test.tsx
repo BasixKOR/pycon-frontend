@@ -1,33 +1,19 @@
 import * as Common from "@frontend/common";
-import {
-  CircularProgress,
-  MenuItem,
-  Select,
-  SelectProps,
-  Stack,
-} from "@mui/material";
+import { CircularProgress, MenuItem, Select, SelectProps, Stack } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
-const SiteMapRenderer: React.FC = Suspense.with(
-  { fallback: <CircularProgress /> },
-  () => {
-    const backendClient = Common.Hooks.BackendAPI.useBackendClient();
-    const { data } =
-      Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
-    return (
-      <pre style={{ whiteSpace: "pre-wrap" }}>
-        {JSON.stringify(Common.Utils.buildNestedSiteMap(data), null, 2)}
-      </pre>
-    );
-  }
-);
+const SiteMapRenderer: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
+  const backendClient = Common.Hooks.BackendAPI.useBackendClient();
+  const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
+  return <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(Common.Utils.buildNestedSiteMap(data), null, 2)}</pre>;
+});
 
-const PageIdSelector: React.FC<{ onChange: SelectProps["onChange"] }> =
-  Suspense.with({ fallback: <CircularProgress /> }, ({ onChange }) => {
+const PageIdSelector: React.FC<{ onChange: SelectProps["onChange"] }> = Suspense.with(
+  { fallback: <CircularProgress /> },
+  ({ onChange }) => {
     const backendClient = Common.Hooks.BackendAPI.useBackendClient();
-    const { data } =
-      Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
+    const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
 
     return (
       <Select onChange={onChange}>
@@ -38,7 +24,8 @@ const PageIdSelector: React.FC<{ onChange: SelectProps["onChange"] }> =
         ))}
       </Select>
     );
-  });
+  }
+);
 
 export const BackendTestPage: React.FC = () => {
   const [pageId, setPageId] = React.useState<string | null>(null);

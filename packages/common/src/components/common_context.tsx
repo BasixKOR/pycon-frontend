@@ -8,7 +8,5 @@ type CommonContextProps = {
 };
 
 export const CommonContextProvider: React.FC<CommonContextProps> = (props) => (
-  <GlobalContext.context.Provider value={props.options}>
-    {props.children}
-  </GlobalContext.context.Provider>
+  <GlobalContext.context.Provider value={props.options}>{props.children}</GlobalContext.context.Provider>
 );

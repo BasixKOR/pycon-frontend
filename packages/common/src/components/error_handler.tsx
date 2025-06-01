@@ -4,10 +4,7 @@ import * as React from "react";
 
 import CommonContext from "../hooks/";
 
-const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({
-  error,
-  reset,
-}) => {
+const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   console.error(error);
   const errorObject = Object.getOwnPropertyNames(error).reduce(
     (acc, key) => ({
@@ -43,9 +40,7 @@ const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({
   );
 };
 
-const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({
-  reset,
-}) => {
+const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => {
   return (
     <>
       <Typography variant="body2" color="error">
@@ -56,8 +51,7 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({
         <br />
         An error occurred, please try again later.
         <br />
-        If the problem persists, please let the PyCon Korea organizing committee
-        know!
+        If the problem persists, please let the PyCon Korea organizing committee know!
       </Typography>
       <br />
       <Button variant="outlined" onClick={reset}>
@@ -67,20 +61,10 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({
   );
 };
 
-export const ErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({
-  error,
-  reset,
-}) => {
-  const InnerErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({
-    error,
-    reset,
-  }) => {
+export const ErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
+  const InnerErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
     const { debug } = CommonContext.Common.useCommonContext();
-    return debug ? (
-      <DetailedErrorFallback error={error} reset={reset} />
-    ) : (
-      <SimplifiedErrorFallback reset={reset} />
-    );
+    return debug ? <DetailedErrorFallback error={error} reset={reset} /> : <SimplifiedErrorFallback reset={reset} />;
   };
 
   return (

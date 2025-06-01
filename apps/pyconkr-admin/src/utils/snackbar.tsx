@@ -1,9 +1,7 @@
 import { Stack } from "@mui/material";
 import { enqueueSnackbar, OptionsObject, VariantType } from "notistack";
 
-export const getDefaultSnackOption: (v: VariantType) => OptionsObject = (
-  v
-) => ({
+export const getDefaultSnackOption: (v: VariantType) => OptionsObject = (v) => ({
   variant: v,
   anchorOrigin: { vertical: "bottom", horizontal: "center" },
 });
@@ -17,9 +15,7 @@ export const addErrorSnackbar = (error: Error) => {
       <br />
       문제가 지속되면, 홈페이지팀에 콘솔 내용과 함께 문의해주세요!
       <br />
-      <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-        {error.message}
-      </pre>
+      <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{error.message}</pre>
     </Stack>,
     "error"
   );
