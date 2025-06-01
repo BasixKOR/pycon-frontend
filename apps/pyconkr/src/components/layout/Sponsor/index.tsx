@@ -110,7 +110,7 @@ const SponsorButton = styled.button`
   }
 
   &:hover {
-    transform: scale(1.05);
+    // transform: scale(1.05);
   }
 
   .sr-only {
