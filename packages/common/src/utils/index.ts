@@ -11,6 +11,7 @@ import {
   isFormValid as _isFormValid,
 } from "./form";
 import {
+  filterPropertiesByLanguageInJsonSchema as _filterPropertiesByLanguageInJsonSchema,
   filterReadOnlyPropertiesInJsonSchema as _filterReadOnlyPropertiesInJsonSchema,
   filterWritablePropertiesInJsonSchema as _filterWritablePropertiesInJsonSchema,
 } from "./json_schema";
@@ -28,6 +29,8 @@ namespace Utils {
     _filterWritablePropertiesInJsonSchema;
   export const filterReadOnlyPropertiesInJsonSchema =
     _filterReadOnlyPropertiesInJsonSchema;
+  export const filterPropertiesByLanguageInJsonSchema =
+    _filterPropertiesByLanguageInJsonSchema;
 }
 
 export default Utils;

@@ -6,11 +6,13 @@ import {
   ButtonProps,
   CircularProgress,
   Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tabs,
   Typography,
 } from "@mui/material";
 import Form, { IChangeEvent } from "@rjsf/core";
@@ -88,6 +90,11 @@ const ReadOnlyValueField: React.FC<{
   return value as string;
 };
 
+type InnerAdminEditorStateType = {
+  tab: number;
+  formData: Record<string, string> | undefined;
+};
+
 const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
   ErrorBoundary.with(
     { fallback: Common.Components.ErrorFallback },
@@ -110,9 +117,11 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
           RJSFSchema,
           { [k in string]: unknown }
         > | null>(null);
-        const [formDataState, setFormDataState] = React.useState<
-          Record<string, string> | undefined
-        >(undefined);
+        const [editorState, setEditorState] =
+          React.useState<InnerAdminEditorStateType>({
+            tab: 0,
+            formData: undefined,
+          });
         const backendAdminClient =
           Common.Hooks.BackendAdminAPI.useBackendAdminClient();
         const { data: schemaInfo } =
@@ -121,6 +130,13 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
             app,
             resource
           );
+
+        const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
+          setEditorState((ps) => ({ ...ps, tab: selectedTab }));
+        const setFormDataState = (formData?: Record<string, string>) =>
+          setEditorState((ps) => ({ ...ps, formData }));
+        const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
+        const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
 
         const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<
           Record<string, string>
@@ -195,15 +211,39 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
         const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
 
         const writableSchema =
-          Common.Utils.filterWritablePropertiesInJsonSchema(schemaInfo.schema);
+          Common.Utils.filterPropertiesByLanguageInJsonSchema(
+            Common.Utils.filterWritablePropertiesInJsonSchema(
+              schemaInfo.schema
+            ),
+            schemaInfo.translation_fields,
+            selectedLanguage
+          );
         const readOnlySchema =
-          Common.Utils.filterReadOnlyPropertiesInJsonSchema(schemaInfo.schema);
+          Common.Utils.filterPropertiesByLanguageInJsonSchema(
+            Common.Utils.filterReadOnlyPropertiesInJsonSchema(
+              schemaInfo.schema
+            ),
+            schemaInfo.translation_fields,
+            selectedLanguage
+          );
         const uiSchema: UiSchema = schemaInfo.ui_schema;
         const disabled =
           createMutation.isPending ||
           modifyMutation.isPending ||
           deleteMutation.isPending;
         const title = `${app.toUpperCase()} > ${resource.toUpperCase()} > ${id ? "편집: " + id : "새 객체 추가"}`;
+
+        const notSelectedLangFields = schemaInfo.translation_fields.map(
+          (f) => `${f}_${notSelectedLanguage}`
+        );
+        const languageFilteredFormData = editorState.formData
+          ? Object.entries(editorState.formData)
+              .filter(([k]) => !notSelectedLangFields.includes(k))
+              .reduce(
+                (acc, [k, v]) => ({ ...acc, [k]: v }),
+                {} as Record<string, string>
+              )
+          : undefined;
 
         const handleCtrlSAction: (
           this: GlobalEventHandlers,
@@ -225,56 +265,75 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> =
           };
         }, []);
 
-        if (formDataState === undefined) return <CircularProgress />;
+        if (editorState.formData === undefined) return <CircularProgress />;
 
         return (
           <Box sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
             <Typography variant="h5">{title}</Typography>
-            {id && (
-              <>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>필드</TableCell>
-                      <TableCell>값</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.keys(readOnlySchema.properties || {}).map((key) => (
-                      <TableRow key={key}>
-                        <TableCell>{key}</TableCell>
-                        <TableCell>
-                          <ReadOnlyValueField
-                            name={key}
-                            value={formDataState?.[key]}
-                            uiSchema={uiSchema}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <br />
-              </>
-            )}
-            <MuiForm
-              ref={formRef}
-              schema={writableSchema}
-              uiSchema={{
-                ...uiSchema,
-                "ui:submitButtonOptions": { norender: true },
-              }}
-              validator={customizeValidator({ AjvClass: AjvDraft04 })}
-              formData={formDataState}
-              liveValidate
-              focusOnFirstError
-              formContext={{ readonlyAsDisabled: true }}
-              onChange={({ formData }) => setFormDataState(formData)}
-              onSubmit={onSubmitFunc}
-              disabled={disabled}
-              showErrorList={false}
-              fields={{ file: FileField }}
-            />
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
+            >
+              <Tabs
+                orientation="vertical"
+                value={editorState.tab}
+                onChange={setTab}
+                scrollButtons={false}
+              >
+                <Tab wrapped label="한국어" />
+                <Tab wrapped label="영어" />
+              </Tabs>
+              <Box sx={{ flexGrow: 1 }}>
+                {id && (
+                  <>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>필드</TableCell>
+                          <TableCell>값</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Object.keys(readOnlySchema.properties || {}).map(
+                          (key) => (
+                            <TableRow key={key}>
+                              <TableCell>{key}</TableCell>
+                              <TableCell>
+                                <ReadOnlyValueField
+                                  name={key}
+                                  value={languageFilteredFormData?.[key]}
+                                  uiSchema={uiSchema}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                    <br />
+                  </>
+                )}
+                <MuiForm
+                  ref={formRef}
+                  schema={writableSchema}
+                  uiSchema={{
+                    ...uiSchema,
+                    "ui:submitButtonOptions": { norender: true },
+                  }}
+                  validator={customizeValidator({ AjvClass: AjvDraft04 })}
+                  formData={languageFilteredFormData}
+                  liveValidate
+                  focusOnFirstError
+                  formContext={{ readonlyAsDisabled: true }}
+                  onChange={({ formData }) => setFormDataState(formData)}
+                  onSubmit={onSubmitFunc}
+                  disabled={disabled}
+                  showErrorList={false}
+                  fields={{ file: FileField }}
+                />
+              </Box>
+            </Stack>
             {children}
             <Stack
               direction="row"
