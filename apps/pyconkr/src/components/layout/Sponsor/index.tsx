@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import SponsorExample from "../../../assets/sponsorExample.svg?react";
+import { useSponsor } from "../../../contexts/SponsorContext";
 
 interface Sponsor {
   id: number;
@@ -10,6 +11,7 @@ interface Sponsor {
 
 export default function Sponsor() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const { isVisible } = useSponsor();
 
   // 16개의 임시 스폰서 데이터 생성
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function Sponsor() {
 
     fetchSponsors();
   }, []);
+
+  if (!isVisible) return null;
 
   return (
     <SponsorContainer>
