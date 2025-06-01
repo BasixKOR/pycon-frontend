@@ -181,14 +181,12 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
     };
 
     const onSubmit = () => {
-      bulkUpdateSectionsMutation.mutate(
-        { sections: editorState.sections || [] },
-        {
-          onError: (error) => {
-            addErrorSnackbar(error);
-          },
-        }
-      );
+      if (id) {
+        bulkUpdateSectionsMutation.mutate(
+          { sections: editorState.sections || [] },
+          { onError: addErrorSnackbar }
+        );
+      }
     };
 
     return (
@@ -199,46 +197,58 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
         extraActions={[openOnSiteButton]}
         afterSubmit={onSubmit}
       >
-        <br />
-        <Divider />
-        <br />
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
-        >
-          <Tabs
-            orientation="vertical"
-            value={editorState.tab}
-            onChange={setTab}
-            scrollButtons={false}
-          >
-            <Tab wrapped label="한국어" />
-            <Tab wrapped label="영어" />
-          </Tabs>
-          <Stack sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
-            <Button
-              size="small"
-              onClick={insertNewSection(0)}
-              startIcon={<Add />}
+        {id ? (
+          <>
+            <br />
+            <Divider />
+            <br />
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ width: "100%", height: "100%", maxWidth: "100%" }}
             >
-              맨 처음에 섹션 추가
-            </Button>
-            {editorState.sections?.map((section, index) => (
-              <SectionEditorField
-                key={section.id || index}
-                defaultValue={section}
-                language={editorState.tab === 0 ? "ko" : "en"}
-                onInsertNewSection={insertNewSection(index + 1)}
-                onChange={onSectionDataChange(index)}
-                onDelete={deleteSection(index)}
-              />
-            ))}
+              <Tabs
+                orientation="vertical"
+                value={editorState.tab}
+                onChange={setTab}
+                scrollButtons={false}
+              >
+                <Tab wrapped label="한국어" />
+                <Tab wrapped label="영어" />
+              </Tabs>
+              <Stack sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
+                <Button
+                  size="small"
+                  onClick={insertNewSection(0)}
+                  startIcon={<Add />}
+                >
+                  맨 처음에 섹션 추가
+                </Button>
+                {editorState.sections?.map((section, index) => (
+                  <SectionEditorField
+                    key={section.id || index}
+                    defaultValue={section}
+                    language={editorState.tab === 0 ? "ko" : "en"}
+                    onInsertNewSection={insertNewSection(index + 1)}
+                    onChange={onSectionDataChange(index)}
+                    onDelete={deleteSection(index)}
+                  />
+                ))}
+              </Stack>
+            </Stack>
+            <br />
+            <Divider />
+            <br />
+          </>
+        ) : (
+          <Stack
+            justifyContent="center"
+            alignItems="center"
+            sx={{ color: "red" }}
+          >
+            먼저 페이지를 만든 후 섹션 추가 / 수정이 가능합니다.
           </Stack>
-        </Stack>
-        <br />
-        <Divider />
-        <br />
+        )}
       </AdminEditor>
     );
   })
