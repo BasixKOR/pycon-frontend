@@ -23,6 +23,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import AjvDraft04 from "ajv-draft-04";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import * as R from "remeda";
 
 import { addErrorSnackbar, addSnackbar } from "../../utils/snackbar";
 import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
@@ -61,22 +62,59 @@ const FileField: Field = (p) => (
   />
 );
 
+type ReadOnlyValueFieldStateType = {
+  loading: boolean;
+  blob: Blob | null;
+  blobText: string | null;
+  objectUrl: string | null;
+};
+
 const ReadOnlyValueField: React.FC<{
   name: string;
   value: unknown;
   uiSchema: UiSchema;
-}> = ({ name, value, uiSchema }) => {
-  if (uiSchema[name] && uiSchema[name]["ui:field"] === "file") {
+}> = Suspense.with({ fallback: <CircularProgress /> }, ({ name, value, uiSchema }) => {
+  const [fieldState, setFieldState] = React.useState<ReadOnlyValueFieldStateType>({
+    loading: true,
+    blob: null,
+    blobText: null,
+    objectUrl: null,
+  });
+
+  React.useEffect(() => {
+    (async () => {
+      if (!(R.isString(value) && value.startsWith("http") && uiSchema?.[name]["ui:field"] === "file")) {
+        setFieldState((ps) => ({ ...ps, loading: false }));
+        return;
+      }
+
+      const blob = await (await fetch(value)).blob();
+      const blobText = await blob.text();
+      const objectUrl = URL.createObjectURL(blob);
+      setFieldState((ps) => ({ ...ps, loading: false, blob, blobText, objectUrl }));
+    })();
+  }, [value, name, uiSchema]);
+
+  if (fieldState.loading) return <CircularProgress />;
+
+  if (uiSchema?.[name]?.["ui:field"] === "file" && fieldState.blob) {
     return (
       <Stack spacing={2} alignItems="flex-start">
-        <img src={value as string} alt={name} style={{ maxWidth: "100%", maxHeight: "600px", objectFit: "contain" }} />
+        {fieldState.blob.type.startsWith("image/") && fieldState.objectUrl && (
+          <img src={fieldState.objectUrl} alt={name} style={{ maxWidth: "600px", objectFit: "contain" }} />
+        )}
+        {fieldState.blob.type.startsWith("application/json") && fieldState.blobText && (
+          <Box sx={{ maxWidth: "600px", overflow: "auto" }}>
+            <Common.Components.LottieDebugPanel animationData={JSON.parse(fieldState.blobText)} />
+          </Box>
+        )}
         <a href={value as string}>링크</a>
       </Stack>
     );
   }
 
   return value as string;
-};
+});
 
 type InnerAdminEditorStateType = {
   tab: number;
