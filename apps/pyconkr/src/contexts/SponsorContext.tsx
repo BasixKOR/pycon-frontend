@@ -2,20 +2,24 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 interface SponsorContextType {
   isVisible: boolean;
-  toggleVisibility: () => void;
+  setIsVisible: (value: boolean) => void;
 }
 
 const SponsorContext = createContext<SponsorContextType | undefined>(undefined);
 
-export function SponsorProvider({ children }: { children: ReactNode }) {
-  const [isVisible, setIsVisible] = useState(true);
+interface SponsorProviderProps {
+  children: ReactNode;
+  initialVisibility?: boolean;
+}
 
-  const toggleVisibility = () => {
-    setIsVisible((prev) => !prev);
-  };
+export function SponsorProvider({
+  children,
+  initialVisibility = false,
+}: SponsorProviderProps) {
+  const [isVisible, setIsVisible] = useState(initialVisibility);
 
   return (
-    <SponsorContext.Provider value={{ isVisible, toggleVisibility }}>
+    <SponsorContext.Provider value={{ isVisible, setIsVisible }}>
       {children}
     </SponsorContext.Provider>
   );
