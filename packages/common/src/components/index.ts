@@ -6,6 +6,7 @@ import {
   RouteRenderer as RouteRendererComponent,
 } from "./dynamic_route";
 import { ErrorFallback as ErrorFallbackComponent } from "./error_handler";
+import { LottieDebugPanel as LottieDebugPanelComponent } from "./lottie";
 import { MDXRenderer as MDXRendererComponent } from "./mdx";
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
@@ -25,6 +26,7 @@ namespace Components {
   export const MDXEditor = MDXEditorComponent;
   export const MDXRenderer = MDXRendererComponent;
   export const PythonKorea = PythonKoreaComponent;
+  export const LottieDebugPanel = LottieDebugPanelComponent;
   export const ErrorFallback = ErrorFallbackComponent;
 
   export namespace MDX {
