@@ -22,6 +22,7 @@ import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
 import { rtrim } from "../utils/string";
 import { StyledDivider } from "./mdx_components/styled_divider";
+import { SubContentContainer } from "./mdx_components/sub_content_container";
 
 const REGISTERED_KEYWORDS = [
   "import",
@@ -46,12 +47,12 @@ const REGISTERED_KEYWORDS = [
 ];
 
 const CustomMDXComponents: MDXComponents = {
-  h1: (props) => <h1 {...props} />,
-  h2: (props) => <h2 {...props} />,
-  h3: (props) => <h3 {...props} />,
-  h4: (props) => <h4 {...props} />,
-  h5: (props) => <h5 {...props} />,
-  h6: (props) => <h6 {...props} />,
+  h1: (props) => <h1 style={{ margin: 0 }} {...props} />,
+  h2: (props) => <h2 style={{ margin: 0 }} {...props} />,
+  h3: (props) => <h3 style={{ margin: 0 }} {...props} />,
+  h4: (props) => <h4 style={{ margin: 0 }} {...props} />,
+  h5: (props) => <h5 style={{ margin: 0 }} {...props} />,
+  h6: (props) => <h6 style={{ margin: 0 }} {...props} />,
   strong: (props) => <strong {...props} />,
   hr: (props) => <StyledDivider {...props} />,
   em: (props) => <em {...props} />,
@@ -69,6 +70,7 @@ const CustomMDXComponents: MDXComponents = {
   tr: (props) => <TableRow {...props} />,
   th: (props) => <TableCell {...props} />,
   td: (props) => <TableCell {...props} />,
+  Content: (props) => <SubContentContainer {...props} />,
 };
 
 const lineFormatterForMDX = (line: string) => {

@@ -73,8 +73,8 @@ const InnerPublicFileUploadPage: React.FC = () => {
       if (!file || file.size === 0) {
         addSnackbar("파일을 찾을 수 없거나, 파일 크기가 0입니다.", "error");
         return;
-      } else if (!file.type.startsWith("image/")) {
-        addSnackbar("이미지 파일만 업로드가 가능합니다.", "error");
+      } else if (!(file.type.startsWith("image/") || file.type === "application/json")) {
+        addSnackbar("이미지 또는 JSON 파일만 업로드가 가능합니다.", "error");
         return;
       }
 
@@ -116,13 +116,13 @@ const InnerPublicFileUploadPage: React.FC = () => {
         for (let i = 0; i < items.length; i++) {
           if (items[i].kind === "file") {
             const file = items[i].getAsFile();
-            if (!file || !file.size || !file.type.startsWith("image/")) continue;
+            if (!file || !file.size || !(file.type.startsWith("image/") || file.type === "application/json")) continue;
 
             handleFile(file);
             return;
           }
         }
-        addSnackbar("클립보드에 이미지 파일이 없습니다. 이미지 파일을 선택해주세요.", "error");
+        addSnackbar("클립보드에 이미지 또는 JSON 파일이 없습니다. 이미지 또는 JSON 파일을 선택해주세요.", "error");
       }
     },
     [handleFile]
@@ -196,7 +196,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
         또는 <kbd>Ctrl</kbd>+<kbd>V</kbd>로 사진을 붙여넣어 주세요!
         <br />
         <ul>
-          <li>이미지 파일만 업로드가 가능합니다.</li>
+          <li>이미지와 JSON 파일만 업로드가 가능합니다.</li>
           <li>업로드 후에는 파일을 수정할 수 없습니다.</li>
           <li>파일은 공개적으로 접근 가능한 URL로 제공됩니다.</li>
         </ul>
