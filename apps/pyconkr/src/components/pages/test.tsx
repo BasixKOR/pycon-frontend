@@ -27,32 +27,17 @@ const TabList: { [key in SelectedTabType]: React.ReactNode } = {
 };
 
 export const Test: React.FC = () => {
-  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>(
-    getTabFromLocalStorage()
-  );
-  const selectTab = (tab: SelectedTabType) =>
-    setSelectedTab(setTabToLocalStorage(tab));
+  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>(getTabFromLocalStorage());
+  const selectTab = (tab: SelectedTabType) => setSelectedTab(setTabToLocalStorage(tab));
   const TabButton: React.FC<{ tab: SelectedTabType }> = ({ tab }) => (
-    <Button
-      variant={selectedTab === tab ? "contained" : "outlined"}
-      onClick={() => selectTab(tab)}
-    >
+    <Button variant={selectedTab === tab ? "contained" : "outlined"} onClick={() => selectTab(tab)}>
       {tab} Test
     </Button>
   );
 
   return (
-<<<<<<< HEAD
     <Stack sx={{ width: "100%", height: "100%", minHeight: "100%", flexGrow: 1, py: 2 }} spacing={2}>
       <Stack direction="row" spacing={2} sx={{ width: "100%", justifyContent: "center" }}>
-=======
-    <Stack>
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{ width: "100%", justifyContent: "center" }}
-      >
->>>>>>> origin/feature/sponsor
         {Object.keys(TabList).map((tab) => (
           <TabButton key={tab} tab={tab as SelectedTabType} />
         ))}

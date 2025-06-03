@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
+
 import SponsorExample from "../../../assets/sponsorExample.svg?react";
 import { useSponsor } from "../../../contexts/SponsorContext";
 
@@ -40,10 +41,7 @@ export default function Sponsor() {
       <SponsorGrid role="list" aria-label="후원사 목록 그리드">
         {sponsors.map((sponsor) => (
           <SponsorItem key={sponsor.id} role="listitem">
-            <SponsorButton
-              type="button"
-              aria-label={`${sponsor.name} 상세 정보 보기`}
-            >
+            <SponsorButton type="button" aria-label={`${sponsor.name} 상세 정보 보기`}>
               <span className="sr-only">{sponsor.name}</span>
               <sponsor.Logo aria-hidden="true" />
             </SponsorButton>

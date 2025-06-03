@@ -12,17 +12,10 @@ interface SponsorProviderProps {
   initialVisibility?: boolean;
 }
 
-export function SponsorProvider({
-  children,
-  initialVisibility = false,
-}: SponsorProviderProps) {
+export function SponsorProvider({ children, initialVisibility = false }: SponsorProviderProps) {
   const [isVisible, setIsVisible] = useState(initialVisibility);
 
-  return (
-    <SponsorContext.Provider value={{ isVisible, setIsVisible }}>
-      {children}
-    </SponsorContext.Provider>
-  );
+  return <SponsorContext.Provider value={{ isVisible, setIsVisible }}>{children}</SponsorContext.Provider>;
 }
 
 export function useSponsor() {
