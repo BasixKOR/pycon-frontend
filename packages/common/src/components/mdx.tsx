@@ -15,6 +15,7 @@ import type { MDXComponents } from "mdx/types";
 import muiComponents from "mui-mdx-components";
 import * as React from "react";
 import * as runtime from "react/jsx-runtime";
+import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import * as R from "remeda";
 
@@ -46,6 +47,16 @@ const REGISTERED_KEYWORDS = [
   "}",
 ];
 
+const EXTERNAL_PROTOCOLS = ["http://", "https://", "mailto:", "tel:"];
+
+const LinkHandler: React.FC<{ href: string }> = ({ href, ...props }) => {
+  // If the href starts with "http" or "https", it's an external link
+  if (EXTERNAL_PROTOCOLS.some((protocol) => href.startsWith(protocol)))
+    return <a href={href} target="_blank" rel="noopener noreferrer" {...props} />;
+
+  return <Link to={href} {...props} />;
+};
+
 const CustomMDXComponents: MDXComponents = {
   h1: (props) => <h1 style={{ margin: 0 }} {...props} />,
   h2: (props) => <h2 style={{ margin: 0 }} {...props} />,
@@ -54,6 +65,7 @@ const CustomMDXComponents: MDXComponents = {
   h5: (props) => <h5 style={{ margin: 0 }} {...props} />,
   h6: (props) => <h6 style={{ margin: 0 }} {...props} />,
   strong: (props) => <strong {...props} />,
+  a: (props) => <LinkHandler {...props} />,
   hr: (props) => <StyledDivider {...props} />,
   img: (props) => <img style={{ maxWidth: "100%" }} alt="" {...props} />,
   em: (props) => <em {...props} />,
