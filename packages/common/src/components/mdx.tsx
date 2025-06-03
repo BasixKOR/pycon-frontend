@@ -55,6 +55,7 @@ const CustomMDXComponents: MDXComponents = {
   h6: (props) => <h6 style={{ margin: 0 }} {...props} />,
   strong: (props) => <strong {...props} />,
   hr: (props) => <StyledDivider {...props} />,
+  img: (props) => <img style={{ maxWidth: "100%" }} alt="" {...props} />,
   em: (props) => <em {...props} />,
   ul: (props) => <ul {...props} />,
   ol: (props) => <ol {...props} />,

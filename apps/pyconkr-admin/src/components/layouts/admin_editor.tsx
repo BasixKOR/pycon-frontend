@@ -105,7 +105,7 @@ const ReadOnlyValueField: React.FC<{
         )}
         {fieldState.blob.type.startsWith("application/json") && fieldState.blobText && (
           <Box sx={{ maxWidth: "600px", overflow: "auto" }}>
-            <Common.Components.LottieDebugPanel animationData={JSON.parse(fieldState.blobText)} />
+            <Common.Components.LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
           </Box>
         )}
         <a href={value as string}>링크</a>

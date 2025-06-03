@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Stack, Theme } from "@mui/material";
+import { CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { AxiosError, AxiosResponse } from "axios";
 import * as React from "react";
@@ -15,18 +15,49 @@ import { MDXRenderer } from "./mdx";
 const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
   (additionalStyle) => (theme) => ({
     width: "100%",
-    marginTop: theme.spacing(8),
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
+
+    marginTop: theme.spacing(8),
+
+    ...(additionalStyle
+      ? additionalStyle
+      : {
+          [theme.breakpoints.down("md")]: {
+            marginTop: theme.spacing(4),
+          },
+          [theme.breakpoints.down("sm")]: {
+            marginTop: theme.spacing(2),
+          },
+        }),
     ...additionalStyle,
   });
 
 const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
-  (additionalStyle) => () => ({
+  (additionalStyle) => (theme) => ({
     width: "100%",
-    ...additionalStyle,
+    maxWidth: "1000px",
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingRight: "2rem",
+    paddingLeft: "2rem",
+
+    "& .markdown-body": { width: "100%" },
+    ...(additionalStyle
+      ? additionalStyle
+      : {
+          [theme.breakpoints.down("md")]: {
+            paddingRight: "1rem",
+            paddingLeft: "1rem",
+          },
+          [theme.breakpoints.down("sm")]: {
+            paddingRight: "0.5rem",
+            paddingLeft: "0.5rem",
+          },
+        }),
   });
 
 const LoginRequired: React.FC = () => <>401 Login Required</>;
@@ -62,18 +93,12 @@ export const PageRenderer: React.FC<{ id?: string }> = ErrorBoundary.with(
   Suspense.with({ fallback: <CircularProgress /> }, ({ id }) => {
     const backendClient = Hooks.BackendAPI.useBackendClient();
     const { data } = Hooks.BackendAPI.usePageQuery(backendClient, id || "");
-    const commonStackStyle = {
-      justifyContent: "flex-start",
-      alignItems: "center",
-    };
 
     return (
-      <Stack {...commonStackStyle} sx={initialPageStyle(Utils.parseCss(data.css))}>
+      <Stack sx={initialPageStyle(Utils.parseCss(data.css))}>
         {data.sections.map((s) => (
-          <Stack {...commonStackStyle} sx={initialSectionStyle(Utils.parseCss(s.css))} key={s.id}>
-            <Box sx={{ maxWidth: "1000px" }}>
-              <MDXRenderer text={s.body} />
-            </Box>
+          <Stack sx={initialSectionStyle(Utils.parseCss(s.css))} key={s.id}>
+            <MDXRenderer text={s.body} />
           </Stack>
         ))}
       </Stack>
