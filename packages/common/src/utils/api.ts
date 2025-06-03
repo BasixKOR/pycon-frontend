@@ -61,9 +61,8 @@ export const findSiteMapUsingRoute = (
 export const parseCss = (t: unknown): React.CSSProperties => {
   try {
     if (R.isString(t) && !R.isEmpty(t)) return JSON.parse(t);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_) {
-    // Ignore parsing errors
+  } catch (e) {
+    console.warn("Failed to parse CSS string:", t, e);
   }
   return {} as React.CSSProperties;
 };
