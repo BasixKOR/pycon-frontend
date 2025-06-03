@@ -60,6 +60,7 @@
     "@tanstack/react-query-devtools": "^5.76.1",
     "@types/crypto-js": "^4.2.2",
     "@types/json-schema": "^7.0.15",
+    "@types/kakaomaps": "^1.1.5",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.15.18",
     "@types/react": "^19.1.4",

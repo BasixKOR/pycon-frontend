@@ -1,4 +1,5 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
+import * as Common from "@frontend/common";
 import * as Shop from "@frontend/shop";
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
@@ -129,6 +130,10 @@ const MUIMDXComponents: MDXComponents = {
   Mui__material__Zoom: mui.Zoom,
 };
 
+const PyConKRCommonMDXComponents: MDXComponents = {
+  Common__Components__MDX__Map: Common.Components.MDX.Map,
+};
+
 const PythonKRShopMDXComponents: MDXComponents = {
   Shop__Common__PriceDisplay: Shop.Components.Common.PriceDisplay,
   Shop__Common__SignInGuard: Shop.Components.Common.SignInGuard,
@@ -141,5 +146,6 @@ const PythonKRShopMDXComponents: MDXComponents = {
 
 export const PyConKRMDXComponents = {
   ...MUIMDXComponents,
+  ...PyConKRCommonMDXComponents,
   ...PythonKRShopMDXComponents,
 };

@@ -1,5 +1,3 @@
-import * as R from "remeda";
-
 import {
   buildNestedSiteMap as _buildNestedSiteMap,
   findSiteMapUsingRoute as _findSiteMapUsingRoute,
@@ -12,6 +10,7 @@ import {
   filterReadOnlyPropertiesInJsonSchema as _filterReadOnlyPropertiesInJsonSchema,
   filterWritablePropertiesInJsonSchema as _filterWritablePropertiesInJsonSchema,
 } from "./json_schema";
+import { isFilledString as _isFilledString, rtrim as _rtrim } from "./string";
 
 namespace Utils {
   export const buildNestedSiteMap = _buildNestedSiteMap;
@@ -20,7 +19,8 @@ namespace Utils {
   export const getCookie = _getCookie;
   export const isFormValid = _isFormValid;
   export const getFormValue = _getFormValue;
-  export const isFilledString = (obj: unknown): obj is string => R.isString(obj) && !R.isEmpty(obj);
+  export const isFilledString = _isFilledString;
+  export const rtrim = _rtrim;
   export const filterWritablePropertiesInJsonSchema = _filterWritablePropertiesInJsonSchema;
   export const filterReadOnlyPropertiesInJsonSchema = _filterReadOnlyPropertiesInJsonSchema;
   export const filterPropertiesByLanguageInJsonSchema = _filterPropertiesByLanguageInJsonSchema;
