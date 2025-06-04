@@ -48,15 +48,19 @@ export default function Accordion() {
 const AccordionWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  border-top: 1px solid ${({ theme }) => theme.palette.primary.dark};
+  border-bottom: 1px solid ${({ theme }) => theme.palette.primary.dark};
 `;
 
 const Divider = styled.div`
   height: 1px;
   background-color: ${({ theme }) => theme.palette.primary.light};
+  margin: 0;
 `;
 
 const StyledAccordion = styled(MuiAccordion)`
   box-shadow: none;
+  border-radius: 0;
 
   &:before {
     display: none;
@@ -64,6 +68,14 @@ const StyledAccordion = styled(MuiAccordion)`
 
   &.MuiAccordion-root {
     margin: 0;
+
+    &:first-of-type {
+      border-top: none;
+    }
+
+    &:last-of-type {
+      border-bottom: none;
+    }
   }
 
   .MuiAccordionSummary-root {
