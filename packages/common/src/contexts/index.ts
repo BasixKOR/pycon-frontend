@@ -3,6 +3,7 @@ import * as React from "react";
 
 namespace GlobalContext {
   export type ContextOptions = {
+    language: "ko" | "en";
     frontendDomain?: string;
     baseUrl: string;
     debug?: boolean;
@@ -13,6 +14,7 @@ namespace GlobalContext {
   };
 
   export const context = React.createContext<ContextOptions>({
+    language: "ko",
     frontendDomain: "",
     baseUrl: "",
     debug: false,

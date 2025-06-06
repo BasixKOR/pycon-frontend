@@ -59,6 +59,8 @@ export class BackendAPIClientError extends Error {
   }
 }
 
+type supportedLanguages = "ko" | "en";
+
 type AxiosRequestWithoutPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
   url: string,
   config?: AxiosRequestConfig<D>
@@ -70,6 +72,7 @@ type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
 ) => Promise<R>;
 
 export class BackendAPIClient {
+  readonly language: supportedLanguages;
   readonly baseURL: string;
   protected readonly csrfCookieName: string;
   private readonly backendAPI: AxiosInstance;
@@ -78,9 +81,14 @@ export class BackendAPIClient {
     baseURL: string,
     timeout: number,
     csrfCookieName: string = "csrftoken",
-    withCredentials: boolean = false
+    withCredentials: boolean = false,
+    language: supportedLanguages = "ko"
   ) {
-    const headers = { "Content-Type": "application/json" };
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept-Language": language,
+    };
+    this.language = language;
     this.baseURL = baseURL;
     this.csrfCookieName = csrfCookieName;
     this.backendAPI = axios.create({
