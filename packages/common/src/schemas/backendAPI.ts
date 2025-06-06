@@ -45,6 +45,10 @@ namespace BackendAPISchemas {
     css: string;
     title: string;
     subtitle: string;
+
+    show_top_title_banner: boolean;
+    show_bottom_sponsor_banner: boolean;
+
     sections: SectionSchema[];
   };
 
