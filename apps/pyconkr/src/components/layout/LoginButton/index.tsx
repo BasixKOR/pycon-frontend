@@ -1,16 +1,13 @@
-import styled from "@emotion/styled";
+import { Button } from "@mui/material";
+
+import { useAppContext } from "../../../contexts/app_context";
 
 export default function LoginButton() {
-  return <LoginButtonStyled>로그인</LoginButtonStyled>;
-}
+  const { language } = useAppContext();
 
-const LoginButtonStyled = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.palette.primary.dark};
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s ease;
-`;
+  return (
+    <Button variant="text" sx={(theme) => ({ color: theme.palette.primary.dark })}>
+      {language === "ko" ? "로그인" : "LOG IN"}
+    </Button>
+  );
+}

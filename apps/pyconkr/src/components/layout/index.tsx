@@ -1,27 +1,25 @@
 import styled from "@emotion/styled";
+import { Stack } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 import Footer from "./Footer";
 import Header from "./Header";
 import Sponsor from "./Sponsor";
+import { useAppContext } from "../../contexts/app_context";
 
 export default function MainLayout() {
+  const { shouldShowSponsorBanner } = useAppContext();
   return (
-    <LayoutContainer>
+    <Stack sx={{ minHeight: "100dvh" }}>
       <Header />
       <MainContent>
         <Outlet />
       </MainContent>
-      <Sponsor />
+      {shouldShowSponsorBanner && <Sponsor />}
       <Footer />
-    </LayoutContainer>
+    </Stack>
   );
 }
-const LayoutContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-`;
 
 const MainContent = styled.main`
   flex: 1;

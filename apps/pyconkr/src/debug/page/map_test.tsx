@@ -8,7 +8,6 @@ type MapTestPageStateType = {
 };
 
 const INITIAL_DATA: Common.Components.MDX.MapPropType = {
-  language: "ko",
   geo: { lat: 37.5580918, lng: 126.9982178 },
   placeName: {
     ko: "동국대학교 신공학관",

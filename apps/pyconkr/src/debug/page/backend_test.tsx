@@ -3,6 +3,8 @@ import { CircularProgress, MenuItem, Select, SelectProps, Stack } from "@mui/mat
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
+import { PageRenderer } from "../../components/pages/dynamic_route";
+
 const SiteMapRenderer: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const backendClient = Common.Hooks.BackendAPI.useBackendClient();
   const { data } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendClient);
@@ -34,11 +36,7 @@ export const BackendTestPage: React.FC = () => {
     <Stack spacing={2}>
       <SiteMapRenderer />
       <PageIdSelector onChange={(e) => setPageId(e.target.value as string)} />
-      {Common.Utils.isFilledString(pageId) ? (
-        <Common.Components.PageRenderer id={pageId} />
-      ) : (
-        <>페이지를 선택해주세요.</>
-      )}
+      {Common.Utils.isFilledString(pageId) ? <PageRenderer id={pageId} /> : <>페이지를 선택해주세요.</>}
     </Stack>
   );
 };

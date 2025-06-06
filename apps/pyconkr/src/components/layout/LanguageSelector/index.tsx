@@ -1,31 +1,33 @@
-import styled from "@emotion/styled";
 import { Language } from "@mui/icons-material";
-import * as React from "react";
+import { Button, Stack, styled } from "@mui/material";
+
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "../../../consts/local_stroage";
+import { useAppContext } from "../../../contexts/app_context";
 
 export default function LanguageSelector() {
-  const [selectedLang, setSelectedLang] = React.useState<"KO" | "EN">("KO");
+  const { language, setAppContext } = useAppContext();
+  const toggleLanguage = () => {
+    const newLanguage = language === "ko" ? "en" : "ko";
+    localStorage.setItem(LOCAL_STORAGE_LANGUAGE_KEY, newLanguage);
+    setAppContext((ps) => ({ ...ps, language: newLanguage }));
+  };
 
   return (
-    <LanguageContainer>
-      <Language sx={{ color: (theme) => theme.palette.primary.nonFocus, w: 25, h: 25 }} />
-      <LanguageItem isSelected={selectedLang === "KO"} onClick={() => setSelectedLang("KO")}>
+    <Stack direction="row" alignItems="center" spacing={0.5}>
+      <Language sx={{ color: (theme) => theme.palette.primary.nonFocus, w: "1.5rem", h: "1.5rem" }} />
+      <LanguageItem onClick={toggleLanguage} selected={language === "ko"}>
         KO
       </LanguageItem>
-      <LanguageItem isSelected={selectedLang === "EN"} onClick={() => setSelectedLang("EN")}>
+      <LanguageItem onClick={toggleLanguage} selected={language === "en"}>
         EN
       </LanguageItem>
-    </LanguageContainer>
+    </Stack>
   );
 }
 
-const LanguageContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-`;
-
-const LanguageItem = styled.div<{ isSelected: boolean }>`
-  cursor: pointer;
-  color: ${({ isSelected, theme }) => (isSelected ? theme.palette.primary.dark : theme.palette.primary.nonFocus)};
-  transition: color 0.2s ease;
-`;
+const LanguageItem = styled(Button)<{ selected: boolean }>(({ selected, theme }) => ({
+  color: selected ? theme.palette.primary.dark : theme.palette.primary.nonFocus,
+  minWidth: 0,
+  padding: "0.375rem 0.25rem",
+  transition: "color 0.2s ease",
+}));
