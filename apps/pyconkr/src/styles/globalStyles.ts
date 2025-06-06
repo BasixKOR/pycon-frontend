@@ -97,6 +97,8 @@ export const globalStyles = css`
     -moz-user-drag: none;
     -o-user-drag: none;
     user-drag: none;
+
+    font-variant-numeric: tabular-nums;
   }
 
   a {
