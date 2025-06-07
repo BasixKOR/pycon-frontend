@@ -32,6 +32,7 @@ const queryClient = new QueryClient({
 
 const CommonOptions: Common.Contexts.ContextOptions = {
   debug: true,
+  language: "ko",
   baseUrl: ".",
   frontendDomain: import.meta.env.VITE_PYCONKR_FRONTEND_DOMAIN,
   backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,

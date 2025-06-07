@@ -1,7 +1,8 @@
-import { BackendAPIClient } from "./client";
+import { BackendAPIClient, BackendAPIClientError as _BackendAPIClientError } from "./client";
 import BackendAPISchemas from "../schemas/backendAPI";
 
 namespace BackendAPIs {
+  export const BackendAPIClientError = _BackendAPIClientError;
   export const listSiteMaps = (client: BackendAPIClient) => () =>
     client.get<BackendAPISchemas.FlattenedSiteMapSchema[]>("v1/cms/sitemap/");
   export const retrievePage = (client: BackendAPIClient) => (id: string) =>

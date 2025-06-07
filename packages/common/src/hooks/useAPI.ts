@@ -18,19 +18,19 @@ namespace BackendAPIHooks {
   };
 
   export const useBackendClient = () => {
-    const { backendApiDomain, backendApiTimeout } = useBackendContext();
-    return new BackendAPIClient(backendApiDomain, backendApiTimeout);
+    const { language, backendApiDomain, backendApiTimeout } = useBackendContext();
+    return new BackendAPIClient(backendApiDomain, backendApiTimeout, "", false, language);
   };
 
   export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>
     useSuspenseQuery({
-      queryKey: QUERY_KEYS.SITEMAP_LIST,
+      queryKey: [client.language, ...QUERY_KEYS.SITEMAP_LIST],
       queryFn: BackendAPIs.listSiteMaps(client),
     });
 
   export const usePageQuery = (client: BackendAPIClient, id: string) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.PAGE, id],
+      queryKey: [client.language, ...QUERY_KEYS.PAGE, id],
       queryFn: () => BackendAPIs.retrievePage(client)(id),
     });
 }

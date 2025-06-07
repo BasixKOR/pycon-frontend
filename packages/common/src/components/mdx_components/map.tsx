@@ -2,13 +2,14 @@ import { Box, Button, Stack, Tab, Tabs } from "@mui/material";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { useCommonContext } from "../../hooks/useCommonContext";
+
 type SupportedMapType = "kakao" | "google" | "naver";
 const MAP_TYPES: SupportedMapType[] = ["kakao", "google", "naver"];
 
 type LangType = "ko" | "en";
 
 export type MapPropType = {
-  language: LangType;
   geo: {
     lat: number;
     lng: number;
@@ -54,7 +55,8 @@ const MapData: { [key in SupportedMapType]: MapDataType } = {
   },
 };
 
-export const Map: React.FC<MapPropType> = ({ language, geo, placeName, placeCode, googleMapIframeSrc }) => {
+export const Map: React.FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIframeSrc }) => {
+  const { language } = useCommonContext();
   const kakaoMapRef = React.useRef<HTMLDivElement>(null);
   const [mapState, setMapState] = React.useState<MapStateType>({ tab: 0 });
   const selectedMapType = MAP_TYPES[mapState.tab] || "kakao";

@@ -8,10 +8,13 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
 import * as React from "react";
 import * as ReactDom from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./App.tsx";
 import { IS_DEBUG_ENV } from "./consts";
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "./consts/local_stroage.ts";
 import { PyConKRMDXComponents } from "./consts/mdx_components.ts";
+import { AppContext, AppContextType } from "./contexts/app_context.tsx";
 import { globalStyles, muiTheme } from "./styles/globalStyles.ts";
 
 const queryClient = new QueryClient({
@@ -32,6 +35,7 @@ const queryClient = new QueryClient({
 });
 
 const CommonOptions: Common.Contexts.ContextOptions = {
+  language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
   backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
@@ -46,37 +50,50 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
   shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
 
-ReactDom.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-      <Common.Components.CommonContextProvider options={CommonOptions}>
-        <Shop.Components.Common.ShopContextProvider options={ShopOptions}>
-          <ThemeProvider theme={muiTheme}>
-            <SnackbarProvider>
-              <CssBaseline />
-              <Global styles={globalStyles} />
-              <ErrorBoundary
-                fallback={
-                  <Common.Components.CenteredPage>
-                    문제가 발생했습니다, 새로고침을 해주세요.
-                  </Common.Components.CenteredPage>
-                }
-              >
-                <Suspense
-                  fallback={
-                    <Common.Components.CenteredPage>
-                      <CircularProgress />
-                    </Common.Components.CenteredPage>
-                  }
-                >
-                  <App />
-                </Suspense>
-              </ErrorBoundary>
-            </SnackbarProvider>
-          </ThemeProvider>
-        </Shop.Components.Common.ShopContextProvider>
-      </Common.Components.CommonContextProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
+const SuspenseFallback = (
+  <Common.Components.CenteredPage>
+    <CircularProgress />
+  </Common.Components.CenteredPage>
 );
+
+const MainApp: React.FC = () => {
+  const [appState, setAppContext] = React.useState<Omit<AppContextType, "setAppContext">>({
+    language: (localStorage.getItem(LOCAL_STORAGE_LANGUAGE_KEY) as "ko" | "en" | null) ?? "ko",
+    shouldShowTitleBanner: true,
+    shouldShowSponsorBanner: false,
+
+    currentSiteMapDepth: [],
+
+    sponsors: null,
+    title: "PyCon Korea 2025",
+  });
+
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <SnackbarProvider>
+          <BrowserRouter>
+            <AppContext.Provider value={{ ...appState, setAppContext }}>
+              <Common.Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+                <Shop.Components.Common.ShopContextProvider options={ShopOptions}>
+                  <ErrorBoundary fallback={Common.Components.ErrorFallback}>
+                    <Suspense fallback={SuspenseFallback}>
+                      <ThemeProvider theme={muiTheme}>
+                        <CssBaseline />
+                        <Global styles={globalStyles} />
+                        <App />
+                      </ThemeProvider>
+                    </Suspense>
+                  </ErrorBoundary>
+                </Shop.Components.Common.ShopContextProvider>
+              </Common.Components.CommonContextProvider>
+            </AppContext.Provider>
+          </BrowserRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
+
+ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);
