@@ -136,6 +136,7 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__PrimaryStyledDetails: Common.Components.MDX.PrimaryStyledDetails,
   Common__Components__MDX__SecondaryStyledDetails: Common.Components.MDX.SecondaryStyledDetails,
   Common__Components__MDX__Map: Common.Components.MDX.Map,
+  Common__Components__MDX__FAQAccordion: Common.Components.MDX.FAQAccordion,
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {
