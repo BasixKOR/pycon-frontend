@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import * as Common from "@frontend/common";
 import { Button, CircularProgress, Divider } from "@mui/material";
 import { styled as muiStyled } from "@mui/material/styles";
 import { Suspense } from "@suspensive/react";
@@ -55,14 +54,6 @@ const SessionItem: React.FC<{ session: BackendSessionAPISchemas.SessionSchema }>
 );
 
 export const SessionListPage: React.FC = () => {
-  // @ts-ignore
-  const backendAdminAPIClient = Common.Hooks.BackendAPI.useBackendClient();
-  // const [data, setData] = useState<BackendSessionAPISchemas.SessionSchema[]>([]);
-  const [currentTag, setTag] = useState<string | null>(null);
-  // @ts-ignore
-  const setOrUnsetTag = (tag: string) => setTag(currentTag === tag ? null : tag);
-  // const currentTagNames = data.map((d) => d.presentationType.name);
-
   const [selectedCategory, setSelectedCategory] = useState<string>("전체");
 
   const [sessions, setSessions] = useState<BackendSessionAPISchemas.SessionSchema[]>(sessionDummyData);
@@ -79,21 +70,6 @@ export const SessionListPage: React.FC = () => {
     });
     setFilteredSessions(newFilteredSessions);
   }, [selectedCategory]);
-
-  // const sessionOnlyData = data
-  //   .filter((d) => d.presentationType.name === "Session")
-  //   .filter((d) => currentTag === null || currentTagNames.includes(d.presentationType.name));
-
-  // @ts-ignore
-  // const tags = Array.from(new Set(data.flatMap((session) => session.presentationType.name))).sort();
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const result = await SessionAPIs.sessionList(backendAdminAPIClient)();
-  //     setData(result);
-  //   };
-  //   fetchData();
-  // }, [backendAdminAPIClient]);
 
   const CategoryButton: React.FC<{ category: string; isSelected: boolean }> = ({ category, isSelected }) => {
     return isSelected ? (
@@ -343,7 +319,7 @@ const SessionTitleContainer = styled.div`
     gap: 0.5rem;
     font-family: ${({ theme }) => theme.typography.fontFamily};
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
 `;
 
@@ -351,10 +327,9 @@ const SessionSpeakerContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  font-size: 0.6rem;
   kbd {
     padding-top: 0.25rem;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
     color: #4e869d;
   }
 `;
@@ -364,45 +339,16 @@ const TagContainer = styled.div`
   align-items: center;
   justify-content: flex-start;
   padding: 0.25rem 0;
-  gap: 0.25rem;
+  gap: 0.35rem;
 `;
 
 const Tag = styled.kbd`
   background-color: white;
   padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-family: ${({ theme }) => theme.typography.fontFamily};
   color: ${({ theme }) => theme.palette.primary.main};
   bordercolor: ${({ theme }) => theme.palette.primary.main};
   border: 1px solid;
   border-radius: 15px;
-`;
-
-// @ts-ignore
-const TagFilterBtnContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-// @ts-ignore
-const TagFilterBtn = styled.button`
-  background-color: rgba(0, 0, 0, 0);
-  border: none;
-  outline: none;
-  padding: 0.25rem 0.5rem;
-  margin: 0.25rem;
-  font-size: 0.8rem;
-
-  &:focus,
-  button::-moz-focus-inner {
-    outline: none !important;
-  }
-
-  &.selected {
-    background-color: #b0a8fe;
-    color: black;
-    font-weight: bold;
-  }
 `;
