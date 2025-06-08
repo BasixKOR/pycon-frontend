@@ -13,6 +13,9 @@ const QUERY_KEYS = {
 
 const MUTATION_KEYS = {
   ADMIN_SIGN_IN: ["mutation", "admin", "sign-in"],
+  ADMIN_SIGN_OUT: ["mutation", "admin", "sign-out"],
+  ADMIN_CHANGE_PASSWORD: ["mutation", "admin", "change-password"],
+  ADMIN_RESET_PASSWORD: ["mutation", "admin", "reset-password"],
   ADMIN_CREATE: ["mutation", "admin", "create"],
   ADMIN_UPDATE: ["mutation", "admin", "update"],
   ADMIN_REMOVE: ["mutation", "admin", "remove"],
@@ -38,8 +41,20 @@ namespace BackendAdminAPIHooks {
 
   export const useSignOutMutation = (client: BackendAPIClient) =>
     useMutation({
-      mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_IN, "sign-out"],
+      mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_OUT],
       mutationFn: BackendAdminAPIs.signOut(client),
+    });
+
+  export const useChangePasswordMutation = (client: BackendAPIClient) =>
+    useMutation({
+      mutationKey: [...MUTATION_KEYS.ADMIN_CHANGE_PASSWORD],
+      mutationFn: BackendAdminAPIs.changePassword(client),
+    });
+
+  export const useResetUserPasswordMutation = (client: BackendAPIClient, id: string) =>
+    useMutation({
+      mutationKey: [...MUTATION_KEYS.ADMIN_RESET_PASSWORD, id],
+      mutationFn: BackendAdminAPIs.resetUserPassword(client, id),
     });
 
   export const useSchemaQuery = (client: BackendAPIClient, app: string, resource: string) =>

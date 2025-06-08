@@ -10,6 +10,6 @@ export const AccountRedirectPage: React.FC = ErrorBoundary.with(
     const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
     const { data } = Common.Hooks.BackendAdminAPI.useSignedInUserQuery(backendAdminAPIClient);
 
-    return data ? <Navigate to="/account/sign-out" replace /> : <Navigate to="/account/sign-in" replace />;
+    return data ? <Navigate to="/account/manage" replace /> : <Navigate to="/account/sign-in" replace />;
   })
 );

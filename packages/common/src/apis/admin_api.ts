@@ -19,6 +19,12 @@ namespace BackendAdminAPIs {
 
   export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/admin-api/user/userext/signout/");
 
+  export const changePassword = (client: BackendAPIClient) => (data: BackendAdminAPISchemas.UserChangePasswordSchema) =>
+    client.post<void, BackendAdminAPISchemas.UserChangePasswordSchema>("v1/admin-api/user/userext/password/", data);
+
+  export const resetUserPassword = (client: BackendAPIClient, id: string) => () =>
+    client.delete<void, void>(`v1/admin-api/user/userext/${id}/password/`);
+
   export const list =
     <T>(client: BackendAPIClient, app: string, resource: string) =>
     () =>
