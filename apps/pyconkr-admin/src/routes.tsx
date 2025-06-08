@@ -4,8 +4,8 @@ import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./compon
 import { AdminList } from "./components/layouts/admin_list";
 import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
+import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
-import { SignOutPage } from "./components/pages/account/sign_out";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 
@@ -50,7 +50,7 @@ export const RouteDefinitions: RouteDef[] = [
     icon: AccountCircle,
     title: "로그인 / 로그아웃",
     app: "user",
-    resource: "userext",
+    resource: "account",
     route: "/account",
     placeOnBottom: true,
   },
@@ -80,5 +80,5 @@ export const RegisteredRoutes = {
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
-  "/account/sign-out": <SignOutPage />,
+  "/account/manage": <AccountManagementPage />,
 };
