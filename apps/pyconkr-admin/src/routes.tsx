@@ -1,4 +1,4 @@
-import { AccountCircle, AccountTree, Article, FilePresent } from "@mui/icons-material";
+import { AccountCircle, AccountTree, Article, FilePresent, ManageAccounts } from "@mui/icons-material";
 
 import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./components/layouts/admin_editor";
 import { AdminList } from "./components/layouts/admin_list";
@@ -8,6 +8,7 @@ import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
+import { AdminUserExtEditor } from "./components/pages/user/editor";
 
 export const RouteDefinitions: RouteDef[] = [
   {
@@ -45,8 +46,21 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "publicfile",
   },
   {
+    type: "separator",
+    key: "user-separator",
+    title: "사용자",
+  },
+  {
     type: "routeDefinition",
     key: "user-userext",
+    icon: ManageAccounts,
+    title: "사용자 관리",
+    app: "user",
+    resource: "userext",
+  },
+  {
+    type: "routeDefinition",
+    key: "user-account",
     icon: AccountCircle,
     title: "로그인 / 로그아웃",
     app: "user",
@@ -78,6 +92,8 @@ export const RegisteredRoutes = {
   "/cms/page/:id": <AdminCMSPageEditor />,
   "/file/publicfile/create": <PublicFileUploadPage />,
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
+  "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
+  "/user/userext/:id": <AdminUserExtEditor />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/manage": <AccountManagementPage />,
