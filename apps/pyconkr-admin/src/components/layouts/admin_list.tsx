@@ -21,6 +21,8 @@ import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
 type AdminListProps = {
   app: string;
   resource: string;
+  hideCreatedAt?: boolean;
+  hideUpdatedAt?: boolean;
 };
 
 type ListRowType = {
@@ -32,7 +34,7 @@ type ListRowType = {
 
 const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource, hideCreatedAt, hideUpdatedAt }) => {
     const navigate = useNavigate();
     const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
     const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(backendAdminClient, app, resource);
@@ -53,8 +55,8 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
             <TableRow>
               <TableCell sx={{ width: "25%" }}>ID</TableCell>
               <TableCell sx={{ width: "40%" }}>이름</TableCell>
-              <TableCell sx={{ width: "17.5%" }}>생성 시간</TableCell>
-              <TableCell sx={{ width: "17.5%" }}>수정 시간</TableCell>
+              {hideCreatedAt === true && <TableCell sx={{ width: "17.5%" }}>생성 시간</TableCell>}
+              {hideUpdatedAt === true && <TableCell sx={{ width: "17.5%" }}>수정 시간</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -66,8 +68,8 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
                 <TableCell>
                   <Link to={`/${app}/${resource}/${item.id}`}>{item.str_repr}</Link>
                 </TableCell>
-                <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
-                <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
+                {hideCreatedAt === true && <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>}
+                {hideUpdatedAt === true && <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>}
               </TableRow>
             ))}
           </TableBody>

@@ -6,9 +6,16 @@ import { useNavigate } from "react-router-dom";
 
 import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
 
+type PageStateType = {
+  userJustSignedIn: boolean;
+};
+
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate();
   const formRef = React.useRef<HTMLFormElement>(null);
+  const [pageState, setPageState] = React.useState<PageStateType>({ userJustSignedIn: false });
+  const setUserJustSignedIn = () => setPageState((ps) => ({ ...ps, userJustSignedIn: true }));
+
   const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
   const signInMutation = Common.Hooks.BackendAdminAPI.useSignInMutation(backendAdminAPIClient);
 
@@ -22,6 +29,7 @@ export const SignInPage: React.FC = () => {
     }>({ form: formRef.current });
     signInMutation.mutate(formData, {
       onSuccess: (data) => {
+        setUserJustSignedIn();
         addSnackbar(`안녕하세요, ${data.username}님!`, "success");
         navigate("/");
       },
@@ -31,13 +39,15 @@ export const SignInPage: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
+      if (pageState.userJustSignedIn) return;
+
       const userInfo = await Common.BackendAdminAPIs.me(backendAdminAPIClient)();
       if (userInfo) {
         addSnackbar(`이미 ${userInfo.username}님으로 로그인되어 있습니다!`, "success");
         navigate("/");
       }
     })();
-  }, [backendAdminAPIClient, navigate]);
+  }, [backendAdminAPIClient, navigate, pageState.userJustSignedIn]);
 
   return (
     <Stack sx={{ width: "100%", height: "100%", flexGrow: 1 }}>
