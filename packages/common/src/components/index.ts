@@ -7,6 +7,11 @@ import {
   NetworkLottiePlayer as NetworkLottiePlayerComponent,
 } from "./lottie";
 import { MDXRenderer as MDXRendererComponent } from "./mdx";
+import {
+  FAQAccordion as FAQAccordionComponent,
+  type FAQAccordionProps as FAQAccordionPropsType,
+  type FAQItem as FAQItemType,
+} from "./mdx_components/faq_accordion";
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
 import {
@@ -31,7 +36,10 @@ namespace Components {
     export const PrimaryStyledDetails = PrimaryStyledDetailsComponent;
     export const SecondaryStyledDetails = SecondaryStyledDetailsComponent;
     export const Map = MapComponent;
+    export const FAQAccordion = FAQAccordionComponent;
     export type MapPropType = MapComponentPropType;
+    export type FAQAccordionProps = FAQAccordionPropsType;
+    export type FAQItem = FAQItemType;
   }
 }
 
