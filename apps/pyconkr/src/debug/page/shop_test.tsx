@@ -4,7 +4,7 @@ import React from "react";
 
 export const ShopTestPage: React.FC = () => (
   <Stack>
-    <Stack spacing={2} sx={{ px: 4, backgroundColor: "#ddd", py: 2 }}>
+    <Stack spacing={2} sx={{ px: 4, py: 2 }}>
       <Typography variant="h4" gutterBottom>
         Shop Test Page
       </Typography>
@@ -16,7 +16,7 @@ export const ShopTestPage: React.FC = () => (
       <Typography variant="h5" gutterBottom>
         상품 목록
       </Typography>
-      <Shop.Components.Features.ProductList />
+      <Shop.Components.Features.ProductList category_group="2025" category="티켓" />
       <Divider />
       <Typography variant="h5" gutterBottom>
         장바구니

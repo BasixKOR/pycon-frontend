@@ -44,6 +44,7 @@ const CommonOptions: Common.Contexts.ContextOptions = {
 };
 
 const ShopOptions: Shop.Contexts.ContextOptions = {
+  language: "ko",
   shopApiDomain: import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN,
   shopApiCSRFCookieName: import.meta.env.VITE_PYCONKR_SHOP_CSRF_COOKIE_NAME,
   shopApiTimeout: 10000,
@@ -76,7 +77,7 @@ const MainApp: React.FC = () => {
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
               <Common.Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
-                <Shop.Components.Common.ShopContextProvider options={ShopOptions}>
+                <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
                   <ErrorBoundary fallback={Common.Components.ErrorFallback}>
                     <Suspense fallback={SuspenseFallback}>
                       <ThemeProvider theme={muiTheme}>

@@ -1,18 +1,5 @@
 import * as Common from "@frontend/common";
-import { ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  ButtonProps,
-  CircularProgress,
-  Divider,
-  List,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, ButtonProps, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
@@ -44,22 +31,31 @@ const getCartAppendRequestPayload = (
   return { product: product.id, options };
 };
 
-const getProductNotPurchasableReason = (product: ShopSchemas.Product): string | null => {
+const getProductNotPurchasableReason = (language: "ko" | "en", product: ShopSchemas.Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
   const now = new Date();
   const orderableStartsAt = new Date(product.orderable_starts_at);
   const orderableEndsAt = new Date(product.orderable_ends_at);
-  if (orderableStartsAt > now)
-    return `아직 구매할 수 없어요!\n(${orderableStartsAt.toLocaleString()}부터 구매하실 수 있어요.)`;
-  if (orderableEndsAt < now) return "판매가 종료됐어요!";
+  if (orderableStartsAt > now) {
+    if (language === "ko") {
+      return `아직 구매할 수 없어요!\n(${orderableStartsAt.toLocaleString()}부터 구매하실 수 있어요.)`;
+    } else {
+      return `You cannot purchase this product yet!\n(Starts at ${orderableStartsAt.toLocaleString()})`;
+    }
+  }
+  if (orderableEndsAt < now)
+    return language === "ko" ? "판매가 종료됐어요!" : "This product is no longer available for purchase!";
 
-  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0) return "상품이 품절되었어요!";
+  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0)
+    return language === "ko" ? "상품이 매진되었어요!" : "This product is out of stock!";
   if (
     product.option_groups.some(
       (og) => !R.isEmpty(og.options) && og.options.every((o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0)
     )
   )
-    return "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!";
+    return language === "ko"
+      ? "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!"
+      : "All selectable options for this product are out of stock!";
 
   return null;
 };
@@ -72,34 +68,74 @@ const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
   );
 };
 
+type ProductItemStateType = {
+  openDialog: boolean;
+  openBackdrop: boolean;
+};
+
 const ProductItem: React.FC<{
+  language: "ko" | "en";
   product: ShopSchemas.Product;
   onPaymentCompleted?: () => void;
-}> = ({ product, onPaymentCompleted }) => {
+}> = ({ language, product, onPaymentCompleted }) => {
   const optionFormRef = React.useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
+  const { shopImpAccountId } = ShopHooks.useShopContext();
   const shopAPIClient = ShopHooks.useShopClient();
   const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
+  const [state, setState] = React.useState<ProductItemStateType>({
+    openDialog: false,
+    openBackdrop: false,
+  });
+
+  const orderErrorStr =
+    language === "ko"
+      ? "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+      : "An error occurred while preparing the payment, please try again later.";
+  const failedToOrderStr =
+    language === "ko"
+      ? "결제에 실패했습니다.\n잠시 후 다시 시도해주세요.\n"
+      : "Failed to complete the payment. Please try again later.\n";
+  const requiresSignInStr =
+    language === "ko"
+      ? "로그인 후 장바구니에 담거나 구매할 수 있어요."
+      : "You need to sign in to add items to the cart or make a purchase.";
+  const addToCartStr = language === "ko" ? "장바구니에 담기" : "Add to Cart";
+  const orderOneItemStr = language === "ko" ? "즉시 구매" : "Buy Now";
+  const orderPriceStr = language === "ko" ? "결제 금액" : "Price";
 
   const addItemToCart = () => addItemToCartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef));
-  const oneItemOrderStart = () =>
-    oneItemOrderStartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef), {
-      onSuccess: (order: ShopSchemas.Order) => {
-        ShopUtils.startPortOnePurchase(
-          order,
-          () => {
-            queryClient.invalidateQueries();
-            queryClient.resetQueries();
-            onPaymentCompleted?.();
-          },
-          (response) => alert("결제를 실패했습니다!\n" + response.error_msg),
-          () => {}
-        );
-      },
-      onError: (error) => alert(error.message || "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."),
-    });
+
+  const openDialog = () => setState((ps) => ({ ...ps, openDialog: true }));
+  const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
+  const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
+  const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
+
+  const onFormSubmit = (formData: ShopSchemas.CustomerInfo) => {
+    closeDialog();
+    openBackdrop();
+    oneItemOrderStartMutation.mutate(
+      { ...getCartAppendRequestPayload(product, optionFormRef), customer_info: formData },
+      {
+        onSuccess: (order: ShopSchemas.Order) => {
+          ShopUtils.startPortOnePurchase(
+            shopImpAccountId,
+            order,
+            () => {
+              queryClient.invalidateQueries();
+              queryClient.resetQueries();
+              onPaymentCompleted?.();
+            },
+            (response) => alert(failedToOrderStr + response.error_msg),
+            closeBackdrop
+          );
+        },
+        onError: (error) => alert(error.message || orderErrorStr),
+      }
+    );
+  };
 
   const formOnSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
@@ -107,25 +143,27 @@ const ProductItem: React.FC<{
   };
   const disabled = oneItemOrderStartMutation.isPending || addItemToCartMutation.isPending;
 
-  const notPurchasableReason = getProductNotPurchasableReason(product);
-  const actionButtonProps: ButtonProps = {
-    variant: "contained",
-    color: "secondary",
-    disabled,
-  };
+  const notPurchasableReason = getProductNotPurchasableReason(language, product);
+  const actionButtonProps: ButtonProps = { variant: "contained", color: "secondary", disabled };
+  const actionButton = R.isNullish(notPurchasableReason) && (
+    <>
+      <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
+      <Button {...actionButtonProps} onClick={openDialog} children={orderOneItemStr} />
+    </>
+  );
 
   return (
-    <Accordion sx={{ width: "100%" }}>
-      <AccordionSummary expandIcon={<ExpandMore />} sx={{ m: "0" }}>
-        <Typography variant="h6">{product.name}</Typography>
-      </AccordionSummary>
-      <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
+    <>
+      <CommonComponents.CustomerInfoFormDialog
+        open={state.openDialog}
+        closeFunc={closeDialog}
+        onSubmit={onFormSubmit}
+      />
+      <Common.Components.MDX.PrimaryStyledDetails summary={product.name} actions={actionButton}>
         <Common.Components.MDXRenderer text={product.description || ""} />
         <br />
         <Divider />
-        <CommonComponents.SignInGuard
-          fallback={<NotPurchasable>로그인 후 장바구니에 담거나 구매할 수 있어요.</NotPurchasable>}
-        >
+        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
           {R.isNullish(notPurchasableReason) ? (
             <>
               <br />
@@ -146,39 +184,25 @@ const ProductItem: React.FC<{
               <Divider />
               <br />
               <Typography variant="h6" sx={{ textAlign: "right" }}>
-                결제 금액: <CommonComponents.PriceDisplay price={product.price} />
+                {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
               </Typography>
             </>
           ) : (
             <NotPurchasable>{notPurchasableReason}</NotPurchasable>
           )}
         </CommonComponents.SignInGuard>
-      </AccordionDetails>
-      {R.isNullish(notPurchasableReason) && (
-        <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-          <Button {...actionButtonProps} onClick={addItemToCart}>
-            장바구니 담기
-          </Button>
-          <Button {...actionButtonProps} onClick={oneItemOrderStart}>
-            즉시 구매
-          </Button>
-        </AccordionActions>
-      )}
-    </Accordion>
+      </Common.Components.MDX.PrimaryStyledDetails>
+    </>
   );
 };
 
 export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
   const WrappedProductList: React.FC = () => {
+    const { language } = ShopHooks.useShopContext();
     const shopAPIClient = ShopHooks.useShopClient();
     const { data } = ShopHooks.useProducts(shopAPIClient, qs);
-    return (
-      <List>
-        {data.map((product) => (
-          <ProductItem key={product.id} product={product} />
-        ))}
-      </List>
-    );
+
+    return data.map((p) => <ProductItem language={language} key={p.id} product={p} />);
   };
 
   return (

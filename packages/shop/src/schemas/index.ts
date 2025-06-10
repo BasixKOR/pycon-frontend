@@ -173,6 +173,13 @@ namespace ShopSchemas {
     )[];
   };
 
+  export type CustomerInfo = {
+    name: string; // ^(.*)$
+    phone: string; // ^([\d]{3}-[\d]{3,4}-[\d]{4}|\+[\d]{9,14})$
+    email: string; // $email
+    organization: string | null; // ^(.*)$
+  };
+
   export type Order = {
     id: string;
     name: string;
@@ -184,6 +191,7 @@ namespace ShopSchemas {
 
     payment_histories: PaymentHistory[];
     products: OrderProductItem[];
+    customer_info: CustomerInfo | null;
   };
   export type Cart = Order;
 
@@ -195,7 +203,7 @@ namespace ShopSchemas {
       custom_response: string | null;
     }[];
   };
-  export type OneItemOrderRequest = CartItemAppendRequest;
+  export type OneItemOrderRequest = CartItemAppendRequest & { customer_info: CustomerInfo };
 
   export type OneItemRefundRequest = {
     order_id: string;

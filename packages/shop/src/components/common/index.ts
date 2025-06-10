@@ -1,3 +1,4 @@
+import { CustomerInfoFormDialog as CustomerInfoFormDialog_ } from "./customer_info_form_dialog";
 import {
   OptionGroupInput as OptionGroupInput_,
   OrderProductRelationOptionInput as OrderProductRelationOptionInput_,
@@ -12,6 +13,7 @@ namespace CommonComponents {
   export const OrderProductRelationOptionInput = OrderProductRelationOptionInput_;
   export const PriceDisplay = PriceDisplay_;
   export const SignInGuard = SignInGuard_;
+  export const CustomerInfoFormDialog = CustomerInfoFormDialog_;
 }
 
 export default CommonComponents;

@@ -4,6 +4,7 @@ import * as R from "remeda";
 import ShopSchemas from "../schemas";
 
 export const startPortOnePurchase = (
+  portOneAccountId: string,
   order: ShopSchemas.Order,
   onSuccess?: (response: RequestPayResponse) => void,
   onFailure?: (response: RequestPayResponse) => void,
@@ -15,8 +16,6 @@ export const startPortOnePurchase = (
     return;
   }
 
-  const portOneAccountId =
-    import.meta?.env?.VITE_PYCONKR_SHOP_PORTONE_ACCOUNT_ID || process?.env?.PYCONKR_SHOP_PORTONE_ACCOUNT_ID || "";
   if (!R.isString(portOneAccountId) || R.isEmpty(portOneAccountId)) {
     alert("PortOne 계정 ID가 설정되지 않았습니다.");
     return;
