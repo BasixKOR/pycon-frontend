@@ -42,6 +42,7 @@ const CommonOptions: Common.Contexts.ContextOptions = {
 };
 
 const ShopOptions: Shop.Contexts.ContextOptions = {
+  language: "ko",
   shopApiDomain: import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN,
   shopApiCSRFCookieName: import.meta.env.VITE_PYCONKR_SHOP_CSRF_COOKIE_NAME,
   shopApiTimeout: 10000,
