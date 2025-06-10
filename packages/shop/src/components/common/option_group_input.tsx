@@ -1,8 +1,10 @@
-import { FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import { CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import { Suspense } from "@suspensive/react";
 import * as React from "react";
 import * as R from "remeda";
 
 import { PriceDisplay } from "./price_display";
+import ShopHooks from "../../hooks";
 import ShopSchemas from "../../schemas";
 import ShopAPIUtil from "../../utils";
 
@@ -25,12 +27,13 @@ type SimplifiedOption = Pick<ShopSchemas.Option, "id" | "name" | "additional_pri
 const isFilledString = (str: unknown): str is string => R.isString(str) && !R.isEmpty(str);
 
 const SelectableOptionGroupInput: React.FC<{
+  language: "ko" | "en";
   optionGroup: SelectableOptionGroupType;
   options: SimplifiedOption[];
   defaultValue?: string;
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ optionGroup, options, defaultValue, disabled, disabledReason }) => {
+}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason }) => {
   const optionElements = options.map((option) => {
     const isOptionOutOfStock = R.isNumber(option.leftover_stock) && option.leftover_stock <= 0;
 
@@ -43,7 +46,7 @@ const SelectableOptionGroupInput: React.FC<{
             [ +<PriceDisplay price={option.additional_price} /> ]
           </>
         )}
-        {isOptionOutOfStock && <> (품절)</>}
+        {isOptionOutOfStock && <> ({language === "ko" ? "품절" : "Out of stock"})</>}
       </MenuItem>
     );
   });
@@ -93,13 +96,14 @@ const CustomResponseOptionGroupInput: React.FC<{
 };
 
 export const OptionGroupInput: React.FC<{
+  language?: "ko" | "en";
   optionGroup: OptionGroupType;
   options: SimplifiedOption[];
 
   defaultValue?: string;
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ optionGroup, options, defaultValue, disabled, disabledReason }) =>
+}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason }) =>
   optionGroup.is_custom_response ? (
     <CustomResponseOptionGroupInput
       optionGroup={optionGroup}
@@ -109,6 +113,7 @@ export const OptionGroupInput: React.FC<{
     />
   ) : (
     <SelectableOptionGroupInput
+      language={language || "ko"}
       optionGroup={optionGroup}
       options={options}
       defaultValue={defaultValue}
@@ -121,7 +126,8 @@ export const OrderProductRelationOptionInput: React.FC<{
   optionRel: ShopSchemas.OrderProductItem["options"][number];
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ optionRel, disabled, disabledReason }) => {
+}> = Suspense.with({ fallback: <CircularProgress /> }, ({ optionRel, disabled, disabledReason }) => {
+  const { language } = ShopHooks.useShopContext();
   let defaultValue: string | null = null;
   let guessedDisabledReason: string | undefined = undefined;
   let dummyOptions: {
@@ -134,7 +140,10 @@ export const OrderProductRelationOptionInput: React.FC<{
   // type hinting을 위해 if문을 사용함
   if (optionRel.product_option_group.is_custom_response === false && R.isNonNull(optionRel.product_option)) {
     defaultValue = optionRel.product_option.id;
-    guessedDisabledReason = "추가 비용이 발생하는 옵션은 수정할 수 없어요.";
+    guessedDisabledReason =
+      language === "ko"
+        ? "추가 비용이 발생하는 옵션은 수정할 수 없어요."
+        : "You cannot modify options that incur additional costs.";
     dummyOptions = [
       {
         id: optionRel.product_option.id,
@@ -157,4 +166,4 @@ export const OrderProductRelationOptionInput: React.FC<{
       disabledReason={disabledReason || guessedDisabledReason}
     />
   );
-};
+});

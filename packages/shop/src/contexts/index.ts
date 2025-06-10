@@ -2,6 +2,7 @@ import * as React from "react";
 
 namespace ShopContext {
   export type ContextOptions = {
+    language: "ko" | "en";
     shopApiDomain: string;
     shopApiCSRFCookieName: string;
     shopApiTimeout: number;
@@ -9,6 +10,7 @@ namespace ShopContext {
   };
 
   export const context = React.createContext<ContextOptions>({
+    language: "ko",
     shopApiDomain: "",
     shopApiCSRFCookieName: "",
     shopApiTimeout: 10000,

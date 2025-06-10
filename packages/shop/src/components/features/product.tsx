@@ -44,22 +44,31 @@ const getCartAppendRequestPayload = (
   return { product: product.id, options };
 };
 
-const getProductNotPurchasableReason = (product: ShopSchemas.Product): string | null => {
+const getProductNotPurchasableReason = (language: "ko" | "en", product: ShopSchemas.Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
   const now = new Date();
   const orderableStartsAt = new Date(product.orderable_starts_at);
   const orderableEndsAt = new Date(product.orderable_ends_at);
-  if (orderableStartsAt > now)
-    return `아직 구매할 수 없어요!\n(${orderableStartsAt.toLocaleString()}부터 구매하실 수 있어요.)`;
-  if (orderableEndsAt < now) return "판매가 종료됐어요!";
+  if (orderableStartsAt > now) {
+    if (language === "ko") {
+      return `아직 구매할 수 없어요!\n(${orderableStartsAt.toLocaleString()}부터 구매하실 수 있어요.)`;
+    } else {
+      return `You cannot purchase this product yet!\n(Starts at ${orderableStartsAt.toLocaleString()})`;
+    }
+  }
+  if (orderableEndsAt < now)
+    return language === "ko" ? "판매가 종료됐어요!" : "This product is no longer available for purchase!";
 
-  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0) return "상품이 품절되었어요!";
+  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0)
+    return language === "ko" ? "상품이 매진되었어요!" : "This product is out of stock!";
   if (
     product.option_groups.some(
       (og) => !R.isEmpty(og.options) && og.options.every((o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0)
     )
   )
-    return "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!";
+    return language === "ko"
+      ? "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!"
+      : "All selectable options for this product are out of stock!";
 
   return null;
 };
@@ -73,15 +82,32 @@ const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
 };
 
 const ProductItem: React.FC<{
+  language: "ko" | "en";
   product: ShopSchemas.Product;
   onPaymentCompleted?: () => void;
-}> = ({ product, onPaymentCompleted }) => {
+}> = ({ language, product, onPaymentCompleted }) => {
   const optionFormRef = React.useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
   const shopAPIClient = ShopHooks.useShopClient();
   const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
+
+  const orderErrorStr =
+    language === "ko"
+      ? "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+      : "An error occurred while preparing the payment, please try again later.";
+  const failedToOrderStr =
+    language === "ko"
+      ? "결제에 실패했습니다.\n잠시 후 다시 시도해주세요.\n"
+      : "Failed to complete the payment. Please try again later.\n";
+  const requiresSignInStr =
+    language === "ko"
+      ? "로그인 후 장바구니에 담거나 구매할 수 있어요."
+      : "You need to sign in to add items to the cart or make a purchase.";
+  const addToCartStr = language === "ko" ? "장바구니에 담기" : "Add to Cart";
+  const orderOneItemStr = language === "ko" ? "즉시 구매" : "Buy Now";
+  const orderPriceStr = language === "ko" ? "결제 금액" : "Price";
 
   const addItemToCart = () => addItemToCartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef));
   const oneItemOrderStart = () =>
@@ -94,11 +120,11 @@ const ProductItem: React.FC<{
             queryClient.resetQueries();
             onPaymentCompleted?.();
           },
-          (response) => alert("결제를 실패했습니다!\n" + response.error_msg),
+          (response) => alert(failedToOrderStr + response.error_msg),
           () => {}
         );
       },
-      onError: (error) => alert(error.message || "결제 준비 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."),
+      onError: (error) => alert(error.message || orderErrorStr),
     });
 
   const formOnSubmit: React.FormEventHandler = (e) => {
@@ -107,7 +133,7 @@ const ProductItem: React.FC<{
   };
   const disabled = oneItemOrderStartMutation.isPending || addItemToCartMutation.isPending;
 
-  const notPurchasableReason = getProductNotPurchasableReason(product);
+  const notPurchasableReason = getProductNotPurchasableReason(language, product);
   const actionButtonProps: ButtonProps = {
     variant: "contained",
     color: "secondary",
@@ -123,9 +149,7 @@ const ProductItem: React.FC<{
         <Common.Components.MDXRenderer text={product.description || ""} />
         <br />
         <Divider />
-        <CommonComponents.SignInGuard
-          fallback={<NotPurchasable>로그인 후 장바구니에 담거나 구매할 수 있어요.</NotPurchasable>}
-        >
+        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
           {R.isNullish(notPurchasableReason) ? (
             <>
               <br />
@@ -146,7 +170,7 @@ const ProductItem: React.FC<{
               <Divider />
               <br />
               <Typography variant="h6" sx={{ textAlign: "right" }}>
-                결제 금액: <CommonComponents.PriceDisplay price={product.price} />
+                {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
               </Typography>
             </>
           ) : (
@@ -156,36 +180,40 @@ const ProductItem: React.FC<{
       </AccordionDetails>
       {R.isNullish(notPurchasableReason) && (
         <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-          <Button {...actionButtonProps} onClick={addItemToCart}>
-            장바구니 담기
-          </Button>
-          <Button {...actionButtonProps} onClick={oneItemOrderStart}>
-            즉시 구매
-          </Button>
+          <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
+          <Button {...actionButtonProps} onClick={oneItemOrderStart} children={orderOneItemStr} />
         </AccordionActions>
       )}
     </Accordion>
   );
 };
 
-export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
-  const WrappedProductList: React.FC = () => {
-    const shopAPIClient = ShopHooks.useShopClient();
-    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
-    return (
-      <List>
-        {data.map((product) => (
-          <ProductItem key={product.id} product={product} />
-        ))}
-      </List>
-    );
-  };
+export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = Suspense.with(
+  { fallback: <CircularProgress /> },
+  (qs) => {
+    const { language } = ShopHooks.useShopContext();
 
-  return (
-    <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
-      <Suspense fallback={<CircularProgress />}>
+    const WrappedProductList: React.FC = () => {
+      const shopAPIClient = ShopHooks.useShopClient();
+      const { data } = ShopHooks.useProducts(shopAPIClient, qs);
+      return (
+        <List>
+          {data.map((p) => (
+            <ProductItem language={language} key={p.id} product={p} />
+          ))}
+        </List>
+      );
+    };
+
+    const failedToLoadStr =
+      language === "ko"
+        ? "상품 목록을 불러오는 중 문제가 발생했습니다."
+        : "An error occurred while loading the product list.";
+
+    return (
+      <ErrorBoundary fallback={failedToLoadStr}>
         <WrappedProductList />
-      </Suspense>
-    </ErrorBoundary>
-  );
-};
+      </ErrorBoundary>
+    );
+  }
+);
