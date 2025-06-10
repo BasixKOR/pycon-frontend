@@ -1,18 +1,5 @@
 import * as Common from "@frontend/common";
-import { ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  ButtonProps,
-  CircularProgress,
-  Divider,
-  List,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, ButtonProps, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
@@ -157,11 +144,13 @@ const ProductItem: React.FC<{
   const disabled = oneItemOrderStartMutation.isPending || addItemToCartMutation.isPending;
 
   const notPurchasableReason = getProductNotPurchasableReason(language, product);
-  const actionButtonProps: ButtonProps = {
-    variant: "contained",
-    color: "secondary",
-    disabled,
-  };
+  const actionButtonProps: ButtonProps = { variant: "contained", color: "secondary", disabled };
+  const actionButton = R.isNullish(notPurchasableReason) && (
+    <>
+      <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
+      <Button {...actionButtonProps} onClick={openDialog} children={orderOneItemStr} />
+    </>
+  );
 
   return (
     <>
@@ -170,80 +159,57 @@ const ProductItem: React.FC<{
         closeFunc={closeDialog}
         onSubmit={onFormSubmit}
       />
-      <Accordion sx={{ width: "100%" }}>
-        <AccordionSummary expandIcon={<ExpandMore />} sx={{ m: "0" }}>
-          <Typography variant="h6">{product.name}</Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-          <Common.Components.MDXRenderer text={product.description || ""} />
-          <br />
-          <Divider />
-          <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
-            {R.isNullish(notPurchasableReason) ? (
-              <>
-                <br />
-                <form ref={optionFormRef} onSubmit={formOnSubmit}>
-                  <Stack spacing={2}>
-                    {product.option_groups.map((group) => (
-                      <CommonComponents.OptionGroupInput
-                        key={group.id}
-                        optionGroup={group}
-                        options={group.options}
-                        defaultValue={group?.options[0]?.id || ""}
-                        disabled={disabled}
-                      />
-                    ))}
-                  </Stack>
-                </form>
-                <br />
-                <Divider />
-                <br />
-                <Typography variant="h6" sx={{ textAlign: "right" }}>
-                  {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
-                </Typography>
-              </>
-            ) : (
-              <NotPurchasable>{notPurchasableReason}</NotPurchasable>
-            )}
-          </CommonComponents.SignInGuard>
-        </AccordionDetails>
-        {R.isNullish(notPurchasableReason) && (
-          <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-            <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
-            <Button {...actionButtonProps} onClick={openDialog} children={orderOneItemStr} />
-          </AccordionActions>
-        )}
-      </Accordion>
+      <Common.Components.MDX.PrimaryStyledDetails summary={product.name} actions={actionButton}>
+        <Common.Components.MDXRenderer text={product.description || ""} />
+        <br />
+        <Divider />
+        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+          {R.isNullish(notPurchasableReason) ? (
+            <>
+              <br />
+              <form ref={optionFormRef} onSubmit={formOnSubmit}>
+                <Stack spacing={2}>
+                  {product.option_groups.map((group) => (
+                    <CommonComponents.OptionGroupInput
+                      key={group.id}
+                      optionGroup={group}
+                      options={group.options}
+                      defaultValue={group?.options[0]?.id || ""}
+                      disabled={disabled}
+                    />
+                  ))}
+                </Stack>
+              </form>
+              <br />
+              <Divider />
+              <br />
+              <Typography variant="h6" sx={{ textAlign: "right" }}>
+                {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
+              </Typography>
+            </>
+          ) : (
+            <NotPurchasable>{notPurchasableReason}</NotPurchasable>
+          )}
+        </CommonComponents.SignInGuard>
+      </Common.Components.MDX.PrimaryStyledDetails>
     </>
   );
 };
 
-export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = Suspense.with(
-  { fallback: <CircularProgress /> },
-  (qs) => {
+export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
+  const WrappedProductList: React.FC = () => {
     const { language } = ShopHooks.useShopContext();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
 
-    const WrappedProductList: React.FC = () => {
-      const shopAPIClient = ShopHooks.useShopClient();
-      const { data } = ShopHooks.useProducts(shopAPIClient, qs);
-      return (
-        <List>
-          {data.map((p) => (
-            <ProductItem language={language} key={p.id} product={p} />
-          ))}
-        </List>
-      );
-    };
+    return data.map((p) => <ProductItem language={language} key={p.id} product={p} />);
+  };
 
-    const failedToLoadStr =
-      language === "ko"
-        ? "상품 목록을 불러오는 중 문제가 발생했습니다."
-        : "An error occurred while loading the product list.";
-
-    return (
-      <ErrorBoundary fallback={failedToLoadStr}>
+  return (
+    <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
+      <Suspense fallback={<CircularProgress />}>
         <WrappedProductList />
-      </ErrorBoundary>
-    );
-  }
-);
+      </Suspense>
+    </ErrorBoundary>
+  );
+};

@@ -1,17 +1,5 @@
 import * as Common from "@frontend/common";
-import { ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  CircularProgress,
-  Divider,
-  List,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import * as R from "remeda";
@@ -92,42 +80,37 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
     });
   };
 
+  const actionButtons = (
+    <>
+      <Button variant="contained" fullWidth onClick={patchOneItemOptions} disabled={patchOptionBtnDisabled}>
+        옵션 수정
+      </Button>
+      <Button variant="contained" fullWidth onClick={refundOneItem} disabled={refundBtnDisabled}>
+        {refundBtnText}
+      </Button>
+    </>
+  );
+
   return (
-    <Accordion key={prodRel.id}>
-      <AccordionSummary expandIcon={<ExpandMore />}>{prodRel.product.name}</AccordionSummary>
-      <AccordionDetails>
-        <form
-          ref={formRef}
-          onSubmit={(e) => {
-            e.preventDefault();
-            patchOneItemOptions();
-          }}
-        >
-          <Stack spacing={2} sx={{ width: "100%" }}>
-            {prodRel.options.map((optionRel) => (
-              <CommonComponents.OrderProductRelationOptionInput
-                key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
-                optionRel={optionRel}
-                disabled={isPending}
-              />
-            ))}
-          </Stack>
-        </form>
-      </AccordionDetails>
-      <AccordionActions>
-        <Button
-          variant="contained"
-          sx={{ width: "100%" }}
-          onClick={patchOneItemOptions}
-          disabled={patchOptionBtnDisabled}
-        >
-          옵션 수정
-        </Button>
-        <Button variant="contained" sx={{ width: "100%" }} onClick={refundOneItem} disabled={refundBtnDisabled}>
-          {refundBtnText}
-        </Button>
-      </AccordionActions>
-    </Accordion>
+    <Common.Components.MDX.PrimaryStyledDetails key={prodRel.id} summary={prodRel.product.name} actions={actionButtons}>
+      <form
+        ref={formRef}
+        onSubmit={(e) => {
+          e.preventDefault();
+          patchOneItemOptions();
+        }}
+      >
+        <Stack spacing={2} sx={{ width: "100%" }}>
+          {prodRel.options.map((optionRel) => (
+            <CommonComponents.OrderProductRelationOptionInput
+              key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
+              optionRel={optionRel}
+              disabled={isPending}
+            />
+          ))}
+        </Stack>
+      </form>
+    </Common.Components.MDX.PrimaryStyledDetails>
   );
 };
 
@@ -154,45 +137,43 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
       ? "주문 전체 환불됨"
       : order.not_fully_refundable_reason;
 
+  const actionButtons = (
+    <>
+      <Button variant="contained" fullWidth onClick={openReceipt} disabled={receipyBtnDisabled}>
+        영수증
+      </Button>
+      <Button variant="contained" fullWidth onClick={refundOrder} disabled={refundBtnDisabled}>
+        {btnText}
+      </Button>
+    </>
+  );
+
   return (
-    <Accordion>
-      <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="h6">{order.name}</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Divider />
-        <br />
-        <Typography variant="body1">
-          주문 결제 금액 : <CommonComponents.PriceDisplay price={order.current_paid_price} />
-        </Typography>
-        <Typography variant="body1">상태: {PaymentHistoryStatusTranslated[order.current_status]}</Typography>
-        <br />
-        <Divider />
-        <br />
-        <Typography variant="body1">주문 상품 목록</Typography>
-        <br />
-        {order.products.map((prodRel) => (
-          <OrderProductRelationItem
-            key={prodRel.id}
-            order={order}
-            prodRel={prodRel}
-            isPending={isPending}
-            oneItemRefundMutation={oneItemRefundMutation}
-            optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
-          />
-        ))}
-        <br />
-        <Divider />
-      </AccordionDetails>
-      <AccordionActions>
-        <Button variant="contained" sx={{ width: "100%" }} onClick={openReceipt} disabled={receipyBtnDisabled}>
-          영수증
-        </Button>
-        <Button variant="contained" sx={{ width: "100%" }} onClick={refundOrder} disabled={refundBtnDisabled}>
-          {btnText}
-        </Button>
-      </AccordionActions>
-    </Accordion>
+    <Common.Components.MDX.PrimaryStyledDetails summary={order.name} actions={actionButtons}>
+      <Divider />
+      <br />
+      <Typography variant="body1">
+        주문 결제 금액 : <CommonComponents.PriceDisplay price={order.current_paid_price} />
+      </Typography>
+      <Typography variant="body1">상태: {PaymentHistoryStatusTranslated[order.current_status]}</Typography>
+      <br />
+      <Divider />
+      <br />
+      <Typography variant="body1">주문 상품 목록</Typography>
+      <br />
+      {order.products.map((prodRel) => (
+        <OrderProductRelationItem
+          key={prodRel.id}
+          order={order}
+          prodRel={prodRel}
+          isPending={isPending}
+          oneItemRefundMutation={oneItemRefundMutation}
+          optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
+        />
+      ))}
+      <br />
+      <Divider />
+    </Common.Components.MDX.PrimaryStyledDetails>
   );
 };
 
@@ -201,13 +182,7 @@ export const OrderList: React.FC = () => {
     const shopAPIClient = ShopHooks.useShopClient();
     const { data } = ShopHooks.useOrders(shopAPIClient);
 
-    return (
-      <List>
-        {data.map((item) => (
-          <OrderItem key={item.id} order={item} />
-        ))}
-      </List>
-    );
+    return data.map((item) => <OrderItem key={item.id} order={item} />);
   };
 
   return (

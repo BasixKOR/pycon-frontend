@@ -1,16 +1,5 @@
-import { ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
-  Backdrop,
-  Button,
-  CircularProgress,
-  Divider,
-  Stack,
-  Typography,
-} from "@mui/material";
+import * as Common from "@frontend/common";
+import { Backdrop, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
@@ -35,40 +24,35 @@ const CartItem: React.FC<{
   const removeFromCartStr = language === "ko" ? "장바구니에서 상품 삭제" : "Remove from Cart";
 
   return (
-    <Accordion>
-      <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="h6" sx={{ width: "100%", flexShrink: 0 }}>
-          {cartProdRel.product.name}
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Stack spacing={2} sx={{ width: "100%" }}>
-          {cartProdRel.options.map((optionRel) => (
-            <CommonComponents.OrderProductRelationOptionInput
-              key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
-              optionRel={optionRel}
-              disabled
-              disabledReason={cannotModifyOptionsStr}
-            />
-          ))}
-        </Stack>
-        <br />
-        <Divider />
-        <br />
-        <Typography variant="h6" sx={{ textAlign: "end" }}>
-          {productPriceStr}: <CommonComponents.PriceDisplay price={cartProdRel.price} />
-        </Typography>
-      </AccordionDetails>
-      <AccordionActions>
+    <Common.Components.MDX.PrimaryStyledDetails
+      summary={cartProdRel.product.name}
+      actions={[
         <Button
           variant="contained"
           color="secondary"
           onClick={() => removeItemFromCartFunc(cartProdRel.id)}
           disabled={disabled}
           children={removeFromCartStr}
-        />
-      </AccordionActions>
-    </Accordion>
+        />,
+      ]}
+    >
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        {cartProdRel.options.map((optionRel) => (
+          <CommonComponents.OrderProductRelationOptionInput
+            key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
+            optionRel={optionRel}
+            disabled
+            disabledReason={cannotModifyOptionsStr}
+          />
+        ))}
+      </Stack>
+      <br />
+      <Divider />
+      <br />
+      <Typography variant="h6" sx={{ textAlign: "end" }}>
+        {productPriceStr}: <CommonComponents.PriceDisplay price={cartProdRel.price} />
+      </Typography>
+    </Common.Components.MDX.PrimaryStyledDetails>
   );
 };
 
