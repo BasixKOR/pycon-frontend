@@ -4,6 +4,7 @@ import {
   AccordionActions,
   AccordionDetails,
   AccordionSummary,
+  Backdrop,
   Button,
   CircularProgress,
   Divider,
@@ -71,14 +72,23 @@ const CartItem: React.FC<{
   );
 };
 
+type CartStatusStateType = {
+  openDialog: boolean;
+  openBackdrop: boolean;
+};
+
 export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspense.with(
   { fallback: <CircularProgress /> },
   ({ onPaymentCompleted }) => {
     const queryClient = useQueryClient();
-    const { language } = ShopHooks.useShopContext();
+    const { language, shopImpAccountId } = ShopHooks.useShopContext();
     const shopAPIClient = ShopHooks.useShopClient();
     const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
     const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
+    const [state, setState] = React.useState<CartStatusStateType>({
+      openDialog: false,
+      openBackdrop: false,
+    });
 
     const cartIsEmptyStr = language === "ko" ? "장바구니가 비어있어요!" : "Your cart is empty!";
     const totalPriceStr = language === "ko" ? "총 결제 금액" : "Total Payment Amount";
@@ -97,10 +107,19 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
         : "Failed to complete the cart order.\nPlease try again later.\n";
 
     const removeItemFromCart = (cartProductId: string) => removeItemFromCartMutation.mutate({ cartProductId });
-    const startCartOrder = () =>
-      cartOrderStartMutation.mutate(undefined, {
+
+    const openDialog = () => setState((ps) => ({ ...ps, openDialog: true }));
+    const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
+    const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
+    const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
+
+    const onFormSubmit = (formData: ShopSchemas.CustomerInfo) => {
+      closeDialog();
+      openBackdrop();
+      cartOrderStartMutation.mutate(formData, {
         onSuccess: (order: ShopSchemas.Order) => {
           ShopUtils.startPortOnePurchase(
+            shopImpAccountId,
             order,
             () => {
               queryClient.invalidateQueries();
@@ -108,11 +127,12 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
               onPaymentCompleted?.();
             },
             (response) => alert(failedToOrderStr + response.error_msg),
-            () => {}
+            closeBackdrop
           );
         },
         onError: (error) => alert(error.message || errorWhilePreparingOrderStr),
       });
+    };
 
     const disabled = removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
 
@@ -125,6 +145,17 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
         </Typography>
       ) : (
         <>
+          <Backdrop
+            sx={(theme) => ({ zIndex: theme.zIndex.drawer + 1 })}
+            open={state.openBackdrop}
+            onClick={() => {}}
+          />
+          <CommonComponents.CustomerInfoFormDialog
+            open={state.openDialog}
+            closeFunc={closeDialog}
+            onSubmit={onFormSubmit}
+            defaultValue={data.customer_info}
+          />
           {data.products.map((prodRel) => (
             <CartItem
               language={language}
@@ -139,7 +170,7 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
           <Typography variant="h6" sx={{ textAlign: "end" }}>
             {totalPriceStr}: <CommonComponents.PriceDisplay price={data.first_paid_price} />
           </Typography>
-          <Button variant="contained" color="secondary" onClick={startCartOrder} disabled={disabled}>
+          <Button variant="contained" color="secondary" onClick={openDialog} disabled={disabled}>
             {orderCartStr}
           </Button>
         </>

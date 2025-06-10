@@ -81,6 +81,11 @@ const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
   );
 };
 
+type ProductItemStateType = {
+  openDialog: boolean;
+  openBackdrop: boolean;
+};
+
 const ProductItem: React.FC<{
   language: "ko" | "en";
   product: ShopSchemas.Product;
@@ -89,9 +94,14 @@ const ProductItem: React.FC<{
   const optionFormRef = React.useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
+  const { shopImpAccountId } = ShopHooks.useShopContext();
   const shopAPIClient = ShopHooks.useShopClient();
   const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
+  const [state, setState] = React.useState<ProductItemStateType>({
+    openDialog: false,
+    openBackdrop: false,
+  });
 
   const orderErrorStr =
     language === "ko"
@@ -110,22 +120,35 @@ const ProductItem: React.FC<{
   const orderPriceStr = language === "ko" ? "결제 금액" : "Price";
 
   const addItemToCart = () => addItemToCartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef));
-  const oneItemOrderStart = () =>
-    oneItemOrderStartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef), {
-      onSuccess: (order: ShopSchemas.Order) => {
-        ShopUtils.startPortOnePurchase(
-          order,
-          () => {
-            queryClient.invalidateQueries();
-            queryClient.resetQueries();
-            onPaymentCompleted?.();
-          },
-          (response) => alert(failedToOrderStr + response.error_msg),
-          () => {}
-        );
-      },
-      onError: (error) => alert(error.message || orderErrorStr),
-    });
+
+  const openDialog = () => setState((ps) => ({ ...ps, openDialog: true }));
+  const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
+  const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
+  const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
+
+  const onFormSubmit = (formData: ShopSchemas.CustomerInfo) => {
+    closeDialog();
+    openBackdrop();
+    oneItemOrderStartMutation.mutate(
+      { ...getCartAppendRequestPayload(product, optionFormRef), customer_info: formData },
+      {
+        onSuccess: (order: ShopSchemas.Order) => {
+          ShopUtils.startPortOnePurchase(
+            shopImpAccountId,
+            order,
+            () => {
+              queryClient.invalidateQueries();
+              queryClient.resetQueries();
+              onPaymentCompleted?.();
+            },
+            (response) => alert(failedToOrderStr + response.error_msg),
+            closeBackdrop
+          );
+        },
+        onError: (error) => alert(error.message || orderErrorStr),
+      }
+    );
+  };
 
   const formOnSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
@@ -141,50 +164,57 @@ const ProductItem: React.FC<{
   };
 
   return (
-    <Accordion sx={{ width: "100%" }}>
-      <AccordionSummary expandIcon={<ExpandMore />} sx={{ m: "0" }}>
-        <Typography variant="h6">{product.name}</Typography>
-      </AccordionSummary>
-      <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-        <Common.Components.MDXRenderer text={product.description || ""} />
-        <br />
-        <Divider />
-        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
-          {R.isNullish(notPurchasableReason) ? (
-            <>
-              <br />
-              <form ref={optionFormRef} onSubmit={formOnSubmit}>
-                <Stack spacing={2}>
-                  {product.option_groups.map((group) => (
-                    <CommonComponents.OptionGroupInput
-                      key={group.id}
-                      optionGroup={group}
-                      options={group.options}
-                      defaultValue={group?.options[0]?.id || ""}
-                      disabled={disabled}
-                    />
-                  ))}
-                </Stack>
-              </form>
-              <br />
-              <Divider />
-              <br />
-              <Typography variant="h6" sx={{ textAlign: "right" }}>
-                {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
-              </Typography>
-            </>
-          ) : (
-            <NotPurchasable>{notPurchasableReason}</NotPurchasable>
-          )}
-        </CommonComponents.SignInGuard>
-      </AccordionDetails>
-      {R.isNullish(notPurchasableReason) && (
-        <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
-          <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
-          <Button {...actionButtonProps} onClick={oneItemOrderStart} children={orderOneItemStr} />
-        </AccordionActions>
-      )}
-    </Accordion>
+    <>
+      <CommonComponents.CustomerInfoFormDialog
+        open={state.openDialog}
+        closeFunc={closeDialog}
+        onSubmit={onFormSubmit}
+      />
+      <Accordion sx={{ width: "100%" }}>
+        <AccordionSummary expandIcon={<ExpandMore />} sx={{ m: "0" }}>
+          <Typography variant="h6">{product.name}</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
+          <Common.Components.MDXRenderer text={product.description || ""} />
+          <br />
+          <Divider />
+          <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+            {R.isNullish(notPurchasableReason) ? (
+              <>
+                <br />
+                <form ref={optionFormRef} onSubmit={formOnSubmit}>
+                  <Stack spacing={2}>
+                    {product.option_groups.map((group) => (
+                      <CommonComponents.OptionGroupInput
+                        key={group.id}
+                        optionGroup={group}
+                        options={group.options}
+                        defaultValue={group?.options[0]?.id || ""}
+                        disabled={disabled}
+                      />
+                    ))}
+                  </Stack>
+                </form>
+                <br />
+                <Divider />
+                <br />
+                <Typography variant="h6" sx={{ textAlign: "right" }}>
+                  {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
+                </Typography>
+              </>
+            ) : (
+              <NotPurchasable>{notPurchasableReason}</NotPurchasable>
+            )}
+          </CommonComponents.SignInGuard>
+        </AccordionDetails>
+        {R.isNullish(notPurchasableReason) && (
+          <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>
+            <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
+            <Button {...actionButtonProps} onClick={openDialog} children={orderOneItemStr} />
+          </AccordionActions>
+        )}
+      </Accordion>
+    </>
   );
 };
 

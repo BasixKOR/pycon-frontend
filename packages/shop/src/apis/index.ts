@@ -109,8 +109,8 @@ namespace ShopAPIs {
    * 고객의 장바구니에 담긴 전체 상품 결제를 PortOne에 등록합니다.
    * @returns PortOne에 등록된 주문 정보
    */
-  export const prepareCartOrder = (client: ShopAPIClient) => () =>
-    client.post<ShopSchemas.Order, undefined>("v1/orders/", undefined);
+  export const prepareCartOrder = (client: ShopAPIClient) => (data: ShopSchemas.CustomerInfo) =>
+    client.post<ShopSchemas.Order, ShopSchemas.CustomerInfo>("v1/orders/", data);
 
   /**
    * 고객의 모든 결제 내역을 가져옵니다.
