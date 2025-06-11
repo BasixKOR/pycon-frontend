@@ -26,8 +26,13 @@ const queryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
+    onMutate: (_variables, mutation) => {
+      queryClient.resetQueries({
+        predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
+      });
+    },
     onSuccess: (_data, _variables, _context, mutation) => {
-      queryClient.invalidateQueries({
+      queryClient.resetQueries({
         predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
       });
     },
