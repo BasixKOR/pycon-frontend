@@ -1,6 +1,6 @@
 import * as Common from "@frontend/common";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
-import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs } from "@mui/material";
+import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { commands } from "@uiw/react-md-editor";
 import * as React from "react";
@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 // but for whatever reason this stupid namespace won't import on Common.Schemas.BackendAdminAPI.PageSectionSchema.
 // TODO: FIXME: Remove this hack when the issue is resolved. This is dumb.
 import BackendAdminAPISchemas from "../../../../../../packages/common/src/schemas/backendAdminAPI";
+import { muiTheme } from "../../../styles/globalStyles";
 import { addErrorSnackbar } from "../../../utils/snackbar";
 import { AdminEditor } from "../../layouts/admin_editor";
 
@@ -61,7 +62,9 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({
         </Button>
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
-        <Common.Components.MDXRenderer text={defaultValue || ""} />
+        <ThemeProvider theme={muiTheme}>
+          <Common.Components.MDXRenderer text={defaultValue || ""} />
+        </ThemeProvider>
       </Box>
     </Stack>
   );
