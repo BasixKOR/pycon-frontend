@@ -189,7 +189,9 @@ export const OrderList: React.FC = () => {
     <CommonComponents.SignInGuard>
       <ErrorBoundary fallback={<div>주문 내역을 불러오는 중 문제가 발생했습니다.</div>}>
         <Suspense fallback={<CircularProgress />}>
-          <WrappedOrderList />
+          <Stack spacing={2}>
+            <WrappedOrderList />
+          </Stack>
         </Suspense>
       </ErrorBoundary>
     </CommonComponents.SignInGuard>

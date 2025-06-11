@@ -208,7 +208,9 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
   return (
     <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
       <Suspense fallback={<CircularProgress />}>
-        <WrappedProductList />
+        <Stack spacing={2}>
+          <WrappedProductList />
+        </Stack>
       </Suspense>
     </ErrorBoundary>
   );

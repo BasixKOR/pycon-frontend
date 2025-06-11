@@ -140,15 +140,17 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
             onSubmit={onFormSubmit}
             defaultValue={data.customer_info}
           />
-          {data.products.map((prodRel) => (
-            <CartItem
-              language={language}
-              key={prodRel.id}
-              cartProdRel={prodRel}
-              disabled={disabled}
-              removeItemFromCartFunc={removeItemFromCart}
-            />
-          ))}
+          <Stack spacing={2}>
+            {data.products.map((prodRel) => (
+              <CartItem
+                language={language}
+                key={prodRel.id}
+                cartProdRel={prodRel}
+                disabled={disabled}
+                removeItemFromCartFunc={removeItemFromCart}
+              />
+            ))}
+          </Stack>
           <br />
           <Divider />
           <Typography variant="h6" sx={{ textAlign: "end" }}>
