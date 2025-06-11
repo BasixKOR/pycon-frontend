@@ -61,7 +61,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
     .reduce(
       (acc, optionRel) => ({
         ...acc,
-        [optionRel.product_option_group.id]: optionRel.custom_response,
+        [optionRel.id]: optionRel.custom_response,
       }),
       {}
     );

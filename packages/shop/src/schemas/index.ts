@@ -145,6 +145,7 @@ namespace ShopSchemas {
     };
     options: (
       | {
+          id: string;
           product_option_group: {
             id: string;
             name: string;
@@ -160,6 +161,7 @@ namespace ShopSchemas {
           custom_response: null;
         }
       | {
+          id: string;
           product_option_group: {
             id: string;
             name: string;
