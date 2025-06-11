@@ -5,6 +5,7 @@ import * as R from "remeda";
 
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
+import { ShopSignInPage } from "./components/pages/sign_in.tsx";
 import { Test } from "./components/pages/test.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { useAppContext } from "./contexts/app_context";
@@ -40,6 +41,7 @@ export const App: React.FC = () => {
     <Routes>
       <Route element={<MainLayout />}>
         {IS_DEBUG_ENV && <Route path="/debug" element={<Test />} />}
+        <Route path="/account/sign-in" element={<ShopSignInPage />} />
         <Route path="/pages/:id" element={<PageIdParamRenderer />} />
         <Route path="*" element={<RouteRenderer />} />
       </Route>

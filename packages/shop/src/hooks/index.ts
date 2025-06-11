@@ -65,6 +65,7 @@ namespace ShopHooks {
     useMutation({
       mutationKey: MUTATION_KEYS.USER_SIGN_OUT,
       mutationFn: ShopAPIs.signOut(client),
+      retry: 0,
       meta: { invalidates: [QUERY_KEYS.BASE] },
     });
 

@@ -45,7 +45,7 @@ namespace ShopAPIs {
    */
   export const signOut = (client: ShopAPIClient) => async () => {
     try {
-      await client.delete<ShopSchemas.UserSignedInStatus>("authn/social/browser/v1/auth/session");
+      await client.delete<void>("authn/social/browser/v1/auth/session");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       return Promise.resolve({});

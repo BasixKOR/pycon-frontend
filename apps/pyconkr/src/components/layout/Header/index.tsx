@@ -9,7 +9,7 @@ import * as R from "remeda";
 import BackendAPISchemas from "../../../../../../packages/common/src/schemas/backendAPI";
 import { useAppContext } from "../../../contexts/app_context";
 import LanguageSelector from "../LanguageSelector";
-import LoginButton from "../LoginButton";
+import { SignInButton } from "../SignInButton";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 type MenuOrUndefinedType = MenuType | undefined;
@@ -129,7 +129,7 @@ const Header: React.FC = () => {
         <NavSideElementContainer>
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
-            <LoginButton />
+            <SignInButton />
           </Stack>
         </NavSideElementContainer>
       </HeaderContainer>
