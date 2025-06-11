@@ -1,8 +1,10 @@
 import * as Common from "@frontend/common";
 import { AccordionProps, Button, ButtonProps, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
 import ShopHooks from "../../hooks";
@@ -82,6 +84,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({
   startPurchaseProcess,
   ...props
 }) => {
+  const navigate = useNavigate();
   const optionFormRef = React.useRef<HTMLFormElement>(null);
   const shopAPIClient = ShopHooks.useShopClient();
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
@@ -101,6 +104,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({
     language === "ko"
       ? "장바구니에 상품을 담는 중 문제가 발생했어요,\n잠시 후 다시 시도해주세요."
       : "An error occurred while adding the product to the cart,\nplease try again later.";
+  const gotoCartPageStr = language === "ko" ? "장바구니로 이동" : "Go to Cart";
 
   const formOnSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
@@ -113,8 +117,22 @@ const ProductItem: React.FC<ProductItemPropType> = ({
 
   const addItemToCart = () =>
     addItemToCartMutation.mutate(getCartAppendRequestPayload(product, optionFormRef), {
-      onSuccess: () => addSnackbar(succeededToAddOneItemToCartStr, "success"),
-      onError: () => addSnackbar(failedToAddOneItemToCartStr, "error"),
+      onSuccess: () =>
+        addSnackbar(
+          <Stack spacing={2} justifyContent="center" alignItems="center" sx={{ width: "100%", flexGrow: 1 }}>
+            <div>{succeededToAddOneItemToCartStr}</div>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate("/store/cart")}
+              children={gotoCartPageStr}
+              sx={{ backgroundColor: "white" }}
+              fullWidth
+            />
+          </Stack>,
+          "success"
+        ),
+      onError: () => alert(failedToAddOneItemToCartStr),
     });
   const onOrderOneItemButtonClick = () => startPurchaseProcess(getCartAppendRequestPayload(product, optionFormRef));
   const actionButton = R.isNullish(notPurchasableReason) && (
@@ -170,6 +188,8 @@ type ProductStateType = {
 
 export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
   const WrappedProductList: React.FC = () => {
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const { language, shopImpAccountId } = ShopHooks.useShopContext();
     const shopAPIClient = ShopHooks.useShopClient();
     const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
@@ -210,7 +230,11 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
             ShopUtils.startPortOnePurchase(
               shopImpAccountId,
               order,
-              () => {},
+              () => {
+                queryClient.invalidateQueries();
+                queryClient.resetQueries();
+                navigate("/store/thank-you-for-your-purchase");
+              },
               (response) => alert(failedToOrderStr + response.error_msg),
               closeBackdrop
             );
