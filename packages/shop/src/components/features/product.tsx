@@ -136,10 +136,10 @@ const ProductItem: React.FC<ProductItemPropType> = ({
     });
   const onOrderOneItemButtonClick = () => startPurchaseProcess(getCartAppendRequestPayload(product, optionFormRef));
   const actionButton = R.isNullish(notPurchasableReason) && (
-    <>
+    <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
       <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
       <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
-    </>
+    </CommonComponents.SignInGuard>
   );
 
   return (
@@ -147,34 +147,36 @@ const ProductItem: React.FC<ProductItemPropType> = ({
       <Common.Components.MDXRenderer text={product.description || ""} />
       <br />
       <Divider />
-      <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
-        {R.isNullish(notPurchasableReason) ? (
-          <>
-            <br />
-            <form ref={optionFormRef} onSubmit={formOnSubmit}>
-              <Stack spacing={2}>
-                {product.option_groups.map((group) => (
-                  <CommonComponents.OptionGroupInput
-                    key={group.id}
-                    optionGroup={group}
-                    options={group.options}
-                    defaultValue={group.options[0]?.id || ""}
-                    disabled={disabled}
-                  />
-                ))}
-              </Stack>
-            </form>
-            <br />
-            <Divider />
-            <br />
-            <Typography variant="h6" sx={{ textAlign: "right" }}>
-              {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
-            </Typography>
-          </>
-        ) : (
-          <NotPurchasable>{notPurchasableReason}</NotPurchasable>
-        )}
-      </CommonComponents.SignInGuard>
+      {R.isNullish(notPurchasableReason) ? (
+        <>
+          <br />
+          <form ref={optionFormRef} onSubmit={formOnSubmit}>
+            <Stack spacing={2}>
+              {product.option_groups.map((group) => (
+                <CommonComponents.OptionGroupInput
+                  key={group.id}
+                  optionGroup={group}
+                  options={group.options}
+                  defaultValue={group.options[0]?.id || ""}
+                  disabled={disabled}
+                />
+              ))}
+            </Stack>
+          </form>
+          <br />
+          {product.option_groups.length > 0 && (
+            <>
+              <Divider />
+              <br />
+            </>
+          )}
+          <Typography variant="h6" sx={{ textAlign: "right" }}>
+            {orderPriceStr}: <CommonComponents.PriceDisplay price={product.price} />
+          </Typography>
+        </>
+      ) : (
+        <NotPurchasable>{notPurchasableReason}</NotPurchasable>
+      )}
     </Common.Components.MDX.PrimaryStyledDetails>
   );
 };
