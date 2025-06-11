@@ -15,12 +15,12 @@ import type { MDXComponents } from "mdx/types";
 import muiComponents from "mui-mdx-components";
 import * as React from "react";
 import * as runtime from "react/jsx-runtime";
-import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import * as R from "remeda";
 
 import Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
+import { LinkHandler } from "./link_handler";
 import { rtrim } from "../utils/string";
 import { StyledDivider } from "./mdx_components/styled_divider";
 import { SubContentContainer } from "./mdx_components/sub_content_container";
@@ -46,16 +46,6 @@ const REGISTERED_KEYWORDS = [
   "{",
   "}",
 ];
-
-const EXTERNAL_PROTOCOLS = ["http://", "https://", "mailto:", "tel:"];
-
-const LinkHandler: React.FC<{ href: string }> = ({ href, ...props }) => {
-  // If the href starts with "http" or "https", it's an external link
-  if (EXTERNAL_PROTOCOLS.some((protocol) => href.startsWith(protocol)))
-    return <a href={href} target="_blank" rel="noopener noreferrer" {...props} />;
-
-  return <Link to={href} {...props} />;
-};
 
 const CustomMDXComponents: MDXComponents = {
   h1: (props) => <h1 style={{ margin: 0 }} {...props} />,
