@@ -62,7 +62,7 @@ const Header: React.FC = () => {
           <>
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
               {Object.values(siteMapNode.children).map((r) => (
-                <Link to={r.route_code} onClick={resetDepths}>
+                <Link key={r.id} to={r.route_code} onClick={resetDepths}>
                   <Button key={r.id} onMouseEnter={() => setDepth1(r)} sx={{ minWidth: 0, textTransform: "none" }}>
                     {r.name}
                   </Button>

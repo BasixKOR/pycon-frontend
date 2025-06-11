@@ -1,6 +1,7 @@
 import { CenteredPage as CenteredPageComponent } from "./centered_page";
 import { CommonContextProvider as CommonContextProviderComponent } from "./common_context";
 import { ErrorFallback as ErrorFallbackComponent } from "./error_handler";
+import { LinkHandler as LinkHandlerComponent } from "./link_handler";
 import {
   LottieDebugPanel as LottieDebugPanelComponent,
   LottiePlayer as LottiePlayerComponent,
@@ -14,10 +15,12 @@ import {
 } from "./mdx_components/faq_accordion";
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
+import { OneDetailsOpener as OneDetailsOpenerComponent } from "./mdx_components/one_details_opener";
 import {
   PrimaryStyledDetails as PrimaryStyledDetailsComponent,
   HighlightedStyledDetails as SecondaryStyledDetailsComponent,
 } from "./mdx_components/styled_details";
+import { StyledFullWidthButton as StyledFullWidthButtonComponent } from "./mdx_components/styled_full_width_button";
 import { MDXEditor as MDXEditorComponent } from "./mdx_editor";
 import { PythonKorea as PythonKoreaComponent } from "./pythonkorea";
 
@@ -31,12 +34,15 @@ namespace Components {
   export const LottiePlayer = LottiePlayerComponent;
   export const NetworkLottiePlayer = NetworkLottiePlayerComponent;
   export const ErrorFallback = ErrorFallbackComponent;
+  export const LinkHandler = LinkHandlerComponent;
 
   export namespace MDX {
+    export const StyledFullWidthButton = StyledFullWidthButtonComponent;
     export const PrimaryStyledDetails = PrimaryStyledDetailsComponent;
     export const SecondaryStyledDetails = SecondaryStyledDetailsComponent;
     export const Map = MapComponent;
     export const FAQAccordion = FAQAccordionComponent;
+    export const OneDetailsOpener = OneDetailsOpenerComponent;
     export type MapPropType = MapComponentPropType;
     export type FAQAccordionProps = FAQAccordionPropsType;
     export type FAQItem = FAQItemType;
