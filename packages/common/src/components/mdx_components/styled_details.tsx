@@ -60,11 +60,9 @@ const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
 
   return (
     <StyledAccordion expanded={open} disableGutters square elevation={0} slotProps={{ root: { sx: rootSx } }}>
-      {summary && (
-        <StyledAccordionSummary expandIcon={expandIcon || <DefaultExpandIcon />}>
-          {typeof summary === "string" ? <Typography variant="h5">{summary}</Typography> : summary}
-        </StyledAccordionSummary>
-      )}
+      <StyledAccordionSummary expandIcon={expandIcon || <DefaultExpandIcon />}>
+        {typeof summary === "string" ? <Typography variant="h5">{summary}</Typography> : summary}
+      </StyledAccordionSummary>
       <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>{children}</AccordionDetails>
       {actions && <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>{actions}</AccordionActions>}
     </StyledAccordion>
