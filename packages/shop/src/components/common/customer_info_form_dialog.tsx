@@ -33,11 +33,6 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
     const shopAPIClient = ShopHooks.useShopClient();
     const { data: userInfo } = ShopHooks.useUserStatus(shopAPIClient);
 
-    if (!userInfo) {
-      closeFunc();
-      return;
-    }
-
     const onSubmitFunc: React.MouseEventHandler<HTMLButtonElement> = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -76,7 +71,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
               <TextField
                 name="email"
                 label={emailLabelStr}
-                defaultValue={defaultValue?.email || userInfo.data.user.email}
+                defaultValue={defaultValue?.email || userInfo?.data.user.email}
                 type="email"
                 required
                 fullWidth
