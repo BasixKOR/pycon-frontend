@@ -133,6 +133,7 @@ const MUIMDXComponents: MDXComponents = {
 const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__Lottie: Common.Components.LottiePlayer,
   Common__Components__NetworkLottie: Common.Components.NetworkLottiePlayer,
+  Common__Components__MDX__Confetti: Common.Components.MDX.Confetti,
   Common__Components__MDX__PrimaryStyledDetails: Common.Components.MDX.PrimaryStyledDetails,
   Common__Components__MDX__SecondaryStyledDetails: Common.Components.MDX.SecondaryStyledDetails,
   Common__Components__MDX__Map: Common.Components.MDX.Map,
