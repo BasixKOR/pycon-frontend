@@ -61,13 +61,15 @@ const Header: React.FC = () => {
         {siteMapNode ? (
           <>
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
-              {Object.values(siteMapNode.children).map((r) => (
-                <Link key={r.id} to={r.route_code} onClick={resetDepths}>
-                  <Button key={r.id} onMouseEnter={() => setDepth1(r)} sx={{ minWidth: 0, textTransform: "none" }}>
-                    {r.name}
-                  </Button>
-                </Link>
-              ))}
+              {Object.values(siteMapNode.children)
+                .filter((s) => !s.hide)
+                .map((r) => (
+                  <Link key={r.id} to={r.route_code} onClick={resetDepths}>
+                    <Button key={r.id} onMouseEnter={() => setDepth1(r)} sx={{ minWidth: 0, textTransform: "none" }}>
+                      {r.name}
+                    </Button>
+                  </Link>
+                ))}
             </Stack>
 
             {navState.depth1 && (
@@ -79,18 +81,20 @@ const Header: React.FC = () => {
                   <Depth1to2Divider flexItem />
                   <Stack direction="row" spacing={4}>
                     <Stack spacing={1.25}>
-                      {Object.values(navState.depth1.children).map((r) => (
-                        <Depth2Item
-                          children={r.name}
-                          className={r.id === navState.depth2?.id ? "active" : ""}
-                          key={r.id}
-                          onClick={resetDepths}
-                          onMouseEnter={() => setDepth2(r)}
-                          // 하위 depth가 있는 경우, 하위 depth를 선택할 수 있도록 유지하기 위해 depth2도 유지합니다.
-                          onMouseLeave={() => R.isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
-                          to={getDepth2Route(r.route_code)}
-                        />
-                      ))}
+                      {Object.values(navState.depth1.children)
+                        .filter((s) => !s.hide)
+                        .map((r) => (
+                          <Depth2Item
+                            children={r.name}
+                            className={r.id === navState.depth2?.id ? "active" : ""}
+                            key={r.id}
+                            onClick={resetDepths}
+                            onMouseEnter={() => setDepth2(r)}
+                            // 하위 depth가 있는 경우, 하위 depth를 선택할 수 있도록 유지하기 위해 depth2도 유지합니다.
+                            onMouseLeave={() => R.isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
+                            to={getDepth2Route(r.route_code)}
+                          />
+                        ))}
                     </Stack>
 
                     {navState.depth2 && !R.isEmpty(navState.depth2.children) && (
@@ -98,17 +102,19 @@ const Header: React.FC = () => {
                         {!R.isEmpty(navState.depth2.children) && <Depth2to3Divider orientation="vertical" flexItem />}
 
                         <Stack spacing={1.5}>
-                          {Object.values(navState.depth2.children).map((r) => (
-                            <Depth3Item
-                              children={r.name}
-                              className={r.id === navState.depth3?.id ? "active" : ""}
-                              key={r.id}
-                              onClick={resetDepths}
-                              onMouseEnter={() => setDepth3(r)}
-                              onMouseLeave={() => setDepth3(undefined)}
-                              to={getDepth3Route(r?.route_code)}
-                            />
-                          ))}
+                          {Object.values(navState.depth2.children)
+                            .filter((s) => !s.hide)
+                            .map((r) => (
+                              <Depth3Item
+                                children={r.name}
+                                className={r.id === navState.depth3?.id ? "active" : ""}
+                                key={r.id}
+                                onClick={resetDepths}
+                                onMouseEnter={() => setDepth3(r)}
+                                onMouseLeave={() => setDepth3(undefined)}
+                                to={getDepth3Route(r?.route_code)}
+                              />
+                            ))}
                         </Stack>
                       </>
                     )}

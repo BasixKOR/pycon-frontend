@@ -21,6 +21,7 @@ namespace BackendAPISchemas {
     order: number;
     parent_sitemap: string | null;
     page: string;
+    hide: boolean;
   };
 
   export type NestedSiteMapSchema = {
@@ -29,6 +30,7 @@ namespace BackendAPISchemas {
     name: string;
     order: number;
     page: string;
+    hide: boolean;
     children: { [key: string]: NestedSiteMapSchema };
   };
 

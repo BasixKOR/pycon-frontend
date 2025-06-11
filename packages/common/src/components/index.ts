@@ -8,6 +8,7 @@ import {
   NetworkLottiePlayer as NetworkLottiePlayerComponent,
 } from "./lottie";
 import { MDXRenderer as MDXRendererComponent } from "./mdx";
+import { Confetti as ConfettiComponent } from "./mdx_components/confetti";
 import {
   FAQAccordion as FAQAccordionComponent,
   type FAQAccordionProps as FAQAccordionPropsType,
@@ -37,6 +38,7 @@ namespace Components {
   export const LinkHandler = LinkHandlerComponent;
 
   export namespace MDX {
+    export const Confetti = ConfettiComponent;
     export const StyledFullWidthButton = StyledFullWidthButtonComponent;
     export const PrimaryStyledDetails = PrimaryStyledDetailsComponent;
     export const SecondaryStyledDetails = SecondaryStyledDetailsComponent;
