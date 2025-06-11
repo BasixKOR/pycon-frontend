@@ -88,11 +88,14 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   const patchOneItemOptions = () => {
     if (!Common.Utils.isFormValid(formRef.current)) throw new Error("Form is not valid");
 
-    const modifiedCustomOptionValues: ShopSchemas.OrderOptionsPatchRequest["options"] = Object.entries(
-      Common.Utils.getFormValue<{ [key: string]: string }>({
-        form: formRef.current,
+    const formValues = Common.Utils.getFormValue<{ [key: string]: string }>({ form: formRef.current });
+    const modifiedCustomOptionValues: ShopSchemas.OrderOptionsPatchRequest["options"] = Object.entries(formValues)
+      .map(([key, value]) => {
+        // 여기서 key는 order_product_option_relation의 id가 아니라 product_option_group의 id이므로, order_product_option_relation의 id로 변경해야 함
+        const optionRel = prodRel.options.find((option) => option.product_option_group.id === key);
+        if (!optionRel) throw new Error(`Option relation for group ${key} not found in product relation ${prodRel.id}`);
+        return [optionRel.id, value];
       })
-    )
       .filter(([key, value]) => currentCustomOptionValues[key] !== value)
       .map(([key, value]) => ({
         order_product_option_relation: key,
