@@ -237,17 +237,19 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
       <br />
       <Typography variant="h6">{productsInOrderStr}</Typography>
       <br />
-      {order.products.map((prodRel) => (
-        <OrderProductRelationItem
-          key={prodRel.id}
-          language={language}
-          order={order}
-          prodRel={prodRel}
-          isPending={isPending}
-          oneItemRefundMutation={oneItemRefundMutation}
-          optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
-        />
-      ))}
+      <Stack spacing={2}>
+        {order.products.map((prodRel) => (
+          <OrderProductRelationItem
+            key={prodRel.id}
+            language={language}
+            order={order}
+            prodRel={prodRel}
+            isPending={isPending}
+            oneItemRefundMutation={oneItemRefundMutation}
+            optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
+          />
+        ))}
+      </Stack>
       <br />
       <Divider />
     </Common.Components.MDX.PrimaryStyledDetails>
