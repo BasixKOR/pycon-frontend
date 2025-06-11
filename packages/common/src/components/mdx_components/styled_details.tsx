@@ -3,6 +3,7 @@ import {
   Accordion,
   AccordionActions,
   AccordionDetails,
+  AccordionProps,
   AccordionSummary,
   PaletteColor,
   styled,
@@ -12,12 +13,13 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-type StyledDetailsProps = React.PropsWithChildren<{
-  expandIcon?: React.ReactNode;
-  open?: boolean;
-  summary?: React.ReactNode;
-  actions?: React.ReactNode;
-}>;
+type StyledDetailsProps = React.PropsWithChildren<
+  AccordionProps & {
+    expandIcon?: React.ReactNode;
+    summary?: React.ReactNode;
+    actions?: React.ReactNode;
+  }
+>;
 
 type BaseStyledDetailsProps = StyledDetailsProps & {
   paletteColor: PaletteColor;
@@ -26,12 +28,14 @@ type BaseStyledDetailsProps = StyledDetailsProps & {
 
 const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
   expandIcon,
-  open,
+  expanded,
+  onChange,
   summary,
   children,
   actions,
   paletteColor,
   transparencyOnExpand,
+  ...props
 }) => {
   const StyledAccordion = styled(Accordion)(({ theme }) => ({
     width: "100%",
@@ -59,7 +63,15 @@ const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
   }));
 
   return (
-    <StyledAccordion expanded={open} disableGutters square elevation={0} slotProps={{ root: { sx: rootSx } }}>
+    <StyledAccordion
+      {...props}
+      expanded={expanded}
+      onChange={onChange}
+      disableGutters
+      square
+      elevation={0}
+      slotProps={{ root: { sx: rootSx } }}
+    >
       <StyledAccordionSummary expandIcon={expandIcon || <DefaultExpandIcon />}>
         {typeof summary === "string" ? <Typography variant="h5">{summary}</Typography> : summary}
       </StyledAccordionSummary>

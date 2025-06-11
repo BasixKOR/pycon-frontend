@@ -1,5 +1,6 @@
 import * as Common from "@frontend/common";
 import {
+  AccordionProps,
   Button,
   CircularProgress,
   Divider,
@@ -38,7 +39,7 @@ const PaymentHistoryStatusEn: {
   refunded: "Refunded",
 };
 
-type OrderProductRelationItemProps = {
+type OrderProductRelationItemProps = Omit<AccordionProps, "children"> & {
   language: "ko" | "en";
   order: ShopSchemas.Order;
   prodRel: ShopSchemas.OrderProductItem;
@@ -54,6 +55,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   isPending,
   oneItemRefundMutation,
   optionsOfOneItemInOrderPatchMutation,
+  ...props
 }) => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const currentCustomOptionValues: { [k: string]: string } = prodRel.options
@@ -122,6 +124,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
 
   return (
     <Common.Components.MDX.PrimaryStyledDetails
+      {...props}
       key={prodRel.id}
       summary={<Typography variant="h6">{prodRel.product.name}</Typography>}
       actions={actionButtons}
@@ -147,7 +150,9 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   );
 };
 
-const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({ order, disabled }) => {
+type OrderItemProps = Omit<AccordionProps, "children"> & { order: ShopSchemas.Order; disabled?: boolean };
+
+const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   const { language, shopApiDomain } = ShopHooks.useShopContext();
   const shopAPIClient = ShopHooks.useShopClient();
   const orderRefundMutation = ShopHooks.useOrderRefundMutation(shopAPIClient);
@@ -192,7 +197,7 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
   );
 
   return (
-    <Common.Components.MDX.PrimaryStyledDetails summary={order.name} actions={actionButtons}>
+    <Common.Components.MDX.PrimaryStyledDetails {...props} summary={order.name} actions={actionButtons}>
       <Table>
         <TableHead>
           <TableRow>
@@ -241,17 +246,19 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
       <Typography variant="h6">{productsInOrderStr}</Typography>
       <br />
       <Stack spacing={2}>
-        {order.products.map((prodRel) => (
-          <OrderProductRelationItem
-            key={prodRel.id}
-            language={language}
-            order={order}
-            prodRel={prodRel}
-            isPending={isPending}
-            oneItemRefundMutation={oneItemRefundMutation}
-            optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
-          />
-        ))}
+        <Common.Components.MDX.OneDetailsOpener>
+          {order.products.map((prodRel) => (
+            <OrderProductRelationItem
+              key={prodRel.id}
+              language={language}
+              order={order}
+              prodRel={prodRel}
+              isPending={isPending}
+              oneItemRefundMutation={oneItemRefundMutation}
+              optionsOfOneItemInOrderPatchMutation={optionsOfOneItemInOrderPatchMutation}
+            />
+          ))}
+        </Common.Components.MDX.OneDetailsOpener>
       </Stack>
       <br />
       <Divider />
@@ -264,7 +271,13 @@ export const OrderList: React.FC = () => {
     const shopAPIClient = ShopHooks.useShopClient();
     const { data } = ShopHooks.useOrders(shopAPIClient);
 
-    return data.map((item) => <OrderItem key={item.id} order={item} />);
+    return (
+      <Common.Components.MDX.OneDetailsOpener>
+        {data.map((item) => (
+          <OrderItem key={item.id} order={item} />
+        ))}
+      </Common.Components.MDX.OneDetailsOpener>
+    );
   };
 
   return (

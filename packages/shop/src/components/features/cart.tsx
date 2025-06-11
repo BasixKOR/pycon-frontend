@@ -1,7 +1,8 @@
 import * as Common from "@frontend/common";
-import { Backdrop, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import { AccordionProps, Backdrop, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import * as R from "remeda";
 
@@ -10,12 +11,14 @@ import ShopSchemas from "../../schemas";
 import ShopUtils from "../../utils";
 import CommonComponents from "../common";
 
-const CartItem: React.FC<{
-  language: "ko" | "en";
-  cartProdRel: ShopSchemas.OrderProductItem;
-  removeItemFromCartFunc: (cartProductId: string) => void;
-  disabled?: boolean;
-}> = ({ language, cartProdRel, disabled, removeItemFromCartFunc }) => {
+const CartItem: React.FC<
+  Omit<AccordionProps, "children"> & {
+    language: "ko" | "en";
+    cartProdRel: ShopSchemas.OrderProductItem;
+    removeItemFromCartFunc: (cartProductId: string) => void;
+    disabled?: boolean;
+  }
+> = ({ language, cartProdRel, disabled, removeItemFromCartFunc, ...props }) => {
   const cannotModifyOptionsStr =
     language === "ko"
       ? "상품 옵션을 수정하려면 장바구니에서 상품을 삭제한 후 다시 담아주세요."
@@ -25,6 +28,7 @@ const CartItem: React.FC<{
 
   return (
     <Common.Components.MDX.PrimaryStyledDetails
+      {...props}
       summary={cartProdRel.product.name}
       actions={[
         <Button
@@ -74,9 +78,14 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
       openBackdrop: false,
     });
 
+    const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+      enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
+
     const cartIsEmptyStr = language === "ko" ? "장바구니가 비어있어요!" : "Your cart is empty!";
     const totalPriceStr = language === "ko" ? "총 결제 금액" : "Total Payment Amount";
     const orderCartStr = language === "ko" ? "장바구니에 담긴 상품 결제" : "Pay for Items in Cart";
+    const succeededToRemoveItemFromCartStr =
+      language === "ko" ? "장바구니에서 상품을 삭제했습니다." : "Item has been removed from the cart.";
     const errorWhileLoadingCartStr =
       language === "ko"
         ? "장바구니 정보를 불러오는 중 문제가 발생했습니다."
@@ -90,7 +99,14 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
         ? "장바구니 결제에 실패했습니다.\n잠시 후 다시 시도해주세요.\n"
         : "Failed to complete the cart order.\nPlease try again later.\n";
 
-    const removeItemFromCart = (cartProductId: string) => removeItemFromCartMutation.mutate({ cartProductId });
+    const removeItemFromCart = (cartProductId: string) =>
+      removeItemFromCartMutation.mutate(
+        { cartProductId },
+        {
+          onSuccess: () => addSnackbar(succeededToRemoveItemFromCartStr, "success"),
+          onError: (error) => addSnackbar(error.message || errorWhilePreparingOrderStr, "error"),
+        }
+      );
 
     const openDialog = () => setState((ps) => ({ ...ps, openDialog: true }));
     const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
@@ -141,15 +157,17 @@ export const CartStatus: React.FC<{ onPaymentCompleted?: () => void }> = Suspens
             defaultValue={data.customer_info}
           />
           <Stack spacing={2}>
-            {data.products.map((prodRel) => (
-              <CartItem
-                language={language}
-                key={prodRel.id}
-                cartProdRel={prodRel}
-                disabled={disabled}
-                removeItemFromCartFunc={removeItemFromCart}
-              />
-            ))}
+            <Common.Components.MDX.OneDetailsOpener>
+              {data.products.map((prodRel) => (
+                <CartItem
+                  language={language}
+                  key={prodRel.id}
+                  cartProdRel={prodRel}
+                  disabled={disabled}
+                  removeItemFromCartFunc={removeItemFromCart}
+                />
+              ))}
+            </Common.Components.MDX.OneDetailsOpener>
           </Stack>
           <br />
           <Divider />
