@@ -1,5 +1,16 @@
 import * as Common from "@frontend/common";
-import { Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Divider,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import * as R from "remeda";
@@ -9,7 +20,7 @@ import ShopSchemas from "../../schemas";
 import ShopUtils from "../../utils";
 import CommonComponents from "../common";
 
-const PaymentHistoryStatusTranslated: {
+const PaymentHistoryStatusKo: {
   [k in ShopSchemas.PaymentHistoryStatus]: string;
 } = {
   pending: "결제 대기중",
@@ -18,7 +29,17 @@ const PaymentHistoryStatusTranslated: {
   refunded: "환불됨",
 };
 
+const PaymentHistoryStatusEn: {
+  [k in ShopSchemas.PaymentHistoryStatus]: string;
+} = {
+  pending: "Pending",
+  completed: "Completed",
+  partial_refunded: "Partially refunded",
+  refunded: "Refunded",
+};
+
 type OrderProductRelationItemProps = {
+  language: "ko" | "en";
   order: ShopSchemas.Order;
   prodRel: ShopSchemas.OrderProductItem;
   isPending: boolean;
@@ -27,6 +48,7 @@ type OrderProductRelationItemProps = {
 };
 
 const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
+  language,
   order,
   prodRel,
   isPending,
@@ -47,11 +69,15 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   const hasPatchableOption = Object.entries(currentCustomOptionValues).length > 0;
   const patchOptionBtnDisabled = isPending || !hasPatchableOption;
 
+  const refundOneProductStr = language === "ko" ? "단일 상품 환불" : "Refund one item";
+  const refundedStr = language === "ko" ? "환불됨" : "Refunded";
+  const modifyOptionStr = language === "ko" ? "옵션 수정" : "Modify options";
+
   const refundBtnDisabled = isPending || !R.isNullish(prodRel.not_refundable_reason);
   const refundBtnText = R.isNullish(prodRel.not_refundable_reason)
-    ? "단일 상품 환불"
+    ? refundOneProductStr
     : prodRel.status === "refunded"
-      ? "환불됨"
+      ? refundedStr
       : prodRel.not_refundable_reason;
 
   const refundOneItem = () =>
@@ -83,7 +109,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   const actionButtons = (
     <>
       <Button variant="contained" fullWidth onClick={patchOneItemOptions} disabled={patchOptionBtnDisabled}>
-        옵션 수정
+        {modifyOptionStr}
       </Button>
       <Button variant="contained" fullWidth onClick={refundOneItem} disabled={refundBtnDisabled}>
         {refundBtnText}
@@ -92,7 +118,11 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   );
 
   return (
-    <Common.Components.MDX.PrimaryStyledDetails key={prodRel.id} summary={prodRel.product.name} actions={actionButtons}>
+    <Common.Components.MDX.PrimaryStyledDetails
+      key={prodRel.id}
+      summary={<Typography variant="h6">{prodRel.product.name}</Typography>}
+      actions={actionButtons}
+    >
       <form
         ref={formRef}
         onSubmit={(e) => {
@@ -115,7 +145,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
 };
 
 const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({ order, disabled }) => {
-  const { shopApiDomain } = ShopHooks.useShopContext();
+  const { language, shopApiDomain } = ShopHooks.useShopContext();
   const shopAPIClient = ShopHooks.useShopClient();
   const orderRefundMutation = ShopHooks.useOrderRefundMutation(shopAPIClient);
   const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation(shopAPIClient);
@@ -123,6 +153,14 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
 
   const refundOrder = () => orderRefundMutation.mutate({ order_id: order.id });
   const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
+
+  const PaymentHistoryStatus = language === "ko" ? PaymentHistoryStatusKo : PaymentHistoryStatusEn;
+  const refundFullOrderStr = language === "ko" ? "주문 전체 환불" : "Refund full order";
+  const orderFullyRefundedStr = language === "ko" ? "주문 전체 환불됨" : "Order fully refunded";
+  const receiptStr = language === "ko" ? "영수증" : "Receipt";
+  const orderedPriceStr = language === "ko" ? "주문 결제 금액" : "Ordered Price";
+  const statusStr = language === "ko" ? "상태" : "Status";
+  const productsInOrderStr = language === "ko" ? "주문 상품 목록" : "Products in Order";
 
   const isPending =
     disabled ||
@@ -132,38 +170,77 @@ const OrderItem: React.FC<{ order: ShopSchemas.Order; disabled?: boolean }> = ({
   const refundBtnDisabled = isPending || !R.isNullish(order.not_fully_refundable_reason);
   const receipyBtnDisabled = isPending || order.current_status === "pending";
   const btnText = R.isNullish(order.not_fully_refundable_reason)
-    ? "주문 전체 환불"
+    ? refundFullOrderStr
     : order.current_status === "refunded"
-      ? "주문 전체 환불됨"
+      ? orderFullyRefundedStr
       : order.not_fully_refundable_reason;
+  const orderInfoStr = language === "ko" ? "주문 정보" : "Order Information";
+  const orderCustomerInfoStr = language === "ko" ? "주문 고객 정보" : "Order Customer Information";
+  const customerNameStr = language === "ko" ? "고객명" : "Customer Name";
+  const customerOrganizationStr = language === "ko" ? "고객 소속" : "Customer Organization";
+  const customerEmailStr = language === "ko" ? "고객 이메일" : "Customer Email";
+  const customerPhoneStr = language === "ko" ? "고객 연락처" : "Customer Phone";
 
   const actionButtons = (
     <>
-      <Button variant="contained" fullWidth onClick={openReceipt} disabled={receipyBtnDisabled}>
-        영수증
-      </Button>
-      <Button variant="contained" fullWidth onClick={refundOrder} disabled={refundBtnDisabled}>
-        {btnText}
-      </Button>
+      <Button variant="contained" fullWidth onClick={openReceipt} disabled={receipyBtnDisabled} children={receiptStr} />
+      <Button variant="contained" fullWidth onClick={refundOrder} disabled={refundBtnDisabled} children={btnText} />
     </>
   );
 
   return (
     <Common.Components.MDX.PrimaryStyledDetails summary={order.name} actions={actionButtons}>
-      <Divider />
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell align="center" sx={{ width: "30%" }} />
+            <TableCell align="left" sx={{ width: "70%" }} />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={2} align="center" sx={{ fontWeight: "bold" }} children={orderInfoStr} />
+          </TableRow>
+          <TableRow>
+            <TableCell children={orderedPriceStr} />
+            <TableCell children={<CommonComponents.PriceDisplay price={order.first_paid_price} />} />
+          </TableRow>
+          <TableRow>
+            <TableCell children={statusStr} />
+            <TableCell children={PaymentHistoryStatus[order.current_status]} />
+          </TableRow>
+          {order.customer_info && (
+            <>
+              <TableRow>
+                <TableCell colSpan={2} align="center" sx={{ fontWeight: "bold" }} children={orderCustomerInfoStr} />
+              </TableRow>
+              <TableRow>
+                <TableCell children={customerNameStr} />
+                <TableCell children={order.customer_info.name} />
+              </TableRow>
+              <TableRow>
+                <TableCell children={customerOrganizationStr} />
+                <TableCell children={order.customer_info.organization || "N/A"} />
+              </TableRow>
+              <TableRow>
+                <TableCell children={customerEmailStr} />
+                <TableCell children={order.customer_info.email} />
+              </TableRow>
+              <TableRow>
+                <TableCell children={customerPhoneStr} />
+                <TableCell children={order.customer_info.phone} />
+              </TableRow>
+            </>
+          )}
+        </TableBody>
+      </Table>
       <br />
-      <Typography variant="body1">
-        주문 결제 금액 : <CommonComponents.PriceDisplay price={order.current_paid_price} />
-      </Typography>
-      <Typography variant="body1">상태: {PaymentHistoryStatusTranslated[order.current_status]}</Typography>
-      <br />
-      <Divider />
-      <br />
-      <Typography variant="body1">주문 상품 목록</Typography>
+      <Typography variant="h6">{productsInOrderStr}</Typography>
       <br />
       {order.products.map((prodRel) => (
         <OrderProductRelationItem
           key={prodRel.id}
+          language={language}
           order={order}
           prodRel={prodRel}
           isPending={isPending}
