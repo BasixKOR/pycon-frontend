@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import * as R from "remeda";
 
@@ -68,12 +69,26 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       {}
     );
 
+  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+    enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
+
   const hasPatchableOption = Object.entries(currentCustomOptionValues).length > 0;
   const patchOptionBtnDisabled = isPending || !hasPatchableOption;
 
   const refundOneProductStr = language === "ko" ? "단일 상품 환불" : "Refund one item";
   const refundedStr = language === "ko" ? "환불됨" : "Refunded";
   const modifyOptionStr = language === "ko" ? "옵션 수정" : "Modify options";
+  const succeededToRefundOrderStr = language === "ko" ? "주문을 환불했습니다!" : "Successfully refunded the order!";
+  const failedToRefundOrderStr =
+    language === "ko"
+      ? "주문에 포함된 상품을 환불하는 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+      : "An error occurred while refunding the order,\nplease try again later.";
+  const succeededToPatchOptionsStr =
+    language === "ko" ? "옵션이 수정되었습니다." : "Options have been modified successfully.";
+  const failedToPatchOptionsStr =
+    language === "ko"
+      ? "옵션 수정 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+      : "An error occurred while modifying the options,\nplease try again later.";
 
   const refundBtnDisabled = isPending || !R.isNullish(prodRel.not_refundable_reason);
   const refundBtnText = R.isNullish(prodRel.not_refundable_reason)
@@ -83,10 +98,13 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       : prodRel.not_refundable_reason;
 
   const refundOneItem = () =>
-    oneItemRefundMutation.mutate({
-      order_id: order.id,
-      order_product_relation_id: prodRel.id,
-    });
+    oneItemRefundMutation.mutate(
+      { order_id: order.id, order_product_relation_id: prodRel.id },
+      {
+        onSuccess: () => addSnackbar(succeededToRefundOrderStr, "success"),
+        onError: () => addSnackbar(failedToRefundOrderStr, "error"),
+      }
+    );
   const patchOneItemOptions = () => {
     if (!Common.Utils.isFormValid(formRef.current)) throw new Error("Form is not valid");
 
@@ -104,11 +122,17 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
         custom_response: value,
       }));
 
-    optionsOfOneItemInOrderPatchMutation.mutate({
-      order_id: order.id,
-      order_product_relation_id: prodRel.id,
-      options: modifiedCustomOptionValues,
-    });
+    optionsOfOneItemInOrderPatchMutation.mutate(
+      {
+        order_id: order.id,
+        order_product_relation_id: prodRel.id,
+        options: modifiedCustomOptionValues,
+      },
+      {
+        onSuccess: () => addSnackbar(succeededToPatchOptionsStr, "success"),
+        onError: () => addSnackbar(failedToPatchOptionsStr, "error"),
+      }
+    );
   };
 
   const actionButtons = (
@@ -159,8 +183,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   const oneItemRefundMutation = ShopHooks.useOneItemRefundMutation(shopAPIClient);
   const optionsOfOneItemInOrderPatchMutation = ShopHooks.useOptionsOfOneItemInOrderPatchMutation(shopAPIClient);
 
-  const refundOrder = () => orderRefundMutation.mutate({ order_id: order.id });
-  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
+  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+    enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const PaymentHistoryStatus = language === "ko" ? PaymentHistoryStatusKo : PaymentHistoryStatusEn;
   const refundFullOrderStr = language === "ko" ? "주문 전체 환불" : "Refund full order";
@@ -169,6 +193,21 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   const orderedPriceStr = language === "ko" ? "주문 결제 금액" : "Ordered Price";
   const statusStr = language === "ko" ? "상태" : "Status";
   const productsInOrderStr = language === "ko" ? "주문 상품 목록" : "Products in Order";
+  const succeededToRefundFullOrderStr = language === "ko" ? "주문을 환불했습니다!" : "Successfully refunded the order!";
+  const failedToRefundFullOrderStr =
+    language === "ko"
+      ? "주문 환불 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
+      : "An error occurred while refunding the order,\nplease try again later.";
+
+  const refundOrder = () =>
+    orderRefundMutation.mutate(
+      { order_id: order.id },
+      {
+        onSuccess: () => addSnackbar(succeededToRefundFullOrderStr, "success"),
+        onError: () => addSnackbar(failedToRefundFullOrderStr, "error"),
+      }
+    );
+  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
 
   const isPending =
     disabled ||
