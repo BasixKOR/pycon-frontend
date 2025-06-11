@@ -174,7 +174,7 @@ const ProductItem: React.FC<{
                       key={group.id}
                       optionGroup={group}
                       options={group.options}
-                      defaultValue={group?.options[0]?.id || ""}
+                      defaultValue={group.options[0]?.id || ""}
                       disabled={disabled}
                     />
                   ))}
