@@ -28,8 +28,6 @@ type BaseStyledDetailsProps = StyledDetailsProps & {
 
 const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
   expandIcon,
-  expanded,
-  onChange,
   summary,
   children,
   actions,
@@ -63,15 +61,7 @@ const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
   }));
 
   return (
-    <StyledAccordion
-      {...props}
-      expanded={expanded}
-      onChange={onChange}
-      disableGutters
-      square
-      elevation={0}
-      slotProps={{ root: { sx: rootSx } }}
-    >
+    <StyledAccordion {...props} disableGutters square elevation={0} slotProps={{ root: { sx: rootSx } }}>
       <StyledAccordionSummary expandIcon={expandIcon || <DefaultExpandIcon />}>
         {typeof summary === "string" ? <Typography variant="h5">{summary}</Typography> : summary}
       </StyledAccordionSummary>
