@@ -10,16 +10,23 @@ type InnerCartBadgeButtonPropType = {
   count?: number;
 };
 
+const ColoredIconButton = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.primary.nonFocus,
+  "&:hover": { color: theme.palette.primary.dark },
+  "&:active": { color: theme.palette.primary.main },
+  transition: "color 0.4s ease, background-color 0.4s ease",
+}));
+
 const InnerCartBadge = styled(Badge)({ [`& .${badgeClasses.badge}`]: { top: "-12px", right: "-3px" } });
 
 const InnerCartBadgeButton: React.FC<InnerCartBadgeButtonPropType> = ({ loading, count }) => {
   const navigate = useNavigate();
 
   return (
-    <IconButton loading={loading} onClick={() => navigate("/store/cart")}>
+    <ColoredIconButton loading={loading} onClick={() => navigate("/store/cart")}>
       <ShoppingCart />
       {count !== undefined && count > 0 && <InnerCartBadge badgeContent={count} color="primary" overlap="circular" />}
-    </IconButton>
+    </ColoredIconButton>
   );
 };
 
