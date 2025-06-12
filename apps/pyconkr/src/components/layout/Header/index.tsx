@@ -8,6 +8,7 @@ import * as R from "remeda";
 
 import BackendAPISchemas from "../../../../../../packages/common/src/schemas/backendAPI";
 import { useAppContext } from "../../../contexts/app_context";
+import { CartBadgeButton } from "../CartBadgeButton";
 import LanguageSelector from "../LanguageSelector";
 import { SignInButton } from "../SignInButton";
 
@@ -129,6 +130,7 @@ const Header: React.FC = () => {
         <NavSideElementContainer>
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
+            <CartBadgeButton />
             <SignInButton />
           </Stack>
         </NavSideElementContainer>
