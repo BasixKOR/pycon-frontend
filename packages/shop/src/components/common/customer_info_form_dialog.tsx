@@ -60,7 +60,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
         <DialogTitle>{titleStr}</DialogTitle>
         <DialogContent>
           <form ref={formRef}>
-            <Stack spacing={2}>
+            <Stack spacing={2} sx={{ py: 2 }}>
               <TextField name="name" label={nameLabelStr} defaultValue={defaultValue?.name} required fullWidth />
               <TextField
                 name="organization"
