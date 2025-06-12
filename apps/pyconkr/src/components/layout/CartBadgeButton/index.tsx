@@ -18,7 +18,7 @@ const InnerCartBadgeButton: React.FC<InnerCartBadgeButtonPropType> = ({ loading,
   return (
     <IconButton loading={loading} onClick={() => navigate("/store/cart")}>
       <ShoppingCart />
-      {count && <InnerCartBadge badgeContent={count} color="primary" overlap="circular" />}
+      {count !== undefined && count > 0 && <InnerCartBadge badgeContent={count} color="primary" overlap="circular" />}
     </IconButton>
   );
 };
