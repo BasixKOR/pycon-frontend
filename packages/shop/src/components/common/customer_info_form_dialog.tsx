@@ -15,8 +15,6 @@ import * as React from "react";
 import ShopHooks from "../../hooks";
 import ShopSchemas from "../../schemas";
 
-const PHONE_REGEX = new RegExp(/^(010-\d{4}-\d{4}|(\+82|0)10\d{3,4}\d{4})$/, "g").source;
-
 type CustomerInfoFormDialogPropsType = {
   open: boolean;
   closeFunc: () => void;
@@ -80,7 +78,12 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
                 name="phone"
                 label={phoneLabelStr}
                 defaultValue={defaultValue?.phone}
-                slotProps={{ htmlInput: { pattern: PHONE_REGEX, title: phoneValidationFailedStr } }}
+                slotProps={{
+                  htmlInput: {
+                    pattern: new RegExp(/^(010-\d{4}-\d{4}|(\+82)10\d{7,8})$/, "i").source,
+                    title: phoneValidationFailedStr,
+                  },
+                }}
                 fullWidth
                 required
               />
