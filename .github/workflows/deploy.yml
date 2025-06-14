@@ -1,7 +1,7 @@
 name: Deploy to AWS S3
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.event.inputs.WORKFLOW_PHASE || 'dev' }}
   cancel-in-progress: true
 
 on:
@@ -15,14 +15,6 @@ on:
         options:
           - dev
           - prod
-      APPLICATION:
-        description: "Application to deploy"
-        required: true
-        default: pyconkr
-        type: choice
-        options:
-          - pyconkr-frontend
-          - pyconkr-admin
   push:
     branches:
       - "main"
@@ -42,7 +34,17 @@ jobs:
       AWS_S3_PYCONKR_ADMIN_BUCKET: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_DEV || secrets.AWS_S3_PYCONKR_ADMIN_BUCKET_PROD }}
       AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID_PROD }}
       AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev') == 'dev' && secrets.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID_DEV || secrets.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID_PROD }}
-      DEPLOY_TARGET_APPLICATION: ${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && 'pyconkr' || 'pyconkr-admin' }}
+
+    strategy:
+      matrix:
+        application: [pyconkr, pyconkr-admin]
+        include:
+          - application: pyconkr
+            aws_s3_bucket_key: AWS_S3_PYCONKR_FRONTEND_BUCKET
+            aws_cloudfront_distribution_key: AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID
+          - application: pyconkr-admin
+            aws_s3_bucket_key: AWS_S3_PYCONKR_ADMIN_BUCKET
+            aws_cloudfront_distribution_key: AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID
 
     steps:
       - uses: actions/checkout@master
@@ -66,8 +68,8 @@ jobs:
 
       - run: mkdir -p dist
 
-      - run: pnpm build:@apps/${{ env.DEPLOY_TARGET_APPLICATION }} ${{ env.BUMP_RULE }} && cp -r apps/${{ env.DEPLOY_TARGET_APPLICATION }}/dist/* dist/
+      - run: pnpm build:@apps/${{ matrix.application }} ${{ env.BUMP_RULE }} && cp -r apps/${{ matrix.application }}/dist/* dist/
 
-      - run: aws s3 cp --recursive ./dist s3://${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_S3_PYCONKR_FRONTEND_BUCKET || env.AWS_S3_PYCONKR_ADMIN_BUCKET }}/
+      - run: aws s3 cp --recursive ./dist s3://${{ secrets[matrix.aws_s3_bucket_key] }}/
 
-      - run: aws cloudfront create-invalidation --distribution-id ${{ (github.event_name == 'workflow_dispatch' && inputs.APPLICATION || 'pyconkr-frontend') == 'pyconkr-frontend' && env.AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID || env.AWS_CLOUDFRONT_PYCONKR_ADMIN_DISTRIBUTION_ID }} --paths "/*"
+      - run: aws cloudfront create-invalidation --distribution-id ${{ secrets[matrix.aws_cloudfront_distribution_key] }} --paths "/*"
