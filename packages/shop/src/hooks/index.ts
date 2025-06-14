@@ -71,7 +71,7 @@ namespace ShopHooks {
 
   export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
     useSuspenseQuery({
-      queryKey: QUERY_KEYS.PRODUCT_LIST,
+      queryKey: [...QUERY_KEYS.PRODUCT_LIST, qs ? JSON.stringify(qs) : ""],
       queryFn: () => ShopAPIs.listProducts(client)(qs),
     });
 
