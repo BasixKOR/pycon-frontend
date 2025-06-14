@@ -1,6 +1,7 @@
 import { CenteredPage as CenteredPageComponent } from "./centered_page";
 import { CommonContextProvider as CommonContextProviderComponent } from "./common_context";
 import { ErrorFallback as ErrorFallbackComponent } from "./error_handler";
+import { FallbackImage as FallbackImageComponent } from "./fallback_image";
 import { LinkHandler as LinkHandlerComponent } from "./link_handler";
 import {
   LottieDebugPanel as LottieDebugPanelComponent,
@@ -35,6 +36,7 @@ namespace Components {
   export const LottiePlayer = LottiePlayerComponent;
   export const NetworkLottiePlayer = NetworkLottiePlayerComponent;
   export const ErrorFallback = ErrorFallbackComponent;
+  export const FallbackImage = FallbackImageComponent;
   export const LinkHandler = LinkHandlerComponent;
 
   export namespace MDX {
