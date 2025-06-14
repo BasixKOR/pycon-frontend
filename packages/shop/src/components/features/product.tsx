@@ -386,6 +386,7 @@ const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, produc
           src={product.image || ""}
           alt="Product Image"
           loading="lazy"
+          style={{ width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
           errorFallback={<Box sx={{ width: "100%", height: "100%", flexGrow: 1, backgroundColor: "#bbb", borderRadius: "0 0 0.5rem 0.5rem" }} />}
         />
       </CardMedia>
