@@ -117,6 +117,10 @@ namespace ShopSchemas {
     category_group: string;
     category: string;
 
+    donation_allowed: boolean;
+    donation_min_price: number | null;
+    donation_max_price: number | null;
+
     option_groups: OptionGroup[];
     leftover_stock: number;
     tag_names: string[];
@@ -135,7 +139,7 @@ namespace ShopSchemas {
     id: string;
     status: OrderProductItemStatus;
     price: number;
-    additional_price: number;
+    donation_price: number;
     not_refundable_reason: string | null;
     product: {
       id: string;
@@ -204,6 +208,7 @@ namespace ShopSchemas {
       product_option: string | null;
       custom_response: string | null;
     }[];
+    donation_price?: number;
   };
   export type OneItemOrderRequest = CartItemAppendRequest & { customer_info: CustomerInfo };
 
