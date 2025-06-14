@@ -63,6 +63,10 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
 
+      - name: Get current repo name
+        id: info
+        run: echo "::set-output name=repository_name::$(echo ${{ github.repository }} | sed -e 's/${{ github.repository_owner }}\///')"
+
       - name: Install project dependencies
         run: pnpm install --frozen-lockfile
 
@@ -73,3 +77,68 @@ jobs:
       - run: aws s3 cp --recursive ./dist s3://${{ secrets[matrix.aws_s3_bucket_key] }}/
 
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets[matrix.aws_cloudfront_distribution_key] }} --paths "/*"
+
+      # Notify to Slack (Success)
+      - name: Notify deployment to Slack
+        if: failure() || cancelled()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ steps.info.outputs.repository_name }} 버전 배포 실패 :rotating_light: (${{ job.status }})",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {"type": "mrkdwn", "text": "GitHub Action 바로가기"},
+                  "accessory": {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "${{ github.run_id }}"},
+                    "value": "github_action",
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "action_id": "button-action"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      # Notify to Slack (Failure)
+      - name: Notify deployment to Slack
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ steps.info.outputs.repository_name }} 버전 배포 성공 :tada:",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {"type": "mrkdwn", "text": "GitHub Action 바로가기"},
+                  "accessory": {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "${{ github.run_id }}"},
+                    "value": "github_action",
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "action_id": "button-action"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
