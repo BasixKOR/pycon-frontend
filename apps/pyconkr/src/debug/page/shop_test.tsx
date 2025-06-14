@@ -17,6 +17,10 @@ export const ShopTestPage: React.FC = () => (
         상품 목록
       </Typography>
       <Shop.Components.Features.ProductList category_group="2025" category="티켓" />
+      <Typography variant="h5" gutterBottom>
+        상품 목록 (이미지 카드)
+      </Typography>
+      <Shop.Components.Features.ProductImageCardList category_group="2025" category="티셔츠" />
       <Divider />
       <Typography variant="h5" gutterBottom>
         장바구니

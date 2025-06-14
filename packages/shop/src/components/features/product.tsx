@@ -1,5 +1,27 @@
 import * as Common from "@frontend/common";
-import { AccordionProps, Button, ButtonProps, CircularProgress, Divider, Stack, TextField, Typography } from "@mui/material";
+import { Close } from "@mui/icons-material";
+import {
+  AccordionProps,
+  Box,
+  Button,
+  ButtonProps,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogProps,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  Stack,
+  styled,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
@@ -68,14 +90,15 @@ const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
   );
 };
 
-type ProductItemPropType = Omit<AccordionProps, "children"> & {
+type ProductItemPropType = {
   disabled?: boolean;
   language: "ko" | "en";
   product: ShopSchemas.Product;
+  onAddToCartSuccess?: () => void;
   startPurchaseProcess: (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => void;
 };
 
-const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, ...props }) => {
+const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
   const navigate = useNavigate();
   const [, forceRender] = React.useReducer((x) => x + 1, 0);
   const [donationPrice, setDonationPrice] = React.useState<string>(product.donation_min_price?.toString() || "0");
@@ -168,7 +191,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
     if (!formData) return;
 
     addItemToCartMutation.mutate(formData, {
-      onSuccess: () =>
+      onSuccess: () => {
         addSnackbar(
           <Stack spacing={2} justifyContent="center" alignItems="center" sx={{ width: "100%", flexGrow: 1 }}>
             <div>{succeededToAddOneItemToCartStr}</div>
@@ -182,7 +205,9 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
             />
           </Stack>,
           "success"
-        ),
+        );
+        onAddToCartSuccess?.();
+      },
       onError: () => alert(failedToAddOneItemToCartStr),
     });
   };
@@ -202,15 +227,8 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
     return totalPrice;
   };
 
-  const actionButton = R.isNullish(notPurchasableReason) && (
-    <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
-      <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
-      <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
-    </CommonComponents.SignInGuard>
-  );
-
   return (
-    <Common.Components.MDX.PrimaryStyledDetails {...props} summary={product.name} actions={actionButton}>
+    <>
       <Common.Components.MDXRenderer text={product.description || ""} />
       <br />
       <Divider />
@@ -283,11 +301,108 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       ) : (
         <NotPurchasable>{notPurchasableReason}</NotPurchasable>
       )}
+      {R.isNullish(notPurchasableReason) && (
+        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", mt: 2 }}>
+            <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
+            <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
+          </Stack>
+        </CommonComponents.SignInGuard>
+      )}
+    </>
+  );
+};
+
+type FoldableProductItemPropType = Omit<AccordionProps, "children"> & ProductItemPropType;
+
+const FoldableProductItem: React.FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+  return (
+    <Common.Components.MDX.PrimaryStyledDetails {...props} summary={product.name}>
+      <ProductItem disabled={disabled} language={language} product={product} startPurchaseProcess={startPurchaseProcess} />
     </Common.Components.MDX.PrimaryStyledDetails>
   );
 };
 
-type ProductStateType = {
+const CloseButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  right: theme.spacing(1),
+  top: theme.spacing(1),
+  color: theme.palette.grey[500],
+}));
+
+type DialogedProductItemPropType = Omit<DialogProps, "children"> &
+  Omit<ProductItemPropType, "product"> & {
+    product?: ShopSchemas.Product;
+  };
+
+const DialogedProductItem: React.FC<DialogedProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+  const dialogTitle = language === "ko" ? "상품 상세 정보" : "Product Details";
+  const onCloseClick = (props.onClose as () => void) || (() => {});
+  return (
+    <Dialog maxWidth="md" fullWidth {...props}>
+      <DialogTitle>{dialogTitle}</DialogTitle>
+      <CloseButton onClick={onCloseClick} children={<Close />} />
+      <DialogContent>
+        {product && (
+          <ProductItem
+            disabled={disabled}
+            language={language}
+            product={product}
+            startPurchaseProcess={startPurchaseProcess}
+            onAddToCartSuccess={onCloseClick}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+type ProductImageCardPropType = {
+  language: "ko" | "en";
+  product: ShopSchemas.Product;
+  disabled?: boolean;
+  showDetail: (product: ShopSchemas.Product) => void;
+};
+
+const StyledProductImageCard = styled(Card)(({ theme }) => ({
+  cursor: "pointer",
+  maxWidth: "300px",
+  borderRadius: "0.5rem",
+  border: `1px solid ${theme.palette.primary.light}`,
+  transition: "all 0.2s ease",
+
+  "&:hover": {
+    boxShadow: theme.shadows[3],
+    borderColor: theme.palette.primary.main,
+  },
+}));
+
+const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
+  const showDetailStr = language === "ko" ? "상품 상세 정보 보기" : "View Product Details";
+  return (
+    <StyledProductImageCard onClick={() => showDetail(product)} elevation={0}>
+      <CardMedia sx={{ height: "200px", objectFit: "contain", borderRadius: "0 0 0.5rem 0.5rem" }}>
+        <Common.Components.FallbackImage
+          src={product.image || ""}
+          alt="Product Image"
+          loading="lazy"
+          errorFallback={<Box sx={{ width: "100%", height: "100%", flexGrow: 1, backgroundColor: "#bbb", borderRadius: "0 0 0.5rem 0.5rem" }} />}
+        />
+      </CardMedia>
+      <CardContent sx={{ py: 1 }}>
+        <Stack spacing={1}>
+          <Typography variant="h6" sx={{ textAlign: "center" }} children={product.name} />
+          <Typography variant="body1" sx={{ textAlign: "right" }} children={<CommonComponents.PriceDisplay price={product.price} />} />
+        </Stack>
+      </CardContent>
+      <CardActions>
+        <Button variant="outlined" color="primary" disabled={disabled} children={showDetailStr} fullWidth />
+      </CardActions>
+    </StyledProductImageCard>
+  );
+};
+
+type ProductListStateType = {
   openDialog: boolean;
   openBackdrop: boolean;
   product?: ShopSchemas.Product;
@@ -303,7 +418,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
     const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
     const { data } = ShopHooks.useProducts(shopAPIClient, qs);
 
-    const [state, setState] = React.useState<ProductStateType>({
+    const [state, setState] = React.useState<ProductListStateType>({
       openDialog: false,
       openBackdrop: false,
     });
@@ -353,7 +468,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
         <CommonComponents.CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
         <Common.Components.MDX.OneDetailsOpener>
           {data.map((p) => (
-            <ProductItem
+            <FoldableProductItem
               disabled={oneItemOrderStartMutation.isPending}
               language={language}
               key={p.id}
@@ -371,6 +486,108 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
       <Suspense fallback={<CircularProgress />}>
         <Stack spacing={2}>
           <WrappedProductList />
+        </Stack>
+      </Suspense>
+    </ErrorBoundary>
+  );
+};
+
+type ProductImageCardListStateType = {
+  openProductDialog: boolean;
+  openCustomerInfoDialog: boolean;
+  openBackdrop: boolean;
+  product?: ShopSchemas.Product;
+  oneItemOrderData?: ShopSchemas.CartItemAppendRequest;
+};
+
+export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
+  const WrappedProductImageCardList: React.FC = () => {
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const { language, shopImpAccountId } = ShopHooks.useShopContext();
+    const shopAPIClient = ShopHooks.useShopClient();
+    const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
+    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
+
+    const [state, setState] = React.useState<ProductImageCardListStateType>({
+      openProductDialog: false,
+      openCustomerInfoDialog: false,
+      openBackdrop: false,
+    });
+
+    const openProductDialog = (product: ShopSchemas.Product) => setState((ps) => ({ ...ps, product, openProductDialog: true }));
+    const closeProductDialog = () => setState((ps) => ({ ...ps, openProductDialog: false }));
+    const openCustomerInfoDialog = () => setState((ps) => ({ ...ps, openCustomerInfoDialog: true }));
+    const closeCustomerInfoDialog = () => setState((ps) => ({ ...ps, openCustomerInfoDialog: false }));
+    const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
+    const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
+    const setProductDataAndOpenDialog = (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => {
+      closeProductDialog();
+      setState((ps) => ({ ...ps, oneItemOrderData }));
+      openCustomerInfoDialog();
+    };
+
+    const pleaseRetryStr = language === "ko" ? "\n잠시 후 다시 시도해주세요." : "\nPlease try again later.";
+    const failedToOrderStr = language === "ko" ? `결제에 실패했습니다.${pleaseRetryStr}\n` : `Failed to complete the payment.${pleaseRetryStr}\n`;
+    const orderErrorStr =
+      language === "ko" ? `결제 준비 중 문제가 발생했습니다,${pleaseRetryStr}` : `An error occurred while preparing the payment,${pleaseRetryStr}`;
+
+    const onFormSubmit = (customer_info: ShopSchemas.CustomerInfo) => {
+      if (!state.oneItemOrderData) return;
+
+      closeCustomerInfoDialog();
+      openBackdrop();
+      oneItemOrderStartMutation.mutate(
+        { ...state.oneItemOrderData, customer_info: customer_info },
+        {
+          onSuccess: (order: ShopSchemas.Order) => {
+            ShopUtils.startPortOnePurchase(
+              shopImpAccountId,
+              order,
+              () => {
+                queryClient.invalidateQueries();
+                queryClient.resetQueries();
+                navigate("/store/thank-you-for-your-purchase");
+              },
+              (response) => alert(failedToOrderStr + response.error_msg),
+              closeBackdrop
+            );
+          },
+          onError: (error) => alert(error.message || orderErrorStr),
+        }
+      );
+    };
+
+    return (
+      <>
+        <CommonComponents.CustomerInfoFormDialog open={state.openCustomerInfoDialog} closeFunc={closeCustomerInfoDialog} onSubmit={onFormSubmit} />
+        <DialogedProductItem
+          open={state.openProductDialog}
+          onClose={closeProductDialog}
+          language={language}
+          product={state.product}
+          startPurchaseProcess={setProductDataAndOpenDialog}
+        />
+        <Grid>
+          {data.map((p) => (
+            <ProductImageCard
+              disabled={oneItemOrderStartMutation.isPending}
+              language={language}
+              key={p.id}
+              product={p}
+              showDetail={openProductDialog}
+            />
+          ))}
+        </Grid>
+      </>
+    );
+  };
+
+  return (
+    <ErrorBoundary fallback={<div>상품 목록을 불러오는 중 문제가 발생했습니다.</div>}>
+      <Suspense fallback={<CircularProgress />}>
+        <Stack spacing={2}>
+          <WrappedProductImageCardList />
         </Stack>
       </Suspense>
     </ErrorBoundary>
