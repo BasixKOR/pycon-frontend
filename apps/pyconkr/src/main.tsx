@@ -30,6 +30,9 @@ const queryClient = new QueryClient({
       queryClient.resetQueries({
         predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
       });
+      queryClient.cancelQueries({
+        predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
+      });
     },
     onSuccess: (_data, _variables, _context, mutation) => {
       queryClient.resetQueries({
