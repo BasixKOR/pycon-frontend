@@ -55,7 +55,7 @@ const CartItem: React.FC<
       <Divider />
       <br />
       <Typography variant="h6" sx={{ textAlign: "end" }}>
-        {productPriceStr}: <CommonComponents.PriceDisplay price={cartProdRel.price} />
+        {productPriceStr}: <CommonComponents.PriceDisplay price={cartProdRel.price + cartProdRel.donation_price} />
       </Typography>
     </Common.Components.MDX.PrimaryStyledDetails>
   );
