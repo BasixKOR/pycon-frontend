@@ -5,8 +5,7 @@ export const getDefaultSnackOption: (v: VariantType) => OptionsObject = (v) => (
   variant: v,
   anchorOrigin: { vertical: "bottom", horizontal: "center" },
 });
-export const addSnackbar = (c: string | React.ReactNode, v: VariantType) =>
-  enqueueSnackbar(c, getDefaultSnackOption(v));
+export const addSnackbar = (c: string | React.ReactNode, v: VariantType) => enqueueSnackbar(c, getDefaultSnackOption(v));
 export const addErrorSnackbar = (error: Error) => {
   console.error(error);
   addSnackbar(

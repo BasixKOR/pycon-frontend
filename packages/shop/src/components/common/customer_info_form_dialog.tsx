@@ -1,14 +1,5 @@
 import * as Common from "@frontend/common";
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
@@ -34,8 +25,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
     const onSubmitFunc: React.MouseEventHandler<HTMLButtonElement> = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (Common.Utils.isFormValid(formRef?.current))
-        onSubmit?.(Common.Utils.getFormValue<ShopSchemas.CustomerInfo>({ form: formRef.current }));
+      if (Common.Utils.isFormValid(formRef?.current)) onSubmit?.(Common.Utils.getFormValue<ShopSchemas.CustomerInfo>({ form: formRef.current }));
     };
 
     const titleStr = language === "ko" ? "고객 정보 입력" : "Customer Information";
@@ -45,9 +35,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
     const organizationLabelStr = language === "ko" ? "소속" : "Organization";
     const emailLabelStr = language === "ko" ? "이메일 주소" : "Email Address";
     const phoneLabelStr =
-      language === "ko"
-        ? "전화번호 (예: 010-1234-5678 또는 +821012345678)"
-        : "Phone Number (e.g., 010-1234-5678 or +821012345678)";
+      language === "ko" ? "전화번호 (예: 010-1234-5678 또는 +821012345678)" : "Phone Number (e.g., 010-1234-5678 or +821012345678)";
     const phoneValidationFailedStr =
       language === "ko"
         ? "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678 또는 +821012345678"
@@ -60,12 +48,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
           <form ref={formRef}>
             <Stack spacing={2} sx={{ py: 2 }}>
               <TextField name="name" label={nameLabelStr} defaultValue={defaultValue?.name} required fullWidth />
-              <TextField
-                name="organization"
-                label={organizationLabelStr}
-                defaultValue={defaultValue?.organization}
-                fullWidth
-              />
+              <TextField name="organization" label={organizationLabelStr} defaultValue={defaultValue?.organization} fullWidth />
               <TextField
                 name="email"
                 label={emailLabelStr}

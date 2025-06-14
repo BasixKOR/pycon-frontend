@@ -10,8 +10,7 @@ import { ShopTestPage } from "../../debug/page/shop_test";
 const LOCAL_STORAGE_KEY = "selectedTab";
 type SelectedTabType = "shop" | "mdi" | "backend" | "map" | "component";
 
-const getTabFromLocalStorage = (): SelectedTabType =>
-  (localStorage.getItem(LOCAL_STORAGE_KEY) as SelectedTabType) || "shop";
+const getTabFromLocalStorage = (): SelectedTabType => (localStorage.getItem(LOCAL_STORAGE_KEY) as SelectedTabType) || "shop";
 
 const setTabToLocalStorage = (tab: SelectedTabType) => {
   localStorage.setItem(LOCAL_STORAGE_KEY, tab);

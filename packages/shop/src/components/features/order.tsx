@@ -83,8 +83,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
     language === "ko"
       ? "주문에 포함된 상품을 환불하는 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
       : "An error occurred while refunding the order,\nplease try again later.";
-  const succeededToPatchOptionsStr =
-    language === "ko" ? "옵션이 수정되었습니다." : "Options have been modified successfully.";
+  const succeededToPatchOptionsStr = language === "ko" ? "옵션이 수정되었습니다." : "Options have been modified successfully.";
   const failedToPatchOptionsStr =
     language === "ko"
       ? "옵션 수정 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
@@ -209,11 +208,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
     );
   const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
 
-  const isPending =
-    disabled ||
-    orderRefundMutation.isPending ||
-    oneItemRefundMutation.isPending ||
-    optionsOfOneItemInOrderPatchMutation.isPending;
+  const isPending = disabled || orderRefundMutation.isPending || oneItemRefundMutation.isPending || optionsOfOneItemInOrderPatchMutation.isPending;
   const refundBtnDisabled = isPending || !R.isNullish(order.not_fully_refundable_reason);
   const receipyBtnDisabled = isPending || order.current_status === "pending";
   const btnText = R.isNullish(order.not_fully_refundable_reason)

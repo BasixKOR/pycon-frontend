@@ -1,6 +1,6 @@
+import styled from "@emotion/styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion as MuiAccordion, AccordionDetails, AccordionSummary } from "@mui/material";
-import styled from "@emotion/styled";
 import * as React from "react";
 
 export interface FAQItem {
@@ -19,11 +19,7 @@ export const FAQAccordion: React.FC<FAQAccordionProps> = ({ items }) => {
       {items.map((faq, index) => (
         <React.Fragment key={faq.id}>
           <StyledAccordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls={`panel${faq.id}-content`}
-              id={`panel${faq.id}-header`}
-            >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`panel${faq.id}-content`} id={`panel${faq.id}-header`}>
               <Number>{faq.id}</Number>
               <Question>{faq.question}</Question>
             </AccordionSummary>

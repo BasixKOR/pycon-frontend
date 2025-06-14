@@ -84,12 +84,9 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
   const cartIsEmptyStr = language === "ko" ? "장바구니가 비어있어요!" : "Your cart is empty!";
   const totalPriceStr = language === "ko" ? "총 결제 금액" : "Total Payment Amount";
   const orderCartStr = language === "ko" ? "장바구니에 담긴 상품 결제" : "Pay for Items in Cart";
-  const succeededToRemoveItemFromCartStr =
-    language === "ko" ? "장바구니에서 상품을 삭제했습니다." : "Item has been removed from the cart.";
+  const succeededToRemoveItemFromCartStr = language === "ko" ? "장바구니에서 상품을 삭제했습니다." : "Item has been removed from the cart.";
   const errorWhileLoadingCartStr =
-    language === "ko"
-      ? "장바구니 정보를 불러오는 중 문제가 발생했습니다."
-      : "An error occurred while loading the cart information.";
+    language === "ko" ? "장바구니 정보를 불러오는 중 문제가 발생했습니다." : "An error occurred while loading the cart information.";
   const errorWhilePreparingOrderStr =
     language === "ko"
       ? "장바구니 결제 준비 중 문제가 발생했습니다.\n잠시 후 다시 시도해주세요."
@@ -155,13 +152,7 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
         <Stack spacing={2}>
           <Common.Components.MDX.OneDetailsOpener>
             {data.products.map((prodRel) => (
-              <CartItem
-                language={language}
-                key={prodRel.id}
-                cartProdRel={prodRel}
-                disabled={disabled}
-                removeItemFromCartFunc={removeItemFromCart}
-              />
+              <CartItem language={language} key={prodRel.id} cartProdRel={prodRel} disabled={disabled} removeItemFromCartFunc={removeItemFromCart} />
             ))}
           </Common.Components.MDX.OneDetailsOpener>
         </Stack>

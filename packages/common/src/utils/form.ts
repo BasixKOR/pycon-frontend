@@ -16,11 +16,7 @@ export const isFormValid = (form: HTMLFormElement | null | undefined): form is H
   return true;
 };
 
-export function getFormValue<T>(_: {
-  form: HTMLFormElement;
-  fieldToExcludeWhenFalse?: string[];
-  fieldToNullWhenFalse?: string[];
-}): T {
+export function getFormValue<T>(_: { form: HTMLFormElement; fieldToExcludeWhenFalse?: string[]; fieldToNullWhenFalse?: string[] }): T {
   const formData: {
     [k: string]: FormDataEntryValue | boolean | null;
   } = Object.fromEntries(new FormData(_.form));
@@ -39,8 +35,7 @@ export function getFormValue<T>(_: {
     if (targetElement && !(targetElement instanceof HTMLInputElement)) {
       const targetElements = targetElement.querySelectorAll("input");
       for (const target of targetElements)
-        if (target instanceof HTMLInputElement && target.type === "checkbox")
-          formData[target.name] = target.checked ? true : false;
+        if (target instanceof HTMLInputElement && target.type === "checkbox") formData[target.name] = target.checked ? true : false;
     }
   });
   return formData as T;

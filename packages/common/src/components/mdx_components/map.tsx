@@ -68,12 +68,7 @@ export const Map: React.FC<MapPropType> = ({ geo, placeName, placeCode, googleMa
 
     const kakaoMapUrl = MapData.kakao.basePlaceInfoUrl + placeCode.kakao;
     const content: string = renderToStaticMarkup(
-      <a
-        href={kakaoMapUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ width: "max-content", height: "max-content" }}
-      >
+      <a href={kakaoMapUrl} target="_blank" rel="noopener noreferrer" style={{ width: "max-content", height: "max-content" }}>
         <div
           style={{
             width: "100%",
@@ -113,14 +108,7 @@ export const Map: React.FC<MapPropType> = ({ geo, placeName, placeCode, googleMa
       </Tabs>
       {selectedMapType === "kakao" && <div ref={kakaoMapRef} style={mapStyle} />}
       {selectedMapType === "google" && (
-        <iframe
-          title="map"
-          src={googleMapIframeSrc}
-          style={mapStyle}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+        <iframe title="map" src={googleMapIframeSrc} style={mapStyle} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
       )}
       <Stack>
         {Object.entries(MapData).map(([key, data]) => {

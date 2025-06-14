@@ -10,12 +10,7 @@ type StyledFullWidthButtonPropType = ButtonProps & {
   transparency: number;
 };
 
-export const StyledFullWidthButton: React.FC<StyledFullWidthButtonPropType> = ({
-  link,
-  setBackgroundColor,
-  transparency,
-  ...props
-}) => {
+export const StyledFullWidthButton: React.FC<StyledFullWidthButtonPropType> = ({ link, setBackgroundColor, transparency, ...props }) => {
   let children = props.children;
   if (React.isValidElement(children) && R.isString((children.props as { children: unknown }).children))
     children = (children.props as { children: unknown }).children as string;
@@ -30,9 +25,7 @@ export const StyledFullWidthButton: React.FC<StyledFullWidthButtonPropType> = ({
         textTransform: "none",
         color: palette.primary.dark,
         borderColor: palette.primary.dark,
-        backgroundColor: setBackgroundColor
-          ? `color-mix(in srgb, ${palette.primary.light} ${transparency || 10}%, transparent)`
-          : "transparent",
+        backgroundColor: setBackgroundColor ? `color-mix(in srgb, ${palette.primary.light} ${transparency || 10}%, transparent)` : "transparent",
         "&:hover": {
           backgroundColor: setBackgroundColor
             ? `color-mix(in srgb, ${palette.primary.light} ${transparency || 20}%, transparent)`

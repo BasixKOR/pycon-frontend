@@ -44,29 +44,9 @@ export const UserInfo: React.FC = () => {
       </Stack>
     ) : (
       <Stack>
-        <form
-          onSubmit={signInWithEmail}
-          ref={formRef}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
-          <TextField
-            type="email"
-            id="email"
-            name="email"
-            label="Email"
-            variant="outlined"
-            required
-            disabled={disabled}
-          />
-          <TextField
-            type="password"
-            id="password"
-            name="password"
-            label="Password"
-            variant="outlined"
-            required
-            disabled={disabled}
-          />
+        <form onSubmit={signInWithEmail} ref={formRef} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <TextField type="email" id="email" name="email" label="Email" variant="outlined" required disabled={disabled} />
+          <TextField type="password" id="password" name="password" label="Password" variant="outlined" required disabled={disabled} />
           <Button type="submit" disabled={disabled}>
             Sign In
           </Button>

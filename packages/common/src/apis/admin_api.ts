@@ -12,10 +12,7 @@ namespace BackendAdminAPIs {
   };
 
   export const signIn = (client: BackendAPIClient) => (data: BackendAdminAPISchemas.UserSignInSchema) =>
-    client.post<BackendAdminAPISchemas.UserSchema, BackendAdminAPISchemas.UserSignInSchema>(
-      "v1/admin-api/user/userext/signin/",
-      data
-    );
+    client.post<BackendAdminAPISchemas.UserSchema, BackendAdminAPISchemas.UserSignInSchema>("v1/admin-api/user/userext/signin/", data);
 
   export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/admin-api/user/userext/signout/");
 
@@ -56,11 +53,9 @@ namespace BackendAdminAPIs {
   export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    return client.post<BackendAdminAPISchemas.PublicFileSchema, FormData>(
-      `v1/admin-api/file/publicfile/upload/`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+    return client.post<BackendAdminAPISchemas.PublicFileSchema, FormData>(`v1/admin-api/file/publicfile/upload/`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   };
 
   export const listSections = (client: BackendAPIClient, pageId: string) => () => {
@@ -69,12 +64,11 @@ namespace BackendAdminAPIs {
   };
 
   export const bulkUpdateSections =
-    (client: BackendAPIClient, pageId: string) =>
-    (data: { sections: BackendAdminAPISchemas.PageSectionBulkUpdateSchema[] }) =>
-      client.put<
-        BackendAdminAPISchemas.PageSectionSchema[],
-        { sections: BackendAdminAPISchemas.PageSectionBulkUpdateSchema[] }
-      >(`v1/admin-api/cms/page/${pageId}/section/bulk-update/`, data);
+    (client: BackendAPIClient, pageId: string) => (data: { sections: BackendAdminAPISchemas.PageSectionBulkUpdateSchema[] }) =>
+      client.put<BackendAdminAPISchemas.PageSectionSchema[], { sections: BackendAdminAPISchemas.PageSectionBulkUpdateSchema[] }>(
+        `v1/admin-api/cms/page/${pageId}/section/bulk-update/`,
+        data
+      );
 }
 
 export default BackendAdminAPIs;

@@ -10,10 +10,7 @@ namespace ShopAPIs {
       ...data,
       csrfmiddlewaretoken: client.getCSRFToken() ?? "",
     };
-    return client.post<ShopSchemas.UserSignedInStatus, ShopSchemas.EmailSignInRequest>(
-      "authn/social/browser/v1/auth/login",
-      requestPayload
-    );
+    return client.post<ShopSchemas.UserSignedInStatus, ShopSchemas.EmailSignInRequest>("authn/social/browser/v1/auth/login", requestPayload);
   };
 
   /**
@@ -81,8 +78,7 @@ namespace ShopAPIs {
    * 현재 사용자의 장바구니에 담긴 상품의 목록을 가져옵니다.
    * @returns 현재 장바구니 상태
    */
-  export const retrieveCart = (client: ShopAPIClient) => () =>
-    client.get<ShopSchemas.Order | ShopSchemas.EmptyObject>("v1/orders/cart/");
+  export const retrieveCart = (client: ShopAPIClient) => () => client.get<ShopSchemas.Order | ShopSchemas.EmptyObject>("v1/orders/cart/");
 
   /**
    * 장바구니에 상품을 추가합니다.
@@ -127,8 +123,7 @@ namespace ShopAPIs {
   /**
    * 결제 완료된 주문 내역을 환불 시도합니다.
    */
-  export const refundAllItemsInOrder = (client: ShopAPIClient) => (data: { order_id: string }) =>
-    client.delete<void>(`v1/orders/${data.order_id}/`);
+  export const refundAllItemsInOrder = (client: ShopAPIClient) => (data: { order_id: string }) => client.delete<void>(`v1/orders/${data.order_id}/`);
 
   /**
    * 결제 완료된 주문의 사용자 정의 응답용 상품 옵션을 수정합니다.

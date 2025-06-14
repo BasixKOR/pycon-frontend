@@ -33,13 +33,7 @@ type SectionEditorPropType = CommonSectionEditorPropType & {
   onChange: (value: SectionType) => void;
 };
 
-const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({
-  disabled,
-  defaultValue,
-  onInsertNewSection,
-  onChange,
-  onDelete,
-}) => {
+const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const deleteActionButton = commands.group([], {
     name: "delete",
     groupName: "delete",
@@ -51,12 +45,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({
   return (
     <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <Stack sx={{ flexGrow: 1, width: "50%" }}>
-        <Common.Components.MDXEditor
-          disabled={disabled}
-          defaultValue={defaultValue}
-          onChange={onChange}
-          extraCommands={[deleteActionButton]}
-        />
+        <Common.Components.MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
         <Button size="small" onClick={onInsertNewSection} startIcon={<Add />}>
           여기에 섹션 추가
         </Button>
@@ -70,14 +59,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({
   );
 };
 
-const SectionEditorField: React.FC<SectionEditorPropType> = ({
-  language,
-  disabled,
-  defaultValue,
-  onInsertNewSection,
-  onChange,
-  onDelete,
-}) => {
+const SectionEditorField: React.FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
 
   return (
@@ -104,21 +86,14 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
     const { id } = useParams<{ id?: string }>();
     const { frontendDomain } = Common.Hooks.Common.useCommonContext();
     const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data: initialSections } = Common.Hooks.BackendAdminAPI.useListPageSectionsQuery(
-      backendAdminClient,
-      id || ""
-    );
+    const { data: initialSections } = Common.Hooks.BackendAdminAPI.useListPageSectionsQuery(backendAdminClient, id || "");
     const [editorState, setEditorState] = React.useState<AdminCMSPageEditorStateType>({
       sections: initialSections,
       tab: 0,
     });
-    const bulkUpdateSectionsMutation = Common.Hooks.BackendAdminAPI.useBulkUpdatePageSectionsMutation(
-      backendAdminClient,
-      id || ""
-    );
+    const bulkUpdateSectionsMutation = Common.Hooks.BackendAdminAPI.useBulkUpdatePageSectionsMutation(backendAdminClient, id || "");
 
-    const setTab = (_: React.SyntheticEvent, selectedTab: number) =>
-      setEditorState((ps) => ({ ...ps, tab: selectedTab }));
+    const setTab = (_: React.SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
 
     const openOnSiteButton: ButtonProps = {
       variant: "outlined",
@@ -141,9 +116,7 @@ export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
 
     const deleteSection = (index: number) => () => {
       setEditorState((ps) => {
-        const sections = [...(ps.sections || []).slice(0, index), ...(ps.sections || []).slice(index + 1)].map(
-          (s, order) => ({ ...s, order })
-        ); // Reorder sections
+        const sections = [...(ps.sections || []).slice(0, index), ...(ps.sections || []).slice(index + 1)].map((s, order) => ({ ...s, order })); // Reorder sections
         return { ...ps, sections };
       });
     };

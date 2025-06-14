@@ -1,15 +1,6 @@
 import { evaluate } from "@mdx-js/mdx";
 import * as provider from "@mdx-js/react";
-import {
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableFooter,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import { CircularProgress, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow } from "@mui/material";
 import { ErrorBoundary } from "@suspensive/react";
 import type { MDXComponents } from "mdx/types";
 import muiComponents from "mui-mdx-components";

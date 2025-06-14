@@ -64,8 +64,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     const x = e.clientX,
       y = e.clientY,
       currentHoveredElement = document.elementFromPoint(x, y);
-    if (!fileDragBoxRef.current.contains(currentHoveredElement) || (x === 0 && y === 0))
-      setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
+    if (!fileDragBoxRef.current.contains(currentHoveredElement) || (x === 0 && y === 0)) setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
   };
 
   const handleFile = React.useCallback(
@@ -202,12 +201,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
         </ul>
         현재 선택된 파일 : {(selectedFile && selectedFile.name) || "없음"}
       </Box>
-      <Button
-        variant="contained"
-        onClick={onSubmit}
-        disabled={!selectedFile || uploadPublicFileMutation.isPending}
-        startIcon={<CloudUpload />}
-      >
+      <Button variant="contained" onClick={onSubmit} disabled={!selectedFile || uploadPublicFileMutation.isPending} startIcon={<CloudUpload />}>
         업로드
       </Button>
     </Stack>

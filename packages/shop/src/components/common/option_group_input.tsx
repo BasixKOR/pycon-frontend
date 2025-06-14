@@ -54,13 +54,7 @@ const SelectableOptionGroupInput: React.FC<{
   const selectElement = (
     <FormControl fullWidth>
       <InputLabel id={`${optionGroup.id}label`}>{optionGroup.name}</InputLabel>
-      <Select
-        label={`${optionGroup.id}label`}
-        name={optionGroup.id}
-        defaultValue={defaultValue}
-        disabled={disabled}
-        required
-      >
+      <Select label={`${optionGroup.id}label`} name={optionGroup.id} defaultValue={defaultValue} disabled={disabled} required>
         {optionElements}
       </Select>
     </FormControl>
@@ -88,11 +82,7 @@ const CustomResponseOptionGroupInput: React.FC<{
     />
   );
 
-  return isFilledString(disabledReason) ? (
-    <Tooltip title={disabledReason}>{textFieldElement}</Tooltip>
-  ) : (
-    textFieldElement
-  );
+  return isFilledString(disabledReason) ? <Tooltip title={disabledReason}>{textFieldElement}</Tooltip> : textFieldElement;
 };
 
 export const OptionGroupInput: React.FC<{
@@ -105,12 +95,7 @@ export const OptionGroupInput: React.FC<{
   disabledReason?: string;
 }> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason }) =>
   optionGroup.is_custom_response ? (
-    <CustomResponseOptionGroupInput
-      optionGroup={optionGroup}
-      defaultValue={defaultValue}
-      disabled={disabled}
-      disabledReason={disabledReason}
-    />
+    <CustomResponseOptionGroupInput optionGroup={optionGroup} defaultValue={defaultValue} disabled={disabled} disabledReason={disabledReason} />
   ) : (
     <SelectableOptionGroupInput
       language={language || "ko"}
@@ -141,9 +126,7 @@ export const OrderProductRelationOptionInput: React.FC<{
   if (optionRel.product_option_group.is_custom_response === false && R.isNonNull(optionRel.product_option)) {
     defaultValue = optionRel.product_option.id;
     guessedDisabledReason =
-      language === "ko"
-        ? "추가 비용이 발생하는 옵션은 수정할 수 없어요."
-        : "You cannot modify options that incur additional costs.";
+      language === "ko" ? "추가 비용이 발생하는 옵션은 수정할 수 없어요." : "You cannot modify options that incur additional costs.";
     dummyOptions = [
       {
         id: optionRel.product_option.id,

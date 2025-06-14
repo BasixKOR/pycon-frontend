@@ -51,11 +51,7 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
 
 ReactDom.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary
-      fallback={
-        <Common.Components.CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</Common.Components.CenteredPage>
-      }
-    >
+    <ErrorBoundary fallback={<Common.Components.CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</Common.Components.CenteredPage>}>
       <Suspense
         fallback={
           <Common.Components.CenteredPage>

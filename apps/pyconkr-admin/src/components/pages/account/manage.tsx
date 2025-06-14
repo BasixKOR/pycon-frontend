@@ -93,30 +93,9 @@ export const AccountManagementPage: React.FC = () => {
           <br />
           <form ref={changePasswordFormRef} onSubmit={handleChangePassword}>
             <Stack spacing={2}>
-              <TextField
-                disabled={disabled}
-                name="old_password"
-                type="password"
-                label="현재 비밀번호"
-                required
-                fullWidth
-              />
-              <TextField
-                disabled={disabled}
-                name="new_password"
-                type="password"
-                label="새 비밀번호"
-                required
-                fullWidth
-              />
-              <TextField
-                disabled={disabled}
-                name="new_password_confirm"
-                type="password"
-                label="새 비밀번호 확인"
-                required
-                fullWidth
-              />
+              <TextField disabled={disabled} name="old_password" type="password" label="현재 비밀번호" required fullWidth />
+              <TextField disabled={disabled} name="new_password" type="password" label="새 비밀번호" required fullWidth />
+              <TextField disabled={disabled} name="new_password_confirm" type="password" label="새 비밀번호 확인" required fullWidth />
               <Button type="submit" variant="contained" disabled={disabled} fullWidth>
                 비밀번호 변경
               </Button>
@@ -128,12 +107,7 @@ export const AccountManagementPage: React.FC = () => {
         <>
           <Typography variant="h5">정말 로그아웃하시겠습니까?</Typography>
           <br />
-          <Button
-            variant="contained"
-            onClick={handleSignOut}
-            disabled={signOutMutation.isPending}
-            startIcon={<Logout />}
-          >
+          <Button variant="contained" onClick={handleSignOut} disabled={signOutMutation.isPending} startIcon={<Logout />}>
             로그아웃
           </Button>
         </>

@@ -37,11 +37,7 @@ export const filterReadOnlyPropertiesInJsonSchema = (schema: JSONSchema7) => {
 
 type SupportedLanguage = "ko" | "en";
 
-export const filterPropertiesByLanguageInJsonSchema = (
-  schema: JSONSchema7,
-  translation_fields: string[] = [],
-  language: SupportedLanguage
-) => {
+export const filterPropertiesByLanguageInJsonSchema = (schema: JSONSchema7, translation_fields: string[] = [], language: SupportedLanguage) => {
   const filteredSchema: JSONSchema7 = { ...schema };
   if (translation_fields.length === 0) return filteredSchema;
 

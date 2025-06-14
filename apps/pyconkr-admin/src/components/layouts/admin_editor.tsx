@@ -144,23 +144,9 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
       const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
 
-      const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<Record<string, string>>(
-        backendAdminClient,
-        app,
-        resource
-      );
-      const modifyMutation = Common.Hooks.BackendAdminAPI.useUpdateMutation<Record<string, string>>(
-        backendAdminClient,
-        app,
-        resource,
-        id || ""
-      );
-      const deleteMutation = Common.Hooks.BackendAdminAPI.useRemoveMutation(
-        backendAdminClient,
-        app,
-        resource,
-        id || "undefined"
-      );
+      const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<Record<string, string>>(backendAdminClient, app, resource);
+      const modifyMutation = Common.Hooks.BackendAdminAPI.useUpdateMutation<Record<string, string>>(backendAdminClient, app, resource, id || "");
+      const deleteMutation = Common.Hooks.BackendAdminAPI.useRemoveMutation(backendAdminClient, app, resource, id || "undefined");
       const submitMutation = id ? modifyMutation : createMutation;
 
       React.useEffect(() => {
@@ -170,16 +156,12 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
             return;
           }
 
-          setFormDataState(
-            (await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)()) ||
-              {}
-          );
+          setFormDataState((await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)()) || {});
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [app, resource, id]);
 
-      const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () =>
-        formRef.current && formRef.current.submit();
+      const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => formRef.current && formRef.current.submit();
 
       const onSubmitFunc = (data: EditorFormDataEventType, event: React.FormEvent) => {
         // react-jsonschema-form에서 주는 formData에는 translation_fields로 필터링된 필드가 빠져있어,
@@ -275,11 +257,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
                         <TableRow key={key}>
                           <TableCell>{key}</TableCell>
                           <TableCell>
-                            <ReadOnlyValueField
-                              name={key}
-                              value={languageFilteredFormData?.[key]}
-                              uiSchema={uiSchema}
-                            />
+                            <ReadOnlyValueField name={key} value={languageFilteredFormData?.[key]} uiSchema={uiSchema} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -319,37 +297,18 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
                   새 객체 추가
                 </Button>
                 {!notDeletable && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={onDeleteFunc}
-                    disabled={disabled}
-                    startIcon={<Delete />}
-                  >
+                  <Button variant="outlined" color="error" onClick={onDeleteFunc} disabled={disabled} startIcon={<Delete />}>
                     삭제
                   </Button>
                 )}
                 {!notModifiable && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={onSubmitButtonClick}
-                    disabled={disabled}
-                    startIcon={<Edit />}
-                  >
+                  <Button variant="contained" color="primary" onClick={onSubmitButtonClick} disabled={disabled} startIcon={<Edit />}>
                     수정
                   </Button>
                 )}
               </>
             ) : (
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                onClick={onSubmitButtonClick}
-                disabled={disabled}
-                startIcon={<Add />}
-              >
+              <Button type="submit" variant="contained" color="primary" onClick={onSubmitButtonClick} disabled={disabled} startIcon={<Add />}>
                 새 객체 추가
               </Button>
             )}
@@ -366,9 +325,7 @@ export const AdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = (
   </BackendAdminSignInGuard>
 );
 
-export const AdminEditorCreateRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = (props) => (
-  <AdminEditor {...props} />
-);
+export const AdminEditorCreateRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = (props) => <AdminEditor {...props} />;
 
 export const AdminEditorModifyRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = Suspense.with(
   { fallback: <CircularProgress /> },

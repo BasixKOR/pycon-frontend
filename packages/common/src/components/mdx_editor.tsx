@@ -94,108 +94,96 @@ type PublicFileType = {
   mimetype: string;
 };
 
-const ImageSelector: GroupOptions["children"] = Suspense.with(
-  { fallback: <CircularProgress /> },
-  ({ close, getState, textApi }) => {
-    const urlInputRef = React.useRef<HTMLInputElement>(null);
-    const backendAdminAPIClient = Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data } = Hooks.BackendAdminAPI.useListQuery<PublicFileType>(backendAdminAPIClient, "file", "publicfile");
-    const [widgetState, setWidgetState] = React.useState<ImageSelectorWidgetStateType>({ tab: 0 });
-    const setTab = (_: React.SyntheticEvent, tab: number) => setWidgetState((ps) => ({ ...ps, tab }));
-    const setImageUrl = (selectedImageUrl?: string) => setWidgetState((ps) => ({ ...ps, selectedImageUrl }));
+const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <CircularProgress /> }, ({ close, getState, textApi }) => {
+  const urlInputRef = React.useRef<HTMLInputElement>(null);
+  const backendAdminAPIClient = Hooks.BackendAdminAPI.useBackendAdminClient();
+  const { data } = Hooks.BackendAdminAPI.useListQuery<PublicFileType>(backendAdminAPIClient, "file", "publicfile");
+  const [widgetState, setWidgetState] = React.useState<ImageSelectorWidgetStateType>({ tab: 0 });
+  const setTab = (_: React.SyntheticEvent, tab: number) => setWidgetState((ps) => ({ ...ps, tab }));
+  const setImageUrl = (selectedImageUrl?: string) => setWidgetState((ps) => ({ ...ps, selectedImageUrl }));
 
-    const insertImage = (inputStr: string) => {
-      console.log(textApi, getState);
-      if (!textApi || !getState) return undefined;
-      insertText(inputStr, getState, textApi);
-      setImageUrl();
-      close();
-    };
-    const getSelectedUrl = (): string | undefined => {
-      if (
-        widgetState.tab === 0 &&
-        R.isString(widgetState.selectedImageUrl) &&
-        widgetState.selectedImageUrl.trim() !== ""
-      ) {
-        return widgetState.selectedImageUrl.trim();
-      } else if (
-        widgetState.tab === 1 &&
-        urlInputRef.current &&
-        urlInputRef.current.checkValidity() &&
-        urlInputRef.current.value.trim() !== ""
-      ) {
-        return urlInputRef.current.value.trim();
-      }
+  const insertImage = (inputStr: string) => {
+    console.log(textApi, getState);
+    if (!textApi || !getState) return undefined;
+    insertText(inputStr, getState, textApi);
+    setImageUrl();
+    close();
+  };
+  const getSelectedUrl = (): string | undefined => {
+    if (widgetState.tab === 0 && R.isString(widgetState.selectedImageUrl) && widgetState.selectedImageUrl.trim() !== "") {
+      return widgetState.selectedImageUrl.trim();
+    } else if (widgetState.tab === 1 && urlInputRef.current && urlInputRef.current.checkValidity() && urlInputRef.current.value.trim() !== "") {
+      return urlInputRef.current.value.trim();
+    }
 
-      if (widgetState.tab === 0) alert("사진을 선택해주세요.");
-      if (widgetState.tab === 1) urlInputRef.current?.reportValidity();
+    if (widgetState.tab === 0) alert("사진을 선택해주세요.");
+    if (widgetState.tab === 1) urlInputRef.current?.reportValidity();
 
-      return undefined;
-    };
-    const onHTMLInsertBtnClick = () => {
-      const url = getSelectedUrl();
-      if (R.isString(url)) insertImage(`<img src="${url}" alt="이미지 설명" />`);
-    };
-    const onMarkdownInsertBtnClick = () => {
-      const url = getSelectedUrl();
-      if (R.isString(url)) insertImage(`![이미지 설명](${url})`);
-    };
+    return undefined;
+  };
+  const onHTMLInsertBtnClick = () => {
+    const url = getSelectedUrl();
+    if (R.isString(url)) insertImage(`<img src="${url}" alt="이미지 설명" />`);
+  };
+  const onMarkdownInsertBtnClick = () => {
+    const url = getSelectedUrl();
+    if (R.isString(url)) insertImage(`![이미지 설명](${url})`);
+  };
 
-    return (
-      <Stack spacing={1} sx={{ p: 1, flexGrow: 1, minWidth: 200, maxHeight: "50rem" }}>
-        <Tabs value={widgetState.tab} onChange={setTab} scrollButtons={false}>
-          <Tab wrapped label="업로드 된 사진 중 선택" />
-          <Tab wrapped label="사진 URL 직접 입력" />
-        </Tabs>
-        {widgetState.tab === 0 && (
-          <>
-            <Typography variant="subtitle1" color="text.secondary">
-              업로드 된 사진 중 선택
-            </Typography>
-            <Grid>
-              {data
-                .filter((item) => item.mimetype.startsWith("image/"))
-                .map((item) => ({ ...item, file: item.file.split("?")[0] })) // Remove query parameters if any
-                .map((item) => {
-                  const selected = widgetState.selectedImageUrl === item.file;
-                  return (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => setImageUrl(item.file)}
-                      sx={{
-                        border: `1px solid ${selected ? "primary.main" : "grey.400"}`,
-                        backgroundColor: selected ? "primary.main" : "transparent",
-                      }}
-                    >
-                      <img src={item.file} alt="이미지 미리보기" style={{ maxWidth: 100, maxHeight: 100 }} />
-                    </Button>
-                  );
-                })}
-            </Grid>
-          </>
-        )}
-        {widgetState.tab === 1 && (
-          <>
-            <Typography variant="subtitle1" color="text.secondary">
-              사진 URL 직접 입력
-            </Typography>
-            <TextField label="사진 URL" size="small" type="url" fullWidth required inputRef={urlInputRef} />
-          </>
-        )}
-        <Button size="small" variant="contained" onClick={onHTMLInsertBtnClick}>
-          HTML로 삽입
-        </Button>
-        <Button size="small" variant="contained" onClick={onMarkdownInsertBtnClick}>
-          마크다운으로 삽입
-        </Button>
-        <Button size="small" variant="outlined" sx={{ flexGrow: 1 }} onClick={close}>
-          닫기
-        </Button>
-      </Stack>
-    );
-  }
-);
+  return (
+    <Stack spacing={1} sx={{ p: 1, flexGrow: 1, minWidth: 200, maxHeight: "50rem" }}>
+      <Tabs value={widgetState.tab} onChange={setTab} scrollButtons={false}>
+        <Tab wrapped label="업로드 된 사진 중 선택" />
+        <Tab wrapped label="사진 URL 직접 입력" />
+      </Tabs>
+      {widgetState.tab === 0 && (
+        <>
+          <Typography variant="subtitle1" color="text.secondary">
+            업로드 된 사진 중 선택
+          </Typography>
+          <Grid>
+            {data
+              .filter((item) => item.mimetype.startsWith("image/"))
+              .map((item) => ({ ...item, file: item.file.split("?")[0] })) // Remove query parameters if any
+              .map((item) => {
+                const selected = widgetState.selectedImageUrl === item.file;
+                return (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setImageUrl(item.file)}
+                    sx={{
+                      border: `1px solid ${selected ? "primary.main" : "grey.400"}`,
+                      backgroundColor: selected ? "primary.main" : "transparent",
+                    }}
+                  >
+                    <img src={item.file} alt="이미지 미리보기" style={{ maxWidth: 100, maxHeight: 100 }} />
+                  </Button>
+                );
+              })}
+          </Grid>
+        </>
+      )}
+      {widgetState.tab === 1 && (
+        <>
+          <Typography variant="subtitle1" color="text.secondary">
+            사진 URL 직접 입력
+          </Typography>
+          <TextField label="사진 URL" size="small" type="url" fullWidth required inputRef={urlInputRef} />
+        </>
+      )}
+      <Button size="small" variant="contained" onClick={onHTMLInsertBtnClick}>
+        HTML로 삽입
+      </Button>
+      <Button size="small" variant="contained" onClick={onMarkdownInsertBtnClick}>
+        마크다운으로 삽입
+      </Button>
+      <Button size="small" variant="outlined" sx={{ flexGrow: 1 }} onClick={close}>
+        닫기
+      </Button>
+    </Stack>
+  );
+});
 
 const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoType[]) => GroupOptions["children"] =
   (registeredComponentList) =>
@@ -241,9 +229,7 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, on
     { k: "", n: "", v: undefined },
     ...Object.entries(mdxComponents ?? {}).map(([k, v]) => {
       const splicedKey = k.replace(/__/g, ".").split(".");
-      const n = [...splicedKey.slice(0, -1).map((word) => word.toLowerCase()), splicedKey[splicedKey.length - 1]].join(
-        "."
-      );
+      const n = [...splicedKey.slice(0, -1).map((word) => word.toLowerCase()), splicedKey[splicedKey.length - 1]].join(".");
       return { k, n, v };
     }),
   ];
@@ -260,14 +246,11 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, on
         value={defaultValue}
         onChange={onChange}
         commands={[
-          commands.group(
-            [commands.title1, commands.title2, commands.title3, commands.title4, commands.title5, commands.title6],
-            {
-              name: "title",
-              groupName: "title",
-              buttonProps: { "aria-label": "Insert title" },
-            }
-          ),
+          commands.group([commands.title1, commands.title2, commands.title3, commands.title4, commands.title5, commands.title6], {
+            name: "title",
+            groupName: "title",
+            buttonProps: { "aria-label": "Insert title" },
+          }),
           commands.bold,
           commands.italic,
           commands.code,

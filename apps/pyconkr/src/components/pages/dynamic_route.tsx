@@ -8,52 +8,50 @@ import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
 
-const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
-  (additionalStyle) => (theme) => ({
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    flexDirection: "column",
+const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties = (additionalStyle) => (theme) => ({
+  width: "100%",
+  display: "flex",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  flexDirection: "column",
 
-    marginTop: theme.spacing(4),
+  marginTop: theme.spacing(4),
 
-    ...(!R.isEmpty(additionalStyle)
-      ? additionalStyle
-      : {
-          [theme.breakpoints.down("lg")]: {
-            marginTop: theme.spacing(2),
-          },
-          [theme.breakpoints.down("sm")]: {
-            marginTop: theme.spacing(1),
-          },
-        }),
-  });
+  ...(!R.isEmpty(additionalStyle)
+    ? additionalStyle
+    : {
+        [theme.breakpoints.down("lg")]: {
+          marginTop: theme.spacing(2),
+        },
+        [theme.breakpoints.down("sm")]: {
+          marginTop: theme.spacing(1),
+        },
+      }),
+});
 
-const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties =
-  (additionalStyle) => (theme) => ({
-    width: "100%",
-    maxWidth: "1200px",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    paddingRight: theme.spacing(16),
-    paddingLeft: theme.spacing(16),
+const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties = (additionalStyle) => (theme) => ({
+  width: "100%",
+  maxWidth: "1200px",
+  display: "flex",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  paddingRight: theme.spacing(16),
+  paddingLeft: theme.spacing(16),
 
-    "& .markdown-body": { width: "100%" },
-    ...(!R.isEmpty(additionalStyle)
-      ? additionalStyle
-      : {
-          [theme.breakpoints.down("lg")]: {
-            paddingRight: theme.spacing(4),
-            paddingLeft: theme.spacing(4),
-          },
-          [theme.breakpoints.down("sm")]: {
-            paddingRight: theme.spacing(2),
-            paddingLeft: theme.spacing(2),
-          },
-        }),
-  });
+  "& .markdown-body": { width: "100%" },
+  ...(!R.isEmpty(additionalStyle)
+    ? additionalStyle
+    : {
+        [theme.breakpoints.down("lg")]: {
+          paddingRight: theme.spacing(4),
+          paddingLeft: theme.spacing(4),
+        },
+        [theme.breakpoints.down("sm")]: {
+          paddingRight: theme.spacing(2),
+          paddingLeft: theme.spacing(2),
+        },
+      }),
+});
 
 const LoginRequired: React.FC = () => <>401 Login Required</>;
 const PermissionDenied: React.FC = () => <>403 Permission Denied</>;

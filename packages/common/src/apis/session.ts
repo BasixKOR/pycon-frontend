@@ -7,9 +7,7 @@ namespace SessionAPIs {
   };
 
   export const sessionFilteredList = (client: BackendAPIClient, categoryName: string) => async () => {
-    return await client.get<BackendSessionAPISchemas.SessionSchema[]>(
-      `v1/event/presentation/?category=${categoryName}`
-    );
+    return await client.get<BackendSessionAPISchemas.SessionSchema[]>(`v1/event/presentation/?category=${categoryName}`);
   };
 }
 

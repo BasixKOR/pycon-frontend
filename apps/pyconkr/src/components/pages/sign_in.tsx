@@ -63,9 +63,7 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
   React.useEffect(() => {
     if (data && data.meta.is_authenticated) {
       addSnackbar(
-        language === "ko"
-          ? `이미 ${data.data.user.username}님으로 로그인되어 있습니다!`
-          : `You are already signed in as ${data.data.user.username}!`,
+        language === "ko" ? `이미 ${data.data.user.username}님으로 로그인되어 있습니다!` : `You are already signed in as ${data.data.user.username}!`,
         "success"
       );
       navigate("/");

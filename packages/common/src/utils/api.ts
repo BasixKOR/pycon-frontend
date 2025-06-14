@@ -46,8 +46,7 @@ export const findSiteMapUsingRoute = (
 ): BackendAPISchemas.NestedSiteMapSchema | null => {
   const currentRouteCodes = ["", ...route.split("/").filter((code) => !R.isEmpty(code))];
 
-  let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | null | undefined =
-    siteMapData.children[currentRouteCodes[0]];
+  let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | null | undefined = siteMapData.children[currentRouteCodes[0]];
   if (currentSitemap === undefined) return null;
 
   for (const routeCode of currentRouteCodes.slice(1)) {

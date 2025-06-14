@@ -1,15 +1,6 @@
 import * as Common from "@frontend/common";
 import { KeyOff } from "@mui/icons-material";
-import {
-  Button,
-  ButtonProps,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
+import { Button, ButtonProps, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
@@ -30,10 +21,7 @@ export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
     const closeDialog = () => setPageState((ps) => ({ ...ps, isDialogOpen: false }));
 
     const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const useResetPasswordMutation = Common.Hooks.BackendAdminAPI.useResetUserPasswordMutation(
-      backendAdminClient,
-      id || ""
-    );
+    const useResetPasswordMutation = Common.Hooks.BackendAdminAPI.useResetUserPasswordMutation(backendAdminClient, id || "");
 
     const resetUserPassword = () => {
       closeDialog();

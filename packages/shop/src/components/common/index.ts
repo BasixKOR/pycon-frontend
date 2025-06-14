@@ -1,8 +1,5 @@
 import { CustomerInfoFormDialog as CustomerInfoFormDialog_ } from "./customer_info_form_dialog";
-import {
-  OptionGroupInput as OptionGroupInput_,
-  OrderProductRelationOptionInput as OrderProductRelationOptionInput_,
-} from "./option_group_input";
+import { OptionGroupInput as OptionGroupInput_, OrderProductRelationOptionInput as OrderProductRelationOptionInput_ } from "./option_group_input";
 import { PriceDisplay as PriceDisplay_ } from "./price_display";
 import { ShopContextProvider as ShopContextProvider_ } from "./shop_context";
 import { SignInGuard as SignInGuard_ } from "./signin_guard";

@@ -92,11 +92,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
         )}
       </ListItem>
     ) : (
-      <ListItem
-        key={`${routeInfo.app}-${routeInfo.resource}`}
-        sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}}
-        disablePadding
-      >
+      <ListItem key={`${routeInfo.app}-${routeInfo.resource}`} sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}} disablePadding>
         <ListItemButton
           sx={{
             minHeight: 48,

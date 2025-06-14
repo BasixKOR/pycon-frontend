@@ -53,30 +53,20 @@ export default function Footer() {
 
   const corpPasamoStr = language === "ko" ? "사단법인 파이썬사용자모임" : "Python Korea";
   const corpAddressStr =
-    language === "ko"
-      ? "서울특별시 강남구 강남대로84길 24-4"
-      : "24-4, Gangnam-daero 84-gil, Gangnam-gu, Seoul, Republic of Korea";
+    language === "ko" ? "서울특별시 강남구 강남대로84길 24-4" : "24-4, Gangnam-daero 84-gil, Gangnam-gu, Seoul, Republic of Korea";
   const corpRepresentatorStr = language === "ko" ? "대표자명 : 배권한" : "Representator : Kwon-Han Bae";
   const corpPhoneStr =
     language === "ko"
       ? "대표 전화 번호 : 031-261-2203, 010-5298-6622, 010-8259-3013 (문자)"
       : "Phone Number : 031-261-2203, 010-5298-6622, 010-8259-3013 (SMS)";
-  const corpCompanyNumberStr =
-    language === "ko" ? "사업자 등록 번호 : 338-82-00046" : "Business Registration Number : 338-82-00046";
+  const corpCompanyNumberStr = language === "ko" ? "사업자 등록 번호 : 338-82-00046" : "Business Registration Number : 338-82-00046";
   const corpCheckBtnStr = language === "ko" ? "사업자 정보 확인" : "Check Business Registration Information";
   const corpMailOrderSalesRegistrationNumberStr =
-    language === "ko"
-      ? "통신 판매 번호 : 2023-서울강남-03501"
-      : "Mail Order Sales Registration Number : 2023-SEOUL-GANGNAM-03501";
+    language === "ko" ? "통신 판매 번호 : 2023-서울강남-03501" : "Mail Order Sales Registration Number : 2023-SEOUL-GANGNAM-03501";
   const hostingProviderStr =
-    language === "ko"
-      ? "호스팅 제공자 : Amazon Web Services(Korea LLC)"
-      : "Hosting Provider : Amazon Web Services(Korea LLC)";
+    language === "ko" ? "호스팅 제공자 : Amazon Web Services(Korea LLC)" : "Hosting Provider : Amazon Web Services(Korea LLC)";
   const contractEmailStr = language === "ko" ? "문의: " : "Contact: ";
-  const copyrightStr =
-    language === "ko"
-      ? "© 2025, 사단법인 파이썬사용자모임, All rights reserved."
-      : "© 2025, Python Korea, All rights reserved.";
+  const copyrightStr = language === "ko" ? "© 2025, 사단법인 파이썬사용자모임, All rights reserved." : "© 2025, Python Korea, All rights reserved.";
 
   const links = [
     {
@@ -134,13 +124,7 @@ export default function Footer() {
             <Email width={20} height={20} aria-hidden="true" />
           </IconLink>
           {defaultIcons.map((icon) => (
-            <IconLink
-              key={icon.alt}
-              href={icon.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${icon.alt}로 이동`}
-            >
+            <IconLink key={icon.alt} href={icon.href} target="_blank" rel="noopener noreferrer" aria-label={`${icon.alt}로 이동`}>
               <icon.icon width={20} height={20} aria-hidden="true" />
             </IconLink>
           ))}

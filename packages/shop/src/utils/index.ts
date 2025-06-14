@@ -9,9 +9,7 @@ namespace ShopAPIUtil {
     return R.isString(pattern) && !R.isEmpty(pattern) ? new RegExp(pattern, "g") : undefined;
   };
 
-  export const isOrderProductOptionModifiable = (
-    optionRel: ShopSchemas.OrderProductItem["options"][number]
-  ): boolean => {
+  export const isOrderProductOptionModifiable = (optionRel: ShopSchemas.OrderProductItem["options"][number]): boolean => {
     if (!optionRel.product_option_group.is_custom_response) return false;
 
     if (R.isNullish(optionRel.product_option_group.response_modifiable_ends_at)) return true;

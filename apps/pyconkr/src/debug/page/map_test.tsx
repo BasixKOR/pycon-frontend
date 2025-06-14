@@ -41,11 +41,9 @@ export const MapTestPage: React.FC = () => {
     [geoForm, pNameForm, pCodeForm, gMapIframeUrl].forEach((formOrInput, index) => {
       if (!formOrInput) throw new Error(`${formOrInput}[${index}] is not defined.`);
 
-      if (formOrInput instanceof HTMLFormElement && !Common.Utils.isFormValid(formOrInput))
-        throw new Error(`${formOrInput}[${index}] is not valid.`);
+      if (formOrInput instanceof HTMLFormElement && !Common.Utils.isFormValid(formOrInput)) throw new Error(`${formOrInput}[${index}] is not valid.`);
 
-      if (formOrInput instanceof HTMLInputElement && !formOrInput.checkValidity())
-        throw new Error(`${formOrInput}[${index}] is not valid.`);
+      if (formOrInput instanceof HTMLInputElement && !formOrInput.checkValidity()) throw new Error(`${formOrInput}[${index}] is not valid.`);
     });
     if (!(geoForm && pNameForm && pCodeForm && gMapIframeUrl)) return;
 
@@ -67,10 +65,7 @@ export const MapTestPage: React.FC = () => {
   return (
     <Stack direction="row" spacing={2} sx={{ p: 2 }}>
       <Stack spacing={2} sx={{ width: "50%", maxWidth: "50%" }}>
-        <FormControlLabel
-          control={<Switch checked={state.checked} onChange={(e) => setChecked(e.target.checked)} />}
-          label={language}
-        />
+        <FormControlLabel control={<Switch checked={state.checked} onChange={(e) => setChecked(e.target.checked)} />} label={language} />
         <form ref={geoFormRef}>
           <Stack spacing={1}>
             <TextField label="Latitude" name="lat" defaultValue={state.mapProps.geo.lat} />
@@ -90,12 +85,7 @@ export const MapTestPage: React.FC = () => {
             <TextField label="Naver Shortened URL Code" name="naver" defaultValue={state.mapProps.placeCode.naver} />
           </Stack>
         </form>
-        <TextField
-          label="Google Map Iframe URL"
-          type="url"
-          inputRef={gMapIframeUrlInputRef}
-          defaultValue={state.mapProps.googleMapIframeSrc}
-        />
+        <TextField label="Google Map Iframe URL" type="url" inputRef={gMapIframeUrlInputRef} defaultValue={state.mapProps.googleMapIframeSrc} />
         <Button onClick={onApply}>적용</Button>
       </Stack>
       <Box sx={{ width: "50%", maxWidth: "50%" }}>

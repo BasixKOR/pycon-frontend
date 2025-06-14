@@ -31,13 +31,7 @@ const playStateToLottiePlayerState = (playState: PlayState): { isStopped: boolea
   return { isStopped: true, isPaused: true };
 };
 
-export const LottieDebugPanel: React.FC<LottiePlayerProps> = ({
-  data,
-  playState = "playing",
-  disableLoop = false,
-  renderSettings = {},
-  style,
-}) => {
+export const LottieDebugPanel: React.FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => {
   const [playerState, setPlayerState] = React.useState<LottieDebugPanelStateType>({
     playState,
     loop: !disableLoop,
@@ -73,13 +67,7 @@ export const LottieDebugPanel: React.FC<LottiePlayerProps> = ({
   );
 };
 
-export const LottiePlayer: React.FC<LottiePlayerProps> = ({
-  data,
-  playState = "playing",
-  disableLoop = false,
-  renderSettings = {},
-  style,
-}) => (
+export const LottiePlayer: React.FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => (
   <Lottie
     {...playStateToLottiePlayerState(playState)}
     options={{
@@ -101,20 +89,17 @@ type NetworkLottiePlayerStateType = {
   data?: unknown | null;
 };
 
-export const NetworkLottiePlayer: React.FC<NetworkLottiePlayerProps> = ErrorBoundary.with(
-  { fallback: ErrorFallback },
-  (props) => {
-    const [playerState, setPlayerState] = React.useState<NetworkLottiePlayerStateType>({});
+export const NetworkLottiePlayer: React.FC<NetworkLottiePlayerProps> = ErrorBoundary.with({ fallback: ErrorFallback }, (props) => {
+  const [playerState, setPlayerState] = React.useState<NetworkLottiePlayerStateType>({});
 
-    React.useEffect(() => {
-      (async () => {
-        if (!isValidHttpUrl(props.url)) throw new Error("Invalid URL for NetworkLottiePlayer: " + props.url);
+  React.useEffect(() => {
+    (async () => {
+      if (!isValidHttpUrl(props.url)) throw new Error("Invalid URL for NetworkLottiePlayer: " + props.url);
 
-        const data = JSON.parse(await (await fetch(props.url, props.fetchOptions)).text());
-        setPlayerState((ps) => ({ ...ps, data }));
-      })();
-    }, [props.url, props.fetchOptions]);
+      const data = JSON.parse(await (await fetch(props.url, props.fetchOptions)).text());
+      setPlayerState((ps) => ({ ...ps, data }));
+    })();
+  }, [props.url, props.fetchOptions]);
 
-    return playerState.data === undefined ? <CircularProgress /> : <LottiePlayer {...props} data={playerState.data} />;
-  }
-);
+  return playerState.data === undefined ? <CircularProgress /> : <LottiePlayer {...props} data={playerState.data} />;
+});

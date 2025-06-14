@@ -26,9 +26,7 @@ const SessionItem: React.FC<{ session: BackendSessionAPISchemas.SessionSchema }>
       <>
         <SessionItemEl>
           <SessionItemImgContainer>
-            {speakerImageSrc && (
-              <img src={session.presentationSpeaker[0].image} alt={session.presentationSpeaker[0].name} />
-            )}
+            {speakerImageSrc && <img src={session.presentationSpeaker[0].image} alt={session.presentationSpeaker[0].name} />}
           </SessionItemImgContainer>
           <SessionItemInfoContainer>
             <TagContainer>
