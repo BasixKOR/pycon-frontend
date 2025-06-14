@@ -74,9 +74,9 @@ jobs:
 
       - run: pnpm build:@apps/${{ matrix.application }} ${{ env.BUMP_RULE }} && cp -r apps/${{ matrix.application }}/dist/* dist/
 
-      - run: aws s3 cp --recursive ./dist s3://${{ secrets[matrix.aws_s3_bucket_key] }}/
+      - run: aws s3 cp --recursive ./dist s3://${{ env[matrix.aws_s3_bucket_key] }}/
 
-      - run: aws cloudfront create-invalidation --distribution-id ${{ secrets[matrix.aws_cloudfront_distribution_key] }} --paths "/*"
+      - run: aws cloudfront create-invalidation --distribution-id ${{ env[matrix.aws_cloudfront_distribution_key] }} --paths "/*"
 
       # Notify to Slack (Success)
       - name: Notify deployment to Slack
