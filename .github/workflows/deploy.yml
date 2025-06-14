@@ -91,7 +91,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "${{ steps.info.outputs.repository_name }} 버전 배포 실패 :rotating_light: (${{ job.status }})",
+                    "text": "${{ steps.info.outputs.repository_name }} ${{ matrix.application }} (${{ env.API_STAGE }}) 배포 실패 :rotating_light: (${{ job.status }})",
                     "emoji": true
                   }
                 },
@@ -123,7 +123,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "${{ steps.info.outputs.repository_name }} 버전 배포 성공 :tada:",
+                    "text": "${{ steps.info.outputs.repository_name }} ${{ matrix.application }} (${{ env.API_STAGE }}) 배포 성공 :tada:",
                     "emoji": true
                   }
                 },
