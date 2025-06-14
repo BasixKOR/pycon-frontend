@@ -1,9 +1,10 @@
 import * as Common from "@frontend/common";
 import { CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 import * as React from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
@@ -86,46 +87,55 @@ const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ err
   return <Common.Components.ErrorFallback error={error} reset={reset} />;
 };
 
-export const PageRenderer: React.FC<{ id: string }> = ErrorBoundary.with(
-  { fallback: RouteErrorFallback },
-  Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
-    const { setAppContext } = useAppContext();
-    const backendClient = Common.Hooks.BackendAPI.useBackendClient();
-    const { data } = Common.Hooks.BackendAPI.usePageQuery(backendClient, id);
+const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
+  const [isFetching, setIsFetching] = React.useState(true);
+  const qClient = useQueryClient();
 
-    React.useEffect(() => {
-      setAppContext((prev) => ({
-        ...prev,
-        title: data.title,
-        shouldShowTitleBanner: data.show_top_title_banner,
-        shouldShowSponsorBanner: data.show_bottom_sponsor_banner,
-      }));
-    }, [data, setAppContext]);
+  React.useEffect(() => {
+    const unsubscribe = qClient.getQueryCache().subscribe(() => setIsFetching(qClient.isFetching() > 0));
+    return () => unsubscribe();
+  }, [qClient]);
 
-    return (
-      <Stack sx={initialPageStyle(Common.Utils.parseCss(data.css))}>
-        {data.sections.map((s) => (
-          <Stack sx={initialSectionStyle(Common.Utils.parseCss(s.css))} key={s.id}>
-            <Common.Components.MDXRenderer text={s.body} />
-          </Stack>
-        ))}
-      </Stack>
-    );
-  })
+  return isFetching ? <CenteredLoadingPage /> : <PageNotFound />;
+});
+
+const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
+  const { setAppContext } = useAppContext();
+  const backendClient = Common.Hooks.BackendAPI.useBackendClient();
+  const { data } = Common.Hooks.BackendAPI.usePageQuery(backendClient, id);
+
+  React.useEffect(() => {
+    setAppContext((prev) => ({
+      ...prev,
+      title: data.title,
+      shouldShowTitleBanner: data.show_top_title_banner,
+      shouldShowSponsorBanner: data.show_bottom_sponsor_banner,
+    }));
+  }, [data, setAppContext]);
+
+  return (
+    <Stack sx={initialPageStyle(Common.Utils.parseCss(data.css))}>
+      {data.sections.map((s) => (
+        <Stack sx={initialSectionStyle(Common.Utils.parseCss(s.css))} key={s.id}>
+          <Common.Components.MDXRenderer text={s.body} />
+        </Stack>
+      ))}
+    </Stack>
+  );
+});
+
+export const PageRenderer: React.FC<{ id: string }> = ({ id }) => (
+  <ErrorBoundary fallback={RouteErrorFallback} resetKeys={[id]}>
+    <InnerPageRenderer id={id} />
+  </ErrorBoundary>
 );
 
 export const RouteRenderer: React.FC = ErrorBoundary.with(
   { fallback: RouteErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
-    const location = useLocation();
     const { siteMapNode, currentSiteMapDepth } = useAppContext();
-
-    if (!siteMapNode) return <CenteredLoadingPage />;
-
     const routeInfo = !R.isEmpty(currentSiteMapDepth) && currentSiteMapDepth[currentSiteMapDepth.length - 1];
-    if (!routeInfo) throwPageNotFound(`Route ${location} not found`);
-
-    return <PageRenderer id={routeInfo.page} />;
+    return !(siteMapNode && routeInfo) ? <WaitedCenteredLoadingPage /> : <PageRenderer id={routeInfo.page} />;
   })
 );
 
