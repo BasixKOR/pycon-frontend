@@ -47,6 +47,9 @@ namespace BackendAdminAPIs {
   export const remove = (client: BackendAPIClient, app: string, resource: string, id: string) => () =>
     client.delete<void>(`v1/admin-api/${app}/${resource}/${id}/`);
 
+  export const removePrepared = (client: BackendAPIClient, app: string, resource: string) => (id: string) =>
+    client.delete<void>(`v1/admin-api/${app}/${resource}/${id}/`);
+
   export const schema = (client: BackendAPIClient, app: string, resource: string) => () =>
     client.get<BackendAdminAPISchemas.AdminSchemaDefinition>(`v1/admin-api/${app}/${resource}/json-schema/`);
 

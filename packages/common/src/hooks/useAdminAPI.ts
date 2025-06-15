@@ -93,6 +93,12 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.remove(client, app, resource, id),
     });
 
+  export const useRemovePreparedMutation = (client: BackendAPIClient, app: string, resource: string) =>
+    useMutation({
+      mutationKey: [...MUTATION_KEYS.ADMIN_REMOVE, app, resource, "prepared"],
+      mutationFn: BackendAdminAPIs.removePrepared(client, app, resource),
+    });
+
   export const useUploadPublicFileMutation = (client: BackendAPIClient) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_CREATE, "public-file", "upload"],
