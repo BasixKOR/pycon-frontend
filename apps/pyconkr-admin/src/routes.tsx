@@ -8,6 +8,7 @@ import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
+import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
 
 export const RouteDefinitions: RouteDef[] = [
@@ -72,7 +73,7 @@ export const RouteDefinitions: RouteDef[] = [
 
 const buildDefaultRoutes = (app: string, resource: string) => {
   return {
-    [`/${app}/${resource}/`]: <AdminList app={app} resource={resource} />,
+    [`/${app}/${resource}`]: <AdminList app={app} resource={resource} />,
     [`/${app}/${resource}/create`]: <AdminEditorCreateRoutePage app={app} resource={resource} />,
     [`/${app}/${resource}/:id`]: <AdminEditorModifyRoutePage app={app} resource={resource} />,
   };
@@ -97,4 +98,7 @@ export const RegisteredRoutes = {
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/manage": <AccountManagementPage />,
+  "/cms/sitemap": <SiteMapList />,
+  "/cms/sitemap/create": <SiteMapList />,
+  "/cms/sitemap/:id": <SiteMapList />,
 };
