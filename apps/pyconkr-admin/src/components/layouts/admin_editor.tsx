@@ -1,10 +1,11 @@
 import * as Common from "@frontend/common";
-import { Add, Delete, Edit } from "@mui/icons-material";
+import { Add, Close, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
   Button,
   ButtonProps,
   CircularProgress,
+  IconButton,
   Stack,
   Tab,
   Table,
@@ -34,6 +35,9 @@ type onSubmitType = (data: Record<string, string>, event: React.FormEvent<unknow
 type AppResourceType = { app: string; resource: string };
 type AppResourceIdType = AppResourceType & { id?: string };
 type AdminEditorPropsType = React.PropsWithChildren<{
+  hidingFields?: string[];
+  context?: Record<string, string>;
+  onClose?: () => void;
   beforeSubmit?: onSubmitType;
   afterSubmit?: onSubmitType;
   notModifiable?: boolean;
@@ -125,7 +129,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
   { fallback: Common.Components.ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
-    ({ app, resource, id, beforeSubmit, afterSubmit, extraActions, notModifiable, notDeletable, children }) => {
+    ({ app, resource, id, hidingFields, context, onClose, beforeSubmit, afterSubmit, extraActions, notModifiable, notDeletable, children }) => {
       const navigate = useNavigate();
       const formRef = React.useRef<Form<Record<string, string>, RJSFSchema, { [k in string]: unknown }> | null>(null);
       const [editorState, setEditorState] = React.useState<InnerAdminEditorStateType>({
@@ -136,11 +140,8 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const { data: schemaInfo } = Common.Hooks.BackendAdminAPI.useSchemaQuery(backendAdminClient, app, resource);
 
       const setTab = (_: React.SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
-      const setFormDataState = (newFormData?: Record<string, string>) =>
-        setEditorState((ps) => {
-          const formData = newFormData ? { ...ps.formData, ...newFormData } : ps.formData;
-          return { ...ps, formData };
-        });
+      const setFormData = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));
+      const appendFormDataState = (data?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData: { ...ps.formData, ...data } }));
       const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
       const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
 
@@ -152,14 +153,15 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       React.useEffect(() => {
         (async () => {
           if (!id) {
-            setFormDataState({});
+            setFormData(context || {});
             return;
           }
 
-          setFormDataState((await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)()) || {});
+          const initialData = await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)();
+          setFormData({ ...initialData, ...context });
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [app, resource, id]);
+      }, [app, resource, id, context]);
 
       const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => formRef.current && formRef.current.submit();
 
@@ -193,6 +195,12 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       };
 
       const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
+
+      if (R.isNonNullish(hidingFields) && R.isObjectType(schemaInfo.schema.properties)) {
+        schemaInfo.schema.properties = Object.entries(schemaInfo.schema.properties || {})
+          .filter(([key]) => !hidingFields.includes(key))
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {} as RJSFSchema);
+      }
 
       const writableSchema = Common.Utils.filterPropertiesByLanguageInJsonSchema(
         Common.Utils.filterWritablePropertiesInJsonSchema(schemaInfo.schema),
@@ -236,7 +244,10 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
 
       return (
         <Box sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
-          <Typography variant="h5">{title}</Typography>
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="h5">{title}</Typography>
+            {onClose && <Box children={<IconButton children={<Close />} />} onClick={onClose} />}
+          </Stack>
           <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
             <Tabs orientation="vertical" value={editorState.tab} onChange={setTab} scrollButtons={false}>
               <Tab wrapped label="한국어" />
@@ -278,7 +289,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
                 liveValidate
                 focusOnFirstError
                 formContext={{ readonlyAsDisabled: true }}
-                onChange={({ formData }) => setFormDataState(formData)}
+                onChange={({ formData }) => appendFormDataState(formData)}
                 onSubmit={onSubmitFunc}
                 disabled={disabled}
                 showErrorList={false}
