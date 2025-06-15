@@ -87,6 +87,12 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.update<T>(client, app, resource, id),
     });
 
+  export const useUpdatePreparedMutation = <T extends { id: string }>(client: BackendAPIClient, app: string, resource: string) =>
+    useMutation({
+      mutationKey: [...MUTATION_KEYS.ADMIN_UPDATE, app, resource, "prepared"],
+      mutationFn: BackendAdminAPIs.updatePrepared<T>(client, app, resource),
+    });
+
   export const useRemoveMutation = (client: BackendAPIClient, app: string, resource: string, id: string) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_REMOVE, app, resource, id],

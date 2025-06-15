@@ -44,6 +44,11 @@ namespace BackendAdminAPIs {
     (data: Omit<T, "id">) =>
       client.patch<T, Omit<T, "id">>(`v1/admin-api/${app}/${resource}/${id}/`, data);
 
+  export const updatePrepared =
+    <T extends { id: string }>(client: BackendAPIClient, app: string, resource: string) =>
+    (data: T) =>
+      client.patch<T, Omit<T, "id">>(`v1/admin-api/${app}/${resource}/${data.id}/`, data);
+
   export const remove = (client: BackendAPIClient, app: string, resource: string, id: string) => () =>
     client.delete<void>(`v1/admin-api/${app}/${resource}/${id}/`);
 
