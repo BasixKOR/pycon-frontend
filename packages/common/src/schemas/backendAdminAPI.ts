@@ -56,6 +56,29 @@ namespace BackendAdminAPISchemas {
     body_en: string | null;
   };
 
+  export type FlattenedSiteMapSchema = {
+    id: string;
+    route_code: string;
+    name_ko: string;
+    name_en: string;
+    order: number;
+    parent_sitemap: string | null;
+    page: string;
+    hide: boolean;
+  };
+
+  export type NestedSiteMapSchema = {
+    id: string;
+    route_code: string;
+    name_ko: string;
+    name_en: string;
+    order: number;
+    parent_sitemap: string | null;
+    page: string;
+    hide: boolean;
+    children: NestedSiteMapSchema[];
+  };
+
   export type PageSectionBulkUpdateSchema = PageSectionSchema | Omit<PageSectionSchema, "id">;
 }
 

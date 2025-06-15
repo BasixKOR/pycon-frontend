@@ -1,60 +1,50 @@
 import * as R from "remeda";
 
-import BackendAPISchemas from "../schemas/backendAPI";
+type GFlatSiteMap = {
+  id: string;
+  route_code: string;
+  order: number;
+  parent_sitemap: string | null;
+  page: string;
+  hide: boolean;
+};
+type GNestedSiteMap<T = GFlatSiteMap> = T & { children: GNestedSiteMap<T>[] };
+type MultiRootGNestedSiteMap<T = GFlatSiteMap> = { [key: string]: GNestedSiteMap<T> };
 
-export const buildNestedSiteMap: (flattened: BackendAPISchemas.FlattenedSiteMapSchema[]) => {
-  [key: string]: BackendAPISchemas.NestedSiteMapSchema;
-} = (flattened) => {
-  const map: Record<string, BackendAPISchemas.NestedSiteMapSchema> = {};
-  const roots: BackendAPISchemas.NestedSiteMapSchema[] = [];
+const _sortChildren = <T extends GFlatSiteMap>(children: GNestedSiteMap<T>[]) => {
+  return children
+    .sort((a, b) => a.order - b.order)
+    .map(<Z extends GNestedSiteMap<T>>(child: Z): Z => ({ ...child, children: _sortChildren(child.children) }));
+};
 
-  const siteMapIdRouteCodeMap = flattened.reduce(
-    (acc, item) => {
-      acc[item.id] = item.route_code;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
+export const buildNestedSiteMap = <T extends GFlatSiteMap>(flat: T[]) => {
+  const roots: GNestedSiteMap<T>[] = [];
+  const flatWithChildren = flat.map((item) => ({ ...item, children: [] as GNestedSiteMap<T>[] }));
+  const map = flatWithChildren.reduce((a, i) => ({ ...a, [i.id]: i }), {} as MultiRootGNestedSiteMap<T>);
 
-  flattened.forEach((item) => {
-    map[item.id] = {
-      ...item,
-      children: {},
-    };
-  });
-
-  flattened.forEach((item) => {
+  flat.forEach((item) => {
     if (item.parent_sitemap) {
-      map[item.parent_sitemap].children[siteMapIdRouteCodeMap[item.id]] = map[item.id];
+      map[item.parent_sitemap].children.push(map[item.id]);
     } else {
       roots.push(map[item.id]);
     }
   });
 
-  return roots.reduce(
-    (acc, item) => {
-      acc[item.route_code] = item;
-      return acc;
-    },
-    {} as Record<string, BackendAPISchemas.NestedSiteMapSchema>
-  );
+  return roots
+    .map((root) => ({ ...root, children: _sortChildren(root.children) }))
+    .reduce((a, i) => ({ ...a, [i.route_code]: i }), {} as MultiRootGNestedSiteMap<T>);
 };
 
-export const findSiteMapUsingRoute = (
-  route: string,
-  siteMapData: BackendAPISchemas.NestedSiteMapSchema
-): BackendAPISchemas.NestedSiteMapSchema | null => {
-  const currentRouteCodes = ["", ...route.split("/").filter((code) => !R.isEmpty(code))];
+export const buildFlatSiteMap = <T extends GNestedSiteMap>(nested: GNestedSiteMap<T>) => {
+  const flat: T[] = [];
 
-  let currentSitemap: BackendAPISchemas.NestedSiteMapSchema | null | undefined = siteMapData.children[currentRouteCodes[0]];
-  if (currentSitemap === undefined) return null;
+  const traverse = (node: GNestedSiteMap<T>) => {
+    flat.push(node);
+    node.children.forEach(traverse);
+  };
 
-  for (const routeCode of currentRouteCodes.slice(1)) {
-    if ((currentSitemap = currentSitemap.children[routeCode] || null) === null) {
-      break;
-    }
-  }
-  return currentSitemap;
+  traverse(nested);
+  return flat;
 };
 
 export const parseCss = (t: unknown): React.CSSProperties => {

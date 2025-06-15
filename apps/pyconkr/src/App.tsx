@@ -25,7 +25,10 @@ export const App: React.FC = () => {
       const currentSiteMapDepth: (BackendAPISchemas.NestedSiteMapSchema | undefined)[] = [siteMapNode];
 
       for (const routeCode of currentRouteCodes.splice(1)) {
-        currentSiteMapDepth.push(currentSiteMapDepth.at(-1)?.children[routeCode]);
+        const childrenMap = currentSiteMapDepth
+          .at(-1)
+          ?.children?.reduce((acc, child) => ({ ...acc, [child.route_code]: child }), {} as Record<string, BackendAPISchemas.NestedSiteMapSchema>);
+        currentSiteMapDepth.push(childrenMap?.[routeCode]);
         if (R.isNullish(currentSiteMapDepth.at(-1))) {
           console.warn(`Route not found in site map: ${routeCode}`);
           break;

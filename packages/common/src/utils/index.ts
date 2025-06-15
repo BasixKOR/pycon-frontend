@@ -1,4 +1,4 @@
-import { buildNestedSiteMap as _buildNestedSiteMap, findSiteMapUsingRoute as _findSiteMapUsingRoute, parseCss as _parseCss } from "./api";
+import { buildFlatSiteMap as _buildFlatSiteMap, buildNestedSiteMap as _buildNestedSiteMap, parseCss as _parseCss } from "./api";
 import { getCookie as _getCookie } from "./cookie";
 import { getFormValue as _getFormValue, isFormValid as _isFormValid } from "./form";
 import {
@@ -9,8 +9,8 @@ import {
 import { isFilledString as _isFilledString, isValidHttpUrl as _isValidHttpUrl, rtrim as _rtrim } from "./string";
 
 namespace Utils {
+  export const buildFlatSiteMap = _buildFlatSiteMap;
   export const buildNestedSiteMap = _buildNestedSiteMap;
-  export const findSiteMapUsingRoute = _findSiteMapUsingRoute;
   export const parseCss = _parseCss;
   export const getCookie = _getCookie;
   export const isFormValid = _isFormValid;

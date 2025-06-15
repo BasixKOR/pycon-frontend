@@ -31,7 +31,7 @@ namespace BackendAPISchemas {
     order: number;
     page: string;
     hide: boolean;
-    children: { [key: string]: NestedSiteMapSchema };
+    children: NestedSiteMapSchema[];
   };
 
   export type SectionSchema = {
