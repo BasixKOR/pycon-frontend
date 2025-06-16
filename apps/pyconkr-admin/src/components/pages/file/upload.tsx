@@ -41,8 +41,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     []
   );
 
-  const onFileSelectButtonClick: React.MouseEventHandler = (event) => {
-    ignoreEvent(event);
+  const onFileSelectButtonClick: React.MouseEventHandler = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     } else {
@@ -99,6 +98,39 @@ const InnerPublicFileUploadPage: React.FC = () => {
     },
     [forceRerender]
   );
+
+  const resetFileSelect = React.useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // 파일 선택 초기화
+      fileInputRef.current.files = null; // 파일 목록 초기화
+      forceRerender();
+    }
+  }, [forceRerender]);
+
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    ignoreEvent(e);
+    setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
+
+    const files = e.target.files;
+    if (!files || files.length === 0) {
+      addSnackbar("파일을 선택하지 않았습니다.", "error");
+      resetFileSelect();
+      return;
+    }
+
+    const file = files[0];
+    if (file.size === 0) {
+      addSnackbar("선택한 파일의 크기가 0입니다.", "error");
+      resetFileSelect();
+      return;
+    } else if (!(file.type.startsWith("image/") || file.type === "application/json")) {
+      addSnackbar("이미지 또는 JSON 파일만 업로드가 가능합니다.", "error");
+      resetFileSelect();
+      return;
+    }
+
+    handleFile(file);
+  };
 
   const onClipboardPaste = React.useCallback(
     (event: DocumentEventMap["paste"]) => {
@@ -167,7 +199,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
       <Typography variant="h5" gutterBottom>
         File &gt; PublicFile &gt; 새 파일 업로드
       </Typography>
-      <Input inputRef={fileInputRef} type="file" name="file" sx={{ display: "none" }} />
+      <Input inputRef={fileInputRef} onChange={onFileSelect} type="file" name="file" sx={{ display: "none" }} />
       <Button variant="outlined" onClick={onFileSelectButtonClick} startIcon={<PermMedia />}>
         파일 선택
       </Button>
