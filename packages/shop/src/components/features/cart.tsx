@@ -4,6 +4,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
@@ -20,6 +21,7 @@ const CartItem: React.FC<
     disabled?: boolean;
   }
 > = ({ language, cartProdRel, disabled, removeItemFromCartFunc, ...props }) => {
+  const { control } = useForm<Record<string, unknown>>();
   const cannotModifyOptionsStr =
     language === "ko"
       ? "상품 옵션을 수정하려면 장바구니에서 상품을 삭제한 후 다시 담아주세요."
@@ -48,6 +50,7 @@ const CartItem: React.FC<
             optionRel={optionRel}
             disabled
             disabledReason={cannotModifyOptionsStr}
+            control={control}
           />
         ))}
       </Stack>

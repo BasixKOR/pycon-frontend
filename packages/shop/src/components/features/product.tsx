@@ -26,6 +26,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
@@ -34,13 +35,7 @@ import ShopSchemas from "../../schemas";
 import ShopUtils from "../../utils";
 import CommonComponents from "../common";
 
-const getCartAppendRequestPayload = (
-  product: ShopSchemas.Product,
-  formRef: React.RefObject<HTMLFormElement | null>
-): ShopSchemas.CartItemAppendRequest | null => {
-  if (!Common.Utils.isFormValid(formRef.current)) return null;
-
-  const formValue = Common.Utils.getFormValue<{ [key: string]: string }>({ form: formRef.current });
+const getCartAppendRequestPayload = (product: ShopSchemas.Product, formValue: { [key: string]: string }): ShopSchemas.CartItemAppendRequest => {
   let donation_price = formValue.donation_price ? parseInt(formValue.donation_price) : 0;
   if (isNaN(donation_price)) donation_price = 0;
 
@@ -101,14 +96,21 @@ type ProductItemPropType = {
 const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
   const navigate = useNavigate();
   const [, forceRender] = React.useReducer((x) => x + 1, 0);
-  const [donationPrice, setDonationPrice] = React.useState<string>(product.donation_min_price?.toString() || "0");
   const [helperText, setHelperText] = React.useState<string | undefined>(undefined);
-  const donationInputRef = React.useRef<HTMLInputElement>(null);
-  const optionFormRef = React.useRef<HTMLFormElement>(null);
+  const { handleSubmit, subscribe, control, getValues, register, formState } = useForm<Record<string, string>>({ mode: "all" });
   const shopAPIClient = ShopHooks.useShopClient();
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
+
+  React.useEffect(() => {
+    const callback = subscribe({
+      formState: { values: true },
+      callback: forceRender,
+    });
+
+    return () => callback();
+  }, [subscribe]);
 
   const requiresSignInStr =
     language === "ko" ? "로그인 후 장바구니에 담거나 구매할 수 있어요." : "You need to sign in to add items to the cart or make a purchase.";
@@ -121,6 +123,14 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       ? "장바구니에 상품을 담는 중 문제가 발생했어요,\n잠시 후 다시 시도해주세요."
       : "An error occurred while adding the product to the cart,\nplease try again later.";
   const gotoCartPageStr = language === "ko" ? "장바구니로 이동" : "Go to Cart";
+  const cannotAddToCartZeroPriceProductStr =
+    language === "ko"
+      ? "상품 가격이 0원 이하입니다. 상품을 장바구니에 담을 수 없습니다."
+      : "The product price is 0 or less. You cannot add this product to the cart.";
+  const cannotPurchaseZeroPriceProductStr =
+    language === "ko"
+      ? "상품 가격이 0원 이하입니다. 상품을 구매할 수 없습니다."
+      : "The product price is 0 or less. You cannot purchase this product.";
   const donationLabelStr = language === "ko" ? "추가 기부 금액" : "Additional Donation Amount";
   const thankYouForDonationStr =
     language === "ko"
@@ -150,45 +160,60 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       </>
     );
 
-  const formOnSubmit: React.FormEventHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
   const disabled = rootDisabled || addItemToCartMutation.isPending;
 
   const notPurchasableReason = getProductNotPurchasableReason(language, product);
-  const actionButtonProps: ButtonProps = { variant: "contained", color: "secondary", disabled: disabled || R.isString(helperText) };
+  const actionButtonProps: ButtonProps = {
+    variant: "contained",
+    color: "secondary",
+    disabled: disabled || R.isString(helperText) || !formState.isValid,
+  };
 
   const validateDonationPrice: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-    const value = e.target.value.trim().replace(/e/i, "") || "0";
-    const originalValue = donationPrice;
+    const value = e.target.value || "0";
 
-    if (!/^[0-9]+$/.test(value)) {
+    if (!/^[0-9]*$/.test(value)) {
       setHelperText(errDonationPriceIsNotNumberStr);
-      setDonationPrice(originalValue);
       return;
     }
 
     const parsedValue = parseInt(value);
     if (parsedValue < (product.donation_min_price || 0) || parsedValue > (product.donation_max_price || 0)) {
       setHelperText(errDonationPriceShouldBetweenMinAndMaxStr);
-      setDonationPrice(parsedValue.toString());
       return;
     }
     setHelperText(undefined);
-    setDonationPrice(parsedValue.toString());
-    forceRender();
   };
-  const onEnterPressedOnDonationInput: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-      validateDonationPrice(e as unknown as React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>);
+  const getTotalProductPrice = (formData: Record<string, unknown>): number => {
+    let totalPrice = product.price;
+
+    totalPrice += product.option_groups
+      .filter((optionRel) => !optionRel.is_custom_response)
+      .reduce((sum, group) => {
+        const selectedOption = group.options.find((o) => o.id === formData[group.id]);
+        return sum + (selectedOption?.additional_price || 0);
+      }, 0);
+
+    if (product.donation_allowed) {
+      const donation_price = parseInt(formData.donation_price as string) || 0;
+      if (!isNaN(donation_price)) totalPrice += donation_price;
     }
+    return totalPrice;
   };
+
+  const { ref: donationPriceRef, ...donationPriceInputProps } = register("donation_price", {
+    onBlur: validateDonationPrice,
+    pattern: /^[0-9]+$/,
+    min: product.donation_min_price || 0,
+    max: product.donation_max_price || 0,
+  });
+
   const addItemToCart = () => {
-    const formData = getCartAppendRequestPayload(product, optionFormRef);
-    if (!formData) return;
+    const formData = getCartAppendRequestPayload(product, getValues());
+    if (getTotalProductPrice(getValues()) <= 0) {
+      alert(cannotAddToCartZeroPriceProductStr);
+      return;
+    }
 
     addItemToCartMutation.mutate(formData, {
       onSuccess: () => {
@@ -212,19 +237,13 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
     });
   };
   const onOrderOneItemButtonClick = () => {
-    const formData = getCartAppendRequestPayload(product, optionFormRef);
-    if (!formData) return;
+    const formData = getCartAppendRequestPayload(product, getValues());
+    if (getTotalProductPrice(getValues()) <= 0) {
+      alert(cannotPurchaseZeroPriceProductStr);
+      return;
+    }
 
     startPurchaseProcess(formData);
-  };
-
-  const getTotalProductPrice = (): number => {
-    let totalPrice = product.price;
-    if (product.donation_allowed) {
-      const donation_price = parseInt(donationPrice);
-      if (!isNaN(donation_price)) totalPrice += donation_price;
-    }
-    return totalPrice;
   };
 
   return (
@@ -235,7 +254,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       {R.isNullish(notPurchasableReason) ? (
         <>
           <br />
-          <form ref={optionFormRef} onSubmit={formOnSubmit}>
+          <form onSubmit={handleSubmit(() => {})}>
             <Stack spacing={2}>
               {product.option_groups.map((group) => (
                 <CommonComponents.OptionGroupInput
@@ -244,6 +263,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
                   options={group.options}
                   defaultValue={group.options[0]?.id || ""}
                   disabled={disabled}
+                  control={control}
                 />
               ))}
               {product.donation_allowed && (
@@ -261,31 +281,14 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 1 }} children={possibleDonationAmountStr} />
                   <TextField
+                    inputRef={donationPriceRef}
+                    {...donationPriceInputProps}
                     label={donationLabelStr}
-                    disabled={disabled}
-                    /*
-                    TODO: FIXME: Fis this to use controlled input instead of this shitty uncontrolled input.
-                    This was the worst way to handle the donation price input validation...
-                    Whatever reason, this stupid input unfocus when user types any character,
-                    so I had to use a uncontrolled input to prevent this issue, and handle the validation manually on onBlur and onKeyDown events.
-                    I really hate this.
-                    */
-                    defaultValue={donationPrice}
-                    onBlur={validateDonationPrice}
-                    onKeyDown={onEnterPressedOnDonationInput}
-                    type="number"
-                    name="donation_price"
+                    defaultValue={product.donation_min_price || 0}
                     fullWidth
+                    type="number"
+                    error={!!helperText}
                     helperText={helperText}
-                    error={R.isString(helperText)}
-                    inputRef={donationInputRef}
-                    slotProps={{
-                      htmlInput: {
-                        min: product.donation_min_price,
-                        max: product.donation_max_price,
-                        pattern: new RegExp(/^[0-9]+$/, "i").source,
-                      },
-                    }}
                   />
                 </>
               )}
@@ -295,7 +298,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
           </form>
           <br />
           <Typography variant="h6" sx={{ textAlign: "right" }}>
-            {orderPriceStr}: <CommonComponents.PriceDisplay price={getTotalProductPrice()} />
+            {orderPriceStr}: <CommonComponents.PriceDisplay price={getTotalProductPrice(getValues())} />
           </Typography>
         </>
       ) : (

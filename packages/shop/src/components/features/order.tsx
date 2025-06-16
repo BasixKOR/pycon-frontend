@@ -15,6 +15,7 @@ import {
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
+import { useForm } from "react-hook-form";
 import * as R from "remeda";
 
 import ShopHooks from "../../hooks";
@@ -58,7 +59,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   optionsOfOneItemInOrderPatchMutation,
   ...props
 }) => {
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const { control, handleSubmit, getValues } = useForm<Record<string, string>>();
   const currentCustomOptionValues: { [k: string]: string } = prodRel.options
     .filter((optionRel) => ShopUtils.isOrderProductOptionModifiable(optionRel))
     .reduce(
@@ -73,7 +74,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const hasPatchableOption = Object.entries(currentCustomOptionValues).length > 0;
-  const patchOptionBtnDisabled = isPending || !hasPatchableOption;
+  const patchOptionBtnDisabled = isPending || !hasPatchableOption || order.current_status === "refunded";
 
   const refundOneProductStr = language === "ko" ? "단일 상품 환불" : "Refund one item";
   const refundedStr = language === "ko" ? "환불됨" : "Refunded";
@@ -105,9 +106,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       }
     );
   const patchOneItemOptions = () => {
-    if (!Common.Utils.isFormValid(formRef.current)) throw new Error("Form is not valid");
-
-    const formValues = Common.Utils.getFormValue<{ [key: string]: string }>({ form: formRef.current });
+    const formValues = getValues();
     const modifiedCustomOptionValues: ShopSchemas.OrderOptionsPatchRequest["options"] = Object.entries(formValues)
       .map(([key, value]) => {
         // 여기서 key는 order_product_option_relation의 id가 아니라 product_option_group의 id이므로, order_product_option_relation의 id로 변경해야 함
@@ -152,19 +151,14 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       summary={<Typography variant="h6">{prodRel.product.name}</Typography>}
       actions={actionButtons}
     >
-      <form
-        ref={formRef}
-        onSubmit={(e) => {
-          e.preventDefault();
-          patchOneItemOptions();
-        }}
-      >
+      <form onSubmit={handleSubmit(() => {})}>
         <Stack spacing={2} sx={{ width: "100%" }}>
           {prodRel.options.map((optionRel) => (
             <CommonComponents.OrderProductRelationOptionInput
               key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
               optionRel={optionRel}
               disabled={isPending}
+              control={control}
             />
           ))}
         </Stack>

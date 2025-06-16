@@ -1,6 +1,7 @@
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
+import { Control, Controller, FieldValues } from "react-hook-form";
 import * as R from "remeda";
 
 import { PriceDisplay } from "./price_display";
@@ -33,7 +34,8 @@ const SelectableOptionGroupInput: React.FC<{
   defaultValue?: string;
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason }) => {
+  control: Control<FieldValues, unknown, FieldValues>;
+}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason, control }) => {
   const optionElements = options.map((option) => {
     const isOptionOutOfStock = R.isNumber(option.leftover_stock) && option.leftover_stock <= 0;
 
@@ -54,9 +56,14 @@ const SelectableOptionGroupInput: React.FC<{
   const selectElement = (
     <FormControl fullWidth>
       <InputLabel id={`${optionGroup.id}label`}>{optionGroup.name}</InputLabel>
-      <Select label={`${optionGroup.id}label`} name={optionGroup.id} defaultValue={defaultValue} disabled={disabled} required>
-        {optionElements}
-      </Select>
+      <Controller
+        control={control}
+        name={optionGroup.id}
+        rules={{ required: true }}
+        disabled={disabled}
+        defaultValue={defaultValue || ""}
+        render={({ field }) => <Select label={`${optionGroup.id}label`} {...field} children={optionElements} />}
+      />
     </FormControl>
   );
 
@@ -68,17 +75,19 @@ const CustomResponseOptionGroupInput: React.FC<{
   defaultValue?: string;
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ optionGroup, defaultValue, disabled, disabledReason }) => {
-  const pattern = ShopAPIUtil.getCustomResponsePattern(optionGroup)?.source;
-
+  control: Control<FieldValues, unknown, FieldValues>;
+}> = ({ optionGroup, defaultValue, disabled, disabledReason, control }) => {
   const textFieldElement = (
-    <TextField
-      label={optionGroup.name}
+    <Controller
+      control={control}
       name={optionGroup.id}
-      required
-      defaultValue={defaultValue}
+      rules={{ pattern: ShopAPIUtil.getCustomResponsePattern(optionGroup), required: true }}
       disabled={disabled}
-      slotProps={{ htmlInput: { pattern } }}
+      defaultValue={defaultValue || ""}
+      render={({ field, formState: { errors } }) => {
+        const errorMessage: string | undefined = errors?.[optionGroup.id]?.message?.toString();
+        return <TextField label={optionGroup.name} {...field} error={!!errors[optionGroup.id]} helperText={errorMessage} />;
+      }}
     />
   );
 
@@ -93,9 +102,17 @@ export const OptionGroupInput: React.FC<{
   defaultValue?: string;
   disabled?: boolean;
   disabledReason?: string;
-}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason }) =>
+
+  control: Control<FieldValues, unknown, FieldValues>;
+}> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason, control }) =>
   optionGroup.is_custom_response ? (
-    <CustomResponseOptionGroupInput optionGroup={optionGroup} defaultValue={defaultValue} disabled={disabled} disabledReason={disabledReason} />
+    <CustomResponseOptionGroupInput
+      optionGroup={optionGroup}
+      defaultValue={defaultValue}
+      disabled={disabled}
+      disabledReason={disabledReason}
+      control={control}
+    />
   ) : (
     <SelectableOptionGroupInput
       language={language || "ko"}
@@ -104,6 +121,7 @@ export const OptionGroupInput: React.FC<{
       defaultValue={defaultValue}
       disabled={disabled}
       disabledReason={disabledReason}
+      control={control}
     />
   );
 
@@ -111,7 +129,8 @@ export const OrderProductRelationOptionInput: React.FC<{
   optionRel: ShopSchemas.OrderProductItem["options"][number];
   disabled?: boolean;
   disabledReason?: string;
-}> = Suspense.with({ fallback: <CircularProgress /> }, ({ optionRel, disabled, disabledReason }) => {
+  control: Control<FieldValues, unknown, FieldValues>;
+}> = Suspense.with({ fallback: <CircularProgress /> }, ({ optionRel, disabled, disabledReason, control }) => {
   const { language } = ShopHooks.useShopContext();
   let defaultValue: string | null = null;
   let guessedDisabledReason: string | undefined = undefined;
@@ -147,6 +166,7 @@ export const OrderProductRelationOptionInput: React.FC<{
       defaultValue={defaultValue || undefined}
       disabled={disabled || !ShopAPIUtil.isOrderProductOptionModifiable(optionRel)}
       disabledReason={disabledReason || guessedDisabledReason}
+      control={control}
     />
   );
 });
