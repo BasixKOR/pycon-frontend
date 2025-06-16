@@ -409,6 +409,7 @@ const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, produc
 type ProductListStateType = {
   openDialog: boolean;
   openBackdrop: boolean;
+  resetKey: string;
   product?: ShopSchemas.Product;
   oneItemOrderData?: ShopSchemas.CartItemAppendRequest;
 };
@@ -425,13 +426,18 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
     const [state, setState] = React.useState<ProductListStateType>({
       openDialog: false,
       openBackdrop: false,
+      resetKey: Math.random().toString(36).substring(2),
     });
 
+    const foldAll = () => setState((ps) => ({ ...ps, resetKey: Math.random().toString(36).substring(2) }));
     const openDialog = () => setState((ps) => ({ ...ps, openDialog: true }));
     const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
     const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
     const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
     const setProductDataAndOpenDialog = (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => {
+      // 부모 리렌더링에 따른 form 상태 초기화를 숨기기 위해 accordion을 닫습니다.
+      // TODO: FIXME: form 상태가 애초에 초기화되면 안됩니다. form 내부 값을 초기화되지 않도록 막고, 접히지 않도록 하세요.
+      foldAll();
       setState((ps) => ({ ...ps, oneItemOrderData }));
       openDialog();
     };
@@ -470,7 +476,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
     return (
       <>
         <CommonComponents.CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
-        <Common.Components.MDX.OneDetailsOpener>
+        <Common.Components.MDX.OneDetailsOpener resetKey={state.resetKey}>
           {data.map((p) => (
             <FoldableProductItem
               disabled={oneItemOrderStartMutation.isPending}
