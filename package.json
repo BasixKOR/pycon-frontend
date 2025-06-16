@@ -49,6 +49,7 @@
     "react": "^19.1.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.58.0",
     "react-lottie": "^1.2.10",
     "react-router-dom": "^7.6.0",
     "react-sortablejs": "^6.1.4",
