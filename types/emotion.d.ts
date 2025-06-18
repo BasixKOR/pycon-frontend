@@ -16,6 +16,46 @@ declare module "@mui/material/styles" {
         activeLanguage: string;
       };
     };
+    mobileNavigation: {
+      main: {
+        background: string;
+        text: string;
+        chip: {
+          background: string;
+          hover: string;
+        };
+        divider: string;
+        languageToggle: {
+          background: string;
+          active: {
+            background: string;
+            hover: string;
+          };
+          inactive: {
+            hover: string;
+          };
+        };
+      };
+      sub: {
+        background: string;
+        text: string;
+        chip: {
+          background: string;
+          hover: string;
+        };
+        divider: string;
+        languageToggle: {
+          background: string;
+          active: {
+            background: string;
+            hover: string;
+          };
+          inactive: {
+            hover: string;
+          };
+        };
+      };
+    };
   }
 
   interface PaletteOptions {
@@ -30,6 +70,46 @@ declare module "@mui/material/styles" {
         background: string;
         text: string;
         activeLanguage: string;
+      };
+    };
+    mobileNavigation?: {
+      main: {
+        background: string;
+        text: string;
+        chip: {
+          background: string;
+          hover: string;
+        };
+        divider: string;
+        languageToggle: {
+          background: string;
+          active: {
+            background: string;
+            hover: string;
+          };
+          inactive: {
+            hover: string;
+          };
+        };
+      };
+      sub: {
+        background: string;
+        text: string;
+        chip: {
+          background: string;
+          hover: string;
+        };
+        divider: string;
+        languageToggle: {
+          background: string;
+          active: {
+            background: string;
+            hover: string;
+          };
+          inactive: {
+            hover: string;
+          };
+        };
       };
     };
   }

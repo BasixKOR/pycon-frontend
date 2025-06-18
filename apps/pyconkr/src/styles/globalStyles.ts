@@ -36,6 +36,47 @@ export const muiTheme = createTheme({
         activeLanguage: "#126D7F",
       },
     },
+    mobileNavigation: {
+      main: {
+        background:
+          "linear-gradient(0deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15))",
+        text: "#FFFFFF",
+        chip: {
+          background: "rgba(212, 212, 212, 0.5)",
+          hover: "rgba(212, 212, 212, 0.7)",
+        },
+        divider: "rgba(255, 255, 255, 0.3)",
+        languageToggle: {
+          background: "transparent",
+          active: {
+            background: "rgba(255, 255, 255, 0.7)",
+            hover: "rgba(255, 255, 255, 0.8)",
+          },
+          inactive: {
+            hover: "rgba(255, 255, 255, 0.1)",
+          },
+        },
+      },
+      sub: {
+        background: "#B6D8D7",
+        text: "rgba(18, 109, 127, 0.9)",
+        chip: {
+          background: "rgba(18, 109, 127, 0.2)",
+          hover: "rgba(18, 109, 127, 0.3)",
+        },
+        divider: "rgba(18, 109, 127, 0.3)",
+        languageToggle: {
+          background: "rgba(255, 255, 255, 0.1)",
+          active: {
+            background: "rgba(255, 255, 255, 0.9)",
+            hover: "rgba(255, 255, 255, 1)",
+          },
+          inactive: {
+            hover: "rgba(255, 255, 255, 0.3)",
+          },
+        },
+      },
+    },
     text: {
       primary: "#000000",
       secondary: "#666666",

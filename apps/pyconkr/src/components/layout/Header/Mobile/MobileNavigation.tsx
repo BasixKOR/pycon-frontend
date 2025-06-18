@@ -200,16 +200,13 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   );
 };
 
-const StyledDrawer = styled(Drawer)<{ isMainPath?: boolean }>(({ isMainPath = true }) => ({
+const StyledDrawer = styled(Drawer)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
   "& .MuiDrawer-paper": {
     width: "70vw",
-    background: isMainPath
-      ? `linear-gradient(0deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
-         linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15))`
-      : "#B6D8D7",
+    background: isMainPath ? theme.palette.mobileNavigation.main.background : theme.palette.mobileNavigation.sub.background,
     backdropFilter: isMainPath ? "blur(10px)" : "none",
     WebkitBackdropFilter: isMainPath ? "blur(10px)" : "none",
-    color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+    color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
     borderTopRightRadius: 15,
     borderBottomRightRadius: 15,
   },
@@ -246,31 +243,31 @@ const MenuItem = styled(Box)<{ isMainPath?: boolean }>({
   gap: 23,
 });
 
-const MenuLink = styled(Link)<{ isMainPath?: boolean }>(({ isMainPath = true }) => ({
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+const MenuLink = styled(Link)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
   textDecoration: "none",
   fontSize: "20px",
   fontWeight: 600,
 }));
 
-const MenuArrowButton = styled(IconButton)<{ isMainPath?: boolean }>(({ isMainPath = true }) => ({
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+const MenuArrowButton = styled(IconButton)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
   padding: 8,
 }));
 
-const BackButton = styled(Button)<{ isMainPath?: boolean }>(({ isMainPath = true }) => ({
+const BackButton = styled(Button)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
   display: "flex",
   alignItems: "center",
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
   textTransform: "none",
   padding: "0 15px 0 0",
   minWidth: "auto",
   minHeight: "auto",
 }));
 
-const MenuChip = styled(Chip)<{ isMainPath?: boolean }>(({ isMainPath = true }) => ({
-  backgroundColor: isMainPath ? "rgba(212, 212, 212, 0.5)" : "rgba(18, 109, 127, 0.2)",
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+const MenuChip = styled(Chip)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
+  backgroundColor: isMainPath ? theme.palette.mobileNavigation.main.chip.background : theme.palette.mobileNavigation.sub.chip.background,
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
   height: 40,
   borderRadius: 15,
   padding: "10px 13px",
@@ -282,7 +279,7 @@ const MenuChip = styled(Chip)<{ isMainPath?: boolean }>(({ isMainPath = true }) 
   },
 
   "&:hover": {
-    backgroundColor: isMainPath ? "rgba(212, 212, 212, 0.7)" : "rgba(18, 109, 127, 0.3)",
+    backgroundColor: isMainPath ? theme.palette.mobileNavigation.main.chip.hover : theme.palette.mobileNavigation.sub.chip.hover,
   },
 }));
 
@@ -314,15 +311,15 @@ const Depth2Header = styled(Box)<{ isMainPath: boolean }>({
   marginBottom: 10,
 });
 
-const Depth2Title = styled(Typography)<{ isMainPath: boolean }>(({ isMainPath }) => ({
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.9)",
+const Depth2Title = styled(Typography)<{ isMainPath: boolean }>(({ theme, isMainPath }) => ({
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
   fontSize: 20,
   fontWeight: 800,
 }));
 
-const Depth2Divider = styled(Box)<{ isMainPath: boolean }>(({ isMainPath }) => ({
+const Depth2Divider = styled(Box)<{ isMainPath: boolean }>(({ theme, isMainPath }) => ({
   height: 1,
-  backgroundColor: isMainPath ? "rgba(255, 255, 255, 0.3)" : "rgba(18, 109, 127, 0.3)",
+  backgroundColor: isMainPath ? theme.palette.mobileNavigation.main.divider : theme.palette.mobileNavigation.sub.divider,
   marginBottom: 21,
 }));
 

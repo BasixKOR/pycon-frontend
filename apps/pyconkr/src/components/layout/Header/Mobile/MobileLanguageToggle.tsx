@@ -27,7 +27,7 @@ export const MobileLanguageToggle: React.FC<MobileLanguageToggleProps> = ({ isMa
   );
 };
 
-const ToggleContainer = styled("div")<{ isMainPath: boolean }>(({ isMainPath }) => ({
+const ToggleContainer = styled("div")<{ isMainPath: boolean }>(({ theme, isMainPath }) => ({
   display: "flex",
   width: 94,
   height: 29,
@@ -35,10 +35,12 @@ const ToggleContainer = styled("div")<{ isMainPath: boolean }>(({ isMainPath }) 
   borderRadius: 15,
   padding: 2,
   gap: 2,
-  backgroundColor: isMainPath ? "transparent" : "rgba(255, 255, 255, 0.1)",
+  backgroundColor: isMainPath
+    ? theme.palette.mobileNavigation.main.languageToggle.background
+    : theme.palette.mobileNavigation.sub.languageToggle.background,
 }));
 
-const LanguageButton = styled(ButtonBase)<{ isActive: boolean; isMainPath: boolean }>(({ isActive, isMainPath }) => ({
+const LanguageButton = styled(ButtonBase)<{ isActive: boolean; isMainPath: boolean }>(({ theme, isActive, isMainPath }) => ({
   flex: 1,
   height: "100%",
   borderRadius: 13,
@@ -46,23 +48,25 @@ const LanguageButton = styled(ButtonBase)<{ isActive: boolean; isMainPath: boole
   fontWeight: 400,
   transition: "all 0.2s ease",
 
-  color: isMainPath ? "white" : "rgba(18, 109, 127, 0.6)",
+  color: isMainPath ? theme.palette.mobileHeader.main.text : theme.palette.mobileHeader.sub.text,
   backgroundColor: "transparent",
 
   ...(isActive && {
-    backgroundColor: isMainPath ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.9)",
-    color: isMainPath ? "#888888" : "#126D7F",
+    backgroundColor: isMainPath
+      ? theme.palette.mobileNavigation.main.languageToggle.active.background
+      : theme.palette.mobileNavigation.sub.languageToggle.active.background,
+    color: isMainPath ? theme.palette.mobileHeader.main.activeLanguage : theme.palette.mobileHeader.sub.activeLanguage,
     fontWeight: 600,
   }),
 
   "&:hover": {
     backgroundColor: isActive
       ? isMainPath
-        ? "rgba(255, 255, 255, 0.8)"
-        : "rgba(255, 255, 255, 1)"
+        ? theme.palette.mobileNavigation.main.languageToggle.active.hover
+        : theme.palette.mobileNavigation.sub.languageToggle.active.hover
       : isMainPath
-        ? "rgba(255, 255, 255, 0.1)"
-        : "rgba(255, 255, 255, 0.3)",
+        ? theme.palette.mobileNavigation.main.languageToggle.inactive.hover
+        : theme.palette.mobileNavigation.sub.languageToggle.inactive.hover,
   },
 
   WebkitFontSmoothing: "antialiased",
