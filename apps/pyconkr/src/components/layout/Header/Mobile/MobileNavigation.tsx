@@ -192,7 +192,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
         <BottomActions isMainPath={isMainPath}>
           <Stack direction="row" alignItems="center" spacing={6.25}>
             <MobileLanguageToggle isMainPath={isMainPath} />
-            <SignInButton isMobile={true} isMainPath={isMainPath} />
+            <SignInButton isMobile={true} isMainPath={isMainPath} onClose={handleClose} />
           </Stack>
         </BottomActions>
       </DrawerContent>

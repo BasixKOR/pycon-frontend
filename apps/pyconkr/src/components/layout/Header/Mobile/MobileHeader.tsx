@@ -56,7 +56,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = f
 };
 
 const MobileHeaderContainer = styled("header")<{ isOpen: boolean; isMainPath: boolean }>(({ theme, isOpen, isMainPath }) => ({
-  position: "fixed",
+  position: isMainPath ? "fixed" : "sticky",
   top: 0,
   left: 0,
   right: 0,
@@ -71,11 +71,11 @@ const MobileHeaderContainer = styled("header")<{ isOpen: boolean; isMainPath: bo
   padding: "15px 23px",
 
   backgroundColor: isMainPath ? "rgba(182, 216, 215, 0.1)" : "#B6D8D7",
-  backdropFilter: "blur(8px)",
-  WebkitBackdropFilter: "blur(8px)",
+  backdropFilter: isMainPath ? "blur(8px)" : "none",
+  WebkitBackdropFilter: isMainPath ? "blur(8px)" : "none",
   color: isMainPath ? "white" : "rgba(18, 109, 127, 0.6)",
 
-  zIndex: theme.zIndex.appBar + 100000,
+  zIndex: isMainPath ? theme.zIndex.appBar + 100000 : theme.zIndex.appBar,
 }));
 
 const LeftContent = styled(Box)({
