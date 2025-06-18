@@ -14,7 +14,7 @@ interface MobileHeaderProps {
 }
 
 export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = false, onToggleNavigation }) => {
-  const { siteMapNode, language } = useAppContext();
+  const { siteMapNode } = useAppContext();
   const location = useLocation();
   const [internalNavigationOpen, setInternalNavigationOpen] = React.useState(false);
 
@@ -22,11 +22,6 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = f
   const toggleNavigation = onToggleNavigation || (() => setInternalNavigationOpen(!internalNavigationOpen));
 
   const isMainPath = location.pathname === "/";
-
-  const handleLanguageChange = (newLanguage: string) => {
-    // TODO: 언어 변경 로직 구현
-    console.log("Language changed to:", newLanguage);
-  };
 
   return (
     <>
@@ -52,7 +47,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = f
           </LogoAndTextContainer>
         </LeftContent>
 
-        <MobileLanguageToggle currentLanguage={language} onLanguageChange={handleLanguageChange} isMainPath={isMainPath} />
+        <MobileLanguageToggle isMainPath={isMainPath} />
       </MobileHeaderContainer>
 
       <MobileNavigation isOpen={navigationOpen} onClose={() => toggleNavigation()} siteMapNode={siteMapNode} />

@@ -1,19 +1,26 @@
 import { ButtonBase, styled } from "@mui/material";
 import * as React from "react";
 
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "../../../../consts/local_stroage";
+import { useAppContext } from "../../../../contexts/app_context";
+
 interface MobileLanguageToggleProps {
-  currentLanguage: string;
-  onLanguageChange: (newLanguage: string) => void;
   isMainPath?: boolean;
 }
 
-export const MobileLanguageToggle: React.FC<MobileLanguageToggleProps> = ({ currentLanguage, onLanguageChange, isMainPath = true }) => {
+export const MobileLanguageToggle: React.FC<MobileLanguageToggleProps> = ({ isMainPath = true }) => {
+  const { language, setAppContext } = useAppContext();
+
+  const handleLanguageChange = (newLanguage: "ko" | "en") => {
+    localStorage.setItem(LOCAL_STORAGE_LANGUAGE_KEY, newLanguage);
+    setAppContext((ps) => ({ ...ps, language: newLanguage }));
+  };
   return (
     <ToggleContainer isMainPath={isMainPath}>
-      <LanguageButton isActive={currentLanguage === "ko"} isMainPath={isMainPath} onClick={() => onLanguageChange("ko")}>
+      <LanguageButton isActive={language === "ko"} isMainPath={isMainPath} onClick={() => handleLanguageChange("ko")}>
         KO
       </LanguageButton>
-      <LanguageButton isActive={currentLanguage === "en"} isMainPath={isMainPath} onClick={() => onLanguageChange("en")}>
+      <LanguageButton isActive={language === "en"} isMainPath={isMainPath} onClick={() => handleLanguageChange("en")}>
         EN
       </LanguageButton>
     </ToggleContainer>

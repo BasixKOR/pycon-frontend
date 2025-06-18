@@ -8,7 +8,6 @@ import * as R from "remeda";
 
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
-import { useAppContext } from "../../../../contexts/app_context";
 import { SignInButton } from "../../SignInButton";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
@@ -29,7 +28,6 @@ interface NavigationState {
 }
 
 export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose, siteMapNode }) => {
-  const { language } = useAppContext();
   const location = useLocation();
   const [navState, setNavState] = React.useState<NavigationState>({
     level: "depth1",
@@ -78,11 +76,6 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   const handleClose = () => {
     onClose();
     resetNavigation();
-  };
-
-  const handleLanguageChange = (newLanguage: string) => {
-    // TODO: 언어 변경 로직 구현
-    console.log("Language changed to:", newLanguage);
   };
 
   const renderDepth1Menu = () => {
@@ -198,7 +191,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
 
         <BottomActions isMainPath={isMainPath}>
           <Stack direction="row" alignItems="center" spacing={6.25}>
-            <MobileLanguageToggle currentLanguage={language} onLanguageChange={handleLanguageChange} isMainPath={isMainPath} />
+            <MobileLanguageToggle isMainPath={isMainPath} />
             <SignInButton isMobile={true} isMainPath={isMainPath} />
           </Stack>
         </BottomActions>
