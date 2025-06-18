@@ -24,6 +24,18 @@ export const muiTheme = createTheme({
       dark: "#C66900",
       contrastText: "#FFFFFF",
     },
+    mobileHeader: {
+      main: {
+        background: "rgba(182, 216, 215, 0.1)",
+        text: "#FFFFFF",
+        activeLanguage: "#888888",
+      },
+      sub: {
+        background: "#B6D8D7",
+        text: "rgba(18, 109, 127, 0.6)",
+        activeLanguage: "#126D7F",
+      },
+    },
     text: {
       primary: "#000000",
       secondary: "#666666",
