@@ -4,8 +4,14 @@ import {
   Box,
   Button,
   ButtonProps,
+  Chip,
   CircularProgress,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  OutlinedSelectProps,
+  Select,
   Stack,
   Tab,
   Table,
@@ -18,10 +24,11 @@ import {
 } from "@mui/material";
 import Form, { IChangeEvent } from "@rjsf/core";
 import MuiForm from "@rjsf/mui";
-import { Field, RJSFSchema, UiSchema } from "@rjsf/utils";
+import { Field, FieldProps, RJSFSchema, UiSchema } from "@rjsf/utils";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import AjvDraft04 from "ajv-draft-04";
+import { JSONSchema7 } from "json-schema";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as R from "remeda";
@@ -64,6 +71,75 @@ const FileField: Field = (p) => (
     defaultValue={p.defaultValue}
     onChange={(event) => processFile(event).then(p.onChange)}
   />
+);
+
+type DescriptedEnum = { const: string; title: string };
+type DescriptedEnumObject = Record<string, DescriptedEnum>;
+
+const SelectdChipRenderer: React.FC<{ selectable: DescriptedEnumObject; selected: string[] }> = ({ selectable, selected }) => {
+  const children = selected.map((v) => <Chip key={v} label={selectable[v].title || ""} />);
+  return <Stack sx={{ flexWrap: "wrap" }} direction="row" spacing={0.5} children={children} />;
+};
+
+const fieldPropsToSelectedProps = (props: FieldProps): OutlinedSelectProps & { defaultValue: string[] } => {
+  const {
+    name,
+    formData,
+    autofocus: autoFocus,
+    readonly: readOnly,
+    onFocus: rawOnFocus,
+    onBlur: rawOnBlur,
+    onChange: rawOnChange,
+
+    schema,
+    errorSchema,
+    uiSchema,
+    idSchema,
+    formContext,
+    wasPropertyKeyModified,
+    registry,
+    rawErrors,
+    hideError,
+    idPrefix,
+    idSeparator,
+    color,
+    ...rest
+  } = props;
+  const data = {
+    schema,
+    errorSchema,
+    uiSchema,
+    idSchema,
+    formContext,
+    wasPropertyKeyModified,
+    registry,
+    rawErrors,
+    hideError,
+    idPrefix,
+    idSeparator,
+  };
+  const onFocus = (event: React.FocusEvent<HTMLInputElement>) => rawOnFocus(event.currentTarget.name, event.currentTarget.value);
+  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => rawOnBlur(event.currentTarget.name, event.currentTarget.value);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => rawOnChange(event.target.value, undefined, event.target.name);
+  const sx: OutlinedSelectProps["sx"] = color ? { color, borderColor: color } : {};
+  const defaultValue = (formData ? (R.isArray(formData) ? formData : [formData.toString()]) : []) as string[];
+  return R.addProp({ ...rest, name, label: name, defaultValue, autoFocus, readOnly, onFocus, onBlur, onChange, sx }, "data-rjsf", data);
+};
+
+const M2MSelect: Field = ErrorBoundary.with(
+  { fallback: Common.Components.ErrorFallback },
+  Suspense.with({ fallback: <CircularProgress /> }, (props) => {
+    const selectable = (props.schema.items as JSONSchema7).oneOf as DescriptedEnum[];
+    const selectableListObj: DescriptedEnumObject = selectable.reduce((a, i) => ({ ...a, [i.const]: i }), {} as DescriptedEnumObject);
+    const children = selectable.map((i) => <MenuItem key={i.const} value={i.const} children={i.title || i.const} />);
+    const selectRenderer = (selected: string[]) => <SelectdChipRenderer selectable={selectableListObj} selected={selected} />;
+    return (
+      <FormControl fullWidth>
+        <InputLabel id={`${props.name}-label`} children={props.name} />
+        <Select {...fieldPropsToSelectedProps(props)} children={children} multiple fullWidth renderValue={selectRenderer} />
+      </FormControl>
+    );
+  })
 );
 
 type ReadOnlyValueFieldStateType = {
@@ -293,7 +369,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
                 onSubmit={onSubmitFunc}
                 disabled={disabled}
                 showErrorList={false}
-                fields={{ file: FileField }}
+                fields={{ file: FileField, m2m_select: M2MSelect }}
               />
             </Box>
           </Stack>
