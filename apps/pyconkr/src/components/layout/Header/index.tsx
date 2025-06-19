@@ -1,6 +1,6 @@
 import * as Common from "@frontend/common";
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -11,6 +11,7 @@ import { useAppContext } from "../../../contexts/app_context";
 import { CartBadgeButton } from "../CartBadgeButton";
 import LanguageSelector from "../LanguageSelector";
 import { SignInButton } from "../SignInButton";
+import { MobileHeader } from "./Mobile/MobileHeader";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 type MenuOrUndefinedType = MenuType | undefined;
@@ -26,6 +27,8 @@ const BreadCrumbHeight: React.CSSProperties["height"] = "4.5rem";
 
 const Header: React.FC = () => {
   const { title, language, siteMapNode, currentSiteMapDepth, shouldShowTitleBanner } = useAppContext();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [navState, setNavState] = React.useState<NavigationStateType>({});
 
   const resetDepths = () => setNavState({});
@@ -37,6 +40,10 @@ const Header: React.FC = () => {
   const getDepth3Route = (nextRoute?: string) => getDepth2Route(navState.depth2?.route_code) + `/${nextRoute || ""}`;
 
   React.useEffect(resetDepths, [language]);
+
+  if (isMobile) {
+    return <MobileHeader />;
+  }
 
   let breadCrumbRoute = "";
   let breadCrumbArray = currentSiteMapDepth.slice(1, -1);
