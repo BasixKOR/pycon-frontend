@@ -36,14 +36,15 @@ export const buildNestedSiteMap = <T extends GFlatSiteMap>(flat: T[]) => {
 };
 
 export const buildFlatSiteMap = <T extends GNestedSiteMap>(nested: GNestedSiteMap<T>) => {
-  const flat: T[] = [];
+  const flat: (T & { route: string })[] = [];
 
-  const traverse = (node: GNestedSiteMap<T>) => {
-    flat.push(node);
-    node.children.forEach(traverse);
+  const traverse = (node: GNestedSiteMap<T>, parentRoute: string) => {
+    const route = parentRoute ? `${parentRoute}/${node.route_code}` : node.route_code;
+    flat.push({ ...node, route });
+    node.children.forEach((n: GNestedSiteMap<T>) => traverse(n, route));
   };
 
-  traverse(nested);
+  traverse(nested, "");
   return flat;
 };
 
