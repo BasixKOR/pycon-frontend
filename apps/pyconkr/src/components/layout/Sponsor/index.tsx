@@ -1,5 +1,5 @@
 import * as Common from "@frontend/common";
-import { CircularProgress, Divider, Stack, Typography, styled } from "@mui/material";
+import { CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
@@ -67,21 +67,30 @@ export const Sponsor: React.FC = ErrorBoundary.with(
     const flatSiteMap = Common.Utils.buildFlatSiteMap(siteMapNode);
     const flatSiteMapObj = flatSiteMap.reduce((a, i) => ({ ...a, [i.id]: i }), {} as Record<string, { route: string }>);
 
+    const textProps: TypographyProps = {
+      textAlign: "center",
+      fontWeight: "bold",
+    };
+
     return (
       <SponsorContainer>
         <SponsorSection aria-label="후원사 섹션">
-          <Typography variant="h4" textAlign="center" children="후원사 목록" fontWeight="bold" area-level={4} />
+          <Typography variant="h4" {...textProps} children="후원사 목록" area-level={4} />
           <Stack spacing={4} sx={{ my: 4 }} aria-label="후원사 목록 그리드">
             {sponsorData
               .filter((t) => t.sponsors.length)
               .map((sponsorTier, i, a) => (
                 <Stack spacing={6} key={sponsorTier.id} aria-label={`후원사 티어: ${sponsorTier.name}`}>
-                  <Typography variant="h5" key={sponsorTier.id} textAlign="center" fontWeight="bold" children={sponsorTier.name} area-level={5} />
+                  <Typography variant="h5" key={sponsorTier.id} {...textProps} children={sponsorTier.name} area-level={5} />
                   <SponsorStack>
                     {sponsorTier.sponsors.map((sponsor) => {
+                      const sponsorName = sponsor.name.replace(/\\n/g, "\n");
+                      const sponsorNameContent = <Typography variant="body1" {...textProps} children={sponsorName} sx={{ whiteSpace: "pre-wrap" }} />;
                       const sponsorImg = (
                         <LogoImageContainer>
-                          <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
+                          <Tooltip title={sponsorNameContent} arrow placement="top">
+                            <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
+                          </Tooltip>
                         </LogoImageContainer>
                       );
                       return sponsor.sitemap_id ? <Link to={flatSiteMapObj[sponsor.sitemap_id].route} children={sponsorImg} /> : sponsorImg;
