@@ -31,6 +31,7 @@ namespace BackendAPISchemas {
     order: number;
     page: string;
     hide: boolean;
+    parent_sitemap: string | null;
     children: NestedSiteMapSchema[];
   };
 
@@ -52,6 +53,18 @@ namespace BackendAPISchemas {
     show_bottom_sponsor_banner: boolean;
 
     sections: SectionSchema[];
+  };
+
+  export type SponsorSchema = {
+    id: string;
+    name: string;
+    order: number;
+    sponsors: {
+      id: string;
+      name: string;
+      logo: string;
+      sitemap_id: string | null;
+    }[];
   };
 
   export const isObjectErrorResponseSchema = (obj?: unknown): obj is BackendAPISchemas.ErrorResponseSchema => {

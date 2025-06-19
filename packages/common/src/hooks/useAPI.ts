@@ -33,6 +33,12 @@ namespace BackendAPIHooks {
       queryKey: [client.language, ...QUERY_KEYS.PAGE, id],
       queryFn: () => BackendAPIs.retrievePage(client)(id),
     });
+
+  export const useSponsorQuery = (client: BackendAPIClient) =>
+    useSuspenseQuery({
+      queryKey: [client.language, "sponsor", "list"],
+      queryFn: BackendAPIs.listSponsors(client),
+    });
 }
 
 export default BackendAPIHooks;
