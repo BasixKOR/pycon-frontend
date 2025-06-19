@@ -36,13 +36,13 @@ namespace ShopHooks {
   };
 
   export const useShopClient = () => {
-    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout } = useShopContext();
-    return new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout);
+    const { shopApiDomain, shopApiCSRFCookieName, shopApiTimeout, language } = useShopContext();
+    return new ShopAPIClient(shopApiDomain, shopApiCSRFCookieName, shopApiTimeout, language);
   };
 
   export const useUserStatus = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: QUERY_KEYS.USER,
+      queryKey: [client.language, ...QUERY_KEYS.USER],
       queryFn: ShopAPIs.retrieveUserInfo(client),
       retry: 3,
     });
@@ -71,13 +71,13 @@ namespace ShopHooks {
 
   export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.PRODUCT_LIST, qs ? JSON.stringify(qs) : ""],
+      queryKey: [client.language, ...QUERY_KEYS.PRODUCT_LIST, qs ? JSON.stringify(qs) : ""],
       queryFn: () => ShopAPIs.listProducts(client)(qs),
     });
 
   export const useCart = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: QUERY_KEYS.CART_INFO,
+      queryKey: [client.language, ...QUERY_KEYS.CART_INFO],
       queryFn: ShopAPIs.retrieveCart(client),
     });
 
@@ -111,7 +111,7 @@ namespace ShopHooks {
 
   export const useOrders = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: QUERY_KEYS.ORDER_LIST,
+      queryKey: [client.language, ...QUERY_KEYS.ORDER_LIST],
       queryFn: ShopAPIs.listOrders(client),
     });
 

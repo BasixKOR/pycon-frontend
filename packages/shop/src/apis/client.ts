@@ -63,17 +63,19 @@ type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(
 
 export class ShopAPIClient {
   readonly baseURL: string;
+  readonly language: "ko" | "en";
   protected readonly csrfCookieName: string;
   private readonly shopAPI: AxiosInstance;
 
-  constructor(baseURL: string, csrfCookieName: string, timeout: number) {
+  constructor(baseURL: string, csrfCookieName: string, timeout: number, language: "ko" | "en") {
     this.baseURL = baseURL;
+    this.language = language;
     this.csrfCookieName = csrfCookieName;
     this.shopAPI = axios.create({
       baseURL,
       timeout,
       withCredentials: true,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Accept-Language": language },
     });
     this.shopAPI.interceptors.request.use(
       (config) => {
