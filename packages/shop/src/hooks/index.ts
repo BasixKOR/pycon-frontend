@@ -42,7 +42,7 @@ namespace ShopHooks {
 
   export const useUserStatus = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.USER],
+      queryKey: [...QUERY_KEYS.USER, client.language],
       queryFn: ShopAPIs.retrieveUserInfo(client),
       retry: 3,
     });
@@ -71,13 +71,13 @@ namespace ShopHooks {
 
   export const useProducts = (client: ShopAPIClient, qs?: ShopSchemas.ProductListQueryParams) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.PRODUCT_LIST, qs ? JSON.stringify(qs) : ""],
+      queryKey: [...QUERY_KEYS.PRODUCT_LIST, qs ? JSON.stringify(qs) : "", client.language],
       queryFn: () => ShopAPIs.listProducts(client)(qs),
     });
 
   export const useCart = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.CART_INFO],
+      queryKey: [...QUERY_KEYS.CART_INFO, client.language],
       queryFn: ShopAPIs.retrieveCart(client),
     });
 
@@ -111,7 +111,7 @@ namespace ShopHooks {
 
   export const useOrders = (client: ShopAPIClient) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.ORDER_LIST],
+      queryKey: [...QUERY_KEYS.ORDER_LIST, client.language],
       queryFn: ShopAPIs.listOrders(client),
     });
 

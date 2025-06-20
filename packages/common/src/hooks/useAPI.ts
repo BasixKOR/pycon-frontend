@@ -8,6 +8,7 @@ import BackendContext from "../contexts";
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
+  SPONSOR_LIST: ["query", "sponsor", "list"],
 };
 
 namespace BackendAPIHooks {
@@ -24,19 +25,19 @@ namespace BackendAPIHooks {
 
   export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.SITEMAP_LIST],
+      queryKey: [...QUERY_KEYS.SITEMAP_LIST, client.language],
       queryFn: BackendAPIs.listSiteMaps(client),
     });
 
   export const usePageQuery = (client: BackendAPIClient, id: string) =>
     useSuspenseQuery({
-      queryKey: [client.language, ...QUERY_KEYS.PAGE, id],
+      queryKey: [...QUERY_KEYS.PAGE, id, client.language],
       queryFn: () => BackendAPIs.retrievePage(client)(id),
     });
 
   export const useSponsorQuery = (client: BackendAPIClient) =>
     useSuspenseQuery({
-      queryKey: [client.language, "sponsor", "list"],
+      queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language],
       queryFn: BackendAPIs.listSponsors(client),
     });
 }
