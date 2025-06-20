@@ -90,11 +90,9 @@ const LogoBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     position: "relative",
     borderRadius: "0.25rem",
-    // height: "1rem",
     padding: "0 0.5rem",
     backgroundColor: theme.palette.primary.main,
-    // color: theme.palette.primary.main,
-    // border: `1px solid ${theme.palette.primary.main}`,
+    color: "white",
     borderEndEndRadius: "0",
     transform: "none",
 
