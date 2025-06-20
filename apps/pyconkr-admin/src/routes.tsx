@@ -10,6 +10,7 @@ import {
   ManageAccounts,
   NoteAlt,
   StickyNote2,
+  Tag,
 } from "@mui/icons-material";
 
 import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./components/layouts/admin_editor";
@@ -83,6 +84,14 @@ export const RouteDefinitions: RouteDef[] = [
     title: "후원사 티어",
     app: "event",
     resource: "sponsortier",
+  },
+  {
+    type: "routeDefinition",
+    key: "event-sponsortag",
+    icon: Tag,
+    title: "후원사 태그",
+    app: "event",
+    resource: "sponsortag",
   },
   {
     type: "routeDefinition",
