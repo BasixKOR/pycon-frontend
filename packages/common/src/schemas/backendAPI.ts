@@ -64,6 +64,7 @@ namespace BackendAPISchemas {
       name: string;
       logo: string;
       sitemap_id: string | null;
+      tags: string[];
     }[];
   };
 

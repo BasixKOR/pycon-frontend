@@ -1,5 +1,5 @@
 import * as Common from "@frontend/common";
-import { CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
+import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
@@ -7,6 +7,8 @@ import { useAppContext } from "../../../contexts/app_context";
 
 const LogoHeight: React.CSSProperties["height"] = "8rem";
 const LogoWidth: React.CSSProperties["width"] = "15rem";
+const LogoContainerHeight: React.CSSProperties["height"] = `calc(${LogoHeight} + 2rem)`;
+const LogoContainerWidth: React.CSSProperties["width"] = `calc(${LogoWidth} + 4rem)`;
 
 const SponsorContainer = styled(Stack)({
   width: "100%",
@@ -26,26 +28,88 @@ const SponsorStack = styled(Stack)({
   justifyContent: "center",
   alignItems: "center",
   padding: "0 1rem",
-  gap: "2rem",
+  gap: "4rem",
 });
 
-const LogoImageContainer = styled(Stack)({
+const LogoImageEqualWidthContainer = styled(Stack)(({ theme }) => ({
+  position: "relative",
   alignItems: "center",
   justifyContent: "center",
   alignContent: "stretch",
-  height: LogoHeight,
-  maxHeight: LogoHeight,
+  height: LogoContainerHeight,
+  maxHeight: LogoContainerHeight,
+  minWidth: LogoContainerWidth,
+  maxWidth: LogoContainerWidth,
+  border: `1px solid ${theme.palette.primary.light}`,
+  borderRadius: "0.5rem",
+
+  transition: "all 0.3s ease-in-out",
+
+  "&:hover": {
+    borderColor: theme.palette.primary.dark,
+    boxShadow: theme.shadows[3],
+  },
+}));
+
+const LogoImageContainer = styled(Stack)({
+  width: "auto",
+  height: "auto",
+  minHeight: LogoHeight,
   maxWidth: LogoWidth,
+  maxHeight: LogoHeight,
+  objectFit: "contain",
+  alignItems: "center",
+  justifyContent: "center",
+  margin: "4rem 8rem",
 });
 
 const LogoImage = styled("img")({
-  height: `calc(${LogoHeight} * 0.9)`, // 90% of LogoHeight
+  width: "auto",
+  height: "auto",
   minHeight: LogoHeight,
-  minWidth: `calc(${LogoWidth} * 0.9)`, // 80% of LogoWidth
-  maxWidth: "100%",
-  maxHeight: "100%",
+  maxWidth: LogoWidth,
+  maxHeight: LogoHeight,
   objectFit: "contain",
 });
+
+const LogoBadgeContainer = styled(Stack)({
+  position: "absolute",
+  width: "auto",
+  height: "auto",
+  top: "0.5rem",
+  right: "-0.5rem",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  justifyContent: "center",
+  gap: "0.25rem",
+});
+
+const LogoBadge = styled(Badge)(({ theme }) => ({
+  alignItems: "flex-end",
+
+  "& .MuiBadge-badge": {
+    position: "relative",
+    borderRadius: "0.25rem",
+    // height: "1rem",
+    padding: "0 0.5rem",
+    backgroundColor: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
+    // border: `1px solid ${theme.palette.primary.main}`,
+    borderEndEndRadius: "0",
+    transform: "none",
+
+    "&:after": {
+      content: '""',
+      position: "absolute",
+      bottom: "-8px",
+      right: "-0.1px",
+      width: 0,
+      height: 0,
+      border: "solid 4px",
+      borderColor: `${theme.palette.primary.dark} transparent transparent ${theme.palette.primary.dark}`,
+    },
+  },
+}));
 
 export const Sponsor: React.FC = ErrorBoundary.with(
   {
@@ -87,11 +151,18 @@ export const Sponsor: React.FC = ErrorBoundary.with(
                       const sponsorName = sponsor.name.replace(/\\n/g, "\n");
                       const sponsorNameContent = <Typography variant="body1" {...textProps} children={sponsorName} sx={{ whiteSpace: "pre-wrap" }} />;
                       const sponsorImg = (
-                        <LogoImageContainer>
-                          <Tooltip title={sponsorNameContent} arrow placement="top">
-                            <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
-                          </Tooltip>
-                        </LogoImageContainer>
+                        <Tooltip title={sponsorNameContent} arrow placement="top">
+                          <LogoImageEqualWidthContainer>
+                            <LogoBadgeContainer>
+                              {sponsor.tags.map((tag, i) => (
+                                <LogoBadge key={i} badgeContent={tag} />
+                              ))}
+                            </LogoBadgeContainer>
+                            <LogoImageContainer>
+                              <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
+                            </LogoImageContainer>
+                          </LogoImageEqualWidthContainer>
+                        </Tooltip>
                       );
                       return sponsor.sitemap_id ? <Link to={flatSiteMapObj[sponsor.sitemap_id].route} children={sponsorImg} /> : sponsorImg;
                     })}
