@@ -63,8 +63,9 @@ namespace BackendAdminAPISchemas {
     name_en: string;
     order: number;
     parent_sitemap: string | null;
-    page: string;
     hide: boolean;
+    page: string | null;
+    external_link: string | null;
   };
 
   export type NestedSiteMapSchema = {
@@ -74,9 +75,10 @@ namespace BackendAdminAPISchemas {
     name_en: string;
     order: number;
     parent_sitemap: string | null;
-    page: string;
     hide: boolean;
     children: NestedSiteMapSchema[];
+    page: string | null;
+    external_link: string | null;
   };
 
   export type PageSectionBulkUpdateSchema = PageSectionSchema | Omit<PageSectionSchema, "id">;

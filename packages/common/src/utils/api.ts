@@ -5,7 +5,6 @@ type GFlatSiteMap = {
   route_code: string;
   order: number;
   parent_sitemap: string | null;
-  page: string;
   hide: boolean;
 };
 type GNestedSiteMap<T = GFlatSiteMap> = T & { children: GNestedSiteMap<T>[] };

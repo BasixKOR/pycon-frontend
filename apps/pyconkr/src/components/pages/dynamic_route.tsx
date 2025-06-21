@@ -135,7 +135,11 @@ export const RouteRenderer: React.FC = ErrorBoundary.with(
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { siteMapNode, currentSiteMapDepth } = useAppContext();
     const routeInfo = !R.isEmpty(currentSiteMapDepth) && currentSiteMapDepth[currentSiteMapDepth.length - 1];
-    return !(siteMapNode && routeInfo) ? <WaitedCenteredLoadingPage /> : <PageRenderer id={routeInfo.page} />;
+
+    if (!(siteMapNode && routeInfo)) return <WaitedCenteredLoadingPage />;
+    if (R.isString(routeInfo.page)) return <PageRenderer id={routeInfo.page} />;
+    if (R.isString(routeInfo.external_link)) window.location.replace(routeInfo.external_link);
+    return <PageNotFound />;
   })
 );
 

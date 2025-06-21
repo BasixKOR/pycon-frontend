@@ -20,8 +20,9 @@ namespace BackendAPISchemas {
     name: string;
     order: number;
     parent_sitemap: string | null;
-    page: string;
     hide: boolean;
+    page: string | null;
+    external_link: string | null;
   };
 
   export type NestedSiteMapSchema = {
@@ -29,10 +30,11 @@ namespace BackendAPISchemas {
     route_code: string;
     name: string;
     order: number;
-    page: string;
     hide: boolean;
     parent_sitemap: string | null;
     children: NestedSiteMapSchema[];
+    page: string | null;
+    external_link: string | null;
   };
 
   export type SectionSchema = {

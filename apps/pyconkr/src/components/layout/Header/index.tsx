@@ -72,7 +72,13 @@ const Header: React.FC = () => {
               {Object.values(siteMapNode.children)
                 .filter((s) => !s.hide)
                 .map((r) => (
-                  <Link key={r.id} to={r.route_code} onClick={resetDepths}>
+                  <Link
+                    key={r.id}
+                    onClick={resetDepths}
+                    target={R.isString(r.external_link) ? "_blank" : undefined}
+                    rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                    to={r.external_link || r.route_code}
+                  >
                     <Button key={r.id} onMouseEnter={() => setDepth1(r)} sx={{ minWidth: 0, textTransform: "none" }}>
                       {r.name}
                     </Button>
@@ -100,7 +106,9 @@ const Header: React.FC = () => {
                             onMouseEnter={() => setDepth2(r)}
                             // 하위 depth가 있는 경우, 하위 depth를 선택할 수 있도록 유지하기 위해 depth2도 유지합니다.
                             onMouseLeave={() => R.isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
-                            to={getDepth2Route(r.route_code)}
+                            target={R.isString(r.external_link) ? "_blank" : undefined}
+                            rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                            to={r.external_link || getDepth2Route(r.route_code)}
                           />
                         ))}
                     </Stack>
@@ -120,7 +128,9 @@ const Header: React.FC = () => {
                                 onClick={resetDepths}
                                 onMouseEnter={() => setDepth3(r)}
                                 onMouseLeave={() => setDepth3(undefined)}
-                                to={getDepth3Route(r?.route_code)}
+                                target={R.isString(r.external_link) ? "_blank" : undefined}
+                                rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                                to={r.external_link || getDepth3Route(r?.route_code)}
                               />
                             ))}
                         </Stack>
