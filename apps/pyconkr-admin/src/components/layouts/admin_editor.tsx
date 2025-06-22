@@ -92,6 +92,9 @@ const fieldPropsToSelectedProps = (props: FieldProps): OutlinedSelectProps & { d
     onBlur: rawOnBlur,
     onChange: rawOnChange,
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    required: _,
+
     schema,
     errorSchema,
     uiSchema,
