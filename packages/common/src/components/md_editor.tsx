@@ -4,6 +4,8 @@ import * as React from "react";
 
 type MDEditorProps = {
   disabled?: boolean;
+  name?: string;
+  value?: string;
   defaultValue?: string;
   onChange?: (value?: string) => void;
   extraCommands?: ICommand[];
@@ -21,16 +23,17 @@ const TextEditorStyle: React.CSSProperties = {
   fieldSizing: "content",
 } as React.CSSProperties;
 
-export const MarkdownEditor: React.FC<MDEditorProps> = ({ disabled, defaultValue, onChange, extraCommands }) => (
+export const MarkdownEditor: React.FC<MDEditorProps> = ({ disabled, name, defaultValue, value, onChange, extraCommands }) => (
   <Stack direction="column" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
     <MDEditor
       data-color-mode="light"
-      textareaProps={{ disabled }}
+      textareaProps={{ disabled, name }}
       preview="edit"
       highlightEnable={true}
       height="none"
       minHeight={100}
-      value={defaultValue}
+      defaultValue={defaultValue}
+      value={value}
       onChange={onChange}
       commands={[
         commands.group([commands.title1, commands.title2, commands.title3, commands.title4, commands.title5, commands.title6], {
