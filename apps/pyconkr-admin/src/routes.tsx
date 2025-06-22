@@ -3,6 +3,7 @@ import {
   AccountTree,
   Apartment,
   Article,
+  Category,
   ClearAll,
   Event,
   FilePresent,
@@ -113,6 +114,14 @@ export const RouteDefinitions: RouteDef[] = [
     title: "발표 유형",
     app: "event",
     resource: "presentationtype",
+  },
+  {
+    type: "routeDefinition",
+    key: "event-presentationcategory",
+    icon: Category,
+    title: "발표 카테고리",
+    app: "event",
+    resource: "presentationcategory",
   },
   {
     type: "routeDefinition",
