@@ -13,6 +13,7 @@ import {
   OutlinedSelectProps,
   Select,
   Stack,
+  styled,
   Tab,
   Table,
   TableBody,
@@ -140,6 +141,38 @@ const M2MSelect: Field = ErrorBoundary.with(
       </FormControl>
     );
   })
+);
+
+const MUIStyledFieldset = styled("fieldset")(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  margin: 0,
+
+  border: `1px solid ${theme.palette.info}`,
+  borderRadius: theme.shape.borderRadius,
+}));
+
+const MDEditorField: Field = ErrorBoundary.with(
+  { fallback: Common.Components.ErrorFallback },
+  ({ disabled, formData, name, onChange: rawOnChange }) => {
+    const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
+    const onChange = (value?: string) => {
+      setValueState(value);
+      rawOnChange(value, undefined, name);
+    };
+    return (
+      <MUIStyledFieldset>
+        <Typography variant="subtitle2" component="legend" children={name} />
+        <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
+          <Box sx={{ width: "50%", maxWidth: "50%" }}>
+            <Common.Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
+          </Box>
+          <Box sx={{ width: "50%", maxWidth: "50%", backgroundColor: "#fff" }}>
+            <Common.Components.MDXRenderer text={valueState || ""} format="md" />
+          </Box>
+        </Stack>
+      </MUIStyledFieldset>
+    );
+  }
 );
 
 type ReadOnlyValueFieldStateType = {
@@ -369,7 +402,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
                 onSubmit={onSubmitFunc}
                 disabled={disabled}
                 showErrorList={false}
-                fields={{ file: FileField, m2m_select: M2MSelect }}
+                fields={{ file: FileField, m2m_select: M2MSelect, markdown: MDEditorField }}
               />
             </Box>
           </Stack>
