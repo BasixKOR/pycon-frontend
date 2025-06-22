@@ -10,7 +10,7 @@ export type AppContextType = {
   shouldShowSponsorBanner: boolean;
 
   siteMapNode?: BackendAPISchemas.NestedSiteMapSchema;
-  sponsors: unknown;
+  sponsorTiers?: BackendAPISchemas.SponsorTierSchema[];
   title: string;
   currentSiteMapDepth: (BackendAPISchemas.NestedSiteMapSchema | undefined)[];
 

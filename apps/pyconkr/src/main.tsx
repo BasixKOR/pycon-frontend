@@ -73,7 +73,6 @@ const MainApp: React.FC = () => {
 
     currentSiteMapDepth: [],
 
-    sponsors: null,
     title: "PyCon Korea 2025",
   });
 

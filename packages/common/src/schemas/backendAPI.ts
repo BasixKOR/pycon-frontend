@@ -57,7 +57,7 @@ namespace BackendAPISchemas {
     sections: SectionSchema[];
   };
 
-  export type SponsorSchema = {
+  export type SponsorTierSchema = {
     id: string;
     name: string;
     order: number;
@@ -65,7 +65,7 @@ namespace BackendAPISchemas {
       id: string;
       name: string;
       logo: string;
-      sitemap_id: string | null;
+      description: string;
       tags: string[];
     }[];
   };

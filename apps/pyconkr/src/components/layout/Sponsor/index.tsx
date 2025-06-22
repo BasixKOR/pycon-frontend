@@ -1,4 +1,3 @@
-import * as Common from "@frontend/common";
 import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
@@ -120,14 +119,8 @@ export const Sponsor: React.FC = ErrorBoundary.with(
     ),
   },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
-    const { siteMapNode } = useAppContext();
-    const backendAPIClient = Common.Hooks.BackendAPI.useBackendClient();
-    const { data: sponsorData } = Common.Hooks.BackendAPI.useSponsorQuery(backendAPIClient);
-
-    if (!siteMapNode) return <CircularProgress />;
-
-    const flatSiteMap = Common.Utils.buildFlatSiteMap(siteMapNode);
-    const flatSiteMapObj = flatSiteMap.reduce((a, i) => ({ ...a, [i.id]: i }), {} as Record<string, { route: string }>);
+    const { sponsorTiers } = useAppContext();
+    if (!sponsorTiers) return <CircularProgress />;
 
     const textProps: TypographyProps = {
       textAlign: "center",
@@ -139,7 +132,7 @@ export const Sponsor: React.FC = ErrorBoundary.with(
         <SponsorSection aria-label="후원사 섹션">
           <Typography variant="h4" {...textProps} children="후원사 목록" area-level={4} />
           <Stack spacing={4} sx={{ my: 4 }} aria-label="후원사 목록 그리드">
-            {sponsorData
+            {sponsorTiers
               .filter((t) => t.sponsors.length)
               .map((sponsorTier, i, a) => (
                 <Stack spacing={6} key={sponsorTier.id} aria-label={`후원사 티어: ${sponsorTier.name}`}>
@@ -148,21 +141,22 @@ export const Sponsor: React.FC = ErrorBoundary.with(
                     {sponsorTier.sponsors.map((sponsor) => {
                       const sponsorName = sponsor.name.replace(/\\n/g, "\n");
                       const sponsorNameContent = <Typography variant="body1" {...textProps} children={sponsorName} sx={{ whiteSpace: "pre-wrap" }} />;
-                      const sponsorImg = (
-                        <Tooltip title={sponsorNameContent} arrow placement="top">
-                          <LogoImageEqualWidthContainer>
-                            <LogoBadgeContainer>
-                              {sponsor.tags.map((tag, i) => (
-                                <LogoBadge key={i} badgeContent={tag} />
-                              ))}
-                            </LogoBadgeContainer>
-                            <LogoImageContainer>
-                              <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
-                            </LogoImageContainer>
-                          </LogoImageEqualWidthContainer>
-                        </Tooltip>
+                      return (
+                        <Link to={`/sponsors/${sponsor.id}`} key={sponsor.id} style={{ textDecoration: "none" }}>
+                          <Tooltip title={sponsorNameContent} arrow placement="top">
+                            <LogoImageEqualWidthContainer>
+                              <LogoBadgeContainer>
+                                {sponsor.tags.map((tag, i) => (
+                                  <LogoBadge key={i} badgeContent={tag} />
+                                ))}
+                              </LogoBadgeContainer>
+                              <LogoImageContainer>
+                                <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
+                              </LogoImageContainer>
+                            </LogoImageEqualWidthContainer>
+                          </Tooltip>
+                        </Link>
                       );
-                      return sponsor.sitemap_id ? <Link to={flatSiteMapObj[sponsor.sitemap_id].route} children={sponsorImg} /> : sponsorImg;
                     })}
                   </SponsorStack>
                   {i !== a.length - 1 && <Divider sx={{ m: "2rem" }} />}

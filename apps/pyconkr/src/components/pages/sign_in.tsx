@@ -1,34 +1,13 @@
 import * as Shop from "@frontend/shop";
 import { AccountCircleOutlined, Google } from "@mui/icons-material";
-import { Backdrop, Button, ButtonProps, CircularProgress, Stack, styled, Typography } from "@mui/material";
+import { Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppContext } from "../../contexts/app_context";
-
-const SignInPageContainer = styled(Stack)(({ theme }) => ({
-  height: "75%",
-  width: "100%",
-  maxWidth: "1200px",
-
-  justifyContent: "flex-start",
-  alignItems: "center",
-
-  paddingTop: theme.spacing(8),
-  paddingBottom: theme.spacing(8),
-
-  paddingRight: theme.spacing(16),
-  paddingLeft: theme.spacing(16),
-
-  [theme.breakpoints.down("lg")]: {
-    padding: theme.spacing(4),
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
-}));
+import { PageLayout } from "../layout/PageLayout";
 
 type PageeStateType = {
   openBackdrop: boolean;
@@ -110,14 +89,14 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
 
   return (
     <>
-      <SignInPageContainer spacing={6}>
+      <PageLayout spacing={6}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bolder" }} children={signInTitleStr} />
         <Stack spacing={1} sx={{ width: "100%", maxWidth: "400px" }}>
           {btnProps.map((props, index) => (
             <Button key={index} {...commonBtnProps} {...props} />
           ))}
         </Stack>
-      </SignInPageContainer>
+      </PageLayout>
       <Backdrop sx={({ zIndex }) => ({ zIndex: zIndex.drawer + 1 })} open={shouldOpenBackdrop} onClick={() => {}} />
     </>
   );

@@ -154,6 +154,17 @@ const MUIStyledFieldset = styled("fieldset")(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
+const MDRendererContainer = styled(Box)(({ theme }) => ({
+  width: "50%",
+  maxWidth: "50%",
+  backgroundColor: "#fff",
+
+  "& .markdown-body": {
+    width: "100%",
+    p: { margin: theme.spacing(2, 0) },
+  },
+}));
+
 const MDEditorField: Field = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
   ({ disabled, formData, name, onChange: rawOnChange }) => {
@@ -169,9 +180,9 @@ const MDEditorField: Field = ErrorBoundary.with(
           <Box sx={{ width: "50%", maxWidth: "50%" }}>
             <Common.Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
           </Box>
-          <Box sx={{ width: "50%", maxWidth: "50%", backgroundColor: "#fff" }}>
+          <MDRendererContainer>
             <Common.Components.MDXRenderer text={valueState || ""} format="md" />
-          </Box>
+          </MDRendererContainer>
         </Stack>
       </MUIStyledFieldset>
     );
