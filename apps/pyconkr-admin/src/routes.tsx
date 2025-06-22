@@ -22,6 +22,7 @@ import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
+import { AdminPresentationEditor } from "./components/pages/presentation/editor";
 import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
 
@@ -194,4 +195,6 @@ export const RegisteredRoutes = {
   "/cms/sitemap": <SiteMapList />,
   "/cms/sitemap/create": <SiteMapList />,
   "/cms/sitemap/:id": <SiteMapList />,
+  "/event/presentation/create": <AdminPresentationEditor />,
+  "/event/presentation/:id": <AdminPresentationEditor />,
 };

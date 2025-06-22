@@ -63,10 +63,10 @@ namespace BackendAdminAPIHooks {
       queryFn: BackendAdminAPIs.schema(client, app, resource),
     });
 
-  export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string) =>
+  export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource],
-      queryFn: BackendAdminAPIs.list<T>(client, app, resource),
+      queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, JSON.stringify(params)],
+      queryFn: BackendAdminAPIs.list<T>(client, app, resource, params),
     });
 
   export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>

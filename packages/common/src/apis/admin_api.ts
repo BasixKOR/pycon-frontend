@@ -23,9 +23,9 @@ namespace BackendAdminAPIs {
     client.delete<void, void>(`v1/admin-api/user/userext/${id}/password/`);
 
   export const list =
-    <T>(client: BackendAPIClient, app: string, resource: string) =>
+    <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
     () =>
-      client.get<T[]>(`v1/admin-api/${app}/${resource}/`);
+      client.get<T[]>(`v1/admin-api/${app}/${resource}/`, { params });
 
   export const retrieve =
     <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
