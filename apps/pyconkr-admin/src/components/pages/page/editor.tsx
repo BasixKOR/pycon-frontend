@@ -52,7 +52,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
         <ThemeProvider theme={muiTheme}>
-          <Common.Components.MDXRenderer text={defaultValue || ""} />
+          <Common.Components.MDXRenderer text={defaultValue || ""} format="mdx" />
         </ThemeProvider>
       </Box>
     </Stack>

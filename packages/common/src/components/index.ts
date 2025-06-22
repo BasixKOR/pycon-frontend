@@ -8,6 +8,7 @@ import {
   LottiePlayer as LottiePlayerComponent,
   NetworkLottiePlayer as NetworkLottiePlayerComponent,
 } from "./lottie";
+import { MarkdownEditor as MarkdownEditorComponent } from "./md_editor";
 import { MDXRenderer as MDXRendererComponent } from "./mdx";
 import { Confetti as ConfettiComponent } from "./mdx_components/confetti";
 import {
@@ -29,6 +30,7 @@ import { PythonKorea as PythonKoreaComponent } from "./pythonkorea";
 namespace Components {
   export const CenteredPage = CenteredPageComponent;
   export const CommonContextProvider = CommonContextProviderComponent;
+  export const MarkdownEditor = MarkdownEditorComponent;
   export const MDXEditor = MDXEditorComponent;
   export const MDXRenderer = MDXRendererComponent;
   export const PythonKorea = PythonKoreaComponent;

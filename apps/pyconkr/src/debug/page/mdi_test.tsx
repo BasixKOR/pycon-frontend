@@ -28,7 +28,7 @@ export const MdiTestPage: React.FC = () => {
         <Common.Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
       </Box>
       <Box sx={HalfWidthStyle}>
-        <Common.Components.MDXRenderer {...state} />
+        <Common.Components.MDXRenderer {...state} format="mdx" />
       </Box>
     </Stack>
   );

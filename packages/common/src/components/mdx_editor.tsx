@@ -253,15 +253,18 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, on
           }),
           commands.bold,
           commands.italic,
+          commands.strikethrough,
           commands.code,
           commands.link,
           commands.divider,
           commands.quote,
           commands.codeBlock,
+          commands.table,
           commands.hr,
           commands.divider,
           commands.unorderedListCommand,
           commands.orderedListCommand,
+          commands.checkedListCommand,
           commands.divider,
           commands.group([], {
             name: "custom components",
@@ -277,6 +280,8 @@ export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, on
             children: (props) => <ImageSelector {...props} />,
             buttonProps: { "aria-label": "Insert image" },
           }),
+          commands.divider,
+          commands.help,
         ]}
         extraCommands={extraCommands}
         style={TextEditorStyle}

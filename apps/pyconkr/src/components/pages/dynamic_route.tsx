@@ -117,7 +117,7 @@ const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <C
     <Stack sx={initialPageStyle(Common.Utils.parseCss(data.css))}>
       {data.sections.map((s) => (
         <Stack sx={initialSectionStyle(Common.Utils.parseCss(s.css))} key={s.id}>
-          <Common.Components.MDXRenderer text={s.body} />
+          <Common.Components.MDXRenderer text={s.body} format="mdx" />
         </Stack>
       ))}
     </Stack>

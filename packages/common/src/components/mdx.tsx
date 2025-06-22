@@ -84,7 +84,13 @@ const lineFormatterForMDX = (line: string) => {
   return `${trimmedLine}  \n`;
 };
 
-export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ text, resetKey }) => {
+type MDXRendererPropType = {
+  text: string;
+  resetKey?: number;
+  format?: "mdx" | "md";
+};
+
+export const MDXRenderer: React.FC<MDXRendererPropType> = ({ text, resetKey, format }) => {
   const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
   const [state, setState] = React.useState<{
     component: React.ReactNode;
@@ -106,6 +112,7 @@ export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ tex
         const { default: RenderResult } = await evaluate(processedText, {
           ...runtime,
           ...provider,
+          format: format || "md",
           baseUrl,
           remarkPlugins: [remarkGfm],
         });
@@ -120,7 +127,7 @@ export const MDXRenderer: React.FC<{ text: string; resetKey?: number }> = ({ tex
         setRenderResult(<ErrorFallback error={error as Error} reset={setRandomResetKey} />);
       }
     })();
-  }, [text, resetKey, state.resetKey, baseUrl, mdxComponents]);
+  }, [text, resetKey, format, state.resetKey, baseUrl, mdxComponents]);
 
   return (
     <ErrorBoundary fallback={ErrorFallback} resetKeys={[text, resetKey, state.resetKey]}>

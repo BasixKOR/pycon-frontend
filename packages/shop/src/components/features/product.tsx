@@ -248,7 +248,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
   return (
     <>
-      <Common.Components.MDXRenderer text={product.description || ""} />
+      <Common.Components.MDXRenderer text={product.description || ""} format="mdx" />
       <br />
       <Divider />
       {R.isNullish(notPurchasableReason) ? (
