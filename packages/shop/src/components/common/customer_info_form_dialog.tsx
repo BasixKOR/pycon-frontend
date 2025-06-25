@@ -63,7 +63,7 @@ export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> =
                 defaultValue={defaultValue?.phone}
                 slotProps={{
                   htmlInput: {
-                    pattern: new RegExp(/^(010-\d{4}-\d{4}|(\+82)10\d{7,8})$/, "i").source,
+                    pattern: new RegExp(/^((010-\d{4}-\d{4})|(\+\d{11,14}))$/, "i").source,
                     title: phoneValidationFailedStr,
                   },
                 }}
