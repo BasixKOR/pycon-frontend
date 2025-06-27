@@ -96,7 +96,6 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
     label: item.title,
   }));
   const currentSelectedImage = imageOptions.find((u) => u.value === speaker.image?.toString());
-  console.log(userOptions, currentSelectedUser, speaker);
 
   const bioField = formState.tab === "ko" ? "biography_ko" : "biography_en";
   const onSpeakerBioChange = (value?: string) => onChange({ ...speaker, [bioField]: value || "" });
@@ -116,7 +115,7 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
             defaultValue={currentSelectedUser}
             value={currentSelectedUser}
             onChange={onSpeakerChange("user")}
-            inputValue={currentSelectedUser?.label || ""}
+            // inputValue={currentSelectedUser?.label || ""}
             options={userOptions}
             renderInput={(params) => <TextField {...params} label="발표자" />}
           />
@@ -124,7 +123,7 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
             fullWidth
             defaultValue={currentSelectedImage}
             value={currentSelectedImage}
-            inputValue={currentSelectedImage?.label || ""}
+            // inputValue={currentSelectedImage?.label || ""}
             options={imageOptions}
             renderInput={(params) => <TextField {...params} label="발표자 이미지" />}
             onChange={onSpeakerChange("image")}
