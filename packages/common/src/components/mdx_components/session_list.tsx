@@ -47,8 +47,14 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
 export const SessionList: React.FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
+    const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
     const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient);
+
+    const warningMessage =
+      language === "ko"
+        ? "* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."
+        : "* The list of sessions may change due to the speaker's circumstances.";
 
     const [selectedCategoryIds, setSelectedCategories] = React.useState<string[]>([]);
     const toggleCategory = (catId: string) => setSelectedCategories((ps) => (ps.includes(catId) ? ps.filter((id) => id !== catId) : [...ps, catId]));
@@ -70,9 +76,7 @@ export const SessionList: React.FC = ErrorBoundary.with(
     return (
       <Box sx={{ my: 2 }}>
         <Box>
-          <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }}>
-            * 발표 목록은 발표자 사정에 따라 변동될 수 있습니다.
-          </Typography>
+          <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
           <StyledDivider />
           <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
             {categories.map((cat) => (
