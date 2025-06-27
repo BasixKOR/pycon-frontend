@@ -9,6 +9,7 @@ const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
   SPONSOR_LIST: ["query", "sponsor", "list"],
+  SESSION_LIST: ["query", "session", "list"],
 };
 
 namespace BackendAPIHooks {
@@ -39,6 +40,12 @@ namespace BackendAPIHooks {
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language],
       queryFn: BackendAPIs.listSponsors(client),
+    });
+
+  export const useSessionsQuery = (client: BackendAPIClient) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.SESSION_LIST, client.language],
+      queryFn: BackendAPIs.listSessions(client),
     });
 }
 

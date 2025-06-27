@@ -19,6 +19,7 @@ import {
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
 import { OneDetailsOpener as OneDetailsOpenerComponent } from "./mdx_components/one_details_opener";
+import { SessionList as SessionListComponent } from "./mdx_components/session_list";
 import {
   PrimaryStyledDetails as PrimaryStyledDetailsComponent,
   HighlightedStyledDetails as SecondaryStyledDetailsComponent,
@@ -49,6 +50,7 @@ namespace Components {
     export const Map = MapComponent;
     export const FAQAccordion = FAQAccordionComponent;
     export const OneDetailsOpener = OneDetailsOpenerComponent;
+    export const SessionList = SessionListComponent;
     export type MapPropType = MapComponentPropType;
     export type FAQAccordionProps = FAQAccordionPropsType;
     export type FAQItem = FAQItemType;

@@ -70,6 +70,23 @@ namespace BackendAPISchemas {
     }[];
   };
 
+  export type SessionSchema = {
+    id: string;
+    title: string;
+    description: string;
+    image: string | null;
+    categories: {
+      id: string;
+      name: string;
+    }[];
+    speakers: {
+      id: string;
+      nickname: string;
+      biography: string;
+      image: string | null;
+    }[];
+  };
+
   export const isObjectErrorResponseSchema = (obj?: unknown): obj is BackendAPISchemas.ErrorResponseSchema => {
     return (
       R.isPlainObject(obj) &&

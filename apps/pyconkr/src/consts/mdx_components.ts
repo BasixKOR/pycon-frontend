@@ -139,6 +139,7 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__Map: Common.Components.MDX.Map,
   Common__Components__MDX__FAQAccordion: Common.Components.MDX.FAQAccordion,
   Common__Components__MDX__FullWidthStyledButton: Common.Components.MDX.StyledFullWidthButton,
+  Common__Components__Session__List: Common.Components.MDX.SessionList,
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {
