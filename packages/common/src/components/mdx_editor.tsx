@@ -143,7 +143,7 @@ const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <Circu
           </Typography>
           <Grid>
             {data
-              .filter((item) => item.mimetype.startsWith("image/"))
+              .filter((item) => item.mimetype?.startsWith("image/"))
               .map((item) => ({ ...item, file: item.file.split("?")[0] })) // Remove query parameters if any
               .map((item) => {
                 const selected = widgetState.selectedImageUrl === item.file;
