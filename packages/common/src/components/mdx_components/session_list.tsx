@@ -23,7 +23,9 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
     <>
       {/* <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }}> */}
       <SessionItemContainer direction="row">
-        <SessionImageContainer children={<SessionImage src={speakerImgSrc} alt="Session Image" errorFallback={<SessionImageErrorFallback />} />} />
+        <SessionImageContainer
+          children={<SessionImage src={speakerImgSrc} alt="Session Image" loading="lazy" errorFallback={<SessionImageErrorFallback />} />}
+        />
         <Stack direction="column" sx={{ flexGrow: 1, py: 0.5, gap: 0.75 }}>
           <SessionTitle children={sessionTitle} />
           <Stack direction="row" spacing={0.5}>
