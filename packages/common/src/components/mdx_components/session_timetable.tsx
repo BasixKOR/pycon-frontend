@@ -98,10 +98,10 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
             const [sessionData, setSessionData] = React.useState(sessions);
             const [selectedDate, setSelectedDate] = React.useState("");
             const filteredSessions = React.useMemo(() => {
-                  return sessions.filter((session) => {
+                return sessions.filter((session) => {
                     return selectedDate === session.schedule.startTime.toDateString();
-                  });
-                }, [sessions, selectedDate]);
+                });
+            }, [sessions, selectedDate]);
 
             return (
                 <>
