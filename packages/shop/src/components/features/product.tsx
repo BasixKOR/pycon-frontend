@@ -93,6 +93,15 @@ type ProductItemPropType = {
   startPurchaseProcess: (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => void;
 };
 
+/**
+ * 상품 가격과 옵션 가격을 합산하여 상품의 총 가격이 0인지 확인합니다.
+ * @param p 상품 객체
+ * @returns 상품의 가격이 0 이하인 경우 true, 그렇지 않으면 false
+ */
+const isZeroPriceProduct = (p: ShopSchemas.Product): boolean => {
+  return p.price + p.option_groups.reduce((sum, group) => sum + group.options.reduce((s, o) => s + (o.additional_price || 0), 0), 0) === 0;
+};
+
 const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
   const navigate = useNavigate();
   const [, forceRender] = React.useReducer((x) => x + 1, 0);
@@ -210,7 +219,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
   const addItemToCart = () => {
     const formData = getCartAppendRequestPayload(product, getValues());
-    if (getTotalProductPrice(getValues()) <= 0) {
+    if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotAddToCartZeroPriceProductStr);
       return;
     }
@@ -238,7 +247,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   };
   const onOrderOneItemButtonClick = () => {
     const formData = getCartAppendRequestPayload(product, getValues());
-    if (getTotalProductPrice(getValues()) <= 0) {
+    if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotPurchaseZeroPriceProductStr);
       return;
     }
