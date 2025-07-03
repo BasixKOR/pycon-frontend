@@ -1,19 +1,24 @@
 import * as React from "react";
 import BackendAPISchemas from "../../schemas/backendAPI";
-import { Box, Button, CircularProgress, Stack, styled, Typography } from "@mui/material";
+import { Box, Button, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { ErrorFallback } from "../error_handler";
 import Hooks from "../../hooks";
 import { BackendAPIClient } from "../../apis/client";
 import { StyledDivider } from "./styled_divider";
+import * as R from "remeda";
 
+
+type Position = {
+    readonly left: number;
+    readonly top: number;
+    readonly width: number;
+    readonly height: number;
+}
 
 type SessionTimeTableSlotType = {
     session: BackendAPISchemas.SessionSchema;
-    startRow: number;
-    endRow: number;
-    startDateTime: Date;
-    endDateTime: Date;
+    position: Position;
 }
 
 type SessionDate = {
@@ -48,7 +53,8 @@ const SessionTimeTableItem: React.FC<{ data: SessionTimeTableSlotType }> = ({ da
     const sessionCategories = data.session.categories;
 
     return (
-        <SessionTimeTableItemContainer direction="column">
+        <SessionTimeTableItemBox position={data.position} >
+            <SessionTimeTableItemContainer direction="column">
             <SessionTimeTableItemTagContainer direction="row">
                 {sessionCategories.map((category) => (
                     <CategoryButtonStyle>
@@ -59,15 +65,23 @@ const SessionTimeTableItem: React.FC<{ data: SessionTimeTableSlotType }> = ({ da
             <SessionTitle children={data.session.title} />
             <SpeakerName children={data.session.speakers ? data.session.speakers[0].nickname : ""} />
         </SessionTimeTableItemContainer>
+        </SessionTimeTableItemBox>
     );
 }
+
+const ErrorHeading = styled(Typography)({
+    fontSize: "1em",
+    fontWeight: 400,
+    lineHeight: 1.25,
+    textDecoration: "none",
+    whiteSpace: "pre-wrap",
+  });
 
 export const SessionTimeTable: React.FC = ErrorBoundary.with(
     { fallback: ErrorFallback },
     Suspense.with(
-        { fallback: <CircularProgress /> },
+        { fallback: <ErrorHeading>{"세션 목록을 불러오는 중 입니다."}</ErrorHeading> },
         () => {
-
             const SessionDateTab: React.FC = () => {
                 const convertLanguage = (dateString: SessionDate) => {
                     const language: "ko" | "en" = "ko";
@@ -103,6 +117,20 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
                 });
             }, [sessions, selectedDate]);
 
+            const filteredSessionTimeTableSlots: SessionTimeTableSlotType[] = React.useMemo(() => {
+                let data: SessionTimeTableSlotType[] = [];
+                filteredSessions.map(session => {
+                    data.push({
+                        session: session,
+                        left: 1,
+                        top: 2,
+                        width: 3,
+                        height: 4
+                    })
+                });
+                return data;
+            }, [filteredSessions, selectedDate])
+
             return (
                 <>
                     <SessionDateTab />
@@ -111,6 +139,16 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
         }
     )
 )
+
+const SessionTimeTableItemBox = styled(Box)<{position: Position}>(({position}) => ({
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute" as const,
+    left: position.left,
+    top: position.top,
+    width: position.width,
+    height: position.height,
+}));
 
 const SessionTimeTableItemContainer = styled(Stack)({
     alignItems: "center",
@@ -182,4 +220,5 @@ const CategoryButtonStyle = styled(Button)(({ theme }) => ({
     textDecoration: "none",
     whiteSpace: "pre-wrap",
   });
+
 
