@@ -4,7 +4,7 @@ import { Box, Button, Divider, SelectChangeEvent, Stack, Typography } from "@mui
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
@@ -57,12 +57,14 @@ const InnerSessionEditor: React.FC = () => {
   const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
   const updateSessionMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdatePresentationMutation(participantPortalClient);
   const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, sessionId || "");
+  const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalClient);
   const [editorState, setEditorState] = React.useState<SessionEditorState>({
     openSubmitConfirmDialog: false,
     ...(session || DummySessionInfo),
   });
 
-  if (!sessionId || !session || !(R.isArray(editorState.speakers) && !R.isEmpty(editorState.speakers))) return <Navigate to="/" replace />;
+  if (!sessionId || !session || !profile || !(R.isArray(editorState.speakers) && !R.isEmpty(editorState.speakers)))
+    return <Navigate to="/" replace />;
 
   // 유저는 하나의 세션에 발표자가 한번만 가능하고, 백엔드에서 본 유저의 세션 발표자 정보만 제공하므로, 첫 번째 발표자 정보를 사용해도 안전합니다.
   const speaker = editorState.speakers[0];
@@ -137,6 +139,7 @@ const InnerSessionEditor: React.FC = () => {
         description_ko: editorState.description_ko,
         description_en: editorState.description_en,
         image: editorState.image || null,
+        speakers: editorState.speakers,
       },
       {
         onSuccess: () => {
@@ -198,6 +201,26 @@ const InnerSessionEditor: React.FC = () => {
 
           <SecondaryTitle variant="h5" children={titleStrForSpeaker} />
           <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={speakerEditDescription} />
+          <MultiLanguageField
+            label={{ ko: "발표자 별칭", en: "Speaker Nickname" }}
+            description={{
+              ko: (
+                <Stack spacing={1}>
+                  <Typography variant="body2" color="textSecondary" children="발표자 별칭은 프로필 편집에서 변경할 수 있어요." />
+                  <Link to="/user" children={<Button size="small" variant="contained" children="프로필 수정 페이지로 이동" />} />
+                </Stack>
+              ),
+              en: (
+                <Stack spacing={1}>
+                  <Typography variant="body2" color="textSecondary" children="You can change speaker nickname in the profile editor." />
+                  <Link to="/user" children={<Button size="small" variant="contained" children="Go to Profile Editor" />} />
+                </Stack>
+              ),
+            }}
+            value={{ ko: profile.nickname_ko || "", en: profile.nickname_en || "" }}
+            disabled
+            fullWidth
+          />
           <MultiLanguageMarkdownField
             label={{ ko: "발표자 소개", en: "Speaker Biography" }}
             value={{ ko: speaker.biography_ko || "", en: speaker.biography_en || "" }}

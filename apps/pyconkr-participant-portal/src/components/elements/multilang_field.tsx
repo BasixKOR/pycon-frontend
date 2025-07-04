@@ -61,9 +61,14 @@ type TranslatedText = {
   en: string;
 };
 
+type TranslatedNode = {
+  ko: React.ReactNode;
+  en: React.ReactNode;
+};
+
 type MultiLanguageCommonProps = {
   label: TranslatedText;
-  description?: TranslatedText;
+  description?: TranslatedNode;
 };
 
 type MultiLanguageFieldProps = Omit<TextFieldProps, "label" | "defaultValue" | "value" | "onChange"> &

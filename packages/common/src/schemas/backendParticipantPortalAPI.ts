@@ -81,6 +81,12 @@ namespace BackendParticipantPortalAPISchemas {
     description_ko: string;
     description_en: string;
     image: string | null;
+    speakers: {
+      id: string; // UUID of the speaker
+      biography_ko: string; // Biography in Korean
+      biography_en: string; // Biography in English
+      image: string | null; // PK of the speaker's image
+    }[];
   };
 
   export type ModificationAuditSchema = {
