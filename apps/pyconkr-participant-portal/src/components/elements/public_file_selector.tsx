@@ -1,12 +1,12 @@
 import * as Common from "@frontend/common";
 import { PermMedia } from "@mui/icons-material";
-import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectProps, Stack, useMediaQuery } from "@mui/material";
+import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectProps, Stack, styled, useMediaQuery } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { Fieldset } from "./fieldset";
 import { useAppContext } from "../../contexts/app_context";
 import { PublicFileUploadDialog } from "../dialogs/public_file_upload";
+import { Fieldset } from "./fieldset";
 
 type PublicFileSelectorProps = SelectProps<string | null | undefined> & {
   setFileIdAsValue?: (fileId?: string | null) => void;
@@ -17,18 +17,29 @@ const ImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => (
 );
 
 type PublicFileSelectorState = {
+  fileId?: string | null;
   openUploadDialog?: boolean;
 };
 
+const ScaledFallbackImage = styled(Common.Components.FallbackImage)({
+  width: "100%",
+  maxWidth: "20rem",
+  objectFit: "contain",
+});
+
 export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ setFileIdAsValue, ...props }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ onChange, setFileIdAsValue, ...props }) => {
     const [selectorState, setSelectorState] = React.useState<PublicFileSelectorState>({});
     const { language } = useAppContext();
     const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
     const { data } = Common.Hooks.BackendParticipantPortalAPI.usePublicFilesQuery(participantPortalClient);
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
+    const setSelectedFile: SelectProps<string | null | undefined>["onChange"] = (event, child) => {
+      setSelectorState((ps) => ({ ...ps, fileId: event.target.value }));
+      onChange?.(event, child);
+    };
     const openUploadDialog = () => setSelectorState((ps) => ({ ...ps, openUploadDialog: true }));
     const closeUploadDialog = () => setSelectorState((ps) => ({ ...ps, openUploadDialog: false }));
 
@@ -42,11 +53,11 @@ export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBounda
         <PublicFileUploadDialog open={!!selectorState.openUploadDialog} onClose={closeUploadDialog} setFileIdAsValue={setFileIdAsValue} />
         <Fieldset legend={props.label?.toString() || ""}>
           <Stack direction="column" spacing={2} alignItems="center" justifyContent="center">
-            <Common.Components.FallbackImage src={selectedFile?.file} alt="Selected File" errorFallback={<ImageFallback language={language} />} />
+            <ScaledFallbackImage src={selectedFile?.file} alt="Selected File" loading="lazy" errorFallback={<ImageFallback language={language} />} />
             <Stack direction={isMobile ? "column" : "row"} spacing={2} sx={{ width: "100%" }} alignItems="center">
               <FormControl fullWidth>
                 <InputLabel id="public-file-label">{props.label}</InputLabel>
-                <Select labelId="public-file-label" {...props}>
+                <Select labelId="public-file-label" onChange={setSelectedFile} {...props}>
                   {files.map((file) => (
                     <MenuItem key={file.id} value={file.id} children={file.name} />
                   ))}
