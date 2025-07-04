@@ -49,7 +49,7 @@ const ProfileImageStyle: React.CSSProperties = {
 const ProfileImage = styled(Common.Components.FallbackImage)(ProfileImageStyle);
 
 const ProfileImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
-  const noProfileImageText = language === "ko" ? "프로필 이미지가 없습니다." : "No profile image.";
+  const noProfileImageText = language === "ko" ? "프로필 이미지가 없어요." : "No profile image.";
   const registerProfileImageText = language === "ko" ? "이미지를 등록해주세요." : "Please register your profile image.";
 
   return (
@@ -69,8 +69,10 @@ const InnerLandingPage: React.FC = () => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const participantPortalAPIClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
   const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalAPIClient);
-  const { data: modificationAudits } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditsQuery(participantPortalAPIClient);
+  const { data: audits } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditsQuery(participantPortalAPIClient);
   const { data: sessions } = Common.Hooks.BackendParticipantPortalAPI.useListPresentationsQuery(participantPortalAPIClient);
+
+  const ongoingAudits = audits?.filter((audit) => audit.status === "requested") || [];
 
   if (!profile) {
     return (
@@ -84,14 +86,14 @@ const InnerLandingPage: React.FC = () => {
 
   const greetingStr = language === "ko" ? `안녕하세요, ${profile.nickname}님!` : `Hello, ${profile.nickname}!`;
   const myInfoStr = language === "ko" ? "내 정보" : "My Information";
-  const auditStr = language === "ko" ? "수정 요청" : "Audit Requests";
+  const auditStr = language === "ko" ? "심사 중인 수정 요청" : "Ongoing Audit Requests";
   const sessionsStr = language === "ko" ? "발표 목록" : "Sessions";
   // const sponsorsStr = language === "ko" ? "후원사 정보" : "Sponsor informations";
   const userNameStr = language === "ko" ? `계정명 : ${profile.username}` : `Username : ${profile.username}`;
   const nickNameStr = language === "ko" ? `별칭 : ${profile.nickname}` : `Nickname : ${profile.nickname}`;
   const emailStr = language === "ko" ? `이메일 : ${profile.email}` : `Email : ${profile.email}`;
   const editProfileStr = language === "ko" ? "프로필 수정" : "Edit Profile";
-  const auditEmptyStr = language === "ko" ? "수정 요청이 없습니다." : "No audit requests.";
+  const auditEmptyStr = language === "ko" ? "진행 중인 수정 요청이 없습니다." : "No ongoing audit requests.";
 
   return (
     <Page>
@@ -117,8 +119,8 @@ const InnerLandingPage: React.FC = () => {
         <FieldsetContainer>
           <ProperWidthFieldset legend={auditStr}>
             <List>
-              {modificationAudits.length > 0 ? (
-                modificationAudits.map((audit) => (
+              {ongoingAudits.length > 0 ? (
+                ongoingAudits.map((audit) => (
                   <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
                     <ListItemButton
                       children={<ListItemText primary={audit.str_repr} secondary={audit.status} />}
