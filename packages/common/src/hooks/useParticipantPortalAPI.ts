@@ -9,6 +9,8 @@ const QUERY_KEYS = {
   PARTICIPANT_PUBLIC_FILES: ["query", "participant", "list", "public-file"],
   PARTICIPANT_LIST_PRESENTATION: ["query", "participant", "list", "presentation"],
   PARTICIPANT_RETRIEVE_PRESENTATION: ["query", "participant", "retrieve", "presentation"],
+  PARTICIPANT_LIST_MODIFICATION_AUDIT: ["query", "participant", "list", "modification-audit"],
+  PARTICIPANT_RETRIEVE_MODIFICATION_AUDIT: ["query", "participant", "retrieve", "modification-audit"],
 };
 
 const MUTATION_KEYS = {
@@ -18,6 +20,7 @@ const MUTATION_KEYS = {
   PARTICIPANT_UPDATE_ME: ["mutation", "participant", "update-me"],
   PARTICIPANT_UPLOAD_PUBLIC_FILE: ["mutation", "participant", "public-file", "upload"],
   PARTICIPANT_UPDATE_PRESENTATION: ["mutation", "participant", "update", "presentation"],
+  PARTICIPANT_CANCEL_MODIFICATION_AUDIT: ["mutation", "participant", "cancel", "modification-audit"],
 };
 
 namespace BackendParticipantPortalAPIHooks {
@@ -30,6 +33,12 @@ namespace BackendParticipantPortalAPIHooks {
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.PARTICIPANT_ME, client.language],
       queryFn: ParticipantPortalAPI.me(client),
+    });
+
+  export const usePreviewMeModAuditQuery = (client: BackendAPIClient) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PARTICIPANT_ME, "preview", client.language],
+      queryFn: ParticipantPortalAPI.previewMeModAudit(client),
     });
 
   export const useUpdateMeMutation = (client: BackendAPIClient) =>
@@ -84,6 +93,30 @@ namespace BackendParticipantPortalAPIHooks {
     useMutation({
       mutationKey: [...MUTATION_KEYS.PARTICIPANT_UPDATE_PRESENTATION],
       mutationFn: ParticipantPortalAPI.patchPresentation(client),
+    });
+
+  export const usePreviewPresentationModAuditQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PARTICIPANT_RETRIEVE_PRESENTATION, id, "preview", client.language],
+      queryFn: ParticipantPortalAPI.previewPresentationModAudit(client, id),
+    });
+
+  export const useModificationAuditsQuery = (client: BackendAPIClient) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PARTICIPANT_LIST_MODIFICATION_AUDIT, client.language],
+      queryFn: ParticipantPortalAPI.listModificationAudits(client),
+    });
+
+  export const useRetrieveModificationAuditQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PARTICIPANT_RETRIEVE_MODIFICATION_AUDIT, id, client.language],
+      queryFn: ParticipantPortalAPI.retrieveModificationAudit(client, id),
+    });
+
+  export const useCancelModificationAuditMutation = (client: BackendAPIClient) =>
+    useMutation({
+      mutationKey: [...MUTATION_KEYS.PARTICIPANT_CANCEL_MODIFICATION_AUDIT],
+      mutationFn: ParticipantPortalAPI.cancelModificationAudit(client),
     });
 }
 

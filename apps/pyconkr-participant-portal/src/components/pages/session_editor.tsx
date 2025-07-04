@@ -13,6 +13,7 @@ import { ErrorPage } from "../elements/error_page";
 import { LoadingPage } from "../elements/loading_page";
 import { MultiLanguageField, MultiLanguageMarkdownField } from "../elements/multilang_field";
 import { PublicFileSelector } from "../elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
 import { SignInGuard } from "../elements/signin_guard";
 import { PrimaryTitle, SecondaryTitle } from "../elements/titles";
 import { Page } from "../page";
@@ -51,17 +52,17 @@ const DummySessionInfo: SessionUpdateSchema = {
 };
 
 const InnerSessionEditor: React.FC = () => {
-  const { id } = useParams<{ id?: string }>();
+  const { sessionId } = useParams<{ sessionId?: string }>();
   const { language } = useAppContext();
   const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
   const updateSessionMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdatePresentationMutation(participantPortalClient);
-  const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, id || "");
+  const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, sessionId || "");
   const [editorState, setEditorState] = React.useState<SessionEditorState>({
     openSubmitConfirmDialog: false,
     ...(session || DummySessionInfo),
   });
 
-  if (!id || !session || !(R.isArray(editorState.speakers) && !R.isEmpty(editorState.speakers))) return <Navigate to="/" replace />;
+  if (!sessionId || !session || !(R.isArray(editorState.speakers) && !R.isEmpty(editorState.speakers))) return <Navigate to="/" replace />;
 
   // 유저는 하나의 세션에 발표자가 한번만 가능하고, 백엔드에서 본 유저의 세션 발표자 정보만 제공하므로, 첫 번째 발표자 정보를 사용해도 안전합니다.
   const speaker = editorState.speakers[0];
@@ -128,7 +129,7 @@ const InnerSessionEditor: React.FC = () => {
   const updateSession = () => {
     updateSessionMutation.mutate(
       {
-        id: id,
+        id: sessionId,
         title_ko: editorState.title_ko,
         title_en: editorState.title_en,
         summary_ko: editorState.summary_ko,
@@ -154,10 +155,14 @@ const InnerSessionEditor: React.FC = () => {
     );
   };
 
+  const modificationAuditId = session.requested_modification_audit_id || "";
+  const formDisabled = session.has_requested_modification_audit || updateSessionMutation.isPending;
+
   return (
     <>
       <SubmitConfirmDialog open={editorState.openSubmitConfirmDialog} onClose={closeSubmitConfirmDialog} onSubmit={updateSession} />
       <Page>
+        {session.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <PrimaryTitle variant="h4" children={titleStr} />
         <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={sessionEditDescription} />
         <Stack spacing={2} sx={{ width: "100%" }}>
@@ -165,6 +170,7 @@ const InnerSessionEditor: React.FC = () => {
             label={{ ko: "발표 제목", en: "Session Title" }}
             value={{ ko: editorState.title_ko, en: editorState.title_en }}
             onChange={setTitle}
+            disabled={formDisabled}
             fullWidth
           />
           <MultiLanguageField
@@ -172,6 +178,7 @@ const InnerSessionEditor: React.FC = () => {
             description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
             value={{ ko: editorState.summary_ko, en: editorState.summary_en }}
             onChange={setSummary}
+            disabled={formDisabled}
             multiline
             rows={4}
             fullWidth
@@ -183,9 +190,10 @@ const InnerSessionEditor: React.FC = () => {
               en: "Please enter the description of the session.\nDetailed descriptions support Markdown syntax.",
             }}
             value={{ ko: editorState.description_ko, en: editorState.description_en }}
+            disabled={formDisabled}
             onChange={setDescription}
           />
-          <PublicFileSelector label={sessionImageStr} value={editorState.image} onChange={onImageSelectChange} />
+          <PublicFileSelector label={sessionImageStr} value={editorState.image} disabled={formDisabled} onChange={onImageSelectChange} />
           <Divider />
 
           <SecondaryTitle variant="h5" children={titleStrForSpeaker} />
@@ -194,15 +202,23 @@ const InnerSessionEditor: React.FC = () => {
             label={{ ko: "발표자 소개", en: "Speaker Biography" }}
             value={{ ko: speaker.biography_ko || "", en: speaker.biography_en || "" }}
             onChange={setSpeakerBiography}
+            disabled={formDisabled}
             description={{
               ko: "본인의 소개를 입력해주세요.\n본인 소개는 마크다운 문법을 지원합니다.",
               en: "Please enter your biography.\nBiographies support Markdown syntax.",
             }}
           />
-          <PublicFileSelector label={speakerImageStr} value={speaker.image} onChange={onSpeakerImageSelectChange} />
+          <PublicFileSelector label={speakerImageStr} value={speaker.image} disabled={formDisabled} onChange={onSpeakerImageSelectChange} />
 
           <Stack>
-            <Button variant="contained" startIcon={<SendAndArchive />} onClick={openSubmitConfirmDialog} children={submitStr} />
+            <Button
+              variant="contained"
+              startIcon={<SendAndArchive />}
+              onClick={openSubmitConfirmDialog}
+              loading={updateSessionMutation.isPending}
+              disabled={formDisabled}
+              children={submitStr}
+            />
           </Stack>
         </Stack>
       </Page>

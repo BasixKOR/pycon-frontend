@@ -12,6 +12,7 @@ import { ErrorPage } from "../elements/error_page";
 import { LoadingPage } from "../elements/loading_page";
 import { MultiLanguageField } from "../elements/multilang_field";
 import { PublicFileSelector } from "../elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
 import { SignInGuard } from "../elements/signin_guard";
 import { PrimaryTitle } from "../elements/titles";
 import { Page } from "../page";
@@ -93,11 +94,15 @@ const InnerProfileEditor: React.FC = () => {
     );
   };
 
+  const modificationAuditId = profile?.requested_modification_audit_id || "";
+  const formDisabled = profile?.has_requested_modification_audit || updateMeMutation.isPending;
+
   return (
     <>
       <ChangePasswordDialog open={editorState.openChangePasswordDialog} onClose={closeChangePasswordDialog} />
       <SubmitConfirmDialog open={editorState.openSubmitConfirmDialog} onClose={closeSubmitConfirmDialog} onSubmit={updateMe} />
       <Page>
+        {profile?.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <PrimaryTitle variant="h4" children={titleStr} />
         <Stack spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
           <PublicFileSelector label={speakerImageStr} value={editorState.image} onChange={onImageSelectChange} setFileIdAsValue={setImageId} />
@@ -107,6 +112,7 @@ const InnerProfileEditor: React.FC = () => {
               ko: editorState.nickname_ko || "",
               en: editorState.nickname_en || "",
             }}
+            disabled={formDisabled}
             onChange={setNickname}
             description={{
               ko: "닉네임은 발표자 소개에 사용됩니다. 청중이 기억하기 쉬운 이름을 입력해주세요.",
@@ -116,8 +122,23 @@ const InnerProfileEditor: React.FC = () => {
             fullWidth
           />
           <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
-            <Button variant="contained" fullWidth startIcon={<Key />} color="error" onClick={openChangePasswordDialog} children={changePasswordStr} />
-            <Button variant="contained" fullWidth startIcon={<SendAndArchive />} onClick={openSubmitConfirmDialog} children={submitStr} />
+            <Button
+              variant="contained"
+              fullWidth
+              startIcon={<Key />}
+              color="error"
+              onClick={openChangePasswordDialog}
+              children={changePasswordStr}
+              disabled={formDisabled}
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              startIcon={<SendAndArchive />}
+              onClick={openSubmitConfirmDialog}
+              children={submitStr}
+              disabled={formDisabled}
+            />
           </Stack>
         </Stack>
       </Page>

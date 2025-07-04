@@ -55,6 +55,7 @@ export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBounda
               <Button
                 variant="contained"
                 size="small"
+                disabled={props.disabled}
                 onClick={openUploadDialog}
                 startIcon={<PermMedia />}
                 fullWidth={isMobile}

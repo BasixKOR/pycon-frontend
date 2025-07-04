@@ -11,7 +11,7 @@ const ButtonWidth: React.CSSProperties["width"] = "4.5rem";
 
 const FieldContainer = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
-  alignItems: "flex-start",
+  alignItems: "stretch",
 
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
@@ -115,12 +115,13 @@ type MultiLanguageMarkdownFieldProps = {
   onChange?: (value: string | undefined, language: "ko" | "en") => void;
 } & MultiLanguageCommonProps;
 
-const MDRendererContainer = styled(Box)(({ theme }) => ({
-  width: "50%",
-  maxWidth: "50%",
+const MDRendererContainer = styled(Box)<{ fullWidth?: boolean }>(({ theme, fullWidth }) => ({
+  width: fullWidth ? "100%" : "50%",
+  maxWidth: fullWidth ? "100%" : "50%",
   backgroundColor: "#fff",
 
   "& .markdown-body": {
+    padding: theme.spacing(1, 2),
     width: "100%",
     p: { margin: theme.spacing(2, 0) },
   },
@@ -132,6 +133,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
   defaultValue,
   value,
   onChange,
+  disabled,
   ...props
 }) => {
   const { language } = useAppContext();
@@ -156,17 +158,19 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
             <SmallTab value="ko" sx={{ textTransform: "none" }} label={koreanStr} />
             <SmallTab value="en" sx={{ textTransform: "none" }} label={englishStr} />
           </SmallTabs>
-          <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1 }}>
-            <Box sx={{ width: "50%", maxWidth: "50%" }}>
-              <Common.Components.MarkdownEditor
-                defaultValue={inputDefaultValue}
-                value={inputValue}
-                onChange={handleChange}
-                extraCommands={[]}
-                {...props}
-              />
-            </Box>
-            <MDRendererContainer>
+          <Stack direction="row" spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
+            {!disabled && (
+              <Box sx={{ width: "50%", maxWidth: "50%" }}>
+                <Common.Components.MarkdownEditor
+                  defaultValue={inputDefaultValue}
+                  value={inputValue}
+                  onChange={handleChange}
+                  extraCommands={[]}
+                  {...props}
+                />
+              </Box>
+            )}
+            <MDRendererContainer fullWidth={disabled}>
               <Common.Components.MDXRenderer text={inputValue || ""} format="md" />
             </MDRendererContainer>
           </Stack>

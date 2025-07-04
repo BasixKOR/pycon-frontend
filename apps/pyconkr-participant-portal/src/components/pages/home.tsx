@@ -69,6 +69,7 @@ const InnerLandingPage: React.FC = () => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const participantPortalAPIClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
   const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalAPIClient);
+  const { data: modificationAudits } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditsQuery(participantPortalAPIClient);
   const { data: sessions } = Common.Hooks.BackendParticipantPortalAPI.useListPresentationsQuery(participantPortalAPIClient);
 
   if (!profile) {
@@ -90,6 +91,7 @@ const InnerLandingPage: React.FC = () => {
   const nickNameStr = language === "ko" ? `별칭 : ${profile.nickname}` : `Nickname : ${profile.nickname}`;
   const emailStr = language === "ko" ? `이메일 : ${profile.email}` : `Email : ${profile.email}`;
   const editProfileStr = language === "ko" ? "프로필 수정" : "Edit Profile";
+  const auditEmptyStr = language === "ko" ? "수정 요청이 없습니다." : "No audit requests.";
 
   return (
     <Page>
@@ -115,18 +117,33 @@ const InnerLandingPage: React.FC = () => {
         <FieldsetContainer>
           <ProperWidthFieldset legend={auditStr}>
             <List>
-              <ListItem>준비 중입니다.</ListItem>
-            </List>
-          </ProperWidthFieldset>
-          <ProperWidthFieldset legend={sessionsStr}>
-            <List>
-              {sessions?.map((s) => (
-                <ListItem key={s.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
-                  <ListItemButton children={<ListItemText primary={s.title} />} onClick={() => navigate(`/session/${s.id}`)} />
+              {modificationAudits.length > 0 ? (
+                modificationAudits.map((audit) => (
+                  <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
+                    <ListItemButton
+                      children={<ListItemText primary={audit.str_repr} secondary={audit.status} />}
+                      onClick={() => navigate(`/session/${audit.instance_id}/modification-audit/${audit.id}`)}
+                    />
+                  </ListItem>
+                ))
+              ) : (
+                <ListItem disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
+                  <ListItemButton children={<ListItemText primary={auditEmptyStr} />} />
                 </ListItem>
-              ))}
+              )}
             </List>
           </ProperWidthFieldset>
+          {sessions && (
+            <ProperWidthFieldset legend={sessionsStr}>
+              <List>
+                {sessions.map((s) => (
+                  <ListItem key={s.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
+                    <ListItemButton children={<ListItemText primary={s.title} />} onClick={() => navigate(`/session/${s.id}`)} />
+                  </ListItem>
+                ))}
+              </List>
+            </ProperWidthFieldset>
+          )}
           {/* <ProperWidthFieldset legend={sponsorsStr}>
             <List></List>
           </ProperWidthFieldset> */}
