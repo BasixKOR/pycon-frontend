@@ -2,6 +2,7 @@ import * as Common from "@frontend/common";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
+import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
 
@@ -39,18 +40,17 @@ const SetUploadedFileAsValueConfirmDialog: React.FC<SetUploadedFileAsValueConfir
 type PublicFileUploadDialogProps = {
   open: boolean;
   onClose: () => void;
-  setFileIdAsValue?: (fileId: string | undefined) => void;
+  setFileIdAsValue?: (fileId: string | null) => void;
 };
 
 type PublicFileUploadDialogState = {
-  selectedFile?: File | null;
-  uploadedFileId?: string;
-  openSetValueDialog?: boolean;
+  selectedFile: File | null;
+  uploadedFileId: string | null;
 };
 
 export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ open, onClose, setFileIdAsValue }) => {
   const { language } = useAppContext();
-  const [dialogState, setDialogState] = React.useState<PublicFileUploadDialogState>({});
+  const [dialogState, setDialogState] = React.useState<PublicFileUploadDialogState>({ selectedFile: null, uploadedFileId: null });
   const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
   const uploadPublicFileMutation = Common.Hooks.BackendParticipantPortalAPI.useUploadPublicFileMutation(participantPortalClient);
 
@@ -64,10 +64,9 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
   const failedToUploadStr = language === "ko" ? "파일 업로드에 실패했습니다." : "Failed to upload file.";
   const loading = uploadPublicFileMutation.isPending;
 
-  const openSetValueDialog = () => setDialogState((ps) => ({ ...ps, openSetValueDialog: true }));
-  const cleanUpDialogState = () => setDialogState({});
-  const setFile = (selectedFile?: File | null) => setDialogState((ps) => ({ ...ps, selectedFile }));
-  const setFileId = (uploadedFileId?: string) => setDialogState((ps) => ({ ...ps, uploadedFileId }));
+  const cleanUpDialogState = () => setDialogState({ selectedFile: null, uploadedFileId: null });
+  const setFile = (selectedFile: File | null) => setDialogState((ps) => ({ ...ps, selectedFile }));
+  const setFileId = (uploadedFileId: string | null) => setDialogState((ps) => ({ ...ps, uploadedFileId }));
 
   const uploadFile = async () => {
     if (!dialogState.selectedFile) {
@@ -76,10 +75,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
     }
 
     uploadPublicFileMutation.mutate(dialogState.selectedFile, {
-      onSuccess: (data) => {
-        setFileId(data.id);
-        openSetValueDialog();
-      },
+      onSuccess: (data) => setFileId(data.id),
       onError: (error) => {
         console.error("Uploading file failed:", error);
 
@@ -103,7 +99,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
     <>
       <SetUploadedFileAsValueConfirmDialog
         language={language}
-        open={!!dialogState.openSetValueDialog}
+        open={R.isString(dialogState.uploadedFileId) && !R.isEmpty(dialogState.uploadedFileId)}
         closeAll={closeAllDialogs}
         setValueAndCloseAll={setValueAndCloseAllDialogs}
       />

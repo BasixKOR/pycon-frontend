@@ -21,7 +21,7 @@ type ProfileType = {
   email: string;
   nickname_ko: string | null;
   nickname_en: string | null;
-  image?: string | null;
+  image: string | null;
 };
 
 type ProfileEditorState = ProfileType & {
@@ -65,8 +65,8 @@ const InnerProfileEditor: React.FC = () => {
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  const setImageId = (image: string | null | undefined) => setEditorState((ps) => ({ ...ps, image }));
-  const onImageSelectChange = (e: SelectChangeEvent<string | null | undefined>) => setImageId(e.target.value);
+  const setImageId = (image: string | null) => setEditorState((ps) => ({ ...ps, image }));
+  const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImageId(e.target.value);
   const setNickname = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`nickname_${lang}`]: value }));
 
   const updateMe = () => {
@@ -105,7 +105,7 @@ const InnerProfileEditor: React.FC = () => {
         {profile?.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <PrimaryTitle variant="h4" children={titleStr} />
         <Stack spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
-          <PublicFileSelector label={speakerImageStr} value={editorState.image} onChange={onImageSelectChange} setFileIdAsValue={setImageId} />
+          <PublicFileSelector label={speakerImageStr} value={editorState.image} onChange={onImageSelectChange} />
           <MultiLanguageField
             label={{ ko: "닉네임", en: "Nickname" }}
             value={{

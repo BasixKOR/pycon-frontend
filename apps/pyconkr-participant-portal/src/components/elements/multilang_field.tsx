@@ -180,7 +180,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
   );
 };
 
-type MultiLanguagePublicFileSelect = Omit<SelectProps<string | null | undefined>, "label"> & MultiLanguageCommonProps;
+type MultiLanguagePublicFileSelect = Omit<SelectProps<string | null>, "label"> & MultiLanguageCommonProps;
 
 export const MultiLanguagePublicFileSelect: React.FC<MultiLanguagePublicFileSelect> = ({ label, description, ...props }) => {
   const { language } = useAppContext();

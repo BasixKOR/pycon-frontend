@@ -25,13 +25,13 @@ type SessionUpdateSchema = {
   summary_en: string;
   description_ko: string;
   description_en: string;
-  image?: string | null;
+  image: string | null;
 
   speakers: {
     id: string; // UUID of the speaker
     biography_ko: string; // Biography in Korean
     biography_en: string; // Biography in English
-    image?: string | null; // PK of the speaker's image
+    image: string | null; // PK of the speaker's image
   }[];
 };
 
@@ -118,13 +118,13 @@ const InnerSessionEditor: React.FC = () => {
   const setTitle = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`title_${lang}`]: value }));
   const setSummary = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
   const setDescription = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`description_${lang}`]: value }));
-  const setImage = (image: string | null | undefined) => setEditorState((ps) => ({ ...ps, image }));
-  const setSpeakerImage = (image: string | null | undefined) => setEditorState((ps) => ({ ...ps, speakers: [{ ...speaker, image }] }));
+  const setImage = (image: string | null) => setEditorState((ps) => ({ ...ps, image }));
+  const setSpeakerImage = (image: string | null) => setEditorState((ps) => ({ ...ps, speakers: [{ ...speaker, image }] }));
   const setSpeakerBiography = (value: string | undefined, lang: "ko" | "en") =>
     setEditorState((ps) => ({ ...ps, speakers: [{ ...speaker, [`biography_${lang}`]: value }] }));
 
-  const onImageSelectChange = (e: SelectChangeEvent<string | null | undefined>) => setImage(e.target.value);
-  const onSpeakerImageSelectChange = (e: SelectChangeEvent<string | null | undefined>) => setSpeakerImage(e.target.value);
+  const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImage(e.target.value);
+  const onSpeakerImageSelectChange = (e: SelectChangeEvent<string | null>) => setSpeakerImage(e.target.value);
 
   const updateSession = () => {
     updateSessionMutation.mutate(
