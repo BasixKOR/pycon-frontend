@@ -101,6 +101,8 @@ namespace BackendAdminAPISchemas {
     status: "requested" | "approved" | "rejected" | "cancelled"; // Status of the modification request
     created_at: string; // ISO 8601 timestamp
     updated_at: string; // ISO 8601 timestamp
+    created_by: string;
+    updated_by: string | null; // User ID of the person who last updated the audit
     modification_data: string; // JSON string containing the modification data
     str_repr: string; // String representation of the modification audit, e.g., "Presentation Title - Status"
     comments: {

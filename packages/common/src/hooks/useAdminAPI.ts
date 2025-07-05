@@ -3,12 +3,14 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import BackendAPIHooks from "./useAPI";
 import BackendAdminAPIs from "../apis/admin_api";
 import { BackendAPIClient } from "../apis/client";
+import BackendAdminAPISchemas from "../schemas/backendAdminAPI";
 
 const QUERY_KEYS = {
   ADMIN_ME: ["query", "admin", "me"],
   ADMIN_LIST: ["query", "admin", "list"],
   ADMIN_RETRIEVE: ["query", "admin", "retrieve"],
   ADMIN_SCHEMA: ["query", "admin", "schema"],
+  ADMIN_RETRIEVE_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
 };
 
 const MUTATION_KEYS = {
@@ -125,6 +127,12 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.bulkUpdateSections(client, pageId),
     });
 
+  export const useModificationAuditRetrieveQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE_MODIFICATION_AUDIT, "modification-audit", "modification-audit", id],
+      queryFn: BackendAdminAPIs.retrieve<BackendAdminAPISchemas.ModificationAuditSchema>(client, "modification-audit", "modification-audit", id),
+    });
+
   export const useApproveModificationAuditMutation = (client: BackendAPIClient, id: string) =>
     useMutation({
       mutationKey: MUTATION_KEYS.ADMIN_APPROVE_MODIFICATION_AUDIT,
@@ -137,13 +145,7 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.rejectModificationAudit(client, id),
     });
 
-  export const useModificationAuditPreviewRetrieveQuery = <T>(
-    client: BackendAPIClient,
-    app: string,
-    resource: string,
-    instanceId: string,
-    auditId: string
-  ) =>
+  export const useModificationAuditPreviewQuery = <T>(client: BackendAPIClient, app: string, resource: string, instanceId: string, auditId: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, instanceId, "preview", auditId],
       queryFn: BackendAdminAPIs.previewModificationAudit<T>(client, app, resource, instanceId, auditId),
