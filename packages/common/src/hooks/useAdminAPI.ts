@@ -19,6 +19,8 @@ const MUTATION_KEYS = {
   ADMIN_CREATE: ["mutation", "admin", "create"],
   ADMIN_UPDATE: ["mutation", "admin", "update"],
   ADMIN_REMOVE: ["mutation", "admin", "remove"],
+  ADMIN_APPROVE_MODIFICATION_AUDIT: ["mutation", "admin", "approve", "modification-audit"],
+  ADMIN_REJECT_MODIFICATION_AUDIT: ["mutation", "admin", "reject", "modification-audit"],
 };
 
 namespace BackendAdminAPIHooks {
@@ -121,6 +123,30 @@ namespace BackendAdminAPIHooks {
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_UPDATE, "cms", "page", pageId, "section"],
       mutationFn: BackendAdminAPIs.bulkUpdateSections(client, pageId),
+    });
+
+  export const useApproveModificationAuditMutation = (client: BackendAPIClient, id: string) =>
+    useMutation({
+      mutationKey: MUTATION_KEYS.ADMIN_APPROVE_MODIFICATION_AUDIT,
+      mutationFn: BackendAdminAPIs.approveModificationAudit(client, id),
+    });
+
+  export const useRejectModificationAuditMutation = (client: BackendAPIClient, id: string) =>
+    useMutation({
+      mutationKey: MUTATION_KEYS.ADMIN_REJECT_MODIFICATION_AUDIT,
+      mutationFn: BackendAdminAPIs.rejectModificationAudit(client, id),
+    });
+
+  export const useModificationAuditPreviewRetrieveQuery = <T>(
+    client: BackendAPIClient,
+    app: string,
+    resource: string,
+    instanceId: string,
+    auditId: string
+  ) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, instanceId, "preview", auditId],
+      queryFn: BackendAdminAPIs.previewModificationAudit<T>(client, app, resource, instanceId, auditId),
     });
 }
 

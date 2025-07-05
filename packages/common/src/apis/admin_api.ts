@@ -77,6 +77,29 @@ namespace BackendAdminAPIs {
         `v1/admin-api/cms/page/${pageId}/section/bulk-update/`,
         data
       );
+
+  export const approveModificationAudit = (client: BackendAPIClient, id: string) => (reason?: string | null) =>
+    client.patch<BackendAdminAPISchemas.ModificationAuditSchema, { reason?: string | null }>(
+      `v1/admin-api/modification-audit/modification-audit/${id}/approve/`,
+      { reason: reason ?? null }
+    );
+
+  export const rejectModificationAudit = (client: BackendAPIClient, id: string) => (reason?: string | null) =>
+    client.patch<BackendAdminAPISchemas.ModificationAuditSchema, { reason?: string | null }>(
+      `v1/admin-api/modification-audit/modification-audit/${id}/reject/`,
+      { reason: reason ?? null }
+    );
+
+  export const previewModificationAudit =
+    <T>(client: BackendAPIClient, app: string, resource: string, instanceId: string, auditId: string) =>
+    async () => {
+      try {
+        return await client.get<T>(`v1/admin-api/${app}/${resource}/${instanceId}/preview/${auditId}/`);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_) {
+        return null;
+      }
+    };
 }
 
 export default BackendAdminAPIs;
