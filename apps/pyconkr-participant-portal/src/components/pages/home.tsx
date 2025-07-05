@@ -124,7 +124,7 @@ const InnerLandingPage: React.FC = () => {
                   <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
                     <ListItemButton
                       children={<ListItemText primary={audit.str_repr} secondary={audit.status} />}
-                      onClick={() => navigate(`/session/${audit.instance_id}/modification-audit/${audit.id}`)}
+                      onClick={() => navigate(`/session/${audit.instance_id}/`)}
                     />
                   </ListItem>
                 ))
