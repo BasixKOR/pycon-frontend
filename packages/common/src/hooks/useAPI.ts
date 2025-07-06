@@ -48,6 +48,12 @@ namespace BackendAPIHooks {
       queryKey: [...QUERY_KEYS.SESSION_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
       queryFn: BackendAPIs.listSessions(client, params),
     });
+
+  export const useSessionQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.SESSION_LIST, id, client.language],
+      queryFn: () => BackendAPIs.retrieveSession(client)(id),
+    });
 }
 
 export default BackendAPIHooks;

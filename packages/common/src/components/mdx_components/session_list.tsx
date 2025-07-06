@@ -1,6 +1,7 @@
 import { Box, Button, Chip, CircularProgress, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
+import { Link } from "react-router-dom";
 import * as R from "remeda";
 
 import PyCon2025Logo from "../../assets/pyconkr2025_logo.png";
@@ -10,18 +11,17 @@ import { ErrorFallback } from "../error_handler";
 import { FallbackImage } from "../fallback_image";
 import { StyledDivider } from "./styled_divider";
 
-const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Suspense.with({ fallback: <CircularProgress /> }, ({ session }) => {
-  const sessionTitle = session.title.replace("\\n", "\n");
-  const speakerImgSrc = session.image || (R.isArray(session.speakers) && !R.isEmpty(session.speakers) && session.speakers[0].image) || "";
-  // const urlSafeTitle = session.title
-  //   .replace(/ /g, "-")
-  //   .replace(/([.])/g, "_")
-  //   .replace(/(?![0-9A-Za-zㄱ-ㅣ가-힣-_])./g, "");
-  // const sessionDetailedUrl = `/session/${session.id}#${urlSafeTitle}`;
-
-  return (
-    <>
-      {/* <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }}> */}
+const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLink?: boolean }> = Suspense.with(
+  { fallback: <CircularProgress /> },
+  ({ session, enableLink }) => {
+    const sessionTitle = session.title.replace("\\n", "\n");
+    const speakerImgSrc = session.image || (R.isArray(session.speakers) && !R.isEmpty(session.speakers) && session.speakers[0].image) || "";
+    const urlSafeTitle = session.title
+      .replace(/ /g, "-")
+      .replace(/([.])/g, "_")
+      .replace(/(?![0-9A-Za-zㄱ-ㅣ가-힣-_])./g, "");
+    const sessionDetailedUrl = `/presentations/${session.id}#${urlSafeTitle}`;
+    const result = (
       <SessionItemContainer direction="row">
         <SessionImageContainer
           children={<SessionImage src={speakerImgSrc} alt="Session Image" loading="lazy" errorFallback={<SessionImageErrorFallback />} />}
@@ -40,20 +40,25 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
           </Stack>
         </Stack>
       </SessionItemContainer>
-      {/* </Link> */}
-      <StyledDivider />
-    </>
-  );
-});
+    );
+    return (
+      <>
+        {enableLink ? <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }} children={result} /> : result}
+        <StyledDivider />
+      </>
+    );
+  }
+);
 
 type SessionListPropType = {
   event?: string;
   types?: string | string[];
+  enableLink?: boolean;
 };
 
 export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
     const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
@@ -103,7 +108,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
           )}
         </Box>
         {filteredSessions.map((s) => (
-          <SessionItem key={s.id} session={s} />
+          <SessionItem key={s.id} session={s} enableLink={enableLink} />
         ))}
       </Box>
     );
