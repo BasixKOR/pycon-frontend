@@ -70,6 +70,11 @@ namespace BackendAPISchemas {
     }[];
   };
 
+  export type SessionQueryParameterSchema = {
+    event?: string;
+    types?: string[];
+  };
+
   export type SessionSchema = {
     id: string;
     title: string;

@@ -46,12 +46,18 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
   );
 });
 
-export const SessionList: React.FC = ErrorBoundary.with(
+type SessionListPropType = {
+  event?: string;
+  types?: string[];
+};
+
+export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, () => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient);
+    const params = { ...(event && { event }), ...(types && { types }) };
+    const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const warningMessage =
       language === "ko"
@@ -80,17 +86,21 @@ export const SessionList: React.FC = ErrorBoundary.with(
         <Box>
           <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
           <StyledDivider />
-          <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
-            {categories.map((cat) => (
-              <CategoryButtonStyle
-                key={cat.id}
-                onClick={() => toggleCategory(cat.id)}
-                children={cat.name}
-                selected={selectedCategoryIds.some((selectedCatId) => selectedCatId === cat.id)}
-              />
-            ))}
-          </Stack>
-          <StyledDivider />
+          {categories && (
+            <>
+              <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
+                {categories.map((cat) => (
+                  <CategoryButtonStyle
+                    key={cat.id}
+                    onClick={() => toggleCategory(cat.id)}
+                    children={cat.name}
+                    selected={selectedCategoryIds.some((selectedCatId) => selectedCatId === cat.id)}
+                  />
+                ))}
+              </Stack>
+              <StyledDivider />
+            </>
+          )}
         </Box>
         {filteredSessions.map((s) => (
           <SessionItem key={s.id} session={s} />
