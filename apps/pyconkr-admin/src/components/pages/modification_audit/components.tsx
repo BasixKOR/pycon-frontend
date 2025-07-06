@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
+import { usePreviewImageData } from "./hooks";
+
 type SharedPreviewFieldProps = {
   originalDataset: Record<string, unknown>;
   previewDataset: Record<string, unknown>;
@@ -109,12 +111,17 @@ const WidthSpecifiedFallbackImage = styled(Common.Components.FallbackImage)({
 });
 
 export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
-  const originalImage = originalDataset[name] as string;
-  const previewImage = previewDataset[name] as string;
+  const { originalImage, previewImage } = usePreviewImageData(originalDataset, previewDataset, name) || {};
 
-  return originalImage === previewImage ? (
+  return originalImage?.id === previewImage?.id ? (
     <Common.Components.Fieldset legend={label} style={{ width: "100%" }}>
-      <WidthSpecifiedFallbackImage src={previewImage} alt={label} errorFallback={<ImageFallback />} />
+      <Stack alignItems="center" justifyContent="center">
+        {previewImage?.file ? (
+          <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
+        ) : (
+          <Typography variant="caption" children="이미지를 지정하지 않았습니다." />
+        )}
+      </Stack>
     </Common.Components.Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
@@ -122,14 +129,22 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
             <Common.Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
-              <WidthSpecifiedFallbackImage src={previewImage} alt={label} errorFallback={<ImageFallback />} />
+              <Stack alignItems="center" justifyContent="center">
+                <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
+              </Stack>
             </Common.Components.Fieldset>
             <Typography variant="caption">기존 이미지를 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
           <Common.Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
-            <WidthSpecifiedFallbackImage src={originalImage} alt={label} errorFallback={<ImageFallback />} />
+            <Stack alignItems="center" justifyContent="center">
+              {originalImage?.file ? (
+                <WidthSpecifiedFallbackImage src={originalImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
+              ) : (
+                <Typography variant="caption" children="기존 이미지를 지정하지 않았습니다." />
+              )}
+            </Stack>
           </Common.Components.Fieldset>
         </AccordionDetails>
       </Accordion>

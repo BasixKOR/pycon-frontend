@@ -13,7 +13,7 @@ export const UserExtPreviewSubPage: SubModificationAuditPageType = ({ originalDa
         <PreviewTextField originalDataset={originalData} previewDataset={previewData} name="username" label="계정 ID" />
         <PreviewTextField originalDataset={originalData} previewDataset={previewData} name="email" label="계정 이메일" />
       </Common.Components.Fieldset>
-      <PreviewImageField originalDataset={originalData} previewDataset={previewData} name="image" label="발표 이미지" />
+      <PreviewImageField originalDataset={originalData} previewDataset={previewData} name="image" label="프로필 이미지" />
       <Common.Components.Fieldset legend="별칭">
         <PreviewTextField originalDataset={originalData} previewDataset={previewData} multiline name="nickname_ko" label="별칭 (한국어)" />
         <PreviewTextField originalDataset={originalData} previewDataset={previewData} multiline name="nickname_en" label="별칭 (영어)" />
