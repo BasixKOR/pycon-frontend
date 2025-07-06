@@ -48,7 +48,7 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
 
 type SessionListPropType = {
   event?: string;
-  types?: string[];
+  types?: string | string[];
 };
 
 export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
@@ -56,7 +56,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   Suspense.with({ fallback: <CircularProgress /> }, ({ event, types }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const params = { ...(event && { event }), ...(types && { types: types.join(",") }) };
+    const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
     const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const warningMessage =
@@ -86,7 +86,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
         <Box>
           <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
           <StyledDivider />
-          {categories && (
+          {categories && categories.length > 1 && (
             <>
               <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
                 {categories.map((cat) => (
