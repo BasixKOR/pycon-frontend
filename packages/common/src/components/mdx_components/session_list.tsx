@@ -56,7 +56,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   Suspense.with({ fallback: <CircularProgress /> }, ({ event, types }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const params = { ...(event && { event }), ...(types && { types }) };
+    const params = { ...(event && { event }), ...(types && { types: types.join(",") }) };
     const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const warningMessage =
