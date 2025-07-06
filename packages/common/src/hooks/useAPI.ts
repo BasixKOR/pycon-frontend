@@ -45,7 +45,7 @@ namespace BackendAPIHooks {
 
   export const useSessionsQuery = (client: BackendAPIClient, params?: BackendAPISchemas.SessionQueryParameterSchema) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.SESSION_LIST, client.language],
+      queryKey: [...QUERY_KEYS.SESSION_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
       queryFn: BackendAPIs.listSessions(client, params),
     });
 }
