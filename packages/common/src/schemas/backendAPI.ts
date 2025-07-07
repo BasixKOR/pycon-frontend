@@ -85,11 +85,21 @@ namespace BackendAPISchemas {
       biography: string;
       image: string | null;
     }[];
-    schedule: {
-      startTime: Date;
-      endTime: Date;
-      roomName: string;
-    }
+    room_schedules: {
+      id: string;
+      room_name: string;
+      event_id: number;
+      event_name: string;
+      start_at: Date;
+      end_at: Date;
+    };
+    call_for_presentation_schedules: {
+      id: string;
+      presentation_type_name: string;
+      start_at: Date;
+      end_at: Date;
+      next_call_for_presentation_schedule: string;
+    };
   };
 
   export const isObjectErrorResponseSchema = (obj?: unknown): obj is BackendAPISchemas.ErrorResponseSchema => {
