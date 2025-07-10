@@ -102,8 +102,8 @@ const generateSessionData: () => BackendAPISchemas.SessionSchema[] = () => {
   let rawData: BackendAPISchemas.SessionSchema[] = [];
   for (var i = 0; i < sessionRawTimeSchedule.length; i++) {
     rawData.push(sessionRawData[0]);
-    rawData[-1].room_schedules = sessionRawTimeSchedule[i].room_schedules;
-    rawData[-1].call_for_presentation_schedules = sessionRawTimeSchedule[i].call_for_presentation_schedules;
+    rawData[rawData.length - 1].room_schedules = sessionRawTimeSchedule[i].room_schedules;
+    rawData[rawData.length - 1].call_for_presentation_schedules = sessionRawTimeSchedule[i].call_for_presentation_schedules;
   }
   return rawData;
 };
@@ -146,7 +146,7 @@ type Room = {
 };
 
 // @ts-ignore
-const sessionDates: SessionDate[] = [
+const rawSessionDates: SessionDate[] = [
   {
     index: 1,
     date: new Date(2025, 8, 15),
@@ -195,6 +195,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <ErrorHeading>{"세션 시간표를 불러오는 중 입니다."}</ErrorHeading> }, () => {
     const SessionDateTab: React.FC = () => {
+      // @ts-ignore
       const convertLanguage = (dateString: SessionDate) => {
         const language: "ko" | "en" = "ko";
         if (language === "ko") {
@@ -205,7 +206,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       };
 
       return (
-        <>
+        <Box>
           <SessionDateTabContainer>
             <StyledDivider />
             {sessionDates.map((sessionDate) => {
@@ -218,7 +219,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
             })}
             <StyledDivider />
           </SessionDateTabContainer>
-        </>
+        </Box>
       );
     };
 
@@ -228,14 +229,14 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
     // @ts-ignore
     const [sessionData, setSessionData] = React.useState(sessions);
     // @ts-ignore
-    const [sessionDates, setSessionDates] = React.useState<SessionDate[]>([]);
+    const [sessionDates, setSessionDates] = React.useState<SessionDate[]>(rawSessionDates);
     // @ts-ignore
     const [selectedDate, setSelectedDate] = React.useState<SessionDate>(sessionDates[0]);
     // @ts-ignore
     const [sessionRooms, setSessionRooms] = React.useState<Room[]>([]);
     const filteredSessions = React.useMemo(() => {
       return sessions.filter((session) => {
-        return selectedDate.date === session.room_schedules.start_at;
+        return selectedDate.date.toLocaleDateString() === session.room_schedules.start_at.toLocaleDateString();
       });
     }, [sessions, selectedDate]);
 
@@ -290,11 +291,13 @@ const SessionDateTabContainer = styled(Box)({
   justifyContent: "center",
 });
 
+// @ts-ignore
 const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",
 });
 
+// @ts-ignore
 const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
   fontSize: "1.5em",
   fontWeight: 400,
@@ -304,6 +307,7 @@ const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, i
   color: isSelected ? theme.palette.primary.main : theme.palette.primary.light,
 }));
 
+// @ts-ignore
 const SessionDateSubTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
   fontSize: "1.5em",
   fontWeight: 400,
