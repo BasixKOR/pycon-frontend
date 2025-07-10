@@ -1,4 +1,4 @@
-import { Box, Button, Stack, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, Stack, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import BackendAPISchemas from "../../schemas/backendAPI";
@@ -167,6 +167,24 @@ const rawSessionDates: SessionDate[] = [
   },
 ];
 
+const rawRooms: Room[] = [
+  {
+    name: "201호",
+    availableStartDate: new Date(2025, 8, 15),
+    availableEndDate: new Date(2025, 8, 16),
+  },
+  {
+    name: "202호",
+    availableStartDate: new Date(2025, 8, 16),
+    availableEndDate: new Date(2025, 8, 17),
+  },
+  {
+    name: "203호",
+    availableStartDate: new Date(2025, 8, 16),
+    availableEndDate: new Date(2025, 8, 17),
+  },
+];
+
 const SessionTimeTableItem: React.FC<{ data: SessionTimeTableSlotType }> = ({ data }) => {
   const sessionCategories = data.session.categories;
 
@@ -206,19 +224,21 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       };
 
       return (
-        <Box>
-          <SessionDateTabContainer>
-            <StyledDivider />
+        <Box sx={{ flexDirection: "column" }}>
+          <ColoredDivider />
+          <SessionDateTabContainer direction="row">
             {sessionDates.map((sessionDate) => {
               return (
-                <SessionDateItemContainer direction="column">
-                  <SessionDateTitle children={"Day " + sessionDate.index} isSelected={sessionDate.date === selectedDate.date} />
-                  <SessionDateSubTitle children={convertLanguage(sessionDate)} isSelected={sessionDate.date === selectedDate.date} />
-                </SessionDateItemContainer>
+                <ButtonBase onClick={() => setSelectedDate(sessionDate)}>
+                  <SessionDateItemContainer direction="column">
+                    <SessionDateTitle children={"Day " + sessionDate.index} isSelected={sessionDate.date === selectedDate.date} />
+                    <SessionDateSubTitle children={convertLanguage(sessionDate)} isSelected={sessionDate.date === selectedDate.date} />
+                  </SessionDateItemContainer>
+                </ButtonBase>
               );
             })}
-            <StyledDivider />
           </SessionDateTabContainer>
+          <ColoredDivider />
         </Box>
       );
     };
@@ -233,7 +253,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
     // @ts-ignore
     const [selectedDate, setSelectedDate] = React.useState<SessionDate>(sessionDates[0]);
     // @ts-ignore
-    const [sessionRooms, setSessionRooms] = React.useState<Room[]>([]);
+    const [sessionRooms, setSessionRooms] = React.useState<Room[]>(rawRooms);
     const filteredSessions = React.useMemo(() => {
       return sessions.filter((session) => {
         return selectedDate.date.toLocaleDateString() === session.room_schedules.start_at.toLocaleDateString();
@@ -252,8 +272,12 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       return data;
     }, [filteredSessions, selectedDate]);
 
+    React.useEffect(() => {
+      filteredSessionTimeTableSlots;
+    });
+
     return (
-      <>
+      <Box>
         <SessionDateTab />
         <TableContainer>
           <Table>
@@ -271,7 +295,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
             </TableBody>
           </Table>
         </TableContainer>
-      </>
+      </Box>
     );
   })
 );
@@ -286,7 +310,7 @@ const SessionTimeTableItemTagContainer = styled(Stack)({
   justifyContent: "center",
 });
 
-const SessionDateTabContainer = styled(Box)({
+const SessionDateTabContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",
 });
@@ -295,12 +319,13 @@ const SessionDateTabContainer = styled(Box)({
 const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",
+  padding: "0.5rem 1.5rem",
 });
 
 // @ts-ignore
 const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
   fontSize: "1.5em",
-  fontWeight: 400,
+  fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
   whiteSpace: "pre-wrap",
@@ -309,8 +334,8 @@ const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, i
 
 // @ts-ignore
 const SessionDateSubTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
-  fontSize: "1.5em",
-  fontWeight: 400,
+  fontSize: "0.75em",
+  fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
   whiteSpace: "pre-wrap",
@@ -349,3 +374,7 @@ const SpeakerName = styled(Typography)({
   textDecoration: "none",
   whiteSpace: "pre-wrap",
 });
+
+const ColoredDivider = styled(StyledDivider)(({ theme }) => ({
+  color: theme.palette.primary.main,
+}));
