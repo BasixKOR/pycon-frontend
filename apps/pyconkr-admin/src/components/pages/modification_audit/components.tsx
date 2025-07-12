@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import * as React from "react";
+import * as R from "remeda";
 
 type SharedPreviewFieldProps = {
   originalDataset: Record<string, unknown>;
@@ -164,33 +165,55 @@ type SimplifiedModificationAudit = {
   created_at: string;
   created_by: string;
   status: string;
+  comments?: {
+    content: string;
+    created_by: { is_superuser: boolean; nickname: string };
+  }[];
 };
 
-export const ModificationAuditProperties: React.FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => (
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell>속성</TableCell>
-        <TableCell>값</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      <TableRow>
-        <TableCell>심사 ID</TableCell>
-        <TableCell>{audit.id}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell>심사 요청 시간</TableCell>
-        <TableCell>{new Date(audit.created_at).toLocaleString()}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell>심사 요청자</TableCell>
-        <TableCell>{audit.created_by}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell>심사 상태</TableCell>
-        <TableCell>{audit.status}</TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
-);
+export const ModificationAuditProperties: React.FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => {
+  let rejectReason: React.ReactNode = null;
+  if (R.isArray(audit.comments) && !R.isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
+    const comment = audit.comments.filter((c) => c.created_by.is_superuser)[0];
+    rejectReason = (
+      <>
+        <TableRow>
+          <TableCell>반려 사유</TableCell>
+          <TableCell>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{comment.content}</pre>(by {comment.created_by.nickname})
+          </TableCell>
+        </TableRow>
+      </>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>속성</TableCell>
+          <TableCell>값</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <TableRow>
+          <TableCell>심사 ID</TableCell>
+          <TableCell>{audit.id}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>심사 요청 시간</TableCell>
+          <TableCell>{new Date(audit.created_at).toLocaleString()}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>심사 요청자</TableCell>
+          <TableCell>{audit.created_by}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>심사 상태</TableCell>
+          <TableCell>{audit.status}</TableCell>
+        </TableRow>
+        {rejectReason}
+      </TableBody>
+    </Table>
+  );
+};

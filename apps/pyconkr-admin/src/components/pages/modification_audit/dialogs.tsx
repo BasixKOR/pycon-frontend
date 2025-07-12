@@ -1,5 +1,5 @@
 import * as Common from "@frontend/common";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 
@@ -42,14 +42,15 @@ export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="error" children="취소" />
-        <Button onClick={onApproveClick} color="primary" variant="contained" children="승인" />
+        <Button loading={approveModificationAuditMutation.isPending} onClick={onClose} color="error" children="취소" />
+        <Button loading={approveModificationAuditMutation.isPending} onClick={onApproveClick} color="primary" variant="contained" children="승인" />
       </DialogActions>
     </Dialog>
   );
 };
 
 export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
   const rejectModificationAuditMutation = Common.Hooks.BackendAdminAPI.useRejectModificationAuditMutation(backendAdminClient, modificationAuditId);
 
@@ -57,7 +58,9 @@ export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ 
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const onRejectClick = () => {
-    rejectModificationAuditMutation.mutate(undefined, {
+    if (!inputRef.current) return;
+
+    rejectModificationAuditMutation.mutate(inputRef.current.value.trim(), {
       onSuccess: () => {
         addSnackbar("수정 심사가 반려되었습니다.", "success");
         onClose();
@@ -80,10 +83,13 @@ export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ 
           <br />
           반려 후에는 다시 승인할 수 없습니다!
         </Typography>
+        <Common.Components.Fieldset legend="반려 사유 (선택)">
+          <TextField fullWidth multiline minRows={4} inputRef={inputRef} label="반려 사유" />
+        </Common.Components.Fieldset>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="error" children="취소" />
-        <Button onClick={onRejectClick} color="primary" variant="contained" children="반려" />
+        <Button loading={rejectModificationAuditMutation.isPending} onClick={onClose} color="error" children="취소" />
+        <Button loading={rejectModificationAuditMutation.isPending} onClick={onRejectClick} color="primary" variant="contained" children="반려" />
       </DialogActions>
     </Dialog>
   );

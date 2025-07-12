@@ -70,7 +70,7 @@ const RejectedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language,
       <>
         {auditRejectedText + rejectReasonIsText}
         <br />
-        {rejectedReason}
+        <pre style={{ whiteSpace: "pre-wrap" }}>{rejectedReason}</pre>
       </>
     );
   }
