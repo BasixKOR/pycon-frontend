@@ -110,7 +110,7 @@ const InnerProfileEditor: React.FC = () => {
         {profile?.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <PrimaryTitle variant="h4" children={titleStr} />
         <Stack spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
-          <PublicFileSelector label={speakerImageStr} value={editorState.image} onChange={onImageSelectChange} />
+          <PublicFileSelector label={speakerImageStr} value={editorState.image} onChange={onImageSelectChange} disabled={formDisabled} />
           <MultiLanguageField
             label={{ ko: "닉네임", en: "Nickname" }}
             value={{
