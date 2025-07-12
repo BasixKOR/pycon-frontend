@@ -23,7 +23,7 @@ namespace BackendParticipantPortalAPIs {
   export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/participant-portal/user/signout/");
 
   export const changePassword = (client: BackendAPIClient) => (data: ParticipantPortalAPISchemas.UserChangePasswordSchema) =>
-    client.post<void, ParticipantPortalAPISchemas.UserChangePasswordSchema>("v1/participant-portal/user/password/", data);
+    client.put<void, ParticipantPortalAPISchemas.UserChangePasswordSchema>("v1/participant-portal/user/password/", data);
 
   export const listPublicFiles = (client: BackendAPIClient) => () =>
     client.get<ParticipantPortalAPISchemas.PublicFileSchema[]>("v1/participant-portal/public-file/");
