@@ -27,7 +27,7 @@ const ScaledFallbackImage = styled(Common.Components.FallbackImage)({
 
 export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ value, onChange, ...props }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ value, onChange, disabled, ...props }) => {
     const selectInputRef = React.useRef<HTMLSelectElement | null>(null);
     const [selectorState, setSelectorState] = React.useState<PublicFileSelectorState>({ value });
     const { language } = useAppContext();
@@ -68,22 +68,31 @@ export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBounda
             <Stack direction={isMobile ? "column" : "row"} spacing={2} sx={{ width: "100%" }} alignItems="center">
               <FormControl fullWidth>
                 <InputLabel id="public-file-label">{props.label}</InputLabel>
-                <Select labelId="public-file-label" ref={selectInputRef} value={selectorState.value || ""} onChange={setSelectedFile} {...props}>
+                <Select
+                  labelId="public-file-label"
+                  ref={selectInputRef}
+                  value={selectorState.value || ""}
+                  disabled={disabled}
+                  onChange={setSelectedFile}
+                  {...props}
+                >
                   {files.map((file) => (
                     <MenuItem key={file.id} value={file.id} children={file.name} />
                   ))}
                 </Select>
               </FormControl>
-              <Button
-                variant="contained"
-                size="small"
-                disabled={props.disabled}
-                onClick={openUploadDialog}
-                startIcon={<PermMedia />}
-                fullWidth={isMobile}
-                children={uploadStr}
-                sx={{ wordBreak: "keep-all" }}
-              />
+              {!disabled && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={disabled}
+                  onClick={openUploadDialog}
+                  startIcon={<PermMedia />}
+                  fullWidth={isMobile}
+                  children={uploadStr}
+                  sx={{ wordBreak: "keep-all" }}
+                />
+              )}
             </Stack>
           </Stack>
         </Fieldset>

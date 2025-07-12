@@ -17,19 +17,19 @@ import { SignInGuard } from "../elements/signin_guard";
 import { PrimaryTitle } from "../elements/titles";
 import { Page } from "../page";
 
-type ProfileType = {
+export type ProfileSchema = {
   email: string;
   nickname_ko: string | null;
   nickname_en: string | null;
   image: string | null;
 };
 
-type ProfileEditorState = ProfileType & {
+type ProfileEditorState = ProfileSchema & {
   openChangePasswordDialog: boolean;
   openSubmitConfirmDialog: boolean;
 };
 
-const DummyProfile: ProfileType = {
+const DummyProfile: ProfileSchema = {
   email: "",
   nickname_ko: "",
   nickname_en: "",
@@ -100,7 +100,12 @@ const InnerProfileEditor: React.FC = () => {
   return (
     <>
       <ChangePasswordDialog open={editorState.openChangePasswordDialog} onClose={closeChangePasswordDialog} />
-      <SubmitConfirmDialog open={editorState.openSubmitConfirmDialog} onClose={closeSubmitConfirmDialog} onSubmit={updateMe} />
+      <SubmitConfirmDialog
+        open={editorState.openSubmitConfirmDialog}
+        onClose={closeSubmitConfirmDialog}
+        onSubmit={updateMe}
+        disabled={formDisabled}
+      />
       <Page>
         {profile?.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <PrimaryTitle variant="h4" children={titleStr} />
@@ -154,14 +159,14 @@ export const ProfileEditor: React.FC = ErrorBoundary.with(
 type ProfileEditorFormProps = {
   disabled?: boolean;
   showSubmitButton?: boolean;
-  onSubmit?: (profile: ProfileType) => void;
+  onSubmit?: (profile: ProfileSchema) => void;
   language: "ko" | "en";
-  defaultValue: ProfileType;
+  defaultValue: ProfileSchema;
 };
 
 // TODO: FIXME: 언젠간 위의 ProfileEditor를 아래 ProfileEditorForm에 마이그레이션해야 함
 export const ProfileEditorForm: React.FC<ProfileEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
-  const [formState, setFormState] = React.useState<ProfileType>(defaultValue);
+  const [formState, setFormState] = React.useState<ProfileSchema>(defaultValue);
   const setImageId = (image: string | null) => setFormState((ps) => ({ ...ps, image }));
   const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImageId(e.target.value);
   const setNickname = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`nickname_${lang}`]: value }));
@@ -176,7 +181,7 @@ export const ProfileEditorForm: React.FC<ProfileEditorFormProps> = ({ disabled, 
     <>
       <PrimaryTitle variant="h4" children={titleStr} />
       <Stack spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
-        <PublicFileSelector label={speakerImageStr} value={formState.image} onChange={onImageSelectChange} />
+        <PublicFileSelector label={speakerImageStr} value={formState.image} disabled={disabled} onChange={onImageSelectChange} />
         <MultiLanguageField
           label={{ ko: "닉네임", en: "Nickname" }}
           value={{

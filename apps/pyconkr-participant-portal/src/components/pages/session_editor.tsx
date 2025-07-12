@@ -35,7 +35,7 @@ type SessionUpdateSchema = {
   }[];
 };
 
-type SessionSchema = SessionUpdateSchema & {
+export type SessionSchema = SessionUpdateSchema & {
   speakers: (SessionUpdateSchema["speakers"][number] & {
     user: {
       id: number; // UUID of the user
@@ -238,7 +238,12 @@ const InnerSessionEditor: React.FC = () => {
 
   return (
     <>
-      <SubmitConfirmDialog open={editorState.openSubmitConfirmDialog} onClose={closeSubmitConfirmDialog} onSubmit={updateSession} />
+      <SubmitConfirmDialog
+        open={editorState.openSubmitConfirmDialog}
+        onClose={closeSubmitConfirmDialog}
+        onSubmit={updateSession}
+        disabled={formDisabled}
+      />
       <Page>
         {session.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
         <SessionEditorForm disabled={formDisabled} language={language} defaultValue={session} onSubmit={openSubmitConfirmDialog} showSubmitButton />

@@ -162,14 +162,17 @@ const InnerLandingPage: React.FC = () => {
             )}
             <List>
               {filteredAudits.length > 0 ? (
-                filteredAudits.map((audit) => (
-                  <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
-                    <ListItemButton
-                      children={<ListItemText primary={audit.str_repr} secondary={TranslatedAuditState[audit.status][language]} />}
-                      onClick={() => navigate(`/session/${audit.instance_id}/`)}
-                    />
-                  </ListItem>
-                ))
+                filteredAudits.map((audit) => {
+                  const navigateTo = audit.status === "requested" ? `/session/${audit.instance_id}` : `/modification-audit/${audit.id}`;
+                  return (
+                    <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
+                      <ListItemButton
+                        children={<ListItemText primary={audit.str_repr} secondary={TranslatedAuditState[audit.status][language]} />}
+                        onClick={() => navigate(navigateTo)}
+                      />
+                    </ListItem>
+                  );
+                })
               ) : (
                 <ListItem disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
                   <ListItemButton children={<ListItemText primary={state.showAllAudits ? auditEmptyStr : ongoingAuditEmptyStr} />} />

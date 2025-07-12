@@ -107,6 +107,12 @@ namespace BackendParticipantPortalAPIHooks {
       queryFn: ParticipantPortalAPI.listModificationAudits(client),
     });
 
+  export const useModificationAuditPreviewQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PARTICIPANT_LIST_MODIFICATION_AUDIT, "preview", id, client.language],
+      queryFn: ParticipantPortalAPI.previewModificationAudit(client, id),
+    });
+
   export const useRetrieveModificationAuditQuery = (client: BackendAPIClient, id: string) =>
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.PARTICIPANT_RETRIEVE_MODIFICATION_AUDIT, id, client.language],

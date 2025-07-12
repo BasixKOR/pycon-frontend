@@ -95,14 +95,14 @@ namespace BackendParticipantPortalAPISchemas {
     }[];
   };
 
-  export type ModificationAuditSchema = {
+  export type ModificationAuditSchema<T = string> = {
     id: string; // UUID
     str_repr: string; // String representation of the modification audit, e.g., "Presentation Title - Status"
     status: "requested" | "approved" | "rejected" | "cancelled"; // Status of the modification request
     created_at: string; // ISO 8601 timestamp
     updated_at: string; // ISO 8601 timestamp
 
-    instance_type: string; // Type of the instance being modified (e.g., "presentation")
+    instance_type: T; // Type of the instance being modified (e.g., "presentation")
     instance_id: string; // UUID of the instance being modified (e.g., presentation ID)
     modification_data: string; // JSON string containing the modification data
 
@@ -118,6 +118,20 @@ namespace BackendParticipantPortalAPISchemas {
       updated_at: string; // ISO 8601 timestamp
     }[];
   };
+
+  type ModificationAuditPresentationPreviewSchema = {
+    modification_audit: ModificationAuditSchema<"presentation">;
+    original: PresentationRetrieveSchema;
+    modified: PresentationRetrieveSchema;
+  };
+
+  type ModificationAuditUserPreviewSchema = {
+    modification_audit: ModificationAuditSchema<"userext">;
+    original: UserSchema;
+    modified: UserSchema;
+  };
+
+  export type ModificationAuditPreviewSchema = ModificationAuditPresentationPreviewSchema | ModificationAuditUserPreviewSchema;
 
   export type ModificationAuditCancelRequestSchema = {
     id: string; // UUID of the modification audit

@@ -7,9 +7,10 @@ type SubmitConfirmDialogProps = {
   open: boolean;
   onClose: () => void;
   onSubmit: () => void;
+  disabled?: boolean;
 };
 
-export const SubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, onSubmit }) => {
+export const SubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, onSubmit, disabled }) => {
   const { language } = useAppContext();
 
   const titleStr = language === "ko" ? "제출 확인" : "Confirm Submission";
@@ -39,8 +40,8 @@ export const SubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, 
       <DialogTitle children={titleStr} />
       <DialogContent children={content} />
       <DialogActions>
-        <Button onClick={onClose} color="error" children={cancelStr} />
-        <Button onClick={onSubmit} color="primary" variant="contained" children={submitStr} />
+        <Button disabled={disabled} onClick={onClose} color="error" children={cancelStr} />
+        <Button disabled={disabled} onClick={onSubmit} color="primary" variant="contained" children={submitStr} />
       </DialogActions>
     </Dialog>
   );

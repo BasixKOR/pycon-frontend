@@ -58,6 +58,15 @@ namespace BackendParticipantPortalAPIs {
   export const listModificationAudits = (client: BackendAPIClient) => () =>
     client.get<ParticipantPortalAPISchemas.ModificationAuditSchema[]>("v1/participant-portal/modification-audit/");
 
+  export const previewModificationAudit = (client: BackendAPIClient, id: string) => () => {
+    try {
+      return client.get<ParticipantPortalAPISchemas.ModificationAuditPreviewSchema>(`v1/participant-portal/modification-audit/${id}/preview/`);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+      return Promise.resolve(null);
+    }
+  };
+
   export const retrieveModificationAudit = (client: BackendAPIClient, id: string) => () =>
     client.get<ParticipantPortalAPISchemas.ModificationAuditSchema[]>(`v1/participant-portal/modification-audit/${id}`);
 
