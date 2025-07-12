@@ -66,6 +66,12 @@ namespace BackendParticipantPortalAPISchemas {
       biography_ko: string; // Biography in Korean
       biography_en: string; // Biography in English
       image: string | null; // PK of the speaker's image
+      user: {
+        id: number; // User ID of the speaker
+        email: string; // Email of the speaker
+        nickname_ko: string | null; // Nickname in Korean
+        nickname_en: string | null; // Nickname in English
+      };
     }[];
 
     has_requested_modification_audit: boolean;

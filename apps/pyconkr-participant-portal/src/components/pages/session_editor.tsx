@@ -5,7 +5,6 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
 import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
@@ -19,6 +18,7 @@ import { PrimaryTitle, SecondaryTitle } from "../elements/titles";
 import { Page } from "../page";
 
 type SessionUpdateSchema = {
+  id: string;
   title_ko: string;
   title_en: string;
   summary_ko: string;
@@ -35,42 +35,46 @@ type SessionUpdateSchema = {
   }[];
 };
 
-type SessionEditorState = SessionUpdateSchema & {
-  openSubmitConfirmDialog: boolean;
+type SessionSchema = SessionUpdateSchema & {
+  speakers: (SessionUpdateSchema["speakers"][number] & {
+    user: {
+      id: number; // UUID of the user
+      email: string; // Email of the user
+      nickname_ko: string | null; // Nickname in Korean
+      nickname_en: string | null; // Nickname in English
+    };
+  })[];
 };
 
-const DummySessionInfo: SessionUpdateSchema = {
-  title_ko: "",
-  title_en: "",
-  summary_ko: "",
-  summary_en: "",
-  description_ko: "",
-  description_en: "",
-  image: null,
-
-  speakers: [],
+type SessionEditorFormProps = {
+  disabled?: boolean;
+  showSubmitButton?: boolean;
+  onSubmit?: (session: SessionUpdateSchema) => void;
+  language: "ko" | "en";
+  defaultValue: SessionSchema;
 };
 
-const InnerSessionEditor: React.FC = () => {
-  const { sessionId } = useParams<{ sessionId?: string }>();
-  const { language } = useAppContext();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const updateSessionMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdatePresentationMutation(participantPortalClient);
-  const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, sessionId || "");
-  const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalClient);
-  const [editorState, setEditorState] = React.useState<SessionEditorState>({
-    openSubmitConfirmDialog: false,
-    ...(session || DummySessionInfo),
-  });
+type SessionEditorFormState = SessionSchema;
 
-  if (!sessionId || !session || !profile || !(R.isArray(editorState.speakers) && !R.isEmpty(editorState.speakers)))
-    return <Navigate to="/" replace />;
+export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
+  const [formState, setFormState] = React.useState<SessionEditorFormState>(defaultValue);
+
+  const setTitle = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`title_${lang}`]: value }));
+  const setSummary = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
+  const setDescription = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`description_${lang}`]: value }));
+  const setImage = (image: string | null) => setFormState((ps) => ({ ...ps, image }));
+  const setSpeakerImage = (image: string | null) => setFormState((ps) => ({ ...ps, speakers: [{ ...speaker, image }] }));
+  const setSpeakerBiography = (value: string | undefined, lang: "ko" | "en") =>
+    setFormState((ps) => ({ ...ps, speakers: [{ ...speaker, [`biography_${lang}`]: value }] }));
+  const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImage(e.target.value);
+  const onSpeakerImageSelectChange = (e: SelectChangeEvent<string | null>) => setSpeakerImage(e.target.value);
+
+  const onSubmitButtonClick = () => onSubmit?.(formState);
 
   // 유저는 하나의 세션에 발표자가 한번만 가능하고, 백엔드에서 본 유저의 세션 발표자 정보만 제공하므로, 첫 번째 발표자 정보를 사용해도 안전합니다.
-  const speaker = editorState.speakers[0];
+  const speaker = formState.speakers[0];
 
   const titleStr = language === "ko" ? "발표 정보 수정" : "Edit Session Information";
-  const submitStr = language === "ko" ? "제출" : "Submit";
   const sessionEditDescription =
     language === "ko" ? (
       <Typography variant="body2" color="textSecondary">
@@ -106,6 +110,99 @@ const InnerSessionEditor: React.FC = () => {
     );
   const sessionImageStr = language === "ko" ? "발표 이미지" : "Session Image";
   const speakerImageStr = language === "ko" ? "발표자 이미지" : "Speaker Image";
+  const submitStr = language === "ko" ? "제출" : "Submit";
+
+  return (
+    <>
+      <PrimaryTitle variant="h4" children={titleStr} />
+      <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={sessionEditDescription} />
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        <MultiLanguageField
+          label={{ ko: "발표 제목", en: "Session Title" }}
+          value={{ ko: formState.title_ko, en: formState.title_en }}
+          onChange={setTitle}
+          disabled={disabled}
+          fullWidth
+        />
+        <MultiLanguageField
+          label={{ ko: "발표 요약", en: "Session Summary" }}
+          description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
+          value={{ ko: formState.summary_ko, en: formState.summary_en }}
+          onChange={setSummary}
+          disabled={disabled}
+          multiline
+          rows={4}
+          fullWidth
+        />
+        <MultiLanguageMarkdownField
+          label={{ ko: "발표 내용", en: "Session Description" }}
+          description={{
+            ko: "발표의 상세 내용을 입력해주세요.\n상세 설명은 마크다운 문법을 지원합니다.",
+            en: "Please enter the description of the session.\nDetailed descriptions support Markdown syntax.",
+          }}
+          value={{ ko: formState.description_ko, en: formState.description_en }}
+          disabled={disabled}
+          onChange={setDescription}
+        />
+        <PublicFileSelector label={sessionImageStr} value={formState.image} disabled={disabled} onChange={onImageSelectChange} />
+        <Divider />
+
+        <SecondaryTitle variant="h5" children={titleStrForSpeaker} />
+        <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={speakerEditDescription} />
+        <MultiLanguageField
+          label={{ ko: "발표자 별칭", en: "Speaker Nickname" }}
+          description={{
+            ko: (
+              <Stack spacing={1}>
+                <Typography variant="body2" color="textSecondary" children="발표자 별칭은 프로필 편집에서 변경할 수 있어요." />
+                <Link to="/user" children={<Button size="small" variant="contained" children="프로필 수정 페이지로 이동" />} />
+              </Stack>
+            ),
+            en: (
+              <Stack spacing={1}>
+                <Typography variant="body2" color="textSecondary" children="You can change speaker nickname in the profile editor." />
+                <Link to="/user" children={<Button size="small" variant="contained" children="Go to Profile Editor" />} />
+              </Stack>
+            ),
+          }}
+          // value={{ ko: speaker.user.nickname_ko || "", en: speaker.user.nickname_en || "" }}
+          disabled
+          fullWidth
+        />
+        <MultiLanguageMarkdownField
+          label={{ ko: "발표자 소개", en: "Speaker Biography" }}
+          value={{ ko: speaker.biography_ko || "", en: speaker.biography_en || "" }}
+          onChange={setSpeakerBiography}
+          disabled={disabled}
+          description={{
+            ko: "본인의 소개를 입력해주세요.\n본인 소개는 마크다운 문법을 지원합니다.",
+            en: "Please enter your biography.\nBiographies support Markdown syntax.",
+          }}
+        />
+        <PublicFileSelector label={speakerImageStr} value={speaker.image} disabled={disabled} onChange={onSpeakerImageSelectChange} />
+        {showSubmitButton && (
+          <Button variant="contained" startIcon={<SendAndArchive />} onClick={onSubmitButtonClick} disabled={disabled} children={submitStr} />
+        )}
+      </Stack>
+    </>
+  );
+};
+
+type SessionEditorState = {
+  openSubmitConfirmDialog: boolean;
+  formData?: SessionUpdateSchema;
+};
+
+const InnerSessionEditor: React.FC = () => {
+  const { sessionId } = useParams<{ sessionId?: string }>();
+  const { language } = useAppContext();
+  const [editorState, setEditorState] = React.useState<SessionEditorState>({ openSubmitConfirmDialog: false });
+  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
+  const updateSessionMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdatePresentationMutation(participantPortalClient);
+  const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, sessionId || "");
+
+  if (!sessionId || !session) return <Navigate to="/" replace />;
+
   const submitSucceedStr =
     language === "ko"
       ? "발표 정보 수정을 요청했어요. 검토 후 반영될 예정이에요."
@@ -114,48 +211,26 @@ const InnerSessionEditor: React.FC = () => {
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  const openSubmitConfirmDialog = () => setEditorState((ps) => ({ ...ps, openSubmitConfirmDialog: true }));
+  const openSubmitConfirmDialog = (formData: SessionUpdateSchema) => setEditorState((ps) => ({ ...ps, openSubmitConfirmDialog: true, formData }));
   const closeSubmitConfirmDialog = () => setEditorState((ps) => ({ ...ps, openSubmitConfirmDialog: false }));
 
-  const setTitle = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`title_${lang}`]: value }));
-  const setSummary = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
-  const setDescription = (value: string | undefined, lang: "ko" | "en") => setEditorState((ps) => ({ ...ps, [`description_${lang}`]: value }));
-  const setImage = (image: string | null) => setEditorState((ps) => ({ ...ps, image }));
-  const setSpeakerImage = (image: string | null) => setEditorState((ps) => ({ ...ps, speakers: [{ ...speaker, image }] }));
-  const setSpeakerBiography = (value: string | undefined, lang: "ko" | "en") =>
-    setEditorState((ps) => ({ ...ps, speakers: [{ ...speaker, [`biography_${lang}`]: value }] }));
-
-  const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImage(e.target.value);
-  const onSpeakerImageSelectChange = (e: SelectChangeEvent<string | null>) => setSpeakerImage(e.target.value);
-
   const updateSession = () => {
-    updateSessionMutation.mutate(
-      {
-        id: sessionId,
-        title_ko: editorState.title_ko,
-        title_en: editorState.title_en,
-        summary_ko: editorState.summary_ko,
-        summary_en: editorState.summary_en,
-        description_ko: editorState.description_ko,
-        description_en: editorState.description_en,
-        image: editorState.image || null,
-        speakers: editorState.speakers,
+    if (!editorState.formData) return;
+
+    updateSessionMutation.mutate(editorState.formData, {
+      onSuccess: () => {
+        addSnackbar(submitSucceedStr, "success");
+        closeSubmitConfirmDialog();
       },
-      {
-        onSuccess: () => {
-          addSnackbar(submitSucceedStr, "success");
-          closeSubmitConfirmDialog();
-        },
-        onError: (error) => {
-          console.error("Updating session failed:", error);
+      onError: (error) => {
+        console.error("Updating session failed:", error);
 
-          let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-          if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
 
-          addSnackbar(errorMessage, "error");
-        },
-      }
-    );
+        addSnackbar(errorMessage, "error");
+      },
+    });
   };
 
   const modificationAuditId = session.requested_modification_audit_id || "";
@@ -166,84 +241,7 @@ const InnerSessionEditor: React.FC = () => {
       <SubmitConfirmDialog open={editorState.openSubmitConfirmDialog} onClose={closeSubmitConfirmDialog} onSubmit={updateSession} />
       <Page>
         {session.has_requested_modification_audit && <CurrentlyModAuditInProgress language={language} modificationAuditId={modificationAuditId} />}
-        <PrimaryTitle variant="h4" children={titleStr} />
-        <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={sessionEditDescription} />
-        <Stack spacing={2} sx={{ width: "100%" }}>
-          <MultiLanguageField
-            label={{ ko: "발표 제목", en: "Session Title" }}
-            value={{ ko: editorState.title_ko, en: editorState.title_en }}
-            onChange={setTitle}
-            disabled={formDisabled}
-            fullWidth
-          />
-          <MultiLanguageField
-            label={{ ko: "발표 요약", en: "Session Summary" }}
-            description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
-            value={{ ko: editorState.summary_ko, en: editorState.summary_en }}
-            onChange={setSummary}
-            disabled={formDisabled}
-            multiline
-            rows={4}
-            fullWidth
-          />
-          <MultiLanguageMarkdownField
-            label={{ ko: "발표 내용", en: "Session Description" }}
-            description={{
-              ko: "발표의 상세 내용을 입력해주세요.\n상세 설명은 마크다운 문법을 지원합니다.",
-              en: "Please enter the description of the session.\nDetailed descriptions support Markdown syntax.",
-            }}
-            value={{ ko: editorState.description_ko, en: editorState.description_en }}
-            disabled={formDisabled}
-            onChange={setDescription}
-          />
-          <PublicFileSelector label={sessionImageStr} value={editorState.image} disabled={formDisabled} onChange={onImageSelectChange} />
-          <Divider />
-
-          <SecondaryTitle variant="h5" children={titleStrForSpeaker} />
-          <Box sx={{ width: "100%", mb: 2, textAlign: "start" }} children={speakerEditDescription} />
-          <MultiLanguageField
-            label={{ ko: "발표자 별칭", en: "Speaker Nickname" }}
-            description={{
-              ko: (
-                <Stack spacing={1}>
-                  <Typography variant="body2" color="textSecondary" children="발표자 별칭은 프로필 편집에서 변경할 수 있어요." />
-                  <Link to="/user" children={<Button size="small" variant="contained" children="프로필 수정 페이지로 이동" />} />
-                </Stack>
-              ),
-              en: (
-                <Stack spacing={1}>
-                  <Typography variant="body2" color="textSecondary" children="You can change speaker nickname in the profile editor." />
-                  <Link to="/user" children={<Button size="small" variant="contained" children="Go to Profile Editor" />} />
-                </Stack>
-              ),
-            }}
-            value={{ ko: profile.nickname_ko || "", en: profile.nickname_en || "" }}
-            disabled
-            fullWidth
-          />
-          <MultiLanguageMarkdownField
-            label={{ ko: "발표자 소개", en: "Speaker Biography" }}
-            value={{ ko: speaker.biography_ko || "", en: speaker.biography_en || "" }}
-            onChange={setSpeakerBiography}
-            disabled={formDisabled}
-            description={{
-              ko: "본인의 소개를 입력해주세요.\n본인 소개는 마크다운 문법을 지원합니다.",
-              en: "Please enter your biography.\nBiographies support Markdown syntax.",
-            }}
-          />
-          <PublicFileSelector label={speakerImageStr} value={speaker.image} disabled={formDisabled} onChange={onSpeakerImageSelectChange} />
-
-          <Stack>
-            <Button
-              variant="contained"
-              startIcon={<SendAndArchive />}
-              onClick={openSubmitConfirmDialog}
-              loading={updateSessionMutation.isPending}
-              disabled={formDisabled}
-              children={submitStr}
-            />
-          </Stack>
-        </Stack>
+        <SessionEditorForm disabled={formDisabled} language={language} defaultValue={session} onSubmit={openSubmitConfirmDialog} showSubmitButton />
       </Page>
     </>
   );
