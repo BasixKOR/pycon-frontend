@@ -1,8 +1,22 @@
 import * as Common from "@frontend/common";
-import { Button, List, ListItem, ListItemButton, ListItemText, Stack, styled, Typography, useMediaQuery } from "@mui/material";
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  styled,
+  Switch,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import * as R from "remeda";
 
 import { useAppContext } from "../../contexts/app_context";
 import { ErrorPage } from "../elements/error_page";
@@ -12,6 +26,15 @@ import { SignInGuard } from "../elements/signin_guard";
 import { Page } from "../page";
 
 const ProfileImageSize: React.CSSProperties["width" | "height"] = "8rem";
+
+type AuditState = "requested" | "approved" | "rejected" | "cancelled";
+
+const TranslatedAuditState: Record<AuditState, { ko: string; en: string }> = {
+  requested: { ko: "심사 진행 중", en: "Under review" },
+  approved: { ko: "승인 후 반영됨", en: "Approved and applied" },
+  rejected: { ko: "거절됨", en: "Rejected" },
+  cancelled: { ko: "취소됨", en: "Cancelled" },
+};
 
 const FieldsetContainer = styled(Stack)({
   width: "100%",
@@ -63,6 +86,10 @@ const ProfileImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language })
   );
 };
 
+type InnerLandingPageState = {
+  showAllAudits: boolean;
+};
+
 const InnerLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useAppContext();
@@ -72,7 +99,8 @@ const InnerLandingPage: React.FC = () => {
   const { data: audits } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditsQuery(participantPortalAPIClient);
   const { data: sessions } = Common.Hooks.BackendParticipantPortalAPI.useListPresentationsQuery(participantPortalAPIClient);
 
-  const ongoingAudits = audits?.filter((audit) => audit.status === "requested") || [];
+  const ongoingAudits = audits.filter((audit) => audit.status === "requested");
+  const [state, setState] = React.useState<InnerLandingPageState>({ showAllAudits: R.isEmpty(ongoingAudits) });
 
   if (!profile) {
     return (
@@ -84,16 +112,21 @@ const InnerLandingPage: React.FC = () => {
     );
   }
 
+  const filteredAudits = state.showAllAudits ? audits : ongoingAudits;
+  const toggleShowAllAudits = () => setState((ps) => ({ ...ps, showAllAudits: !ps.showAllAudits }));
+
   const greetingStr = language === "ko" ? `안녕하세요, ${profile.nickname}님!` : `Hello, ${profile.nickname}!`;
   const myInfoStr = language === "ko" ? "내 정보" : "My Information";
-  const auditStr = language === "ko" ? "심사 중인 수정 요청" : "Ongoing Audit Requests";
+  const auditStr = language === "ko" ? "수정 요청" : "Modification Requests";
   const sessionsStr = language === "ko" ? "발표 목록" : "Sessions";
   // const sponsorsStr = language === "ko" ? "후원사 정보" : "Sponsor informations";
   const userNameStr = language === "ko" ? `계정명 : ${profile.username}` : `Username : ${profile.username}`;
   const nickNameStr = language === "ko" ? `별칭 : ${profile.nickname}` : `Nickname : ${profile.nickname}`;
   const emailStr = language === "ko" ? `이메일 : ${profile.email}` : `Email : ${profile.email}`;
   const editProfileStr = language === "ko" ? "프로필 수정" : "Edit Profile";
-  const auditEmptyStr = language === "ko" ? "진행 중인 수정 요청이 없습니다." : "No ongoing audit requests.";
+  const showReviewOngoingAuditsStr = language === "ko" ? "현재 심사가 진행 중인 수정 요청만 보기" : "Show only review ongoing modification requests";
+  const ongoingAuditEmptyStr = language === "ko" ? "진행 중인 수정 요청이 없습니다." : "No ongoing modification requests.";
+  const auditEmptyStr = language === "ko" ? "수정 요청이 없습니다." : "No modification requests.";
 
   return (
     <Page>
@@ -118,19 +151,28 @@ const InnerLandingPage: React.FC = () => {
         </Fieldset>
         <FieldsetContainer>
           <ProperWidthFieldset legend={auditStr}>
+            {audits.length !== 0 && (
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch value={!state.showAllAudits} onChange={toggleShowAllAudits} size="small" />}
+                  label={showReviewOngoingAuditsStr}
+                  labelPlacement="start"
+                />
+              </FormGroup>
+            )}
             <List>
-              {ongoingAudits.length > 0 ? (
-                ongoingAudits.map((audit) => (
+              {filteredAudits.length > 0 ? (
+                filteredAudits.map((audit) => (
                   <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
                     <ListItemButton
-                      children={<ListItemText primary={audit.str_repr} secondary={audit.status} />}
+                      children={<ListItemText primary={audit.str_repr} secondary={TranslatedAuditState[audit.status][language]} />}
                       onClick={() => navigate(`/session/${audit.instance_id}/`)}
                     />
                   </ListItem>
                 ))
               ) : (
                 <ListItem disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
-                  <ListItemButton children={<ListItemText primary={auditEmptyStr} />} />
+                  <ListItemButton children={<ListItemText primary={state.showAllAudits ? auditEmptyStr : ongoingAuditEmptyStr} />} />
                 </ListItem>
               )}
             </List>
