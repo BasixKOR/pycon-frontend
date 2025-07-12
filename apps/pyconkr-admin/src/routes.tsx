@@ -22,6 +22,7 @@ import { AccountRedirectPage } from "./components/pages/account/account";
 import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
+import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
 import { AdminModificationAuditEditor } from "./components/pages/modification_audit/pages";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 import { AdminPresentationEditor } from "./components/pages/presentation/editor";
@@ -209,6 +210,6 @@ export const RegisteredRoutes = {
   "/cms/sitemap/:id": <SiteMapList />,
   "/event/presentation/create": <AdminPresentationEditor />,
   "/event/presentation/:id": <AdminPresentationEditor />,
-  "/modification-audit": <AdminList app="modification-audit" resource="modification-audit" hideCreateNew />,
+  "/modification-audit": <AdminModificationAuditList />,
   "/modification-audit/modification-audit/:id": <AdminModificationAuditEditor />,
 };
