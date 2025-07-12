@@ -1,29 +1,73 @@
 import * as Common from "@frontend/common";
-import { Divider, Typography } from "@mui/material";
+import { Card, Divider, TextField, Typography } from "@mui/material";
 
 import { PreviewImageField, PreviewMarkdownField, PreviewTextField } from "../components";
-import { SubModificationAuditPageType } from "./types";
+import { PresentationPreviewSchema, SubModificationAuditPageType } from "./types";
 
-export const PresentationPreviewSubPage: SubModificationAuditPageType = ({ originalData, previewData }) => {
+type PresentationSpeakerPreviewItemProps = {
+  originalSpeaker: PresentationPreviewSchema["speakers"][number];
+  modifiedSpeaker: PresentationPreviewSchema["speakers"][number];
+};
+
+const isSpeakerModified = (original: PresentationPreviewSchema["speakers"][number], modified: PresentationPreviewSchema["speakers"][number]) => {
+  return (
+    original.id !== modified.id ||
+    original.user.id !== modified.user.id ||
+    original.biography_ko !== modified.biography_ko ||
+    original.biography_en !== modified.biography_en ||
+    original.image !== modified.image
+  );
+};
+
+const PresentationSpeakerPreviewItem: React.FC<PresentationSpeakerPreviewItemProps> = ({ originalSpeaker, modifiedSpeaker }) => {
+  const innerSpeakerPreviewItem = (
+    <Common.Components.Fieldset legend={`발표자: ${modifiedSpeaker.user.nickname_ko} (${modifiedSpeaker.user.nickname_en})`}>
+      <Common.Components.Fieldset legend="발표자 별칭">
+        <TextField fullWidth disabled variant="outlined" value={modifiedSpeaker.user.nickname_ko} label="발표자 별칭 (국문)" sx={{ my: 1 }} />
+        <TextField fullWidth disabled variant="outlined" value={modifiedSpeaker.user.nickname_en} label="발표자 별칭 (영문)" sx={{ my: 1 }} />
+      </Common.Components.Fieldset>
+      <PreviewImageField originalDataset={originalSpeaker} previewDataset={modifiedSpeaker} name="image_id" label="발표자 이미지" />
+      <Common.Components.Fieldset legend="발표자 약력">
+        <PreviewMarkdownField originalDataset={originalSpeaker} previewDataset={modifiedSpeaker} name="biography_ko" label="발표자 약력 (국문)" />
+        <PreviewMarkdownField originalDataset={originalSpeaker} previewDataset={modifiedSpeaker} name="biography_en" label="발표자 약력 (영문)" />
+      </Common.Components.Fieldset>
+    </Common.Components.Fieldset>
+  );
+
+  return isSpeakerModified(originalSpeaker, modifiedSpeaker) ? (
+    <Card sx={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }} children={innerSpeakerPreviewItem} />
+  ) : (
+    innerSpeakerPreviewItem
+  );
+};
+
+export const PresentationPreviewSubPage: SubModificationAuditPageType<PresentationPreviewSchema> = ({ original, modified }) => {
   return (
     <>
       <Typography variant="h6" fontWeight="bold" children="발표 내용" />
       <Common.Components.Fieldset legend="제목">
-        <PreviewTextField originalDataset={originalData} previewDataset={previewData} name="title_ko" label="제목 (한국어)" />
-        <PreviewTextField originalDataset={originalData} previewDataset={previewData} name="title_en" label="제목 (영어)" />
+        <PreviewTextField originalDataset={original} previewDataset={modified} name="title_ko" label="제목 (한국어)" />
+        <PreviewTextField originalDataset={original} previewDataset={modified} name="title_en" label="제목 (영어)" />
       </Common.Components.Fieldset>
       <Common.Components.Fieldset legend="요약">
-        <PreviewTextField originalDataset={originalData} previewDataset={previewData} multiline name="summary_ko" label="요약 (한국어)" />
-        <PreviewTextField originalDataset={originalData} previewDataset={previewData} multiline name="summary_en" label="요약 (영어)" />
+        <PreviewTextField originalDataset={original} previewDataset={modified} multiline name="summary_ko" label="요약 (한국어)" />
+        <PreviewTextField originalDataset={original} previewDataset={modified} multiline name="summary_en" label="요약 (영어)" />
       </Common.Components.Fieldset>
       <Common.Components.Fieldset legend="상세 설명">
-        <PreviewMarkdownField originalDataset={originalData} previewDataset={previewData} name="description_ko" label="상세 설명 (한국어)" />
-        <PreviewMarkdownField originalDataset={originalData} previewDataset={previewData} name="description_en" label="상세 설명 (영어)" />
+        <PreviewMarkdownField originalDataset={original} previewDataset={modified} name="description_ko" label="상세 설명 (한국어)" />
+        <PreviewMarkdownField originalDataset={original} previewDataset={modified} name="description_en" label="상세 설명 (영어)" />
       </Common.Components.Fieldset>
-      <PreviewImageField originalDataset={originalData} previewDataset={previewData} name="image" label="발표 이미지" />
+      <PreviewImageField originalDataset={original} previewDataset={modified} name="image_id" label="발표 이미지" />
 
       <Divider sx={{ my: 1, borderColor: "black" }} />
       <Typography variant="h6" fontWeight="bold" children="발표자 정보" />
+      {modified.speakers.map((speaker) => (
+        <PresentationSpeakerPreviewItem
+          key={speaker.id}
+          originalSpeaker={original.speakers.find((s) => s.id === speaker.id) || speaker}
+          modifiedSpeaker={speaker}
+        />
+      ))}
     </>
   );
 };

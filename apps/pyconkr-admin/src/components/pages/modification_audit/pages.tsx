@@ -6,7 +6,6 @@ import { Navigate, useParams } from "react-router-dom";
 
 import { ModificationAuditProperties } from "./components";
 import { ApproveSubmitConfirmDialog, RejectSubmitConfirmDialog } from "./dialogs";
-import { useModificationAuditData } from "./hooks";
 import { SubModificationAuditPage } from "./sub_pages";
 import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
 
@@ -15,12 +14,14 @@ type EditorStateType = { actionStatus?: "approve" | "reject" };
 const InnerAdminModificationAuditEditor: React.FC = () => {
   const [editorState, setEditorState] = React.useState<EditorStateType>({});
   const { id } = useParams<{ id?: string }>();
-  const auditData = useModificationAuditData<Record<string, string>>(id || "");
 
-  if (!auditData) return <Navigate to="/admin/modification-audit" replace />;
+  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+  const { data } = Common.Hooks.BackendAdminAPI.useModificationAuditPreviewQuery<Record<string, string>>(backendAdminClient, id || "");
 
-  const { audit } = auditData;
-  const { status, instance } = audit;
+  if (!data) return <Navigate to="/admin/modification-audit" replace />;
+
+  const { modification_audit } = data;
+  const { status, instance } = modification_audit;
   const { app, model } = instance;
   const btnDisabled = status !== "requested";
 
@@ -30,8 +31,16 @@ const InnerAdminModificationAuditEditor: React.FC = () => {
 
   return (
     <>
-      <ApproveSubmitConfirmDialog open={editorState.actionStatus === "approve"} onClose={closeSubmitConfirmDialog} modificationAuditId={audit.id} />
-      <RejectSubmitConfirmDialog open={editorState.actionStatus === "reject"} onClose={closeSubmitConfirmDialog} modificationAuditId={audit.id} />
+      <ApproveSubmitConfirmDialog
+        open={editorState.actionStatus === "approve"}
+        onClose={closeSubmitConfirmDialog}
+        modificationAuditId={modification_audit.id}
+      />
+      <RejectSubmitConfirmDialog
+        open={editorState.actionStatus === "reject"}
+        onClose={closeSubmitConfirmDialog}
+        modificationAuditId={modification_audit.id}
+      />
       <Box sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
         <Typography variant="h5" fontWeight="bold">
           {app.toUpperCase()} &gt; {model.toUpperCase()} &gt; 수정 심사
@@ -39,8 +48,8 @@ const InnerAdminModificationAuditEditor: React.FC = () => {
         <Divider sx={{ my: 1, borderColor: "black" }} />
         <Stack sx={{ width: "100%", minHeight: "100%" }} spacing={2}>
           <Typography variant="h6" fontWeight="bold" children="심사 속성" />
-          <ModificationAuditProperties audit={audit} />
-          <SubModificationAuditPage {...auditData} />
+          <ModificationAuditProperties audit={modification_audit} />
+          <SubModificationAuditPage {...data} />
           <Stack alignItems="flex-end" spacing={1}>
             {btnDisabled && <Typography variant="body2" children={`현재 심사 상태가 ${status}입니다. 승인 또는 반려가 불가능합니다.`} />}
             <Stack direction="row" spacing={2} justifyContent="flex-end">

@@ -10,7 +10,7 @@ const QUERY_KEYS = {
   ADMIN_LIST: ["query", "admin", "list"],
   ADMIN_RETRIEVE: ["query", "admin", "retrieve"],
   ADMIN_SCHEMA: ["query", "admin", "schema"],
-  ADMIN_RETRIEVE_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
+  ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
 };
 
 const MUTATION_KEYS = {
@@ -109,6 +109,12 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.removePrepared(client, app, resource),
     });
 
+  export const usePublicFileQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, "file", "publicfile", id],
+      queryFn: BackendAdminAPIs.retrieve<BackendAdminAPISchemas.PublicFileSchema>(client, "file", "publicfile", id),
+    });
+
   export const useUploadPublicFileMutation = (client: BackendAPIClient) =>
     useMutation({
       mutationKey: [...MUTATION_KEYS.ADMIN_CREATE, "public-file", "upload"],
@@ -127,10 +133,10 @@ namespace BackendAdminAPIHooks {
       mutationFn: BackendAdminAPIs.bulkUpdateSections(client, pageId),
     });
 
-  export const useModificationAuditRetrieveQuery = (client: BackendAPIClient, id: string) =>
+  export const useModificationAuditPreviewQuery = <T>(client: BackendAPIClient, id: string) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE_MODIFICATION_AUDIT, "modification-audit", "modification-audit", id],
-      queryFn: BackendAdminAPIs.retrieve<BackendAdminAPISchemas.ModificationAuditSchema>(client, "modification-audit", "modification-audit", id),
+      queryKey: [...QUERY_KEYS.ADMIN_PREVIEW_MODIFICATION_AUDIT, id],
+      queryFn: BackendAdminAPIs.previewModificationAudit<T>(client, id),
     });
 
   export const useApproveModificationAuditMutation = (client: BackendAPIClient, id: string) =>
@@ -143,12 +149,6 @@ namespace BackendAdminAPIHooks {
     useMutation({
       mutationKey: MUTATION_KEYS.ADMIN_REJECT_MODIFICATION_AUDIT,
       mutationFn: BackendAdminAPIs.rejectModificationAudit(client, id),
-    });
-
-  export const useModificationAuditPreviewQuery = <T>(client: BackendAPIClient, app: string, resource: string, instanceId: string, auditId: string) =>
-    useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, instanceId, "preview", auditId],
-      queryFn: BackendAdminAPIs.previewModificationAudit<T>(client, app, resource, instanceId, auditId),
     });
 }
 

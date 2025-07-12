@@ -122,6 +122,12 @@ namespace BackendAdminAPISchemas {
       id: string; // UUID of the instance being modified, e.g., presentation ID
     };
   };
+
+  export type ModificationAuditPreviewSchema<T> = {
+    modification_audit: ModificationAuditSchema;
+    original: T;
+    modified: T;
+  };
 }
 
 export default BackendAdminAPISchemas;
