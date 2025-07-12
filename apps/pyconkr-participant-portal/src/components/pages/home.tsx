@@ -163,7 +163,12 @@ const InnerLandingPage: React.FC = () => {
             <List>
               {filteredAudits.length > 0 ? (
                 filteredAudits.map((audit) => {
-                  const navigateTo = audit.status === "requested" ? `/session/${audit.instance_id}` : `/modification-audit/${audit.id}`;
+                  const navigateTo =
+                    audit.status !== "requested"
+                      ? `/modification-audit/${audit.id}`
+                      : audit.instance_type === "presentation"
+                        ? `/session/${audit.instance_id}`
+                        : `/user`;
                   return (
                     <ListItem key={audit.id} disablePadding sx={{ cursor: "pointer", border: "1px solid #ccc" }}>
                       <ListItemButton
