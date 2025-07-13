@@ -60,6 +60,7 @@ namespace BackendParticipantPortalAPISchemas {
     description: string; // Description of the presentation, translated to the current language
     description_ko: string; // Description in Korean
     description_en: string; // Description in English
+    slideshow_url: string | null; // URL to the presentation's slideshow, if available
     image: string | null; // PK of the presentation's image
     speakers: {
       id: string; // UUID of the speaker

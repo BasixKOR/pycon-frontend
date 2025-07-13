@@ -1,6 +1,6 @@
 import * as Common from "@frontend/common";
 import { SendAndArchive } from "@mui/icons-material";
-import { Box, Button, Divider, SelectChangeEvent, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -8,6 +8,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 
 import { useAppContext } from "../../contexts/app_context";
 import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
+import { BlockQuote } from "../elements/blockquote";
 import { ErrorPage } from "../elements/error_page";
 import { LoadingPage } from "../elements/loading_page";
 import { MultiLanguageField, MultiLanguageMarkdownField } from "../elements/multilang_field";
@@ -25,6 +26,7 @@ type SessionUpdateSchema = {
   summary_en: string;
   description_ko: string;
   description_en: string;
+  slideshow_url: string | null;
   image: string | null;
 
   speakers: {
@@ -62,6 +64,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
   const setTitle = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`title_${lang}`]: value }));
   const setSummary = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
   const setDescription = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`description_${lang}`]: value }));
+  const setSlideshowUrl = (slideshow_url: string) => setFormState((ps) => ({ ...ps, slideshow_url }));
   const setImage = (image: string | null) => setFormState((ps) => ({ ...ps, image }));
   const setSpeakerImage = (image: string | null) => setFormState((ps) => ({ ...ps, speakers: [{ ...speaker, image }] }));
   const setSpeakerBiography = (value: string | undefined, lang: "ko" | "en") =>
@@ -75,6 +78,17 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
   const speaker = formState.speakers[0];
 
   const titleStr = language === "ko" ? "발표 정보 수정" : "Edit Session Information";
+  const slideShowStr = language === "ko" ? "발표 슬라이드쇼 URL" : "Session Slideshow URL";
+  const slideShowDescription =
+    language === "ko" ? (
+      <Typography variant="body2" color="textSecondary">
+        발표 중에 사용할 슬라이드 자료 URL을 입력해주세요. (선택 사항)
+      </Typography>
+    ) : (
+      <Typography variant="body2" color="textSecondary">
+        Please enter the URL of the slideshow material to be used during the session. (Optional)
+      </Typography>
+    );
   const sessionEditDescription =
     language === "ko" ? (
       <Typography variant="body2" color="textSecondary">
@@ -124,6 +138,17 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
           disabled={disabled}
           fullWidth
         />
+        <Common.Components.Fieldset legend={slideShowStr}>
+          <BlockQuote children={slideShowDescription} />
+          <TextField
+            label={slideShowStr}
+            value={formState.slideshow_url || ""}
+            onChange={(e) => setSlideshowUrl(e.target.value)}
+            disabled={disabled}
+            sx={{ mt: 2 }}
+            fullWidth
+          />
+        </Common.Components.Fieldset>
         <MultiLanguageField
           label={{ ko: "발표 요약", en: "Session Summary" }}
           description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
@@ -135,7 +160,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
           fullWidth
         />
         <MultiLanguageMarkdownField
-          label={{ ko: "발표 내용", en: "Session Description" }}
+          label={{ ko: "발표 상세", en: "Session Description" }}
           description={{
             ko: "발표의 상세 내용을 입력해주세요.\n상세 설명은 마크다운 문법을 지원합니다.",
             en: "Please enter the description of the session.\nDetailed descriptions support Markdown syntax.",

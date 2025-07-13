@@ -93,6 +93,7 @@ namespace BackendAdminAPISchemas {
     summary_en: string;
     description_ko: string;
     description_en: string;
+    slideshow_url: string | null;
     image: string | null;
   };
 
