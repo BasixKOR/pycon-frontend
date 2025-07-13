@@ -78,6 +78,7 @@ namespace BackendAPISchemas {
   export type SessionSchema = {
     id: string;
     title: string;
+    summary: string | null;
     description: string;
     image: string | null;
     categories: {

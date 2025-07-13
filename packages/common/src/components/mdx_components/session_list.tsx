@@ -15,7 +15,17 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLi
   { fallback: <CircularProgress /> },
   ({ session, enableLink }) => {
     const sessionTitle = session.title.replace("\\n", "\n");
-    const speakerImgSrc = session.image || (R.isArray(session.speakers) && !R.isEmpty(session.speakers) && session.speakers[0].image) || "";
+
+    let speakerImgSrc = session.image || "";
+    if (!speakerImgSrc && R.isArray(session.speakers) && !R.isEmpty(session.speakers)) {
+      for (const speaker of session.speakers) {
+        if (speaker.image) {
+          speakerImgSrc = speaker.image;
+          break;
+        }
+      }
+    }
+
     const urlSafeTitle = session.title
       .replace(/ /g, "-")
       .replace(/([.])/g, "_")
