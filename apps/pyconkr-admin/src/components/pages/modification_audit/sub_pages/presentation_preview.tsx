@@ -49,6 +49,9 @@ export const PresentationPreviewSubPage: SubModificationAuditPageType<Presentati
         <PreviewTextField originalDataset={original} previewDataset={modified} name="title_ko" label="제목 (한국어)" />
         <PreviewTextField originalDataset={original} previewDataset={modified} name="title_en" label="제목 (영어)" />
       </Common.Components.Fieldset>
+      <Common.Components.Fieldset legend="발표 자료 URL">
+        <PreviewTextField originalDataset={original} previewDataset={modified} name="slideshow_url" label="발표 자료 URL" />
+      </Common.Components.Fieldset>
       <Common.Components.Fieldset legend="요약">
         <PreviewTextField originalDataset={original} previewDataset={modified} multiline name="summary_ko" label="요약 (한국어)" />
         <PreviewTextField originalDataset={original} previewDataset={modified} multiline name="summary_en" label="요약 (영어)" />
