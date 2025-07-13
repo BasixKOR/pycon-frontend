@@ -11,6 +11,8 @@ import { ErrorFallback } from "../error_handler";
 import { FallbackImage } from "../fallback_image";
 import { StyledDivider } from "./styled_divider";
 
+const EXCLUDE_CATEGORIES = ["후원사"];
+
 const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLink?: boolean }> = Suspense.with(
   { fallback: <CircularProgress /> },
   ({ session, enableLink }) => {
@@ -86,7 +88,8 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
         sessions
           .map((s) => s.categories)
           .flat()
-          .filter((o1, i, a) => a.findIndex((o2) => o2.id === o1.id) === i),
+          .filter((o1, i, a) => a.findIndex((o2) => o2.id === o1.id) === i)
+          .filter((cat) => !EXCLUDE_CATEGORIES.includes(cat.name)),
       [sessions]
     );
     const filteredSessions = React.useMemo(() => {
