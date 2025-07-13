@@ -54,6 +54,9 @@ export const ModificationAuditCancelConfirmDialog: React.FC<ModificationAuditCan
         onSuccess: () => {
           addSnackbar(successStr, "success");
           onClose();
+
+          // 수정 요청 철회 후 현재 페이지의 상태를 전부 초기화하기 위해 페이지를 새로고침합니다.
+          window.location.reload();
         },
         onError: (error) => {
           console.error("Canceling ModAudit failed:", error);
