@@ -11,7 +11,7 @@ import { ErrorFallback } from "../error_handler";
 import { FallbackImage } from "../fallback_image";
 import { StyledDivider } from "./styled_divider";
 
-const EXCLUDE_CATEGORIES = ["후원사"];
+const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];
 
 const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLink?: boolean }> = Suspense.with(
   { fallback: <CircularProgress /> },
