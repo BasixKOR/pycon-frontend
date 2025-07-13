@@ -144,7 +144,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
     const descriptionFallback = language === "ko" ? "해당 발표의 설명은 준비 중이에요!" : "Description of the presentation is under preparation!";
     const categoriesStr = language === "ko" ? "카테고리" : "Categories";
     const speakersStr = language === "ko" ? "발표자" : "Speakers";
-    const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
+    // const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
 
     React.useEffect(() => {
       setAppContext((prev) => ({
@@ -175,7 +175,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
             <Divider flexItem />
           </>
         ) : null}
-        {presentation.slideshow_url && (
+        {/* {presentation.slideshow_url && (
           <>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ width: "100%", p: 2, a: { color: "blue" } }}>
               {slideShowStr} :&nbsp;
@@ -183,7 +183,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
             </Typography>
             <Divider flexItem />
           </>
-        )}
+        )} */}
         {presentation.image && (
           <StyledPresentationImage
             alt="Presentation Image"
