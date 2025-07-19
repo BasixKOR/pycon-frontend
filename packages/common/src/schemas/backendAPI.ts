@@ -75,6 +75,7 @@ namespace BackendAPISchemas {
     title: string;
     description: string;
     image: string | null;
+    isSession?: boolean;
     categories: {
       id: string;
       name: string;

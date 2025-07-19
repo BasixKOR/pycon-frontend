@@ -1,4 +1,4 @@
-import { Box, Button, ButtonBase, Stack, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, ButtonBase, Chip, Stack, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import BackendAPISchemas from "../../schemas/backendAPI";
@@ -126,10 +126,10 @@ type SessionExtraDataType = {
   };
 };
 
-type SessionTimeTableSlotType = {
-  session: BackendAPISchemas.SessionSchema;
-  rowSpan: number;
-  colSpan: number;
+type SessionTimeWithSameStartTime = {
+  isSession: boolean;
+  isLast: boolean;
+  sessions: BackendAPISchemas.SessionSchema[];
 };
 
 type SessionDate = {
@@ -185,18 +185,20 @@ const rawRooms: Room[] = [
   },
 ];
 
-const SessionTimeTableItem: React.FC<{ data: SessionTimeTableSlotType }> = ({ data }) => {
-  const sessionCategories = data.session.categories;
+const SessionTimeTableItem: React.FC<{ data: BackendAPISchemas.SessionSchema }> = ({ data }) => {
+  const sessionCategories = data.categories;
 
   return (
     <SessionTimeTableItemContainer direction="column">
+      <SessionTitle children={data.title} />
+      {data.speakers.map((speaker) => (
+        <Chip key={speaker.id} size="small" label={speaker.nickname} />
+      ))}
       <SessionTimeTableItemTagContainer direction="row">
         {sessionCategories.map((category) => (
-          <CategoryButtonStyle>{category.name}</CategoryButtonStyle>
+          <Chip key={category.id} variant="outlined" color="primary" size="small" label={category.name} />
         ))}
       </SessionTimeTableItemTagContainer>
-      <SessionTitle children={data.session.title} />
-      <SpeakerName children={data.session.speakers ? data.session.speakers[0].nickname : ""} />
     </SessionTimeTableItemContainer>
   );
 };
@@ -243,6 +245,27 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       );
     };
 
+    const SessionTimeGroup: React.FC<{ sessionGroup: SessionTimeWithSameStartTime }> = ({ sessionGroup }) => {
+      if (sessionGroup.isSession) {
+        return (
+          <SessionTableRow>
+            <TableCell colSpan={sessionRooms.length + 1}>
+              <SessionTimeTableItem data={sessionGroup.sessions[0]} />
+            </TableCell>
+          </SessionTableRow>
+        );
+      } else {
+        const sessions: BackendAPISchemas.SessionSchema[] = sessionGroup.sessions;
+        return (
+          <SessionTableRow>
+            {sessions.map((session) => {
+              return <SessionTimeTableItem data={session} />;
+            })}
+          </SessionTableRow>
+        );
+      }
+    };
+
     // const backendAPIClient = Hooks.BackendAPI.useBackendClient();
     // const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient);
     const sessions: BackendAPISchemas.SessionSchema[] = generateSessionData();
@@ -254,26 +277,50 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
     const [selectedDate, setSelectedDate] = React.useState<SessionDate>(sessionDates[0]);
     // @ts-ignore
     const [sessionRooms, setSessionRooms] = React.useState<Room[]>(rawRooms);
-    const filteredSessions = React.useMemo(() => {
-      return sessions.filter((session) => {
-        return selectedDate.date.toLocaleDateString() === session.room_schedules.start_at.toLocaleDateString();
-      });
-    }, [sessions, selectedDate]);
 
-    const filteredSessionTimeTableSlots: SessionTimeTableSlotType[] = React.useMemo(() => {
-      let data: SessionTimeTableSlotType[] = [];
-      filteredSessions.map((session) => {
-        data.push({
-          session: session,
-          rowSpan: 1,
-          colSpan: 1,
-        });
-      });
-      return data;
-    }, [filteredSessions, selectedDate]);
+    const [sessionGroupByStartTime, setSessionGroupByStartTime] = React.useState<SessionTimeWithSameStartTime[]>([]);
+    // const filteredSessions = React.useMemo(() => {
+    //   return sessions.filter((session) => {
+    //     return selectedDate.date.toLocaleDateString() === session.room_schedules.start_at.toLocaleDateString();
+    //   });
+    // }, [sessions, selectedDate]);
+
+    // 세션을 순회하며 시작 시간이 같은 세션들만 계산해서 리턴하는 함수
+    const getSessionWithSameStartTime: () => SessionTimeWithSameStartTime[] = () => {
+      let sessionList: SessionTimeWithSameStartTime[] = [];
+      let sessionWithSameStartTime: BackendAPISchemas.SessionSchema[] = [];
+      let sessionIndex: number = 0;
+      while (sessionIndex < sessionData.length) {
+        const session: BackendAPISchemas.SessionSchema = sessionData[sessionIndex];
+        if (!session.isSession) {
+          sessionList.push({
+            sessions: [session],
+            isSession: false,
+            isLast: sessionIndex != sessionData.length,
+          });
+        } else {
+          sessionWithSameStartTime.push(session);
+          while (sessionIndex + 1 < sessionData.length) {
+            sessionWithSameStartTime.push(sessionData[sessionIndex + 1]);
+          }
+          sessionList.push({
+            sessions: sessionWithSameStartTime,
+            isSession: true,
+            isLast: sessionIndex != sessionData.length,
+          });
+        }
+        sessionWithSameStartTime = [];
+        sessionIndex += 1;
+      }
+      return sessionList;
+    };
 
     React.useEffect(() => {
-      filteredSessionTimeTableSlots;
+      setSessionData(generateSessionData());
+    });
+
+    React.useEffect(() => {
+      setSessionGroupByStartTime(getSessionWithSameStartTime());
     });
 
     return (
@@ -282,15 +329,18 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <SessionTableRow>
                 {sessionRooms.map((room) => {
-                  return <TableCell>{room.name}</TableCell>;
+                  return <SessionTableCell align="center">{room.name}</SessionTableCell>;
                 })}
-              </TableRow>
+              </SessionTableRow>
             </TableHead>
             <TableBody>
-              {filteredSessionTimeTableSlots.map((session) => {
-                return <SessionTimeTableItem data={session} />;
+              <SessionTableRow>
+                <TableCell colSpan={sessionRooms.length + 1}></TableCell>
+              </SessionTableRow>
+              {sessionGroupByStartTime.map((sessionGroup) => {
+                return <SessionTimeGroup sessionGroup={sessionGroup} />;
               })}
             </TableBody>
           </Table>
@@ -300,10 +350,12 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
   })
 );
 
-const SessionTimeTableItemContainer = styled(Stack)({
+const SessionTimeTableItemContainer = styled(Stack)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
-});
+  borderRadius: 16,
+  border: `1px solid color-mix(in srgb, ${theme.palette.primary.light} 50%, transparent 50%)`,
+}));
 
 const SessionTimeTableItemTagContainer = styled(Stack)({
   alignItems: "center",
@@ -342,23 +394,6 @@ const SessionDateSubTitle = styled(Typography)<{ isSelected: boolean }>(({ theme
   color: isSelected ? theme.palette.primary.main : theme.palette.primary.light,
 }));
 
-const CategoryButtonStyle = styled(Button)(({ theme }) => ({
-  flexGrow: 0,
-  flexShrink: 0,
-  flexBasis: "14rem",
-
-  wordBreak: "keep-all",
-  whiteSpace: "nowrap",
-
-  // backgroundColor: selected ? theme.palette.primary.light : "transparent",
-  // color: selected ? theme.palette.primary.main : theme.palette.primary.light,  // main or light color로 지정
-  backgroundColor: "transparent",
-  color: theme.palette.primary.light,
-  "&:hover": {
-    color: theme.palette.primary.dark,
-  },
-}));
-
 const SessionTitle = styled(Typography)({
   fontSize: "1.5em",
   fontWeight: 600,
@@ -367,14 +402,22 @@ const SessionTitle = styled(Typography)({
   whiteSpace: "pre-wrap",
 });
 
-const SpeakerName = styled(Typography)({
-  fontSize: "1em",
-  fontWeight: 400,
-  lineHeight: 1.25,
-  textDecoration: "none",
-  whiteSpace: "pre-wrap",
-});
-
 const ColoredDivider = styled(StyledDivider)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
+
+// @ts-ignore
+const SessionTableStyle = styled(Table)({
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+const SessionTableRow = styled(TableRow)({
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+const SessionTableCell = styled(TableCell)({
+  alignItems: "center",
+  justifyContent: "center",
+});
