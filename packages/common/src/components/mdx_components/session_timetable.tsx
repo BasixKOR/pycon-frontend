@@ -1,9 +1,15 @@
-import { Box, ButtonBase, Chip, Stack, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, ButtonBase, Chip, Stack, styled, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import * as R from "remeda";
 import BackendAPISchemas from "../../schemas/backendAPI";
 import { ErrorFallback } from "../error_handler";
 import { StyledDivider } from "./styled_divider";
+
+const TD_HEIGHT = 2.5;
+const TD_WIDTH = 12.5;
+const TD_WIDTH_MOBILE = 20;
 
 const sessionRawData: BackendAPISchemas.SessionSchema[] = [
   {
@@ -11,6 +17,7 @@ const sessionRawData: BackendAPISchemas.SessionSchema[] = [
     title: '"네? 파이썬을요? 제가요?" 부제: 우당탕탕 개발자로 성장하기(진행중)',
     description: "",
     image: null,
+    isSession: true,
     categories: [
       {
         id: "7f110b3f-0de2-402a-aba1-7bb79918a275",
@@ -31,14 +38,14 @@ const sessionRawData: BackendAPISchemas.SessionSchema[] = [
       room_name: "room_name",
       event_id: 1,
       event_name: "event_name",
-      start_at: new Date(),
-      end_at: new Date(),
+      start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
+      end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
     },
     call_for_presentation_schedules: {
       id: "id",
       presentation_type_name: "session",
-      start_at: new Date(),
-      end_at: new Date(),
+      start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
+      end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
       next_call_for_presentation_schedule: "next_call_for_presentation_schedule",
     },
   },
@@ -48,7 +55,7 @@ const sessionRawTimeSchedule: SessionExtraDataType[] = [
   {
     room_schedules: {
       id: crypto.randomUUID(),
-      room_name: "eventhall",
+      room_name: "room1",
       event_id: 1,
       event_name: "pycon2025",
       start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
@@ -65,7 +72,7 @@ const sessionRawTimeSchedule: SessionExtraDataType[] = [
   {
     room_schedules: {
       id: crypto.randomUUID(),
-      room_name: "eventhall",
+      room_name: "room2",
       event_id: 1,
       event_name: "pycon2025",
       start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
@@ -82,7 +89,7 @@ const sessionRawTimeSchedule: SessionExtraDataType[] = [
   {
     room_schedules: {
       id: crypto.randomUUID(),
-      room_name: "eventhall",
+      room_name: "room3",
       event_id: 1,
       event_name: "pycon2025",
       start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
@@ -93,20 +100,44 @@ const sessionRawTimeSchedule: SessionExtraDataType[] = [
       presentation_type_name: "session",
       start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
       end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
+      next_call_for_presentation_schedule: crypto.randomUUID(),
+    },
+  },
+  {
+    room_schedules: {
+      id: crypto.randomUUID(),
+      room_name: "room4",
+      event_id: 1,
+      event_name: "pycon2025",
+      start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
+      end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
+    },
+    call_for_presentation_schedules: {
+      id: crypto.randomUUID(),
+      presentation_type_name: "session",
+      start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
+      end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
+      next_call_for_presentation_schedule: crypto.randomUUID(),
+    },
+  },
+  {
+    room_schedules: {
+      id: crypto.randomUUID(),
+      room_name: "room1",
+      event_id: 1,
+      event_name: "pycon2025",
+      start_at: new Date(2025, 7, 16, 9, 50, 0, 0),
+      end_at: new Date(2025, 7, 16, 10, 50, 0, 0),
+    },
+    call_for_presentation_schedules: {
+      id: crypto.randomUUID(),
+      presentation_type_name: "session",
+      start_at: new Date(2025, 7, 16, 11, 0, 0, 0),
+      end_at: new Date(2025, 7, 16, 11, 50, 0, 0),
       next_call_for_presentation_schedule: crypto.randomUUID(),
     },
   },
 ];
-
-const generateSessionData: () => BackendAPISchemas.SessionSchema[] = () => {
-  let rawData: BackendAPISchemas.SessionSchema[] = [];
-  for (var i = 0; i < sessionRawTimeSchedule.length; i++) {
-    rawData.push(sessionRawData[0]);
-    rawData[rawData.length - 1].room_schedules = sessionRawTimeSchedule[i].room_schedules;
-    rawData[rawData.length - 1].call_for_presentation_schedules = sessionRawTimeSchedule[i].call_for_presentation_schedules;
-  }
-  return rawData;
-};
 
 type SessionExtraDataType = {
   room_schedules: {
@@ -126,10 +157,17 @@ type SessionExtraDataType = {
   };
 };
 
-type SessionTimeWithSameStartTime = {
-  isSession: boolean;
-  isLast: boolean;
-  sessions: BackendAPISchemas.SessionSchema[];
+type TimeTableData = {
+  [date: string]: {
+    [time: string]: {
+      [room: string]:
+        | {
+            rowSpan: number;
+            session: BackendAPISchemas.SessionSchema;
+          }
+        | undefined;
+    };
+  };
 };
 
 type SessionDate = {
@@ -140,28 +178,22 @@ type SessionDate = {
 };
 
 type Room = {
+  uuid: string;
   name: string;
   availableStartDate: Date;
   availableEndDate: Date;
 };
 
-// @ts-ignore
 const rawSessionDates: SessionDate[] = [
   {
     index: 1,
-    date: new Date(2025, 8, 15),
-    ko: "8월 15일 금요일",
-    en: "August 15 (Fri)",
-  },
-  {
-    index: 2,
-    date: new Date(2025, 8, 16),
+    date: new Date(2025, 7, 16),
     ko: "8월 16일 토요일",
     en: "August 16 (Sat)",
   },
   {
-    index: 3,
-    date: new Date(2025, 8, 17),
+    index: 2,
+    date: new Date(2025, 7, 17),
     ko: "8월 17일 일요일",
     en: "August 17 (Sun)",
   },
@@ -169,38 +201,99 @@ const rawSessionDates: SessionDate[] = [
 
 const rawRooms: Room[] = [
   {
-    name: "201호",
-    availableStartDate: new Date(2025, 8, 15),
-    availableEndDate: new Date(2025, 8, 16),
+    uuid: "room1",
+    name: "4142호",
+    availableStartDate: new Date(2025, 7, 15),
+    availableEndDate: new Date(2025, 7, 16),
   },
   {
-    name: "202호",
-    availableStartDate: new Date(2025, 8, 16),
-    availableEndDate: new Date(2025, 8, 17),
+    uuid: "room2",
+    name: "4147호",
+    availableStartDate: new Date(2025, 7, 16),
+    availableEndDate: new Date(2025, 7, 17),
   },
   {
-    name: "203호",
-    availableStartDate: new Date(2025, 8, 16),
-    availableEndDate: new Date(2025, 8, 17),
+    uuid: "room3",
+    name: "5147호",
+    availableStartDate: new Date(2025, 7, 16),
+    availableEndDate: new Date(2025, 7, 17),
+  },
+  {
+    uuid: "room4",
+    name: "6144호",
+    availableStartDate: new Date(2025, 7, 16),
+    availableEndDate: new Date(2025, 7, 17),
   },
 ];
 
-const SessionTimeTableItem: React.FC<{ data: BackendAPISchemas.SessionSchema }> = ({ data }) => {
-  const sessionCategories = data.categories;
+const getDateStr = (date: Date) => date.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" });
 
-  return (
-    <SessionTimeTableItemContainer direction="column">
-      <SessionTitle children={data.title} />
-      {data.speakers.map((speaker) => (
-        <Chip key={speaker.id} size="small" label={speaker.nickname} />
-      ))}
-      <SessionTimeTableItemTagContainer direction="row">
-        {sessionCategories.map((category) => (
-          <Chip key={category.id} variant="outlined" color="primary" size="small" label={category.name} />
-        ))}
-      </SessionTimeTableItemTagContainer>
-    </SessionTimeTableItemContainer>
+const getRooms = (data: BackendAPISchemas.SessionSchema[]) => {
+  const rooms: Set<string> = new Set();
+  data.forEach((session) => session.room_schedules.room_name && rooms.add(session.room_schedules.room_name));
+  return Array.from(rooms);
+};
+
+const getEveryTenMinutesArr = (start: Date, end: Date) => {
+  let time = new Date(start);
+  const arr = [];
+
+  while (time <= end) {
+    arr.push(time);
+    time = new Date(new Date(time).setMinutes(time.getMinutes() + 10));
+  }
+  return arr;
+};
+
+const getConfStartEndTimePerDay: (data: BackendAPISchemas.SessionSchema[]) => {
+  [date: string]: { start: Date; end: Date };
+} = (data) => {
+  const result: { [date: string]: { start: Date; end: Date } } = {};
+
+  data.forEach((session) => {
+    if (session.call_for_presentation_schedules.start_at && session.call_for_presentation_schedules.end_at) {
+      const startTime = session.call_for_presentation_schedules.start_at;
+      const endTime = session.call_for_presentation_schedules.end_at;
+      const date = getDateStr(startTime);
+
+      if (!result[date]) {
+        result[date] = { start: startTime, end: endTime };
+      } else {
+        if (startTime < result[date].start) result[date].start = startTime;
+        if (endTime > result[date].end) result[date].end = endTime;
+      }
+    }
+  });
+
+  return result;
+};
+
+const getPaddedTime = (time: Date) => `${time.getHours()}:${time.getMinutes().toString().padStart(2, "0")}`;
+
+const getTimeTableData: (data: BackendAPISchemas.SessionSchema[]) => TimeTableData = (data) => {
+  // Initialize timeTableData structure
+  const timeTableData: TimeTableData = Object.entries(getConfStartEndTimePerDay(data)).reduce(
+    (acc, [date, { start, end }]) => ({
+      ...acc,
+      [date]: getEveryTenMinutesArr(start, end).reduce((acc, time) => ({ ...acc, [getPaddedTime(time)]: {} }), {}),
+    }),
+    {}
   );
+
+  // Fill timeTableData with session data
+  data.forEach((session) => {
+    if (session.call_for_presentation_schedules.start_at && session.call_for_presentation_schedules.end_at) {
+      const start = session.call_for_presentation_schedules.start_at;
+      const end = session.call_for_presentation_schedules.end_at;
+      const durationMin = (end.getTime() - start.getTime()) / 1000 / 60;
+      timeTableData[getDateStr(start)][getPaddedTime(start)][session.room_schedules.room_name] = {
+        rowSpan: durationMin / 10,
+        session,
+      };
+    }
+  });
+
+  return timeTableData;
 };
 
 const ErrorHeading = styled(Typography)({
@@ -214,6 +307,66 @@ const ErrorHeading = styled(Typography)({
 export const SessionTimeTable: React.FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <ErrorHeading>{"세션 시간표를 불러오는 중 입니다."}</ErrorHeading> }, () => {
+    const useGenerateSessionData: () => BackendAPISchemas.SessionSchema[] = () => {
+      let rawData: BackendAPISchemas.SessionSchema[] = [];
+      for (var i = 0; i < sessionRawTimeSchedule.length; i++) {
+        rawData.push(sessionRawData[0]);
+        rawData[rawData.length - 1].room_schedules = sessionRawTimeSchedule[i].room_schedules;
+        rawData[rawData.length - 1].call_for_presentation_schedules = sessionRawTimeSchedule[i].call_for_presentation_schedules;
+      }
+      return rawData;
+    };
+
+    const [sessionData, setSessionData] = React.useState<BackendAPISchemas.SessionSchema[]>(useGenerateSessionData());
+    const [sessionDates, setSessionDates] = React.useState<SessionDate[]>(rawSessionDates);
+    const [selectedDate, setSelectedDate] = React.useState<SessionDate>(sessionDates[0]);
+    const [timeTableData, setTimeTableData] = React.useState<TimeTableData>(getTimeTableData(sessionData));
+    const tempDateStr: string = getDateStr(selectedDate.date);
+    const [selectedTableData, setSelectedTableData] = React.useState(timeTableData[tempDateStr]);
+
+    const [dates, setDates] = React.useState(Object.keys(timeTableData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()));
+    const [rooms, setRooms] = React.useState<{ [room: string]: number }>(getRooms(sessionData).reduce((acc, room) => ({ ...acc, [room]: 0 }), {}));
+    const [roomCount, setRoomCount] = React.useState<number>(Object.keys(rooms).length);
+    const [sortedRoomList, setSortedRoomList] = React.useState(Object.keys(rooms).sort());
+
+    let breakCount = 0;
+
+    const SessionColumn: React.FC<{
+      rowSpan: number;
+      colSpan: number;
+      session: BackendAPISchemas.SessionSchema;
+    }> = ({ rowSpan, colSpan, session }) => {
+      const navigate = useNavigate();
+      const clickable = R.isArray(session.speakers) && !R.isEmpty(session.speakers);
+      // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
+      const sessionBoxHeight = `${TD_HEIGHT * rowSpan}rem`;
+      const urlSafeTitle = session.title
+        .replace(/ /g, "-")
+        .replace(/([.])/g, "_")
+        .replace(/(?![.0-9A-Za-zㄱ-ㅣ가-힣-])./g, "");
+      return (
+        <TableCell rowSpan={rowSpan} colSpan={colSpan}>
+          <SessionBox
+            onClick={() => clickable && navigate(`/session/${session.id}#${urlSafeTitle}`)}
+            className={clickable ? "clickable" : ""}
+            style={{ height: sessionBoxHeight }}
+          >
+            <SessionTitle children={session.title} align="center" />
+            <SessionSpeakerItemContainer direction="row">
+              {session.speakers.map((speaker) => (
+                <Chip key={speaker.id} size="small" label={speaker.nickname} />
+              ))}
+            </SessionSpeakerItemContainer>
+            <SessionTimeTableItemTagContainer direction="row">
+              {session.categories.map((category) => (
+                <Chip key={category.id} variant="outlined" color="primary" size="small" label={category.name} />
+              ))}
+            </SessionTimeTableItemTagContainer>
+          </SessionBox>
+        </TableCell>
+      );
+    };
+
     const SessionDateTab: React.FC = () => {
       // @ts-ignore
       const convertLanguage = (dateString: SessionDate) => {
@@ -226,15 +379,21 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       };
 
       return (
-        <Box sx={{ flexDirection: "column" }}>
+        <Box>
           <ColoredDivider />
-          <SessionDateTabContainer direction="row">
+          <SessionDateTabContainer>
             {sessionDates.map((sessionDate) => {
               return (
                 <ButtonBase onClick={() => setSelectedDate(sessionDate)}>
                   <SessionDateItemContainer direction="column">
-                    <SessionDateTitle children={"Day " + sessionDate.index} isSelected={sessionDate.date === selectedDate.date} />
-                    <SessionDateSubTitle children={convertLanguage(sessionDate)} isSelected={sessionDate.date === selectedDate.date} />
+                    <SessionDateTitle
+                      children={"Day " + sessionDate.index}
+                      isSelected={getDateStr(sessionDate.date) === getDateStr(selectedDate.date)}
+                    />
+                    <SessionDateSubTitle
+                      children={convertLanguage(sessionDate)}
+                      isSelected={getDateStr(sessionDate.date) === getDateStr(selectedDate.date)}
+                    />
                   </SessionDateItemContainer>
                 </ButtonBase>
               );
@@ -245,138 +404,123 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
       );
     };
 
-    const SessionTimeGroup: React.FC<{ sessionGroup: SessionTimeWithSameStartTime }> = ({ sessionGroup }) => {
-      if (sessionGroup.isSession) {
-        return (
-          <SessionTableRow>
-            <TableCell colSpan={sessionRooms.length + 1}>
-              <SessionTimeTableItem data={sessionGroup.sessions[0]} />
-            </TableCell>
-          </SessionTableRow>
-        );
-      } else {
-        const sessions: BackendAPISchemas.SessionSchema[] = sessionGroup.sessions;
-        return (
-          <SessionTableRow>
-            {sessions.map((session) => {
-              return <SessionTimeTableItem data={session} />;
-            })}
-          </SessionTableRow>
-        );
-      }
-    };
-
-    // const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    // const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient);
-    const sessions: BackendAPISchemas.SessionSchema[] = generateSessionData();
-    // @ts-ignore
-    const [sessionData, setSessionData] = React.useState(sessions);
-    // @ts-ignore
-    const [sessionDates, setSessionDates] = React.useState<SessionDate[]>(rawSessionDates);
-    // @ts-ignore
-    const [selectedDate, setSelectedDate] = React.useState<SessionDate>(sessionDates[0]);
-    // @ts-ignore
-    const [sessionRooms, setSessionRooms] = React.useState<Room[]>(rawRooms);
-
-    const [sessionGroupByStartTime, setSessionGroupByStartTime] = React.useState<SessionTimeWithSameStartTime[]>([]);
-    // const filteredSessions = React.useMemo(() => {
-    //   return sessions.filter((session) => {
-    //     return selectedDate.date.toLocaleDateString() === session.room_schedules.start_at.toLocaleDateString();
-    //   });
-    // }, [sessions, selectedDate]);
-
-    // 세션을 순회하며 시작 시간이 같은 세션들만 계산해서 리턴하는 함수
-    const getSessionWithSameStartTime: () => SessionTimeWithSameStartTime[] = () => {
-      let sessionList: SessionTimeWithSameStartTime[] = [];
-      let sessionWithSameStartTime: BackendAPISchemas.SessionSchema[] = [];
-      let sessionIndex: number = 0;
-      while (sessionIndex < sessionData.length) {
-        const session: BackendAPISchemas.SessionSchema = sessionData[sessionIndex];
-        if (!session.isSession) {
-          sessionList.push({
-            sessions: [session],
-            isSession: false,
-            isLast: sessionIndex != sessionData.length,
-          });
-        } else {
-          sessionWithSameStartTime.push(session);
-          while (sessionIndex + 1 < sessionData.length) {
-            sessionWithSameStartTime.push(sessionData[sessionIndex + 1]);
-          }
-          sessionList.push({
-            sessions: sessionWithSameStartTime,
-            isSession: true,
-            isLast: sessionIndex != sessionData.length,
-          });
-        }
-        sessionWithSameStartTime = [];
-        sessionIndex += 1;
-      }
-      return sessionList;
-    };
-
-    React.useEffect(() => {
-      setSessionData(generateSessionData());
-    });
-
-    React.useEffect(() => {
-      setSessionGroupByStartTime(getSessionWithSameStartTime());
-    });
-
     return (
-      <Box>
+      <Box sx={{ flexDirection: "column", width: "90%" }}>
         <SessionDateTab />
-        <TableContainer>
-          <Table>
+        <SessionTableContainer>
+          <SessionTableStyle>
             <TableHead>
               <SessionTableRow>
-                {sessionRooms.map((room) => {
-                  return <SessionTableCell align="center">{room.name}</SessionTableCell>;
+                {sortedRoomList.map((room) => {
+                  return (
+                    <SessionTableCell>
+                      <RoomTitle align="center">{room}</RoomTitle>
+                    </SessionTableCell>
+                  );
                 })}
               </SessionTableRow>
             </TableHead>
-            <TableBody>
-              <SessionTableRow>
-                <TableCell colSpan={sessionRooms.length + 1}></TableCell>
-              </SessionTableRow>
-              {sessionGroupByStartTime.map((sessionGroup) => {
-                return <SessionTimeGroup sessionGroup={sessionGroup} />;
+            <SessionTableBody>
+              <TableRow>
+                <TableCell colSpan={roomCount + 1}></TableCell>
+              </TableRow>
+              {Object.entries(selectedTableData).map(([time, roomData], i, a) => {
+                const hasSession = Object.values(rooms).some((c) => c >= 1) || Object.values(roomData).some((room) => room !== undefined);
+
+                if (!hasSession) {
+                  if (breakCount > 1) {
+                    breakCount--;
+                    return <TableRow></TableRow>;
+                  } else {
+                    // 지금부터 다음 세션이 존재하기 전까지의 휴식 시간을 계산합니다.
+                    breakCount = 1;
+                    for (let bi = i + 1; bi < a.length; bi++) {
+                      if (Object.values(a[bi][1]).some((room) => room !== undefined)) break;
+                      breakCount += 1;
+                    }
+
+                    // I really hate this, but I can't think of a better way to do this.
+                    const height = (TD_HEIGHT * breakCount) / (breakCount <= 2 ? 1 : 3);
+                    return (
+                      <TableRow>
+                        <TableCell
+                          style={{
+                            // height: `${height}rem`,
+                            // transform: `translateY(-${height / 2}rem)`,
+                            border: "unset",
+                          }}
+                        >
+                          {time}
+                        </TableCell>
+                        <TableCell colSpan={roomCount + 1} rowSpan={breakCount} style={{ height: `${height}rem` }}>
+                          <Box
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {i !== a.length - 1 && <RestTitle>{"휴식"}</RestTitle>}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                }
+
+                // 만약 세션 타입이 아닌 발표가 존재하는 경우, 해당 줄에서는 colSpan이 roomCount인 column을 생성합니다.
+                const nonSessionTypeData = Object.values(roomData).find((room) => room !== undefined && room.session.isSession);
+                if (nonSessionTypeData) {
+                  Object.keys(rooms).forEach((room) => (rooms[room] = nonSessionTypeData.rowSpan - 1));
+                  return (
+                    <TableRow>
+                      <TableCell sx={{ border: "unset" }}>{time}</TableCell>
+                      <SessionColumn rowSpan={nonSessionTypeData.rowSpan} colSpan={roomCount} session={nonSessionTypeData.session} />
+                    </TableRow>
+                  );
+                }
+
+                return (
+                  <TableRow>
+                    <TableCell sx={{ border: "unset" }}>{time}</TableCell>
+                    {sortedRoomList.map((room) => {
+                      const roomDatum = roomData[room];
+                      if (roomDatum === undefined) {
+                        // 진행 중인 세션이 없는 경우, 해당 줄에서는 해당 room의 빈 column을 생성합니다.
+                        if (rooms[room] <= 0) return <td></td>;
+                        // 진행 중인 세션이 있는 경우, 이번 줄에서는 해당 세션들만큼 column을 생성하지 않습니다.
+                        rooms[room] -= 1;
+                        return null;
+                      }
+                      // 세션이 여러 줄에 걸쳐있는 경우, n-1 줄만큼 해당 room에 column을 생성하지 않도록 합니다.
+                      if (roomDatum.rowSpan > 1) rooms[room] = roomDatum.rowSpan - 1;
+                      return <SessionColumn key={room} rowSpan={roomDatum.rowSpan} colSpan={1} session={roomDatum.session} />;
+                    })}
+                  </TableRow>
+                );
               })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </SessionTableBody>
+          </SessionTableStyle>
+        </SessionTableContainer>
       </Box>
     );
   })
 );
-
-const SessionTimeTableItemContainer = styled(Stack)(({ theme }) => ({
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 16,
-  border: `1px solid color-mix(in srgb, ${theme.palette.primary.light} 50%, transparent 50%)`,
-}));
 
 const SessionTimeTableItemTagContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",
 });
 
-const SessionDateTabContainer = styled(Stack)({
-  alignItems: "center",
-  justifyContent: "center",
-});
-
-// @ts-ignore
 const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",
-  padding: "0.5rem 1.5rem",
+  padding: "1rem 3rem",
 });
 
-// @ts-ignore
 const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
-  fontSize: "1.5em",
+  fontSize: "2.25em",
   fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
@@ -384,32 +528,55 @@ const SessionDateTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, i
   color: isSelected ? theme.palette.primary.main : theme.palette.primary.light,
 }));
 
-// @ts-ignore
 const SessionDateSubTitle = styled(Typography)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
-  fontSize: "0.75em",
+  fontSize: "1em",
   fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
   whiteSpace: "pre-wrap",
   color: isSelected ? theme.palette.primary.main : theme.palette.primary.light,
 }));
+
+const RestTitle = styled(Typography)({
+  fontSize: "1em",
+  fontWeight: 500,
+  lineHeight: 1.25,
+  textDecoration: "none",
+  whiteSpace: "pre-wrap",
+});
 
 const SessionTitle = styled(Typography)({
-  fontSize: "1.5em",
+  fontSize: "1.25em",
   fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
   whiteSpace: "pre-wrap",
+});
+
+const RoomTitle = styled(Typography)({
+  fontSize: "1.25em",
+  fontWeight: 500,
 });
 
 const ColoredDivider = styled(StyledDivider)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-// @ts-ignore
+const SessionSpeakerItemContainer = styled(Stack)({
+  alignItems: "center",
+  justifyContent: "center",
+});
+
 const SessionTableStyle = styled(Table)({
   alignItems: "center",
   justifyContent: "center",
+  gap: "1rem",
+  width: "100%",
+  flex: 1,
+});
+
+const SessionTableBody = styled(TableBody)({
+  gap: "1rem",
 });
 
 const SessionTableRow = styled(TableRow)({
@@ -420,4 +587,47 @@ const SessionTableRow = styled(TableRow)({
 const SessionTableCell = styled(TableCell)({
   alignItems: "center",
   justifyContent: "center",
+  border: "unset",
+});
+
+const SessionDateTabContainer = styled(Box)({
+  display: "flex",
+  gap: "2rem",
+  justifyContent: "center",
+  alignItems: "center",
+  button: {
+    backgroundColor: "unset",
+    color: "rgba(255, 255, 255, 0.5)",
+    border: "unset",
+    "&.selected": {
+      color: "rgba(255, 255, 255, 1)",
+    },
+  },
+  "h1, h2, h3, h4, h5, h6": {
+    margin: 0,
+    color: "inherit",
+  },
+});
+
+const SessionBox = styled(Box)(({ theme }) => ({
+  height: "100%",
+  margin: "0.25rem",
+  padding: "0.25rem",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  border: `1px solid color-mix(in srgb, ${theme.palette.primary.light} 50%, transparent 50%)`,
+  borderRadius: "0.5rem",
+  backgroundColor: `${theme.palette.primary.light}1A`,
+  fontSize: "1rem",
+  gap: "0.5rem",
+}));
+
+const SessionTableContainer = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "1rem",
 });
