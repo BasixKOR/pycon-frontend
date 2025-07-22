@@ -3,6 +3,7 @@ import * as React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
+import BackendAPISchemas from "../../../packages/common/src/schemas/backendAPI";
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
 import { ShopSignInPage } from "./components/pages/sign_in.tsx";
@@ -10,8 +11,6 @@ import { SponsorDetailPage } from "./components/pages/sponsor_detail.tsx";
 import { Test } from "./components/pages/test.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { useAppContext } from "./contexts/app_context";
-import BackendAPISchemas from "../../../packages/common/src/schemas/backendAPI";
-import { SessionTimeTable } from "../../../packages/common/src/components/mdx_components/session_timetable.tsx";
 
 export const App: React.FC = () => {
   const backendAPIClient = Common.Hooks.BackendAPI.useBackendClient();
@@ -48,7 +47,6 @@ export const App: React.FC = () => {
       <Route element={<MainLayout />}>
         {IS_DEBUG_ENV && <Route path="/debug" element={<Test />} />}
         <Route path="/account/sign-in" element={<ShopSignInPage />} />
-        <Route path="/test" element={<SessionTimeTable />} />
         <Route path="/sponsors/:id" element={<SponsorDetailPage />} />
         <Route path="/pages/:id" element={<PageIdParamRenderer />} />
         <Route path="*" element={<RouteRenderer />} />

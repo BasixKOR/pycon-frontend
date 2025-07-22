@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 import BackendAPISchemas from "../../schemas/backendAPI";
 import { ErrorFallback } from "../error_handler";
-import { sessionRawData } from "../mdx_components/tempData";
 import { StyledDivider } from "./styled_divider";
 
 const TD_HEIGHT = 2.5;
@@ -144,6 +143,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
     React.useEffect(() => window.scrollTo(0, 0), []);
     const [confDate, setConfDate] = React.useState("");
 
+    const sessionRawData: BackendAPISchemas.SessionSchema[] = [];
     const timeTableData = getTimeTableData(sessionRawData);
     const dates = Object.keys(timeTableData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
     const rooms: { [room: string]: number } = getRooms(sessionRawData).reduce((acc, room) => ({ ...acc, [room]: 0 }), {});
