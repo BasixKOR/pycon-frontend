@@ -120,7 +120,7 @@ const SessionColumn: React.FC<{
       <SessionBox
         onClick={() => clickable && navigate(`/session/${session.id}#${urlSafeTitle}`)}
         className={clickable ? "clickable" : ""}
-        sx={{ height: sessionBoxHeight }}
+        sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}
       >
         <SessionTitle children={session.title} align="center" />
         <SessionSpeakerItemContainer direction="row">
@@ -142,7 +142,6 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <ErrorHeading>{"세션 시간표를 불러오는 중 입니다."}</ErrorHeading> }, () => {
     React.useEffect(() => window.scrollTo(0, 0), []);
-    const navigate = useNavigate();
     const [confDate, setConfDate] = React.useState("");
 
     const timeTableData = getTimeTableData(sessionRawData);
@@ -158,6 +157,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
 
     return (
       <Box sx={{ flexDirection: "column", width: "90%" }}>
+        <WarningText children={"* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."} />
         <ColoredDivider />
         <SessionDateTabContainer>
           {dates.map((date, i) => {
@@ -213,6 +213,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
                             transform: `translateY(-${height / 2}rem)`,
                             border: "unset",
                           }}
+                          align="center"
                         >
                           {time}
                         </SessionTableCell>
@@ -234,12 +235,12 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
                 }
 
                 // 만약 세션 타입이 아닌 발표가 존재하는 경우, 해당 줄에서는 colSpan이 roomCount인 column을 생성합니다.
-                const nonSessionTypeData = Object.values(roomData).find((room) => room !== undefined && room.session.isSession);
+                const nonSessionTypeData = Object.values(roomData).find((room) => room !== undefined && !room.session.isSession);
                 if (nonSessionTypeData) {
                   Object.keys(rooms).forEach((room) => (rooms[room] = nonSessionTypeData.rowSpan - 1));
                   return (
                     <SessionTableRow>
-                      <SessionTableCell>{time}</SessionTableCell>
+                      <SessionTableCell align="center">{time}</SessionTableCell>
                       <SessionColumn rowSpan={nonSessionTypeData.rowSpan} colSpan={roomCount} session={nonSessionTypeData.session} />
                     </SessionTableRow>
                   );
@@ -247,7 +248,7 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
 
                 return (
                   <SessionTableRow>
-                    <SessionTableCell>{time}</SessionTableCell>
+                    <SessionTableCell align="center">{time}</SessionTableCell>
                     {sortedRoomList.map((room) => {
                       const roomDatum = roomData[room];
                       if (roomDatum === undefined) {
@@ -271,6 +272,18 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
     );
   })
 );
+
+const WarningText = styled(Typography)({
+  paddingLeft: "1rem",
+  backgroundColor: "unset",
+  textAlign: "right",
+  margin: 0,
+  padding: 0,
+  border: "unset",
+  fontSize: "1rem",
+  lineHeight: 2,
+  fontWeight: 300,
+});
 
 const SessionTimeTableItemTagContainer = styled(Stack)({
   alignItems: "center",
@@ -310,7 +323,7 @@ const RestTitle = styled(Typography)({
 });
 
 const SessionTitle = styled(Typography)({
-  fontSize: "1.25em",
+  fontSize: "1.125em",
   fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
@@ -413,7 +426,7 @@ const SessionDateTabContainer = styled(Box)({
 
 const SessionBox = styled(Box)(({ theme }) => ({
   height: "100%",
-  margin: "0.25rem",
+  // margin: "0.25rem",
   padding: "0.25rem",
   display: "flex",
   flexDirection: "column",
@@ -423,7 +436,6 @@ const SessionBox = styled(Box)(({ theme }) => ({
   borderRadius: "0.5rem",
 
   backgroundColor: `${theme.palette.primary.light}1A`,
-  fontSize: "1rem",
   transition: "all 0.25s ease",
   gap: "0.5rem",
 
@@ -483,4 +495,5 @@ const SessionTableContainer = styled(Box)({
   alignItems: "center",
   justifyContent: "center",
   gap: "1rem",
+  flex: 1,
 });
