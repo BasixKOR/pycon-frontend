@@ -4,6 +4,7 @@ import * as React from "react";
 import BackendAPIs from "../apis";
 import { BackendAPIClient } from "../apis/client";
 import BackendContext from "../contexts";
+import BackendAPISchemas from "../schemas/backendAPI";
 
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
@@ -42,10 +43,16 @@ namespace BackendAPIHooks {
       queryFn: BackendAPIs.listSponsors(client),
     });
 
-  export const useSessionsQuery = (client: BackendAPIClient) =>
+  export const useSessionsQuery = (client: BackendAPIClient, params?: BackendAPISchemas.SessionQueryParameterSchema) =>
     useSuspenseQuery({
-      queryKey: [...QUERY_KEYS.SESSION_LIST, client.language],
-      queryFn: BackendAPIs.listSessions(client),
+      queryKey: [...QUERY_KEYS.SESSION_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
+      queryFn: BackendAPIs.listSessions(client, params),
+    });
+
+  export const useSessionQuery = (client: BackendAPIClient, id: string) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.SESSION_LIST, id, client.language],
+      queryFn: () => BackendAPIs.retrieveSession(client)(id),
     });
 }
 

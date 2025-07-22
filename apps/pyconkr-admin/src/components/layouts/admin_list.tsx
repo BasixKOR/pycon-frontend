@@ -12,6 +12,7 @@ type AdminListProps = {
   resource: string;
   hideCreatedAt?: boolean;
   hideUpdatedAt?: boolean;
+  hideCreateNew?: boolean;
 };
 
 type ListRowType = {
@@ -23,7 +24,7 @@ type ListRowType = {
 
 const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource, hideCreatedAt, hideUpdatedAt }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource, hideCreatedAt, hideUpdatedAt, hideCreateNew }) => {
     const navigate = useNavigate();
     const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
     const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(backendAdminClient, app, resource);
@@ -35,9 +36,11 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
         </Typography>
         <br />
         <Box>
-          <Button variant="contained" onClick={() => navigate(`/${app}/${resource}/create`)} startIcon={<Add />}>
-            새 객체 추가
-          </Button>
+          {!hideCreateNew && (
+            <Button variant="contained" onClick={() => navigate(`/${app}/${resource}/create`)} startIcon={<Add />}>
+              새 객체 추가
+            </Button>
+          )}
         </Box>
         <Table>
           <TableHead>
@@ -57,8 +60,8 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
                 <TableCell>
                   <Link to={`/${app}/${resource}/${item.id}`}>{item.str_repr}</Link>
                 </TableCell>
-                {hideCreatedAt === true && <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>}
-                {hideUpdatedAt === true && <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>}
+                {!hideCreatedAt && <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>}
+                {!hideUpdatedAt && <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>}
               </TableRow>
             ))}
           </TableBody>

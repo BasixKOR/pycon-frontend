@@ -25,13 +25,22 @@ import { MiniVariantAppBar, MiniVariantDrawer } from "./sidebar";
 
 export type RouteDef =
   | {
-      type: "routeDefinition";
+      type: "autoAdminRouteDefinition";
       key: string; // Unique key for the route
       icon: typeof SvgIcon;
       title: string;
       app: string;
       resource: string;
       route?: string; // If specified, this will be used as the route instead of the default one
+      hideOnSidebar?: boolean;
+      placeOnBottom?: boolean;
+    }
+  | {
+      type: "routeDefinition";
+      key: string; // Unique key for the route
+      icon: typeof SvgIcon;
+      title: string;
+      route: string;
       hideOnSidebar?: boolean;
       placeOnBottom?: boolean;
     }
@@ -72,48 +81,57 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
   const [state, dispatch] = React.useState<LayoutState>({ showDrawer: false });
   const toggleDrawer = () => dispatch((ps) => ({ ...ps, showDrawer: !ps.showDrawer }));
 
-  const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) =>
-    routeInfo.type === "separator" ? (
-      <ListItem key={routeInfo.title} disablePadding sx={{ minHeight: 48 }}>
-        {state.showDrawer ? (
-          <ListItemButton disabled>
-            <ListItemText primary={routeInfo.title} />
-          </ListItemButton>
-        ) : (
-          <Stack
-            alignItems="center"
-            sx={(t) => ({
-              width: t.spacing(7),
-              [t.breakpoints.up("sm")]: { width: t.spacing(8) },
-            })}
-          >
-            <Chip label={routeInfo.title} variant="outlined" size="small" sx={{ flexGrow: 0 }} />
-          </Stack>
-        )}
-      </ListItem>
-    ) : (
-      <ListItem key={`${routeInfo.app}-${routeInfo.resource}`} sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}} disablePadding>
-        <ListItemButton
-          sx={{
-            minHeight: 48,
-            px: 2.5,
-            justifyContent: state.showDrawer ? "initial" : "center",
-          }}
-          onClick={() => navigate(routeInfo.route || `/${routeInfo.app}/${routeInfo.resource}`)}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              justifyContent: "center",
-              mr: state.showDrawer ? 3 : "auto",
-            }}
-          >
-            <routeInfo.icon />
-          </ListItemIcon>
-          {state.showDrawer && <ListItemText primary={routeInfo.title} />}
-        </ListItemButton>
-      </ListItem>
-    );
+  const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) => {
+    switch (routeInfo.type) {
+      case "separator":
+        return (
+          <ListItem key={routeInfo.key} disablePadding sx={{ minHeight: 48 }}>
+            {state.showDrawer ? (
+              <ListItemButton disabled>
+                <ListItemText primary={routeInfo.title} />
+              </ListItemButton>
+            ) : (
+              <Stack
+                alignItems="center"
+                sx={(t) => ({
+                  width: t.spacing(7),
+                  [t.breakpoints.up("sm")]: { width: t.spacing(8) },
+                })}
+              >
+                <Chip label={routeInfo.title} variant="outlined" size="small" sx={{ flexGrow: 0 }} />
+              </Stack>
+            )}
+          </ListItem>
+        );
+      case "routeDefinition":
+      case "autoAdminRouteDefinition":
+        return (
+          <ListItem key={routeInfo.key} sx={routeInfo.placeOnBottom ? { marginTop: "auto" } : {}} disablePadding>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 2.5,
+                justifyContent: state.showDrawer ? "initial" : "center",
+              }}
+              onClick={() => navigate(routeInfo.type === "autoAdminRouteDefinition" ? `/${routeInfo.app}/${routeInfo.resource}` : routeInfo.route)}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  justifyContent: "center",
+                  mr: state.showDrawer ? 3 : "auto",
+                }}
+              >
+                <routeInfo.icon />
+              </ListItemIcon>
+              {state.showDrawer && <ListItemText primary={routeInfo.title} />}
+            </ListItemButton>
+          </ListItem>
+        );
+      default:
+        return null;
+    }
+  };
 
   const menuButtonStyle: (t: Theme) => React.CSSProperties = (t) => ({
     width: `calc(${t.spacing(7)} + 1px)`,

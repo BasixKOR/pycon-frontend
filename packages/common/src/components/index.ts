@@ -1,7 +1,9 @@
 import { CenteredPage as CenteredPageComponent } from "./centered_page";
 import { CommonContextProvider as CommonContextProviderComponent } from "./common_context";
+import { DndFileInput as DndFileInputComponent } from "./dnd_file_input";
 import { ErrorFallback as ErrorFallbackComponent } from "./error_handler";
 import { FallbackImage as FallbackImageComponent } from "./fallback_image";
+import { Fieldset as FieldsetComponent } from "./fieldset";
 import { LinkHandler as LinkHandlerComponent } from "./link_handler";
 import {
   LottieDebugPanel as LottieDebugPanelComponent,
@@ -41,6 +43,8 @@ namespace Components {
   export const ErrorFallback = ErrorFallbackComponent;
   export const FallbackImage = FallbackImageComponent;
   export const LinkHandler = LinkHandlerComponent;
+  export const DndFileInput = DndFileInputComponent;
+  export const Fieldset = FieldsetComponent;
 
   export namespace MDX {
     export const Confetti = ConfettiComponent;

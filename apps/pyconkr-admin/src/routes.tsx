@@ -3,6 +3,7 @@ import {
   AccountTree,
   Apartment,
   Article,
+  AutoFixHigh,
   Category,
   ClearAll,
   Event,
@@ -21,6 +22,8 @@ import { AccountRedirectPage } from "./components/pages/account/account";
 import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
+import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
+import { AdminModificationAuditEditor } from "./components/pages/modification_audit/pages";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 import { AdminPresentationEditor } from "./components/pages/presentation/editor";
 import { SiteMapList } from "./components/pages/sitemap/list";
@@ -29,11 +32,23 @@ import { AdminUserExtEditor } from "./components/pages/user/editor";
 export const RouteDefinitions: RouteDef[] = [
   {
     type: "separator",
+    key: "audit-separator",
+    title: "심사",
+  },
+  {
+    type: "routeDefinition",
+    key: "modificationaudit-modificationaudit",
+    icon: AutoFixHigh,
+    title: "수정 심사",
+    route: "/modification-audit",
+  },
+  {
+    type: "separator",
     key: "cms-separator",
     title: "CMS",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "cms-sitemap",
     icon: AccountTree,
     title: "사이트맵",
@@ -41,7 +56,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "sitemap",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "cms-page",
     icon: Article,
     title: "페이지",
@@ -54,7 +69,7 @@ export const RouteDefinitions: RouteDef[] = [
     title: "파일",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "file-publicfile",
     icon: FilePresent,
     title: "외부 노출 파일",
@@ -67,7 +82,7 @@ export const RouteDefinitions: RouteDef[] = [
     title: "행사",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-event",
     icon: Event,
     title: "행사",
@@ -80,7 +95,7 @@ export const RouteDefinitions: RouteDef[] = [
     title: "후원사",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-sponsortier",
     icon: ClearAll,
     title: "후원사 티어",
@@ -88,7 +103,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "sponsortier",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-sponsortag",
     icon: Tag,
     title: "후원사 태그",
@@ -96,7 +111,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "sponsortag",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-sponsor",
     icon: Handshake,
     title: "후원사",
@@ -109,7 +124,7 @@ export const RouteDefinitions: RouteDef[] = [
     title: "발표",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-presentationtype",
     icon: NoteAlt,
     title: "발표 유형",
@@ -117,7 +132,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "presentationtype",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-presentationcategory",
     icon: Category,
     title: "발표 카테고리",
@@ -125,7 +140,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "presentationcategory",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "event-presentation",
     icon: StickyNote2,
     title: "발표",
@@ -138,7 +153,7 @@ export const RouteDefinitions: RouteDef[] = [
     title: "사용자",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "user-userext",
     icon: ManageAccounts,
     title: "사용자",
@@ -146,7 +161,7 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "userext",
   },
   {
-    type: "routeDefinition",
+    type: "autoAdminRouteDefinition",
     key: "user-organization",
     icon: Apartment,
     title: "조직",
@@ -158,8 +173,6 @@ export const RouteDefinitions: RouteDef[] = [
     key: "user-account",
     icon: AccountCircle,
     title: "로그인 / 로그아웃",
-    app: "user",
-    resource: "account",
     route: "/account",
     placeOnBottom: true,
   },
@@ -174,7 +187,7 @@ const buildDefaultRoutes = (app: string, resource: string) => {
 };
 
 export const RegisteredRoutes = {
-  ...RouteDefinitions.filter((r) => r.type === "routeDefinition").reduce(
+  ...RouteDefinitions.filter((r) => r.type === "autoAdminRouteDefinition").reduce(
     (acc, { app, resource }) => {
       return {
         ...acc,
@@ -197,4 +210,6 @@ export const RegisteredRoutes = {
   "/cms/sitemap/:id": <SiteMapList />,
   "/event/presentation/create": <AdminPresentationEditor />,
   "/event/presentation/:id": <AdminPresentationEditor />,
+  "/modification-audit": <AdminModificationAuditList />,
+  "/modification-audit/modification-audit/:id": <AdminModificationAuditEditor />,
 };

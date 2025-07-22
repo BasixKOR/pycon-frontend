@@ -1,6 +1,7 @@
 import { Box, Button, Chip, CircularProgress, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
+import { Link } from "react-router-dom";
 import * as R from "remeda";
 
 import PyCon2025Logo from "../../assets/pyconkr2025_logo.png";
@@ -10,18 +11,29 @@ import { ErrorFallback } from "../error_handler";
 import { FallbackImage } from "../fallback_image";
 import { StyledDivider } from "./styled_divider";
 
-const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Suspense.with({ fallback: <CircularProgress /> }, ({ session }) => {
-  const sessionTitle = session.title.replace("\\n", "\n");
-  const speakerImgSrc = session.image || (R.isArray(session.speakers) && !R.isEmpty(session.speakers) && session.speakers[0].image) || "";
-  // const urlSafeTitle = session.title
-  //   .replace(/ /g, "-")
-  //   .replace(/([.])/g, "_")
-  //   .replace(/(?![0-9A-Za-zㄱ-ㅣ가-힣-_])./g, "");
-  // const sessionDetailedUrl = `/session/${session.id}#${urlSafeTitle}`;
+const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];
 
-  return (
-    <>
-      {/* <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }}> */}
+const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLink?: boolean }> = Suspense.with(
+  { fallback: <CircularProgress /> },
+  ({ session, enableLink }) => {
+    const sessionTitle = session.title.replace("\\n", "\n");
+
+    let speakerImgSrc = session.image || "";
+    if (!speakerImgSrc && R.isArray(session.speakers) && !R.isEmpty(session.speakers)) {
+      for (const speaker of session.speakers) {
+        if (speaker.image) {
+          speakerImgSrc = speaker.image;
+          break;
+        }
+      }
+    }
+
+    const urlSafeTitle = session.title
+      .replace(/ /g, "-")
+      .replace(/([.])/g, "_")
+      .replace(/(?![0-9A-Za-zㄱ-ㅣ가-힣-_])./g, "");
+    const sessionDetailedUrl = `/presentations/${session.id}#${urlSafeTitle}`;
+    const result = (
       <SessionItemContainer direction="row">
         <SessionImageContainer
           children={<SessionImage src={speakerImgSrc} alt="Session Image" loading="lazy" errorFallback={<SessionImageErrorFallback />} />}
@@ -40,18 +52,29 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema }> = Susp
           </Stack>
         </Stack>
       </SessionItemContainer>
-      {/* </Link> */}
-      <StyledDivider />
-    </>
-  );
-});
+    );
+    return (
+      <>
+        {enableLink ? <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }} children={result} /> : result}
+        <StyledDivider />
+      </>
+    );
+  }
+);
 
-export const SessionList: React.FC = ErrorBoundary.with(
+type SessionListPropType = {
+  event?: string;
+  types?: string | string[];
+  enableLink?: boolean;
+};
+
+export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, () => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient);
+    const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
+    const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const warningMessage =
       language === "ko"
@@ -65,7 +88,8 @@ export const SessionList: React.FC = ErrorBoundary.with(
         sessions
           .map((s) => s.categories)
           .flat()
-          .filter((o1, i, a) => a.findIndex((o2) => o2.id === o1.id) === i),
+          .filter((o1, i, a) => a.findIndex((o2) => o2.id === o1.id) === i)
+          .filter((cat) => !EXCLUDE_CATEGORIES.includes(cat.name)),
       [sessions]
     );
     const filteredSessions = React.useMemo(() => {
@@ -80,20 +104,24 @@ export const SessionList: React.FC = ErrorBoundary.with(
         <Box>
           <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
           <StyledDivider />
-          <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
-            {categories.map((cat) => (
-              <CategoryButtonStyle
-                key={cat.id}
-                onClick={() => toggleCategory(cat.id)}
-                children={cat.name}
-                selected={selectedCategoryIds.some((selectedCatId) => selectedCatId === cat.id)}
-              />
-            ))}
-          </Stack>
-          <StyledDivider />
+          {categories && categories.length > 1 && (
+            <>
+              <Stack direction="row" sx={{ flexWrap: "wrap", justifyContent: "center", gap: "0.1rem 0.2rem", my: 1 }}>
+                {categories.map((cat) => (
+                  <CategoryButtonStyle
+                    key={cat.id}
+                    onClick={() => toggleCategory(cat.id)}
+                    children={cat.name}
+                    selected={selectedCategoryIds.some((selectedCatId) => selectedCatId === cat.id)}
+                  />
+                ))}
+              </Stack>
+              <StyledDivider />
+            </>
+          )}
         </Box>
         {filteredSessions.map((s) => (
-          <SessionItem key={s.id} session={s} />
+          <SessionItem key={s.id} session={s} enableLink={enableLink} />
         ))}
       </Box>
     );

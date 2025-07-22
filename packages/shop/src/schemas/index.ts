@@ -45,9 +45,10 @@ namespace ShopSchemas {
         username: string;
       };
       methods: {
-        method: string;
+        method: "socialaccount";
         at: number;
-        email: string;
+        provider: SocialSignInProvider;
+        uid: string;
       }[];
     };
   };

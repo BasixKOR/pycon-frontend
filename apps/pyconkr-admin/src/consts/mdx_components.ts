@@ -146,6 +146,8 @@ const PythonKRShopMDXComponents: MDXComponents = {
   Shop__Common__PriceDisplay: Shop.Components.Common.PriceDisplay,
   Shop__Common__SignInGuard: Shop.Components.Common.SignInGuard,
   Shop__Common__ContextProvider: Shop.Components.Common.ShopContextProvider,
+  Shop__Common__UserSignInMethod: Shop.Components.Common.UserSignInMethod,
+  Shop__Common__UserSignInAccount: Shop.Components.Common.UserSignInAccount,
   Shop__Feature__CartStatus: Shop.Components.Features.CartStatus,
   Shop__Feature__ProductList: Shop.Components.Features.ProductList,
   Shop__Feature__ProductImageCardList: Shop.Components.Features.ProductImageCardList,

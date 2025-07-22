@@ -119,7 +119,7 @@ export const Sponsor: React.FC = ErrorBoundary.with(
     ),
   },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
-    const { sponsorTiers } = useAppContext();
+    const { sponsorTiers, language } = useAppContext();
     if (!sponsorTiers) return <CircularProgress />;
 
     const textProps: TypographyProps = {
@@ -127,10 +127,12 @@ export const Sponsor: React.FC = ErrorBoundary.with(
       fontWeight: "bold",
     };
 
+    const titleStr = language === "ko" ? "후원사 목록" : "Sponsor List";
+
     return (
       <SponsorContainer>
         <SponsorSection aria-label="후원사 섹션">
-          <Typography variant="h4" {...textProps} children="후원사 목록" area-level={4} />
+          <Typography variant="h4" {...textProps} children={titleStr} area-level={4} />
           <Stack spacing={4} sx={{ my: 4 }} aria-label="후원사 목록 그리드">
             {sponsorTiers
               .filter((t) => t.sponsors.length)
