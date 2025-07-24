@@ -3,6 +3,7 @@ import * as React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
+import BackendAPISchemas from "../../../packages/common/src/schemas/backendAPI";
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
 import { PresentationDetailPage } from "./components/pages/presentation_detail.tsx";
@@ -11,7 +12,6 @@ import { SponsorDetailPage } from "./components/pages/sponsor_detail.tsx";
 import { Test } from "./components/pages/test.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { useAppContext } from "./contexts/app_context";
-import BackendAPISchemas from "../../../packages/common/src/schemas/backendAPI";
 
 export const App: React.FC = () => {
   const backendAPIClient = Common.Hooks.BackendAPI.useBackendClient();
