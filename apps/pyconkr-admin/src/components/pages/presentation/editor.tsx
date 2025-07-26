@@ -1,6 +1,10 @@
 import * as Common from "@frontend/common";
 import { Autocomplete, Box, Button, Card, CardContent, CircularProgress, Stack, styled, Tab, Tabs, TextField, Typography } from "@mui/material";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { PickerValue } from "@mui/x-date-pickers/internals";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { DateTime } from "luxon";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { useParams } from "react-router-dom";
@@ -155,8 +159,107 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
   );
 };
 
+type ScheduleSchemaType = {
+  schema: {
+    type: "object";
+    properties: {
+      room: { type: "string"; oneOf: enumItemType[] };
+      presentation: { type: "string"; oneOf: enumItemType[] };
+      start_at: { type: "string"; format: "date-time" };
+      end_at: { type: "string"; format: "date-time" };
+    };
+    required?: string[];
+    $schema?: string;
+  };
+  ui_schema?: Record<string, { "ui:widget"?: string; "ui:field"?: string }>;
+  translation_fields?: string[];
+};
+
+type OnMemorySchedule = {
+  id?: string;
+  trackId: string; // Unique identifier for the schedule item, used for local state management
+  room: string;
+  presentation: string;
+  start_at: string; // ISO 8601 date-time string
+  end_at: string; // ISO 8601 date-time string
+};
+
+type Schedule = Omit<OnMemorySchedule, "trackId"> & { id: string };
+
+type ScheduleFormPropType = {
+  schema: ScheduleSchemaType;
+  disabled?: boolean;
+  schedule: OnMemorySchedule;
+  onChange: (schedule: OnMemorySchedule) => void;
+  onRemove: (schedule: OnMemorySchedule) => void;
+};
+
+const PresentationScheduleForm: React.FC<ScheduleFormPropType> = ({ schema, disabled, schedule, onChange, onRemove }) => {
+  const roomOptions: AutoCompleteType[] = schema.schema.properties.room.oneOf.map((item) => ({
+    name: "room",
+    value: item.const || "",
+    label: item.title,
+  }));
+  const currentSelectedRoom = roomOptions.find((r) => r.value === schedule.room?.toString());
+
+  const onSelectChange = (fieldName: string) => (_: React.SyntheticEvent, selected: AutoCompleteType | null) => {
+    onChange({ ...schedule, [fieldName]: selected?.value || "" });
+  };
+
+  const onScheduleTimeChange = (fieldName: string) => (value: PickerValue) => {
+    if (!value || !DateTime.isDateTime(value)) {
+      console.warn(`Invalid date-time value for ${fieldName}:`, value);
+      return;
+    }
+    onChange({ ...schedule, [fieldName]: value.toISO({ includeOffset: false }) });
+  };
+  const onScheduleRemove = () => window.confirm("스케줄을 삭제하시겠습니까?") && onRemove(schedule);
+
+  return (
+    <Card>
+      <CardContent>
+        <Stack spacing={2}>
+          <Autocomplete
+            fullWidth
+            defaultValue={currentSelectedRoom}
+            value={currentSelectedRoom}
+            onChange={onSelectChange("room")}
+            options={roomOptions}
+            disabled={disabled}
+            renderInput={(params) => <TextField {...params} label="발표 장소" />}
+          />
+          <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="ko-kr">
+            <DateTimePicker
+              disabled={disabled}
+              name="start_at"
+              label="시작 시각"
+              value={DateTime.fromISO(schedule.start_at)}
+              onChange={onScheduleTimeChange("start_at")}
+              minDateTime={DateTime.local(2000, 1, 1, 0, 0, 0)}
+              maxDateTime={DateTime.local(2100, 12, 31, 23, 59, 59)}
+              disablePast
+            />
+            <DateTimePicker
+              disabled={disabled}
+              name="end_at"
+              label="종료 시각"
+              value={DateTime.fromISO(schedule.end_at)}
+              onChange={onScheduleTimeChange("end_at")}
+              minDateTime={DateTime.local(2000, 1, 1, 0, 0, 0)}
+              maxDateTime={DateTime.local(2100, 12, 31, 23, 59, 59)}
+              disablePast
+            />
+          </LocalizationProvider>
+          <Button variant="outlined" color="error" onClick={onScheduleRemove} children="스케줄 삭제" />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+};
+
 type PresentationEditorStateType = {
   speakers: OnMemoeryPresentationSpeaker[];
+  schedules: OnMemorySchedule[];
 };
 
 export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
@@ -177,6 +280,14 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
     const { data: speakerInitialData } = Common.Hooks.BackendAdminAPI.useListQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
     const speakers = speakerInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
+    const scheduleQueryParams = [backendAdminAPIClient, "event", "roomschedule"] as const;
+    const scheduleCreateMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<OnMemorySchedule>(...scheduleQueryParams);
+    const scheduleUpdateMutation = Common.Hooks.BackendAdminAPI.useUpdatePreparedMutation<Schedule>(...scheduleQueryParams);
+    const scheduleDeleteMutation = Common.Hooks.BackendAdminAPI.useRemovePreparedMutation(...scheduleQueryParams);
+    const { data: scheduleJsonSchema } = Common.Hooks.BackendAdminAPI.useSchemaQuery(...scheduleQueryParams);
+    const { data: scheduleInitialData } = Common.Hooks.BackendAdminAPI.useListQuery<Schedule>(...scheduleQueryParams, { presentation });
+    const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
+
     const createEmptySpeaker = (): OnMemoeryPresentationSpeaker => ({
       trackId: Math.random().toString(36).substring(2, 15),
       presentation,
@@ -186,12 +297,29 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
       biography_en: "",
     });
 
-    const [editorState, setEditorState] = React.useState<PresentationEditorStateType>({ speakers });
+    const createEmptySchedule = (): OnMemorySchedule => ({
+      trackId: Math.random().toString(36).substring(2, 15),
+      room: "",
+      presentation,
+      start_at: DateTime.now().toISO({ includeOffset: false }),
+      end_at: DateTime.now().plus({ hours: 1 }).toISO({ includeOffset: false }),
+    });
+
+    const [editorState, setEditorState] = React.useState<PresentationEditorStateType>({ speakers, schedules });
     const onSpeakerCreate = () => setEditorState((ps) => ({ ...ps, speakers: [...ps.speakers, createEmptySpeaker()] }));
     const onSpeakerRemove = (oldSpeaker: OnMemoeryPresentationSpeaker) =>
       setEditorState((ps) => ({ ...ps, speakers: ps.speakers.filter((s) => s.trackId !== oldSpeaker.trackId) }));
     const onSpeakerChange = (newSpeaker: OnMemoeryPresentationSpeaker) =>
       setEditorState((ps) => ({ ...ps, speakers: ps.speakers.map((s) => (s.trackId === newSpeaker.trackId ? newSpeaker : s)) }));
+
+    const onScheduleCreate = () => setEditorState((ps) => ({ ...ps, schedules: [...ps.schedules, createEmptySchedule()] }));
+    const onScheduleRemove = (oldSchedule: OnMemorySchedule) =>
+      setEditorState((ps) => ({ ...ps, schedules: ps.schedules.filter((s) => s.trackId !== oldSchedule.trackId) }));
+    const onScheduleChange = (newSchedule: OnMemorySchedule) =>
+      setEditorState((ps) => ({
+        ...ps,
+        schedules: ps.schedules.map((s) => (s.trackId === newSchedule.trackId ? newSchedule : s)),
+      }));
 
     const onSpeakerSubmit = () => {
       if (!id) return;
@@ -204,31 +332,68 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
       const deleteMut = deletedSpeakerIds.map((id) => speakerDeleteMutation.mutateAsync(id));
       const createMut = newSpeakers.filter((s) => s.id === undefined).map((s) => speakerCreateMutation.mutateAsync(s));
       const updateMut = newSpeakers.filter((s) => s.id !== undefined).map((s) => speakerUpdateMutation.mutateAsync(s as PresentationSpeaker));
-      Promise.all([...deleteMut, ...createMut, ...updateMut]).then(() => addSnackbar("발표자 정보가 저장되었습니다.", "success"));
+      return Promise.all([...deleteMut, ...createMut, ...updateMut]).then(() => addSnackbar("발표자 정보가 저장되었습니다.", "success"));
+    };
+
+    const onScheduleSubmit = () => {
+      if (!id) return;
+
+      addSnackbar("스케줄 정보를 저장하는 중입니다...", "info");
+      const newSchedules = editorState.schedules;
+      const editorScheduleIds = newSchedules.filter((s) => s.id).map((s) => s.id!);
+      const deletedScheduleIds = scheduleInitialData.filter((s) => !editorScheduleIds.includes(s.id)).map((s) => s.id!);
+
+      const deleteMut = deletedScheduleIds.map((id) => scheduleDeleteMutation.mutateAsync(id));
+      const createMut = newSchedules.filter((s) => s.id === undefined).map((s) => scheduleCreateMutation.mutateAsync(s));
+      const updateMut = newSchedules.filter((s) => s.id !== undefined).map((s) => scheduleUpdateMutation.mutateAsync(s as Schedule));
+      return Promise.all([...deleteMut, ...createMut, ...updateMut]).then(() => addSnackbar("스케줄 정보가 저장되었습니다.", "success"));
+    };
+
+    const onPresentationSubmit = () => {
+      if (!id) return;
+      addSnackbar("발표 정보를 저장하는 중입니다...", "info");
+      return Promise.all([onSpeakerSubmit(), onScheduleSubmit()]).then(() => addSnackbar("발표 정보가 저장되었습니다.", "success"));
     };
 
     return (
-      <AdminEditor app="event" resource="presentation" id={id} afterSubmit={onSpeakerSubmit}>
+      <AdminEditor app="event" resource="presentation" id={id} afterSubmit={onPresentationSubmit}>
         {id ? (
           <Stack sx={{ mb: 2 }} spacing={2}>
-            <Typography variant="h6">발표자 정보</Typography>
-            <Stack spacing={2}>
-              {editorState.speakers.map((s) => (
-                <PresentationSpeakerForm
-                  key={s.id}
-                  schema={speakerJsonSchema as SpeakerSchemaType}
-                  speaker={s}
-                  onChange={onSpeakerChange}
-                  onRemove={onSpeakerRemove}
-                />
-              ))}
-              <Button variant="outlined" onClick={onSpeakerCreate} children="발표자 추가" />
-            </Stack>
+            <Common.Components.Fieldset legend="스케줄 정보">
+              <Typography variant="h6">스케줄 정보</Typography>
+              <Stack spacing={2}>
+                {editorState.schedules.map((s) => (
+                  <PresentationScheduleForm
+                    key={s.trackId}
+                    schema={scheduleJsonSchema as ScheduleSchemaType}
+                    schedule={s}
+                    onChange={onScheduleChange}
+                    onRemove={onScheduleRemove}
+                  />
+                ))}
+                <Button variant="outlined" onClick={onScheduleCreate} children="스케줄 추가" />
+              </Stack>
+            </Common.Components.Fieldset>
+            <Common.Components.Fieldset legend="발표자 정보">
+              <Typography variant="h6">발표자 정보</Typography>
+              <Stack spacing={2}>
+                {editorState.speakers.map((s) => (
+                  <PresentationSpeakerForm
+                    key={s.id}
+                    schema={speakerJsonSchema as SpeakerSchemaType}
+                    speaker={s}
+                    onChange={onSpeakerChange}
+                    onRemove={onSpeakerRemove}
+                  />
+                ))}
+                <Button variant="outlined" onClick={onSpeakerCreate} children="발표자 추가" />
+              </Stack>
+            </Common.Components.Fieldset>
           </Stack>
         ) : (
           <Stack>
-            <Typography variant="h6">발표자 정보</Typography>
-            <Typography variant="body1">발표자를 추가하려면 발표를 먼저 저장하세요.</Typography>
+            <Typography variant="h6">발표자 & 스케줄 정보</Typography>
+            <Typography variant="body1">발표자나 스케줄 정보를 추가하려면 발표를 먼저 저장하세요.</Typography>
           </Stack>
         )}
       </AdminEditor>
