@@ -40,6 +40,7 @@ const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLi
         />
         <Stack direction="column" sx={{ flexGrow: 1, py: 0.5, gap: 0.75 }}>
           <SessionTitle children={sessionTitle} />
+          {session.summary && <Typography variant="subtitle1" sx={{ whiteSpace: "pre-wrap" }} children={session.summary} />}
           <Stack direction="row" spacing={0.5}>
             {session.speakers.map((speaker) => (
               <Chip key={speaker.id} size="small" label={speaker.nickname} />
