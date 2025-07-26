@@ -27,6 +27,16 @@ type SharedPreviewFieldProps = {
 
 type PreviewFieldProps = Omit<TextFieldProps, "value" | "name" | "label"> & SharedPreviewFieldProps;
 
+const MarkdownContainerBox = styled(Box)(({ theme }) => ({
+  width: "100%",
+  color: "black",
+  "& .markdown-body": {
+    width: "100%",
+    p: { margin: theme.spacing(2, 0) },
+    a: { color: theme.palette.primary.main },
+  },
+}));
+
 export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset, previewDataset, name, ...props }) => {
   const textFieldSx: TextFieldProps["sx"] = {
     "& .MuiInputBase-input, & .Mui-disabled": {
@@ -69,9 +79,9 @@ export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset,
 export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   return originalDataset[name] === previewDataset[name] ? (
     <Common.Components.Fieldset legend={label} style={{ width: "100%" }}>
-      <Box sx={{ width: "100%", color: "black", "& .markdown-body": { width: "100%" } }}>
+      <MarkdownContainerBox>
         <Common.Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
-      </Box>
+      </MarkdownContainerBox>
     </Common.Components.Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
@@ -79,18 +89,18 @@ export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ origin
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
             <Common.Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
-              <Box sx={{ width: "100%", color: "black", "& .markdown-body": { width: "100%" } }}>
+              <MarkdownContainerBox>
                 <Common.Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
-              </Box>
+              </MarkdownContainerBox>
             </Common.Components.Fieldset>
             <Typography variant="caption">기존 값을 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
           <Common.Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
-            <Box sx={{ flexGrow: 1, color: "black", "& .markdown-body": { width: "100%" } }}>
+            <MarkdownContainerBox>
               <Common.Components.MDXRenderer format="md" text={(originalDataset[name] as string) || "(값 없음)"} />
-            </Box>
+            </MarkdownContainerBox>
           </Common.Components.Fieldset>
         </AccordionDetails>
       </Accordion>

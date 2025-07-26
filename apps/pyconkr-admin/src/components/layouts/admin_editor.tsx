@@ -162,6 +162,7 @@ const MDRendererContainer = styled(Box)(({ theme }) => ({
   "& .markdown-body": {
     width: "100%",
     p: { margin: theme.spacing(2, 0) },
+    a: { color: theme.palette.primary.main },
   },
 }));
 

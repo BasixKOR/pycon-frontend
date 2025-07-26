@@ -129,6 +129,7 @@ const MDRendererContainer = styled(Box)<{ fullWidth?: boolean }>(({ theme, fullW
     padding: theme.spacing(1, 2),
     width: "100%",
     p: { margin: theme.spacing(2, 0) },
+    a: { color: theme.palette.primary.main },
   },
 }));
 
