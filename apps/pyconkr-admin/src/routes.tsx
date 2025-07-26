@@ -10,6 +10,7 @@ import {
   FilePresent,
   Handshake,
   ManageAccounts,
+  MeetingRoom,
   NoteAlt,
   StickyNote2,
   Tag,
@@ -138,6 +139,14 @@ export const RouteDefinitions: RouteDef[] = [
     title: "발표 카테고리",
     app: "event",
     resource: "presentationcategory",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "event-presentationroom",
+    icon: MeetingRoom,
+    title: "발표 장소",
+    app: "event",
+    resource: "room",
   },
   {
     type: "autoAdminRouteDefinition",
