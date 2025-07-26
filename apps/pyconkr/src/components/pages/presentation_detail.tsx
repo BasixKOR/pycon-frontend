@@ -161,7 +161,11 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
       <PageLayout>
         <Typography variant="h4" fontWeight="700" textAlign="start" sx={{ width: "100%", px: 2, pt: 0, pb: 1 }} children={presentation.title} />
         {presentation.summary && (
-          <Typography variant="h6" fontWeight="700" textAlign="start" sx={{ width: "100%", px: 2, pt: 1, pb: 3 }} children={presentation.summary} />
+          <Typography
+            variant="subtitle1"
+            sx={{ width: "100%", px: 2, pt: 1, pb: 3, fontWeight: "600", whiteSpace: "pre-wrap" }}
+            children={presentation.summary}
+          />
         )}
         <Divider flexItem />
         {presentation.categories.length ? (
