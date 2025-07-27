@@ -124,7 +124,7 @@ const SessionColumn: React.FC<{
         sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}
       >
         <SessionTitle children={session.title} align="center" />
-        <Stack direction="row" alignItems="center" justifyContent="center">
+        <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
           {session.speakers.map((speaker) => (
             <Chip key={speaker.id} size="small" label={speaker.nickname} />
           ))}
