@@ -30,7 +30,6 @@ import {
 import { StyledFullWidthButton as StyledFullWidthButtonComponent } from "./mdx_components/styled_full_width_button";
 import { MDXEditor as MDXEditorComponent } from "./mdx_editor";
 import { PythonKorea as PythonKoreaComponent } from "./pythonkorea";
-import { ScrollRestoration as ScrollRestorationComponent } from "./scroll_restoration";
 
 namespace Components {
   export const CenteredPage = CenteredPageComponent;
@@ -47,7 +46,6 @@ namespace Components {
   export const LinkHandler = LinkHandlerComponent;
   export const DndFileInput = DndFileInputComponent;
   export const Fieldset = FieldsetComponent;
-  export const ScrollRestoration = ScrollRestorationComponent;
 
   export namespace MDX {
     export const Confetti = ConfettiComponent;
