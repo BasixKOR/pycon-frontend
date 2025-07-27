@@ -11,7 +11,7 @@ import { CenteredPage } from "../centered_page";
 import { ErrorFallback } from "../error_handler";
 import { StyledDivider } from "./styled_divider";
 
-const TD_HEIGHT = 3.5;
+const TD_HEIGHT = 4;
 const TD_WIDTH = 15;
 const TD_WIDTH_MOBILE = 20;
 
