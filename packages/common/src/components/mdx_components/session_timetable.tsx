@@ -1,14 +1,18 @@
-import { Box, ButtonBase, Chip, Stack, styled, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Button, Chip, CircularProgress, Stack, styled, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { DateTime } from "luxon";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
+
+import Hooks from "../../hooks";
 import BackendAPISchemas from "../../schemas/backendAPI";
+import { CenteredPage } from "../centered_page";
 import { ErrorFallback } from "../error_handler";
 import { StyledDivider } from "./styled_divider";
 
-const TD_HEIGHT = 2.5;
-const TD_WIDTH = 12.5;
+const TD_HEIGHT = 3.5;
+const TD_WIDTH = 15;
 const TD_WIDTH_MOBILE = 20;
 
 type TimeTableData = {
@@ -24,46 +28,48 @@ type TimeTableData = {
   };
 };
 
-const getDateStr = (date: Date) => date.toISOString().split("T")[0];
-const getDetailedDateStr = (date: Date) => date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
-const getPaddedTime = (time: Date) => `${time.getHours()}:${time.getMinutes().toString().padStart(2, "0")}`;
+const getPaddedTime = (time: DateTime) => `${time.hour}:${time.minute.toString().padStart(2, "0")}`;
 
 const getRooms = (data: BackendAPISchemas.SessionSchema[]) => {
-  const rooms: Set<string> = new Set();
-  data.forEach((session) => session.room_schedules.room_name && rooms.add(session.room_schedules.room_name));
-  return Array.from(rooms);
+  return Array.from(new Set<string>(data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => r.room_name)], [] as string[])));
 };
 
 const getConfStartEndTimePerDay: (data: BackendAPISchemas.SessionSchema[]) => {
-  [date: string]: { start: Date; end: Date };
+  [date: string]: { start: DateTime; end: DateTime };
 } = (data) => {
-  const result: { [date: string]: { start: Date; end: Date } } = {};
+  const startTimes = data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.start_at))], [] as DateTime[]);
+  const endTimes = data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.end_at))], [] as DateTime[]);
+  const allTimes = [...startTimes, ...endTimes];
 
-  data.forEach((session) => {
-    if (session.call_for_presentation_schedules.start_at && session.call_for_presentation_schedules.end_at) {
-      const startTime = session.call_for_presentation_schedules.start_at;
-      const endTime = session.call_for_presentation_schedules.end_at;
-      const date = getDateStr(startTime);
+  const timesPerDay = allTimes.reduce(
+    (acc, time) => {
+      const dateStr = time.toISODate();
+      if (!dateStr) throw new Error("Invalid date string");
 
-      if (!result[date]) {
-        result[date] = { start: startTime, end: endTime };
-      } else {
-        if (startTime < result[date].start) result[date].start = startTime;
-        if (endTime > result[date].end) result[date].end = endTime;
-      }
-    }
-  });
-
-  return result;
+      if (!acc[dateStr]) acc[dateStr] = [];
+      acc[dateStr].push(time);
+      return acc;
+    },
+    {} as { [date: string]: DateTime[] }
+  );
+  return Object.entries(timesPerDay).reduce(
+    (acc, [date, times]) => {
+      const start = times.reduce((min, t) => (t < min ? t : min), times[0]);
+      const end = times.reduce((max, t) => (t > max ? t : max), times[0]);
+      acc[date] = { start, end };
+      return acc;
+    },
+    {} as { [date: string]: { start: DateTime; end: DateTime } }
+  );
 };
 
-const getEveryTenMinutesArr = (start: Date, end: Date) => {
-  let time = new Date(start);
+const getEveryTenMinutesArr = (start: DateTime, end: DateTime) => {
+  let time = start;
   const arr = [];
 
   while (time <= end) {
     arr.push(time);
-    time = new Date(new Date(time).setMinutes(time.getMinutes() + 10));
+    time = time.plus({ minutes: 10 });
   }
   return arr;
 };
@@ -80,26 +86,22 @@ const getTimeTableData: (data: BackendAPISchemas.SessionSchema[]) => TimeTableDa
 
   // Fill timeTableData with session data
   data.forEach((session) => {
-    if (session.call_for_presentation_schedules.start_at && session.call_for_presentation_schedules.end_at) {
-      const start = session.call_for_presentation_schedules.start_at;
-      const durationMin = (session.call_for_presentation_schedules.end_at.getTime() - start.getTime()) / 1000 / 60;
-      timeTableData[getDateStr(start)][getPaddedTime(start)][session.room_schedules.room_name] = {
-        rowSpan: durationMin / 10,
-        session,
-      };
-    }
+    session.room_schedules.forEach((schedule) => {
+      const start = DateTime.fromISO(schedule.start_at);
+      const end = DateTime.fromISO(schedule.end_at);
+
+      if (!start.isValid || !end.isValid) {
+        console.warn(`Invalid start or end time for session ${session.id} in room ${schedule.room_name}`);
+        return;
+      }
+
+      const durationMin = (end.toMillis() - start.toMillis()) / 1000 / 60;
+      timeTableData[start.toISODate()][getPaddedTime(start)][schedule.room_name] = { rowSpan: durationMin / 10, session };
+    });
   });
 
   return timeTableData;
 };
-
-const ErrorHeading = styled(Typography)({
-  fontSize: "1em",
-  fontWeight: 400,
-  lineHeight: 1.25,
-  textDecoration: "none",
-  whiteSpace: "pre-wrap",
-});
 
 const SessionColumn: React.FC<{
   rowSpan: number;
@@ -117,36 +119,44 @@ const SessionColumn: React.FC<{
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       <SessionBox
-        onClick={() => clickable && navigate(`/session/${session.id}#${urlSafeTitle}`)}
+        onClick={() => clickable && navigate(`/presentations/${session.id}#${urlSafeTitle}`)}
         className={clickable ? "clickable" : ""}
         sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}
       >
         <SessionTitle children={session.title} align="center" />
-        <SessionSpeakerItemContainer direction="row">
+        <Stack direction="row" alignItems="center" justifyContent="center">
           {session.speakers.map((speaker) => (
             <Chip key={speaker.id} size="small" label={speaker.nickname} />
           ))}
-        </SessionSpeakerItemContainer>
-        <SessionTimeTableItemTagContainer direction="row">
-          {session.categories.map((category) => (
-            <Chip key={category.id} variant="outlined" color="primary" size="small" label={category.name} />
-          ))}
-        </SessionTimeTableItemTagContainer>
+        </Stack>
       </SessionBox>
     </SessionTableCell>
   );
 };
 
-export const SessionTimeTable: React.FC = ErrorBoundary.with(
+const BreakTime: React.FC<{ language: "ko" | "en"; duration: number }> = ({ language, duration }) => {
+  const text = language === "ko" ? `휴식 (${duration}분)` : `Break Time (${duration}min.)`;
+  return <Typography variant="subtitle2" fontWeight="500" children={text} />;
+};
+
+type SessionTimeTablePropType = {
+  event?: string;
+  types?: string | string[];
+};
+
+export const SessionTimeTable: React.FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <ErrorHeading>{"세션 시간표를 불러오는 중 입니다."}</ErrorHeading> }, () => {
-    React.useEffect(() => window.scrollTo(0, 0), []);
+  Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types }) => {
     const [confDate, setConfDate] = React.useState("");
 
-    const sessionRawData: BackendAPISchemas.SessionSchema[] = [];
-    const timeTableData = getTimeTableData(sessionRawData);
+    const { language } = Hooks.Common.useCommonContext();
+    const backendAPIClient = Hooks.BackendAPI.useBackendClient();
+    const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
+    const { data: sessionList } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
+
+    const timeTableData = getTimeTableData(sessionList);
     const dates = Object.keys(timeTableData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-    const rooms: { [room: string]: number } = getRooms(sessionRawData).reduce((acc, room) => ({ ...acc, [room]: 0 }), {});
+    const rooms: { [room: string]: number } = getRooms(sessionList).reduce((acc, room) => ({ ...acc, [room]: 0 }), {});
     const roomCount = Object.keys(rooms).length;
     const sortedRoomList = Object.keys(rooms).sort();
 
@@ -155,46 +165,52 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
 
     let breakCount = 0;
 
+    const warningMessage =
+      language === "ko"
+        ? "* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."
+        : "* The list of sessions may change due to the speaker's circumstances.";
+
     return (
-      <Box sx={{ flexDirection: "column", width: "90%" }}>
-        <WarningText children={"* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."} />
-        <ColoredDivider />
-        <SessionDateTabContainer>
+      <Stack direction="column" sx={{ width: "100%" }}>
+        <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
+        <StyledDivider />
+        <Stack spacing={2} direction="row" justifyContent="center" alignItems="center">
           {dates.map((date, i) => {
+            const dateStr = DateTime.fromISO(date).setLocale(language).toLocaleString({ weekday: "long", month: "long", day: "numeric" });
             return (
-              <ButtonBase key={date} onClick={() => setConfDate(date)} className={selectedDate === date ? "selected" : ""}>
+              <Button variant="text" key={date} onClick={() => setConfDate(date)} className={selectedDate === date ? "selected" : ""}>
                 <SessionDateItemContainer direction="column">
                   <SessionDateTitle children={"Day " + (i + 1)} isSelected={selectedDate === date} />
-                  <SessionDateSubTitle children={getDetailedDateStr(new Date(date))} isSelected={selectedDate === date} />
+                  <SessionDateSubTitle children={dateStr} isSelected={selectedDate === date} />
                 </SessionDateItemContainer>
-              </ButtonBase>
+              </Button>
             );
           })}
-        </SessionDateTabContainer>
-        <ColoredDivider />
+        </Stack>
+        <StyledDivider />
         <SessionTableContainer>
           <SessionTable>
             <TableHead>
               <SessionTableCell></SessionTableCell>
-              {sortedRoomList.map((room) => {
-                return (
-                  <SessionTableCell key={room}>
-                    <RoomTitle align="center">{room}</RoomTitle>
-                  </SessionTableCell>
-                );
-              })}
+              {sortedRoomList.map((room) => (
+                <SessionTableCell key={room} sx={{ padding: "1rem" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ whiteSpace: "pre-wrap", fontWeight: 600, textAlign: "center" }}
+                    children={room.replace("\\n", "\n")}
+                  />
+                </SessionTableCell>
+              ))}
             </TableHead>
             <SessionTableBody>
-              <SessionTableRow>
-                <SessionTableCell colSpan={roomCount + 1}></SessionTableCell>
-              </SessionTableRow>
+              <SessionTableRow children={<SessionTableCell colSpan={roomCount + 1} />} /> {/* dummy first row */}
               {Object.entries(selectedTableData).map(([time, roomData], i, a) => {
                 const hasSession = Object.values(rooms).some((c) => c >= 1) || Object.values(roomData).some((room) => room !== undefined);
 
                 if (!hasSession) {
                   if (breakCount > 1) {
                     breakCount--;
-                    return <SessionTableRow></SessionTableRow>;
+                    return <SessionTableRow />;
                   } else {
                     // 지금부터 다음 세션이 존재하기 전까지의 휴식 시간을 계산합니다.
                     breakCount = 1;
@@ -205,55 +221,59 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
 
                     // I really hate this, but I can't think of a better way to do this.
                     const height = (TD_HEIGHT * breakCount) / (breakCount <= 2 ? 1 : 3);
+                    const isLast = i === a.length - 1;
+                    const duration = breakCount * 10; // 10 minutes per row
                     return (
                       <SessionTableRow>
                         <SessionTableCell
                           sx={{
-                            height: `${height}rem`,
-                            transform: `translateY(-${height / 2}rem)`,
+                            height: `${height}rem !important`,
+                            transform: `translateY(-${height / 2}rem) !important`,
                             border: "unset",
                           }}
                           align="center"
                         >
                           {time}
                         </SessionTableCell>
-                        <SessionTableCell colSpan={roomCount + 1} rowSpan={breakCount} sx={{ height: `${height}rem` }}>
-                          <Box
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            {i !== a.length - 1 && <RestTitle>{"휴식"}</RestTitle>}
-                          </Box>
+                        <SessionTableCell
+                          colSpan={roomCount + 1}
+                          rowSpan={breakCount}
+                          sx={{
+                            height: `${height}rem !important`,
+                            borderTop: (t) => `1px solid ${t.palette.divider} !important`,
+                            borderBottom: isLast ? "transparernt" : (t) => `1px solid ${t.palette.divider} !important`,
+                          }}
+                        >
+                          <Stack direction="column" justifyContent="center" alignItems="center">
+                            {!isLast && <BreakTime language={language} duration={duration} />}
+                          </Stack>
                         </SessionTableCell>
                       </SessionTableRow>
                     );
                   }
                 }
 
-                // 만약 세션 타입이 아닌 발표가 존재하는 경우, 해당 줄에서는 colSpan이 roomCount인 column을 생성합니다.
-                const nonSessionTypeData = Object.values(roomData).find((room) => room !== undefined && !room.session.isSession);
-                if (nonSessionTypeData) {
-                  Object.keys(rooms).forEach((room) => (rooms[room] = nonSessionTypeData.rowSpan - 1));
+                // 만약 동일 세션이 모든 방에서 진행되는 경우, 해당 줄에서는 colSpan이 roomCount인 column을 생성합니다.
+                const sessionIds = new Set(Object.values(roomData).map((room) => room?.session.id));
+                const firstSessionInfo = Object.values(roomData)[0];
+                if (sessionIds.size === 1 && firstSessionInfo !== undefined) {
+                  Object.keys(rooms).forEach((room) => (rooms[room] = firstSessionInfo.rowSpan - 1));
                   return (
                     <SessionTableRow>
-                      <SessionTableCell align="center">{time}</SessionTableCell>
-                      <SessionColumn rowSpan={nonSessionTypeData.rowSpan} colSpan={roomCount} session={nonSessionTypeData.session} />
+                      <SessionTableCell align="center" children={time} />
+                      <SessionColumn rowSpan={firstSessionInfo.rowSpan} colSpan={roomCount} session={firstSessionInfo.session} />
                     </SessionTableRow>
                   );
                 }
 
                 return (
                   <SessionTableRow>
-                    <SessionTableCell align="center">{time}</SessionTableCell>
+                    <SessionTableCell align="center" children={time} />
                     {sortedRoomList.map((room) => {
                       const roomDatum = roomData[room];
                       if (roomDatum === undefined) {
                         // 진행 중인 세션이 없는 경우, 해당 줄에서는 해당 room의 빈 column을 생성합니다.
-                        if (rooms[room] <= 0) return <SessionTableCell></SessionTableCell>;
+                        if (rooms[room] <= 0) return <SessionTableCell />;
                         // 진행 중인 세션이 있는 경우, 이번 줄에서는 해당 세션들만큼 column을 생성하지 않습니다.
                         rooms[room] -= 1;
                         return null;
@@ -268,27 +288,10 @@ export const SessionTimeTable: React.FC = ErrorBoundary.with(
             </SessionTableBody>
           </SessionTable>
         </SessionTableContainer>
-      </Box>
+      </Stack>
     );
   })
 );
-
-const WarningText = styled(Typography)({
-  paddingLeft: "1rem",
-  backgroundColor: "unset",
-  textAlign: "right",
-  margin: 0,
-  padding: 0,
-  border: "unset",
-  fontSize: "1rem",
-  lineHeight: 2,
-  fontWeight: 300,
-});
-
-const SessionTimeTableItemTagContainer = styled(Stack)({
-  alignItems: "center",
-  justifyContent: "center",
-});
 
 const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
@@ -314,35 +317,12 @@ const SessionDateSubTitle = styled(Typography)<{ isSelected: boolean }>(({ theme
   color: isSelected ? theme.palette.primary.main : theme.palette.primary.light,
 }));
 
-const RestTitle = styled(Typography)({
-  fontSize: "1em",
-  fontWeight: 500,
-  lineHeight: 1.25,
-  textDecoration: "none",
-  whiteSpace: "pre-wrap",
-});
-
 const SessionTitle = styled(Typography)({
   fontSize: "1.125em",
   fontWeight: 600,
   lineHeight: 1.25,
   textDecoration: "none",
   whiteSpace: "pre-wrap",
-});
-
-const RoomTitle = styled(Typography)({
-  fontSize: "1.25em",
-  fontWeight: 500,
-});
-
-const ColoredDivider = styled(StyledDivider)(({ theme }) => ({
-  color: theme.palette.primary.main,
-}));
-
-const SessionSpeakerItemContainer = styled(Stack)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 });
 
 const SessionTable = styled(Table)({
@@ -401,34 +381,15 @@ const SessionTableRow = styled(TableRow)({
 });
 
 const SessionTableCell = styled(TableCell)({
+  padding: "0 0.5rem",
   alignItems: "center",
   justifyContent: "center",
   border: "unset",
 });
 
-const SessionDateTabContainer = styled(Box)({
-  display: "flex",
-  gap: "2rem",
-  justifyContent: "center",
-  alignItems: "center",
-  button: {
-    backgroundColor: "unset",
-    border: "unset",
-    "&.selected": {
-      color: `rgba(255, 255, 255, 1)`,
-    },
-  },
-  "h1, h2, h3, h4, h5, h6": {
-    margin: 0,
-    color: "inherit",
-  },
-});
-
-const SessionBox = styled(Box)(({ theme }) => ({
+const SessionBox = styled(Stack)(({ theme }) => ({
   height: "100%",
-  // margin: "0.25rem",
   padding: "0.25rem",
-  display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
@@ -489,8 +450,7 @@ const SessionBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-const SessionTableContainer = styled(Box)({
-  display: "flex",
+const SessionTableContainer = styled(Stack)({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",

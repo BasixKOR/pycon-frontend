@@ -22,6 +22,7 @@ import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
 import { OneDetailsOpener as OneDetailsOpenerComponent } from "./mdx_components/one_details_opener";
 import { SessionList as SessionListComponent } from "./mdx_components/session_list";
+import { SessionTimeTable as SessionTimeTableComponent } from "./mdx_components/session_timetable";
 import {
   PrimaryStyledDetails as PrimaryStyledDetailsComponent,
   HighlightedStyledDetails as SecondaryStyledDetailsComponent,
@@ -29,6 +30,7 @@ import {
 import { StyledFullWidthButton as StyledFullWidthButtonComponent } from "./mdx_components/styled_full_width_button";
 import { MDXEditor as MDXEditorComponent } from "./mdx_editor";
 import { PythonKorea as PythonKoreaComponent } from "./pythonkorea";
+import { ScrollRestoration as ScrollRestorationComponent } from "./scroll_restoration";
 
 namespace Components {
   export const CenteredPage = CenteredPageComponent;
@@ -45,6 +47,7 @@ namespace Components {
   export const LinkHandler = LinkHandlerComponent;
   export const DndFileInput = DndFileInputComponent;
   export const Fieldset = FieldsetComponent;
+  export const ScrollRestoration = ScrollRestorationComponent;
 
   export namespace MDX {
     export const Confetti = ConfettiComponent;
@@ -55,6 +58,7 @@ namespace Components {
     export const FAQAccordion = FAQAccordionComponent;
     export const OneDetailsOpener = OneDetailsOpenerComponent;
     export const SessionList = SessionListComponent;
+    export const SessionTimeTable = SessionTimeTableComponent;
     export type MapPropType = MapComponentPropType;
     export type FAQAccordionProps = FAQAccordionPropsType;
     export type FAQItem = FAQItemType;

@@ -82,7 +82,6 @@ namespace BackendAPISchemas {
     description: string;
     slideshow_url: string | null;
     image: string | null;
-    isSession: boolean;
     categories: {
       id: string;
       name: string;
@@ -96,18 +95,9 @@ namespace BackendAPISchemas {
     room_schedules: {
       id: string;
       room_name: string;
-      event_id: number;
-      event_name: string;
-      start_at: Date;
-      end_at: Date;
-    };
-    call_for_presentation_schedules: {
-      id: string;
-      presentation_type_name: string;
-      start_at: Date;
-      end_at: Date;
-      next_call_for_presentation_schedule: string;
-    };
+      start_at: string;
+      end_at: string;
+    }[];
   };
 
   export const isObjectErrorResponseSchema = (obj?: unknown): obj is BackendAPISchemas.ErrorResponseSchema => {
