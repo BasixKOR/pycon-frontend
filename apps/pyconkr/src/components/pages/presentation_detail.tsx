@@ -1,6 +1,7 @@
 import * as Common from "@frontend/common";
-import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { DateTime } from "luxon";
 import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 
@@ -148,6 +149,31 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
     const speakersStr = language === "ko" ? "발표자" : "Speakers";
     // const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
 
+    const datetimeLabel = language === "ko" ? "발표 시각" : "Presentation Time";
+    const datetimeSeparator = language === "ko" ? " ~ " : " - ";
+    const minText = language === "ko" ? "분" : "min.";
+
+    // 동일 시간별로 모아서 보여줌. 단, 방은 콤마(,)로 join해서 보여줌
+    const scheduleMap: Record<string, string[]> = presentation.room_schedules.reduce(
+      (acc, schedule) => {
+        const startAt = DateTime.fromISO(schedule.start_at).setLocale(language);
+        const endAt = DateTime.fromISO(schedule.end_at).setLocale(language);
+        if (!startAt.isValid || !endAt.isValid) return acc; // 유효하지 않은 날짜는 무시
+
+        const duration = Number.parseInt(endAt.diff(startAt, ["minutes"]).minutes.toString());
+        const startAtFormatted = startAt.toLocaleString(DateTime.DATETIME_MED);
+        // 동일 일자인 경우, 시간만 표시
+        const endAtFormatted = endAt.toLocaleString(startAt.hasSame(endAt, "day") ? DateTime.TIME_SIMPLE : DateTime.DATETIME_MED);
+
+        const key = `${startAtFormatted} ${datetimeSeparator} ${endAtFormatted} (${duration}${minText})`;
+        const roomText = schedule.room_name.replace("\\n", "\n");
+        if (!acc[key]) acc[key] = [roomText];
+        else acc[key].push(roomText);
+        return acc;
+      },
+      {} as Record<string, string[]>
+    );
+
     React.useEffect(() => {
       setAppContext((prev) => ({
         ...prev,
@@ -159,7 +185,11 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
 
     return (
       <PageLayout>
-        <Typography variant="h4" fontWeight="700" textAlign="start" sx={{ width: "100%", px: 2, pt: 0, pb: 1 }} children={presentation.title} />
+        <Typography
+          variant="h4"
+          sx={{ width: "100%", px: 2, pt: 0, pb: 1, fontWeight: "700", whiteSpace: "pre-wrap" }}
+          children={presentation.title.replace("\\n", "\n")}
+        />
         {presentation.summary && (
           <Typography
             variant="subtitle1"
@@ -167,20 +197,43 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
             children={presentation.summary}
           />
         )}
-        <Divider flexItem />
-        {presentation.categories.length ? (
-          <>
-            <Stack direction="row" alignItems="center" justifyContent="flex-start" sx={{ width: "100%", gap: 1, p: 2 }}>
-              <Typography variant="subtitle1" fontWeight="bold" children={categoriesStr} />
-              <Stack direction="row" spacing={1} sx={{ width: "100%" }}>
-                {presentation.categories.map((c) => (
-                  <Chip key={c.id} size="small" variant="outlined" color="primary" label={c.name} />
-                ))}
-              </Stack>
-            </Stack>
-            <Divider flexItem />
-          </>
-        ) : null}
+        <Table sx={{ tableLayout: "auto" }}>
+          <TableBody>
+            {presentation.room_schedules.length
+              ? Object.entries(scheduleMap).map(([datetime, rooms], index) => (
+                  <TableRow key={datetime}>
+                    {index === 0 && (
+                      <TableCell rowSpan={presentation.room_schedules.length} sx={{ width: "1%", whiteSpace: "nowrap" }}>
+                        <Typography variant="subtitle1" fontWeight="bold" children={datetimeLabel} />
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <Stack direction="row" justifyContent="flex-start" alignItems="center" sx={{ width: "100%", flexWrap: "wrap", gap: 1 }}>
+                        <Typography variant="subtitle1" children={datetime} />
+                        <Stack direction="row" sx={{ flexGrow: 0, gap: 1, flexWrap: "wrap" }}>
+                          {rooms.map((room, index) => (
+                            <Chip key={index} sx={{ whiteSpace: "pre-wrap" }} label={room.replace("\\n", "\n")} />
+                          ))}
+                        </Stack>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))
+              : null}
+            {presentation.categories.length ? (
+              <TableRow>
+                <TableCell children={<Typography variant="subtitle1" fontWeight="bold" children={categoriesStr} />} />
+                <TableCell>
+                  <Stack direction="row" spacing={1} sx={{ width: "100%" }}>
+                    {presentation.categories.map((c) => (
+                      <Chip key={c.id} size="small" variant="outlined" color="primary" label={c.name} />
+                    ))}
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ) : null}
+          </TableBody>
+        </Table>
         {/* {presentation.slideshow_url && (
           <>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ width: "100%", p: 2, a: { color: "blue" } }}>
