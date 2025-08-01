@@ -203,7 +203,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
               ? Object.entries(scheduleMap).map(([datetime, rooms], index) => (
                   <TableRow key={datetime}>
                     {index === 0 && (
-                      <TableCell rowSpan={presentation.room_schedules.length} sx={{ width: "1%", whiteSpace: "nowrap" }}>
+                      <TableCell rowSpan={Object.keys(scheduleMap).length} sx={{ width: "1%", whiteSpace: "nowrap" }}>
                         <Typography variant="subtitle1" fontWeight="bold" children={datetimeLabel} />
                       </TableCell>
                     )}
