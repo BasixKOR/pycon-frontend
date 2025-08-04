@@ -90,7 +90,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
               <MenuLink isMainPath={isMainPath} to={menu.route_code} onClick={handleClose}>
                 {menu.name}
               </MenuLink>
-              {!R.isEmpty(menu.children) && (
+              {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                 <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth2(menu)}>
                   <ArrowForward fontSize="small" />
                 </MenuArrowButton>
@@ -123,7 +123,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
                 <Link to={`${navState.depth1!.route_code}/${menu.route_code}`} onClick={handleClose} style={{ textDecoration: "none" }}>
                   <MenuChip isMainPath={isMainPath} label={menu.name} clickable />
                 </Link>
-                {!R.isEmpty(menu.children) && (
+                {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                   <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth3(menu)}>
                     <ArrowForward fontSize="small" />
                   </MenuArrowButton>
