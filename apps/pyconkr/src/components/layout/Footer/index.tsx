@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 import * as Common from "@frontend/common";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, YouTube } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";
 
 import { useAppContext } from "../../../contexts/app_context";
+import MobileFooter from "./Mobile/MobileFooter";
 
 interface IconItem {
   icon: React.FC<{ width?: number; height?: number }>;
@@ -49,6 +50,9 @@ const Bar: React.FC = () => <div style={{ display: "inline-block", padding: "0 0
 
 export default function Footer() {
   const { sendEmail } = Common.Hooks.Common.useEmail();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const { language } = useAppContext();
 
   const corpPasamoStr = language === "ko" ? "사단법인 파이썬사용자모임" : "Python Korea";
@@ -83,56 +87,62 @@ export default function Footer() {
     },
   ];
 
-  return (
-    <FooterContainer>
-      <FooterContent>
-        <FooterText>
-          <strong>{corpPasamoStr}</strong>
-          <br />
-          {corpAddressStr}
-          <Bar />
-          {corpRepresentatorStr}
-          <Bar />
-          {corpPhoneStr}
-          <Bar />
-          {corpCompanyNumberStr}
-          <a href="http://www.ftc.go.kr/bizCommPop.do?wrkr_no=3388200046" target="_blank" rel="noreferrer">
-            <Button variant="outlined" startIcon={<OpenInNew sx={{ fontSize: "7pt" }} />}>
-              {corpCheckBtnStr}
-            </Button>
-          </a>
-          <br />
-          {corpMailOrderSalesRegistrationNumberStr}
-          <Bar />
-          {hostingProviderStr}
-          <Bar />
-          {contractEmailStr}
-          <a href="mailto:pyconkr@pycon.kr">pyconkr@pycon.kr</a>
-        </FooterText>
-        <FooterLinks>
-          {links.map((link, index) => (
-            <React.Fragment key={index}>
-              <Link key={link.text} href={link.href}>
-                {link.text}
-              </Link>
-              {index < links.length - 1 && <Separator>|</Separator>}
-            </React.Fragment>
-          ))}
-        </FooterLinks>
-        <FooterIcons>
-          <IconLink onClick={sendEmail} aria-label="이메일 보내기">
-            <Email width={20} height={20} aria-hidden="true" />
-          </IconLink>
-          {defaultIcons.map((icon) => (
-            <IconLink key={icon.alt} href={icon.href} target="_blank" rel="noopener noreferrer" aria-label={`${icon.alt}로 이동`}>
-              <icon.icon width={20} height={20} aria-hidden="true" />
+  console.log("isMobile " + isMobile);
+
+  if (isMobile) {
+    return <MobileFooter />;
+  } else {
+    return (
+      <FooterContainer>
+        <FooterContent>
+          <FooterText>
+            <strong>{corpPasamoStr}</strong>
+            <br />
+            {corpAddressStr}
+            <Bar />
+            {corpRepresentatorStr}
+            <Bar />
+            {corpPhoneStr}
+            <Bar />
+            {corpCompanyNumberStr}
+            <a href="http://www.ftc.go.kr/bizCommPop.do?wrkr_no=3388200046" target="_blank" rel="noreferrer">
+              <Button variant="outlined" startIcon={<OpenInNew sx={{ fontSize: "7pt" }} />}>
+                {corpCheckBtnStr}
+              </Button>
+            </a>
+            <br />
+            {corpMailOrderSalesRegistrationNumberStr}
+            <Bar />
+            {hostingProviderStr}
+            <Bar />
+            {contractEmailStr}
+            <a href="mailto:pyconkr@pycon.kr">pyconkr@pycon.kr</a>
+          </FooterText>
+          <FooterLinks>
+            {links.map((link, index) => (
+              <React.Fragment key={index}>
+                <Link key={link.text} href={link.href}>
+                  {link.text}
+                </Link>
+                {index < links.length - 1 && <Separator>|</Separator>}
+              </React.Fragment>
+            ))}
+          </FooterLinks>
+          <FooterIcons>
+            <IconLink onClick={sendEmail} aria-label="이메일 보내기">
+              <Email width={20} height={20} aria-hidden="true" />
             </IconLink>
-          ))}
-        </FooterIcons>
-        <FooterSlogan>{copyrightStr}</FooterSlogan>
-      </FooterContent>
-    </FooterContainer>
-  );
+            {defaultIcons.map((icon) => (
+              <IconLink key={icon.alt} href={icon.href} target="_blank" rel="noopener noreferrer" aria-label={`${icon.alt}로 이동`}>
+                <icon.icon width={20} height={20} aria-hidden="true" />
+              </IconLink>
+            ))}
+          </FooterIcons>
+          <FooterSlogan>{copyrightStr}</FooterSlogan>
+        </FooterContent>
+      </FooterContainer>
+    );
+  }
 }
 
 const FooterContainer = styled.footer`
@@ -195,6 +205,7 @@ const FooterLinks = styled.div`
   align-items: center;
   gap: 0.625rem;
 `;
+
 const FooterIcons = styled.div`
   display: flex;
   align-items: center;
