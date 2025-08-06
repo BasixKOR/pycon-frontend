@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion, Stack, Typography } from "@mui/material";
 import * as React from "react";
+import Marquee from "react-fast-marquee";
 import PyCon2025HostLogoBig from "../../assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "../../assets/pyconkr2025_hostlogo_small.png";
 
@@ -10,19 +11,31 @@ const AccordionExpandedStyle: React.CSSProperties = {
   overflow: "hidden",
 };
 
+const MarqueeAccordion: React.FC = () => {
+  return (
+    <Marquee loop={0}>
+      <Stack direction={"row"} sx={{ gap: "1.5rem" }}>
+        <Stack direction={"row"} sx={{ gap: "1.5rem" }}>
+          <StyledTypography>{"AUG 15 - 17"}</StyledTypography>
+          <img src={PyCon2025HostLogoSmall} />
+        </Stack>
+        <Stack direction={"row"} sx={{ gap: "1.5rem" }}>
+          <StyledTypography>{"AUG 15 - 17"}</StyledTypography>
+          <img src={PyCon2025HostLogoSmall} />
+        </Stack>
+      </Stack>
+    </Marquee>
+  );
+};
+
 export const MobilePageAccordion: React.FC = () => {
   const [expanded, setExpanded] = React.useState<boolean>(false);
 
   return (
     <AccordionWrapper>
       <StyledAccordion expanded={expanded} onChange={() => setExpanded((prev) => !prev)}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          {expanded ? null : (
-            <Stack direction={"row"} sx={{ gap: "1rem" }}>
-              <Typography>{"AUG 15 - 17"}</Typography>
-              <img src={PyCon2025HostLogoSmall} />
-            </Stack>
-          )}
+        <AccordionSummary sx={{ display: "flex" }} expandIcon={<ExpandMoreIcon />}>
+          {expanded ? null : <MarqueeAccordion />}
         </AccordionSummary>
         <StyledAccordionDetails>
           {expanded ? (
@@ -91,15 +104,11 @@ const StyledAccordion = styled(MuiAccordion)`
   }
 `;
 
-const Number = styled.span`
-  font-size: 18px;
-  font-weight: 400;
-`;
-
-const Question = styled.span`
-  font-size: 18px;
-  font-weight: 400;
-  margin-left: 60px;
+const StyledTypography = styled(Typography)`
+  font-weight: 600;
+  font-size: 1rem;
+  color: #938a85;
+  text-align: center;
 `;
 
 const StyledAccordionDetails = styled(AccordionDetails)`
