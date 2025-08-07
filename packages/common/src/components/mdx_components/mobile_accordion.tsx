@@ -8,8 +8,8 @@ import PyCon2025HostLogoBig from "../../assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "../../assets/pyconkr2025_hostlogo_small.png";
 
 const MarqueeAccordion: React.FC = () => {
-  const [marqueeKey, setMarqueeKey] = React.useState<number>(0);
-
+  const marqueeWidth = window.innerWidth * 0.9;
+  const marqueeGradientWidth = window.innerWidth * 0.1;
   const items = React.useMemo(() => {
     return Array.from({ length: 100 }, (_, i) => {
       return (
@@ -21,71 +21,60 @@ const MarqueeAccordion: React.FC = () => {
     });
   }, []);
 
-  const onMarqueeCycleComplete = () => {
-    if (marqueeKey === 0) {
-      setMarqueeKey(1);
-    } else {
-      setMarqueeKey(0);
-    }
-  };
-
   return (
-    <Marquee key={marqueeKey} onCycleComplete={onMarqueeCycleComplete} loop={0} speed={30} style={{ width: "100%", margin: 0, padding: 0 }}>
+    // <Stack sx={{ maxWidth: "90%" }}>
+    <Marquee loop={0} gradient={true} gradientWidth={marqueeGradientWidth} speed={30} style={{ width: marqueeWidth }}>
       {items}
     </Marquee>
+    // </Stack>
   );
 };
 
-export const MobilePageAccordion: React.FC = () => {
+export const MobileAccordion: React.FC = () => {
   const { language } = useAppContext();
   const [expanded, setExpanded] = React.useState<boolean>(false);
-  const venue = language === "ko" ? "서울특별시 중구 필동로 1길 30 동국대학교 신공학관" : "New Engineering Building, Dongguk University";
-
-  const a = "Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea";
 
   return (
     <AccordionWrapper>
-      <StyledAccordion expanded={expanded} onChange={() => setExpanded((prev) => !prev)}>
-        {!expanded && (
-          <AccordionSummary
-            sx={{}}
-            expandIcon={
-              <ExpandMoreIcon
-                sx={{
-                  position: "absolute",
-                  right: 0,
-                  transform: "translateY(-50%)",
-                }}
-              />
-            }
-          >
-            {expanded ? null : <MarqueeAccordion />}
-          </AccordionSummary>
-        )}
+      <StyledAccordion square={false} expanded={expanded} onChange={() => setExpanded((prev) => !prev)}>
+        <AccordionSummary
+          expandIcon={
+            <ExpandMoreIcon
+              fontSize={"large"}
+              sx={{
+                color: "#8E9B5D",
+                borderWidth: 1,
+                position: "relative",
+                top: expanded ? -16 : 0,
+              }}
+            />
+          }
+          sx={{ margin: 0, padding: 0 }}
+        >
+          {expanded ? null : <MarqueeAccordion />}
+        </AccordionSummary>
         <StyledAccordionDetails>
-          {expanded ? (
-            <>
-              <Stack sx={{ margin: 0, padding: 0, alignItems: "center", justifyContent: "center" }}>
-                <img src={PyCon2025HostLogoBig} alt="PyCon 2025 Host Logo" style={{ width: "90%", height: "90%" }} />
+          <Stack>
+            <Stack sx={{ padding: "30px 0px", borderRadius: "16px", alignItems: "center", justifyContent: "center" }}>
+              <img src={PyCon2025HostLogoBig} alt="PyCon 2025 Host Logo" style={{ width: "90%", height: "90%" }} />
+            </Stack>
+            {language === "ko" ? (
+              <Stack direction="column" sx={{ transform: "translateY(-280%)" }}>
+                <Typography color="#938A85" textAlign="center" fontSize="11px" fontWeight={400}>
+                  {"서울특별시 중구 필동로 1길 30 동국대학교 신공학관"}
+                </Typography>
               </Stack>
-              {language === "ko" ? (
-                <Stack direction="column" sx={{ transform: "translateY(-150%)" }}>
-                  <Typography color="#938A85" textAlign="center" fontSize="12px" fontWeight={400}>
-                    {"서울특별시 중구 필동로 1길 30 동국대학교 신공학관"}
-                  </Typography>
-                </Stack>
-              ) : (
-                <Stack direction="column" sx={{ transform: "translateY(-110%)" }}>
-                  <Typography color="#938A85" textAlign="center" fontSize="10px" fontWeight={400}>
-                    {"New Engineering Building, Dongguk University"}
-                  </Typography>
-                  <Typography color="#938A85" textAlign="center" fontWeight={400} fontSize="10px">
-                    {"Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"}
-                  </Typography>
-                </Stack>
-              )}
-            </>
-          ) : null}
+            ) : (
+              <Stack direction="column" sx={{ transform: "translateY(-180%)" }}>
+                <Typography color="#938A85" textAlign="center" fontSize="10px" fontWeight={400}>
+                  {"New Engineering Building, Dongguk University"}
+                </Typography>
+                <Typography color="#938A85" textAlign="center" fontWeight={400} fontSize="10px">
+                  {"Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"}
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
         </StyledAccordionDetails>
       </StyledAccordion>
     </AccordionWrapper>
@@ -95,14 +84,17 @@ export const MobilePageAccordion: React.FC = () => {
 const AccordionWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 -4px 16px rgba(0, 0, 0, 0.1);
   margin: 0;
   padding: 0;
+  border-radius: 16;
 `;
 
 const StyledAccordion = styled(MuiAccordion)`
   box-shadow: none;
-  border-radius: 16px;
+  border-radius: 16;
 
   &:before {
     display: none;
@@ -121,7 +113,7 @@ const StyledAccordion = styled(MuiAccordion)`
   }
 
   .MuiAccordionSummary-root {
-    padding: 10px 35px;
+    padding: 10px 0px 10px 0px;
     min-height: 60px;
     max-height: 60px;
 
@@ -132,25 +124,28 @@ const StyledAccordion = styled(MuiAccordion)`
     }
 
     &.Mui-expanded {
-      min-height: 60px;
-      max-height: 60px;
+      min-height: 0px;
+      max-height: 0px;
       object-fit: contain;
     }
   }
 
-  '& .MuiAccordionSummary-expandIconWrapper': {
-      position: 'absolute',
-      left: 8,
-      top: '50%',
-      transform: 'translateY(-50%)'
-    },
+  "& .muiaccordionsummary-expandiconwrapper": {
+    position: 'absolute',
+    top: 10;
+  }
+
+  ,
+  .MuiAccordionDetails-root {
+    margin: 6px 0px 24px 0px;
+  }
 
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
   position: relative;
-  margin: 0;
-  padding: 0;
+  marginleft: 0;
+  paddingleft: 0;
 `;
 
 const StyledTypography = styled(Typography)`
@@ -162,7 +157,6 @@ const StyledTypography = styled(Typography)`
 `;
 
 const StyledAccordionDetails = styled(AccordionDetails)`
-  border-radius: 16px;
   font-size: 14px;
   font-weight: 400;
   width: 100%;
