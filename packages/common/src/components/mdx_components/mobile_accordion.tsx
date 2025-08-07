@@ -64,8 +64,10 @@ export const MobilePageAccordion: React.FC = () => {
         )}
         <StyledAccordionDetails>
           {expanded ? (
-            <Stack sx={{ objectFit: "contain", margin: 0, padding: 0 }}>
-              <img src={PyCon2025HostLogoBig} alt="PyCon 2025 Host Logo" style={{ objectFit: "contain" }} />
+            <>
+              <Stack sx={{ margin: 0, padding: 0, alignItems: "center", justifyContent: "center" }}>
+                <img src={PyCon2025HostLogoBig} alt="PyCon 2025 Host Logo" style={{ width: "90%", height: "90%" }} />
+              </Stack>
               {language === "ko" ? (
                 <Stack direction="column" sx={{ transform: "translateY(-150%)" }}>
                   <Typography color="#938A85" textAlign="center" fontSize="12px" fontWeight={400}>
@@ -73,16 +75,16 @@ export const MobilePageAccordion: React.FC = () => {
                   </Typography>
                 </Stack>
               ) : (
-                <Stack direction="column" sx={{ transform: "translateY(-80%)" }}>
-                  <Typography color="#938A85" textAlign="center" fontSize="12px" fontWeight={400}>
+                <Stack direction="column" sx={{ transform: "translateY(-110%)" }}>
+                  <Typography color="#938A85" textAlign="center" fontSize="10px" fontWeight={400}>
                     {"New Engineering Building, Dongguk University"}
                   </Typography>
-                  <Typography color="#938A85" textAlign="center" fontWeight={400} fontSize="12px">
+                  <Typography color="#938A85" textAlign="center" fontWeight={400} fontSize="10px">
                     {"Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"}
                   </Typography>
                 </Stack>
               )}
-            </Stack>
+            </>
           ) : null}
         </StyledAccordionDetails>
       </StyledAccordion>
@@ -94,11 +96,13 @@ const AccordionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  margin: 0;
+  padding: 0;
 `;
 
 const StyledAccordion = styled(MuiAccordion)`
   box-shadow: none;
-  border-radius: 0;
+  border-radius: 16px;
 
   &:before {
     display: none;
@@ -144,16 +148,17 @@ const StyledAccordion = styled(MuiAccordion)`
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
-  overflow: hidden;
   position: relative;
+  margin: 0;
+  padding: 0;
 `;
 
 const StyledTypography = styled(Typography)`
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 20px;
   color: #938a85;
   text-align: center;
-  padding: 0 10px;
+  padding: 0 20px;
 `;
 
 const StyledAccordionDetails = styled(AccordionDetails)`
@@ -163,5 +168,5 @@ const StyledAccordionDetails = styled(AccordionDetails)`
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 20;
+  padding: 0;
 `;
