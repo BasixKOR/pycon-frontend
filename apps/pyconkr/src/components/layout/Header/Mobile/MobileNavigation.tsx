@@ -87,10 +87,16 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           .filter((s) => !s.hide)
           .map((menu) => (
             <MenuItem isMainPath={isMainPath} key={menu.id}>
-              <MenuLink isMainPath={isMainPath} to={menu.route_code} onClick={handleClose}>
-                {menu.name}
-              </MenuLink>
-              {!R.isEmpty(menu.children) && (
+              {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) ? (
+                <MenuButton isMainPath={isMainPath} onClick={() => navigateToDepth2(menu)}>
+                  {menu.name}
+                </MenuButton>
+              ) : (
+                <MenuLink isMainPath={isMainPath} to={menu.route_code} onClick={handleClose}>
+                  {menu.name}
+                </MenuLink>
+              )}
+              {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                 <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth2(menu)}>
                   <ArrowForward fontSize="small" />
                 </MenuArrowButton>
@@ -123,7 +129,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
                 <Link to={`${navState.depth1!.route_code}/${menu.route_code}`} onClick={handleClose} style={{ textDecoration: "none" }}>
                   <MenuChip isMainPath={isMainPath} label={menu.name} clickable />
                 </Link>
-                {!R.isEmpty(menu.children) && (
+                {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                   <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth3(menu)}>
                     <ArrowForward fontSize="small" />
                   </MenuArrowButton>
@@ -248,6 +254,17 @@ const MenuLink = styled(Link)<{ isMainPath?: boolean }>(({ theme, isMainPath = t
   textDecoration: "none",
   fontSize: "20px",
   fontWeight: 600,
+}));
+
+const MenuButton = styled(Button)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
+  color: isMainPath ? theme.palette.mobileNavigation.main.text : theme.palette.mobileNavigation.sub.text,
+  textTransform: "none",
+  fontSize: "20px",
+  fontWeight: 600,
+  padding: 0,
+  minWidth: "auto",
+  minHeight: "auto",
+  justifyContent: "flex-start",
 }));
 
 const MenuArrowButton = styled(IconButton)<{ isMainPath?: boolean }>(({ theme, isMainPath = true }) => ({
