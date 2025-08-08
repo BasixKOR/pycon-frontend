@@ -5,9 +5,9 @@ import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";
+import { MobilePageAccordion } from "../../../../../../packages/common/src/components/mdx_components/mobile_accordion";
 
 import { useAppContext } from "../../../contexts/app_context";
-import MobileFooter from "./Mobile/MobileFooter";
 
 interface IconItem {
   icon: React.FC<{ width?: number; height?: number }>;
@@ -90,7 +90,8 @@ export default function Footer() {
   console.log("isMobile " + isMobile);
 
   if (isMobile) {
-    return <MobileFooter />;
+    return <MobilePageAccordion />;
+    // return <MobileFooter />;
   } else {
     return (
       <FooterContainer>
