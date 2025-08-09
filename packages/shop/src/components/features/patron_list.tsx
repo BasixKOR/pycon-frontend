@@ -11,8 +11,8 @@ const InnerPatronList: React.FC<{ year: number }> = ErrorBoundary.with(
     const { data } = ShopHooks.usePatrons(shopAPIClient, year);
     return data.map((patron) => (
       <Stack key={patron.name} spacing={1} sx={{ my: 2 }}>
-        <Typography variant="h6" fontWeight="700" children={patron.name} />
-        {patron.contribution_message && <Typography variant="subtitle1" children={patron.contribution_message} />}
+        <Typography variant="h5" sx={(theme) => ({ fontWeight: 400, color: theme.palette.primary.dark })} children={patron.name} />
+        <Typography variant="subtitle1" children={patron.contribution_message || "Weave with Python!"} />
       </Stack>
     ));
   })
