@@ -227,6 +227,11 @@ namespace ShopSchemas {
     }[];
   };
 
+  export type Patron = {
+    name: string;
+    contribution_message: string;
+  };
+
   export const isObjectErrorResponseSchema = (obj?: unknown): obj is ShopSchemas.ErrorResponseSchema => {
     return (
       R.isPlainObject(obj) &&

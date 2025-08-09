@@ -12,6 +12,7 @@ const QUERY_KEYS = {
   PRODUCT_LIST: ["query", "shop", "products"],
   CART_INFO: ["query", "shop", "cart"],
   ORDER_LIST: ["query", "shop", "orders"],
+  PATRONS: ["query", "shop", "patrons"],
 };
 
 const MUTATION_KEYS = {
@@ -134,6 +135,12 @@ namespace ShopHooks {
       mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
       mutationFn: ShopAPIs.patchOrderOptions(client),
       meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
+    });
+
+  export const usePatrons = (client: ShopAPIClient, year: number) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.PATRONS, year],
+      queryFn: ShopAPIs.listPatrons(client, year),
     });
 }
 

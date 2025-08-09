@@ -154,6 +154,7 @@ const PythonKRShopMDXComponents: MDXComponents = {
   Shop__Feature__ProductImageCardList: Shop.Components.Features.ProductImageCardList,
   Shop__Feature__OrderList: Shop.Components.Features.OrderList,
   Shop__Feature__UserInfo: Shop.Components.Features.UserInfo,
+  Shop__Feature__PatronList: Shop.Components.Features.PatronList,
 };
 
 export const PyConKRMDXComponents = {

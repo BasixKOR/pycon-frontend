@@ -133,6 +133,11 @@ namespace ShopAPIs {
       `v1/orders/${data.order_id}/products/${data.order_product_relation_id}/options/`,
       data.options
     );
+
+  /**
+   * 후원자 목록을 가져옵니다.
+   */
+  export const listPatrons = (client: ShopAPIClient, year: number) => () => client.get<ShopSchemas.Patron[]>("v1/ext/patron/", { params: { year } });
 }
 
 export default ShopAPIs;
