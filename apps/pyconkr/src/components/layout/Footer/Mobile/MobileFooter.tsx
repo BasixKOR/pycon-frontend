@@ -44,8 +44,6 @@ const defaultIcons: IconItem[] = [
   },
 ];
 
-const Bar: React.FC = () => <div style={{ display: "inline-block", padding: "0 0.25rem" }}>|</div>;
-
 export default function MobileFooter() {
   const { sendEmail } = Common.Hooks.Common.useEmail();
   const { language } = useAppContext();
@@ -128,36 +126,6 @@ const FooterContent = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-`;
-
-const FooterText = styled.div`
-  padding: 0 2rem;
-  margin: 0.1rem;
-
-  font-size: 9pt;
-
-  a > button {
-    margin-left: 0.25rem;
-    padding: 0.05rem 0.25rem;
-    font-size: 8pt;
-    color: ${({ theme }) => theme.palette.common.white};
-    border-color: ${({ theme }) => theme.palette.common.white};
-
-    gap: 0.25rem;
-
-    & span {
-      margin-left: -2px;
-      margin-right: 0;
-
-      & svg {
-        font-size: 12pt !important;
-      }
-    }
-  }
-
-  strong {
-    font-size: 12pt;
-  }
 `;
 
 const FooterBoldText = styled.text`

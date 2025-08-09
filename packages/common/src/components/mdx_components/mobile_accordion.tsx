@@ -3,6 +3,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion, Stack, Typography } from "@mui/material";
 import * as React from "react";
 import Marquee from "react-fast-marquee";
+
 import { useAppContext } from "../../../../../apps/pyconkr/src/contexts/app_context";
 import PyCon2025HostLogoBig from "../../assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "../../assets/pyconkr2025_hostlogo_small.png";
@@ -11,23 +12,15 @@ const MarqueeAccordion: React.FC = () => {
   const marqueeWidth = window.innerWidth * 0.9;
   const marqueeGradientWidth = window.innerWidth * 0.1;
   const items = React.useMemo(() => {
-    return Array.from({ length: 100 }, (_, i) => {
-      return (
-        <Stack direction={"row"} sx={{ gap: 0 }}>
-          <StyledTypography>{"AUG 15 - 17"}</StyledTypography>
-          <img src={PyCon2025HostLogoSmall} />
-        </Stack>
-      );
-    });
+    return Array.from({ length: 100 }, () => (
+      <Stack direction="row" sx={{ gap: 0 }}>
+        <StyledTypography>AUG 15 - 17</StyledTypography>
+        <img alt="logo" src={PyCon2025HostLogoSmall} />
+      </Stack>
+    ));
   }, []);
 
-  return (
-    // <Stack sx={{ maxWidth: "90%" }}>
-    <Marquee loop={0} gradient={true} gradientWidth={marqueeGradientWidth} speed={30} style={{ width: marqueeWidth }}>
-      {items}
-    </Marquee>
-    // </Stack>
-  );
+  return <Marquee loop={0} gradient={true} gradientWidth={marqueeGradientWidth} speed={30} style={{ width: marqueeWidth }} children={items} />;
 };
 
 export const MobileAccordion: React.FC = () => {
