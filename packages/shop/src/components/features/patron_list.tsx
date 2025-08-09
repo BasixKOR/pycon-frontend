@@ -1,3 +1,4 @@
+import * as Common from "@frontend/common";
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -12,7 +13,9 @@ const InnerPatronList: React.FC<{ year: number }> = ErrorBoundary.with(
     return data.map((patron) => (
       <Stack key={patron.name} spacing={1} sx={{ my: 2 }}>
         <Typography variant="h5" sx={(theme) => ({ fontWeight: 400, color: theme.palette.primary.dark })} children={patron.name} />
-        <Typography variant="subtitle1" children={patron.contribution_message || "Weave with Python!"} />
+        <Typography variant="subtitle1" sx={(theme) => ({ a: { color: theme.palette.primary.main }, whiteSpace: "pre-wrap" })}>
+          <Common.Components.AutoTextLinking children={patron.contribution_message.replace("\\n", "\n") || "Weave with Python!"} />
+        </Typography>
       </Stack>
     ));
   })

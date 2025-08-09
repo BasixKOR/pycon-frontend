@@ -1,3 +1,4 @@
+import { AutoTextLinking as AutoTextLinkingComponent } from "./auto_text_linking";
 import { CenteredPage as CenteredPageComponent } from "./centered_page";
 import { CommonContextProvider as CommonContextProviderComponent } from "./common_context";
 import { DndFileInput as DndFileInputComponent } from "./dnd_file_input";
@@ -44,6 +45,7 @@ namespace Components {
   export const ErrorFallback = ErrorFallbackComponent;
   export const FallbackImage = FallbackImageComponent;
   export const LinkHandler = LinkHandlerComponent;
+  export const AutoTextLinking = AutoTextLinkingComponent;
   export const DndFileInput = DndFileInputComponent;
   export const Fieldset = FieldsetComponent;
 
