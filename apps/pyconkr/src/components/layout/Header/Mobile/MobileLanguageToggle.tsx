@@ -11,26 +11,24 @@ interface MobileLanguageToggleProps {
 export const MobileLanguageToggle: React.FC<MobileLanguageToggleProps> = ({ isMainPath = true }) => {
   const { language, setAppContext } = useAppContext();
 
-  const handleLanguageChange = (newLanguage: "ko" | "en") => {
+  const toggleLanguage = () => {
+    const newLanguage = language === "ko" ? "en" : "ko";
     localStorage.setItem(LOCAL_STORAGE_LANGUAGE_KEY, newLanguage);
     setAppContext((ps) => ({ ...ps, language: newLanguage }));
   };
+
   return (
-    <ToggleContainer isMainPath={isMainPath}>
-      <LanguageButton isActive={language === "ko"} isMainPath={isMainPath} onClick={() => handleLanguageChange("ko")}>
-        KO
-      </LanguageButton>
-      <LanguageButton isActive={language === "en"} isMainPath={isMainPath} onClick={() => handleLanguageChange("en")}>
-        EN
-      </LanguageButton>
+    <ToggleContainer isMainPath={isMainPath} onClick={toggleLanguage}>
+      <LanguageButton isActive={language === "ko"} isMainPath={isMainPath} children="KO" />
+      <LanguageButton isActive={language === "en"} isMainPath={isMainPath} children="EN" />
     </ToggleContainer>
   );
 };
 
 const ToggleContainer = styled("div")<{ isMainPath: boolean }>(({ theme, isMainPath }) => ({
   display: "flex",
-  width: 94,
-  height: 29,
+  width: "4rem",
+  height: "1.5rem",
   border: "1px solid white",
   borderRadius: 15,
   padding: 2,

@@ -68,6 +68,12 @@ namespace ShopAPIs {
   };
 
   /**
+   * 현재 사용자의 row 정보를 가져옵니다.
+   * @returns 로그인 정보
+   */
+  export const retrieveUserRowInfo = (client: ShopAPIClient) => async () => client.get<ShopSchemas.UserRow>("v1/users/");
+
+  /**
    * 노출 중인 모든 상품의 목록을 가져옵니다.
    * @returns 노출 중인 모든 상품의 목록
    */

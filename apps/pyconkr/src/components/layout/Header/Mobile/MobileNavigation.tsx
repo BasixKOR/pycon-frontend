@@ -9,6 +9,7 @@ import * as R from "remeda";
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
 import { SignInButton } from "../../SignInButton";
+import { ScanCodeButton } from "../../UserScanCodeButton";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 
@@ -195,12 +196,15 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           {navState.level === "depth3" && renderDepth3Menu()}
         </NavigationContent>
 
-        <BottomActions isMainPath={isMainPath}>
-          <Stack direction="row" alignItems="center" spacing={6.25}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 4, flexGrow: 0, width: "100%" }}>
+          <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <MobileLanguageToggle isMainPath={isMainPath} />
-            <SignInButton isMobile={true} isMainPath={isMainPath} onClose={handleClose} />
           </Stack>
-        </BottomActions>
+          <ScanCodeButton />
+          <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
+            <SignInButton isMobile isMainPath={isMainPath} onClose={handleClose} />
+          </Stack>
+        </Stack>
       </DrawerContent>
     </StyledDrawer>
   );
@@ -299,12 +303,6 @@ const MenuChip = styled(Chip)<{ isMainPath?: boolean }>(({ theme, isMainPath = t
     backgroundColor: isMainPath ? theme.palette.mobileNavigation.main.chip.hover : theme.palette.mobileNavigation.sub.chip.hover,
   },
 }));
-
-const BottomActions = styled(Stack)<{ isMainPath: boolean }>({
-  padding: "20px 23px",
-  gap: 50,
-  alignItems: "center",
-});
 
 const HeaderTitle = styled(Typography)<{ isMainPath: boolean }>(({ theme, isMainPath }) => ({
   color: isMainPath ? theme.palette.mobileHeader.main.text : theme.palette.mobileHeader.sub.text,

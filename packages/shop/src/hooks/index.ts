@@ -9,6 +9,7 @@ import ShopSchemas from "../schemas";
 const QUERY_KEYS = {
   BASE: ["query", "shop"],
   USER: ["query", "shop", "user"],
+  USER_ROW: ["query", "shop", "user_row"],
   PRODUCT_LIST: ["query", "shop", "products"],
   CART_INFO: ["query", "shop", "cart"],
   ORDER_LIST: ["query", "shop", "orders"],
@@ -45,6 +46,13 @@ namespace ShopHooks {
     useSuspenseQuery({
       queryKey: [...QUERY_KEYS.USER, client.language],
       queryFn: ShopAPIs.retrieveUserInfo(client),
+      retry: 3,
+    });
+
+  export const useUserInfo = (client: ShopAPIClient) =>
+    useSuspenseQuery({
+      queryKey: [...QUERY_KEYS.USER_ROW, client.language],
+      queryFn: ShopAPIs.retrieveUserRowInfo(client),
       retry: 3,
     });
 

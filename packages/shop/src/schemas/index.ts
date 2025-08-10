@@ -74,6 +74,12 @@ namespace ShopSchemas {
     };
   };
 
+  export type UserRow = {
+    id: string;
+    email: string;
+    scancode_url: string;
+  };
+
   export type Option = {
     id: string;
     name: string;

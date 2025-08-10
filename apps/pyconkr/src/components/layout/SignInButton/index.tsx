@@ -49,7 +49,7 @@ const InnerSignInButtonImpl: React.FC<InnerSignInButtonImplPropType> = ({
           fontWeight: 500,
           textTransform: "none",
           minWidth: "auto",
-          padding: "0 13px",
+          padding: 0,
 
           "&:hover": {
             backgroundColor: isMainPath ? "rgba(255, 255, 255, 0.1)" : "rgba(18, 109, 127, 0.1)",
