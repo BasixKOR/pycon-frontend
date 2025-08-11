@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
+import { ShopAPIClientError } from "../../apis/client";
 import ShopHooks from "../../hooks";
 import ShopSchemas from "../../schemas";
 import ShopUtils from "../../utils";
@@ -242,7 +243,11 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
         );
         onAddToCartSuccess?.();
       },
-      onError: () => alert(failedToAddOneItemToCartStr),
+      onError: (error) =>
+        alert(
+          (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+            failedToAddOneItemToCartStr
+        ),
     });
   };
   const onOrderOneItemButtonClick = () => {
@@ -477,7 +482,11 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
               closeBackdrop
             );
           },
-          onError: (error) => alert(error.message || orderErrorStr),
+          onError: (error) =>
+            alert(
+              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+                orderErrorStr
+            ),
         }
       );
     };
@@ -572,7 +581,11 @@ export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> 
               closeBackdrop
             );
           },
-          onError: (error) => alert(error.message || orderErrorStr),
+          onError: (error) =>
+            alert(
+              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+                orderErrorStr
+            ),
         }
       );
     };

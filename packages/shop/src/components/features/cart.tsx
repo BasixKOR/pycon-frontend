@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
+import { ShopAPIClientError } from "../../apis/client";
 import ShopHooks from "../../hooks";
 import ShopSchemas from "../../schemas";
 import ShopUtils from "../../utils";
@@ -130,7 +131,11 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
           closeBackdrop
         );
       },
-      onError: (error) => alert(error.message || errorWhilePreparingOrderStr),
+      onError: (error) =>
+        alert(
+          (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+            errorWhilePreparingOrderStr
+        ),
     });
   };
 
