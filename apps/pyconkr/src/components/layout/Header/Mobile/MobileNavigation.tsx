@@ -9,7 +9,7 @@ import * as R from "remeda";
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
 import { SignInButton } from "../../SignInButton";
-import { ScanCodeButton } from "../../UserScanCodeButton";
+// import { ScanCodeButton } from "../../UserScanCodeButton";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 
@@ -200,7 +200,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <MobileLanguageToggle isMainPath={isMainPath} />
           </Stack>
-          <ScanCodeButton />
+          {/* <ScanCodeButton /> */}
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <SignInButton isMobile isMainPath={isMainPath} onClose={handleClose} />
           </Stack>

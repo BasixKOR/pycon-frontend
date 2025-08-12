@@ -11,7 +11,7 @@ import { useAppContext } from "../../../contexts/app_context";
 import { CartBadgeButton } from "../CartBadgeButton";
 import LanguageSelector from "../LanguageSelector";
 import { SignInButton } from "../SignInButton";
-import { ScanCodeIconButton } from "../UserScanCodeButton";
+// import { ScanCodeIconButton } from "../UserScanCodeButton";
 import { MobileHeader } from "./Mobile/MobileHeader";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
@@ -149,7 +149,7 @@ const Header: React.FC = () => {
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
             <CartBadgeButton />
-            <ScanCodeIconButton />
+            {/* <ScanCodeIconButton /> */}
             <SignInButton />
           </Stack>
         </NavSideElementContainer>
