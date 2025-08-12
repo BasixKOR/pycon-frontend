@@ -148,6 +148,7 @@ namespace ShopSchemas {
     price: number;
     donation_price: number;
     not_refundable_reason: string | null;
+    scancode_url: string | null;
     product: {
       id: string;
       name: string;

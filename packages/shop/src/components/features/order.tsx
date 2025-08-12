@@ -90,6 +90,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       ? "옵션 수정 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
       : "An error occurred while modifying the options,\nplease try again later.";
 
+  const scanCodeBtnText = language === "ko" ? "등록 QR 코드" : "Registeration QR Code";
   const refundBtnDisabled = isPending || !R.isNullish(prodRel.not_refundable_reason);
   const refundBtnText = R.isNullish(prodRel.not_refundable_reason)
     ? refundOneProductStr
@@ -134,14 +135,21 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
   };
 
   const actionButtons = (
-    <>
-      <Button variant="contained" fullWidth onClick={patchOneItemOptions} disabled={patchOptionBtnDisabled}>
-        {modifyOptionStr}
-      </Button>
-      <Button variant="contained" fullWidth onClick={refundOneItem} disabled={refundBtnDisabled}>
-        {refundBtnText}
-      </Button>
-    </>
+    <Stack direction="column" flexGrow={1} spacing={2}>
+      {prodRel.scancode_url && (
+        <a href={prodRel.scancode_url} target="_blank" rel="noopener noreferrer">
+          <Button variant="contained" fullWidth children={scanCodeBtnText} />
+        </a>
+      )}
+      <Stack direction="row" flexGrow={1} spacing={2}>
+        <Button variant="contained" fullWidth onClick={patchOneItemOptions} disabled={patchOptionBtnDisabled}>
+          {modifyOptionStr}
+        </Button>
+        <Button variant="contained" fullWidth onClick={refundOneItem} disabled={refundBtnDisabled}>
+          {refundBtnText}
+        </Button>
+      </Stack>
+    </Stack>
   );
 
   return (
