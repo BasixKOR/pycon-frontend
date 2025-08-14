@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 import * as Common from "@frontend/common";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, YouTube } from "@mui/icons-material";
-import { Button, useMediaQuery, useTheme } from "@mui/material";
+import { Button, Stack, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";
 
-import MobileFooter from "./Mobile/MobileFooter";
+import { MobileCover } from "../../../../../../packages/common/src/components/mdx_components/mobile_cover";
+// import MobileFooter from "./Mobile/MobileFooter";
 import { useAppContext } from "../../../contexts/app_context";
 
 interface IconItem {
@@ -88,7 +89,13 @@ export default function Footer() {
   ];
 
   if (isMobile) {
-    return <MobileFooter />;
+    // return <MobileFooter />;
+    return (
+      <Stack>
+        <MobileCover />
+        <Stack sx={{ height: "300px" }} />
+      </Stack>
+    );
   } else {
     return (
       <FooterContainer>
