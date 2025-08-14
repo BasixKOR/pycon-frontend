@@ -6,8 +6,9 @@ import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";
 
-import MobileFooter from "./Mobile/MobileFooter";
+// import MobileFooter from "./Mobile/MobileFooter";
 import { useAppContext } from "../../../contexts/app_context";
+import MobileFooter from "./Mobile/MobileFooter";
 
 interface IconItem {
   icon: React.FC<{ width?: number; height?: number }>;
