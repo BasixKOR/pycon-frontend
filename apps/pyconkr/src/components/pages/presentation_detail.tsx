@@ -38,6 +38,12 @@ const StyledPresentationImage = styled(Common.Components.FallbackImage)(({ theme
   },
 }));
 
+const HeaderTableCell = styled(TableCell)({
+  width: "1%",
+  whiteSpace: "nowrap",
+  textAlign: "center",
+});
+
 const DescriptionBox = styled(Box)(({ theme }) => ({
   width: "100%",
   padding: theme.spacing(2, 4),
@@ -205,9 +211,9 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
               ? Object.entries(scheduleMap).map(([datetime, rooms], index) => (
                   <TableRow key={datetime}>
                     {index === 0 && (
-                      <TableCell rowSpan={Object.keys(scheduleMap).length} sx={{ width: "1%", whiteSpace: "nowrap" }}>
+                      <HeaderTableCell rowSpan={Object.keys(scheduleMap).length}>
                         <Typography variant="subtitle1" fontWeight="bold" children={datetimeLabel} />
-                      </TableCell>
+                      </HeaderTableCell>
                     )}
                     <TableCell>
                       <Stack direction="row" justifyContent="flex-start" alignItems="center" sx={{ width: "100%", flexWrap: "wrap", gap: 1 }}>
@@ -224,7 +230,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
               : null}
             {presentation.categories.length ? (
               <TableRow>
-                <TableCell children={<Typography variant="subtitle1" fontWeight="bold" children={categoriesStr} />} />
+                <HeaderTableCell children={<Typography variant="subtitle1" fontWeight="bold" children={categoriesStr} />} />
                 <TableCell>
                   <Stack direction="row" spacing={1} sx={{ width: "100%" }}>
                     {presentation.categories.map((c) => (
@@ -236,8 +242,10 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
             ) : null}
             {R.isString(presentation.public_slideshow_file) ? (
               <TableRow>
-                <TableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
-                <TableCell children={<Common.Components.LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />} />
+                <HeaderTableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
+                <TableCell sx={(theme) => ({ color: theme.palette.primary.main, textDecoration: "underline" })}>
+                  <Common.Components.LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />
+                </TableCell>
               </TableRow>
             ) : null}
           </TableBody>
