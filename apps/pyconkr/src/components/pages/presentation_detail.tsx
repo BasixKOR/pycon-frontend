@@ -4,6 +4,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
 import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
+import * as R from "remeda";
 
 import PyCon2025Logo from "../../assets/pyconkr2025_logo.png";
 import { useAppContext } from "../../contexts/app_context";
@@ -147,7 +148,8 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
     const descriptionFallback = language === "ko" ? "해당 발표의 설명은 준비 중이에요!" : "Description of the presentation is under preparation!";
     const categoriesStr = language === "ko" ? "카테고리" : "Categories";
     const speakersStr = language === "ko" ? "발표자" : "Speakers";
-    // const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
+    const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
+    const slideShowLinkStr = language === "ko" ? "링크" : "Link";
 
     const datetimeLabel = language === "ko" ? "발표 시각" : "Presentation Time";
     const datetimeSeparator = language === "ko" ? " ~ " : " - ";
@@ -232,17 +234,14 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
                 </TableCell>
               </TableRow>
             ) : null}
+            {R.isString(presentation.public_slideshow_file) ? (
+              <TableRow>
+                <TableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
+                <TableCell children={<Common.Components.LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />} />
+              </TableRow>
+            ) : null}
           </TableBody>
         </Table>
-        {/* {presentation.slideshow_url && (
-          <>
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ width: "100%", p: 2, a: { color: "blue" } }}>
-              {slideShowStr} :&nbsp;
-              <Common.Components.LinkHandler href={presentation.slideshow_url} children={presentation.slideshow_url} />
-            </Typography>
-            <Divider flexItem />
-          </>
-        )} */}
         {presentation.image && (
           <StyledPresentationImage
             alt="Presentation Image"

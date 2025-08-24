@@ -81,6 +81,7 @@ namespace BackendAPISchemas {
     summary: string | null;
     description: string;
     slideshow_url: string | null;
+    public_slideshow_file: string | null;
     image: string | null;
     categories: {
       id: string;
