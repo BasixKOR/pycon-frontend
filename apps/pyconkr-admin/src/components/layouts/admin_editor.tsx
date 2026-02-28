@@ -45,6 +45,7 @@ type AppResourceIdType = AppResourceType & { id?: string };
 type AdminEditorPropsType = React.PropsWithChildren<{
   hidingFields?: string[];
   context?: Record<string, string>;
+  onCreated?: (data: Record<string, string>) => void;
   onClose?: () => void;
   beforeSubmit?: onSubmitType;
   afterSubmit?: onSubmitType;
@@ -253,7 +254,21 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
   { fallback: Common.Components.ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
-    ({ app, resource, id, hidingFields, context, onClose, beforeSubmit, afterSubmit, extraActions, notModifiable, notDeletable, children }) => {
+    ({
+      app,
+      resource,
+      id,
+      hidingFields,
+      context,
+      onCreated,
+      onClose,
+      beforeSubmit,
+      afterSubmit,
+      extraActions,
+      notModifiable,
+      notDeletable,
+      children,
+    }) => {
       const navigate = useNavigate();
       const formRef = React.useRef<Form<Record<string, string>, RJSFSchema, { [k in string]: unknown }> | null>(null);
       const [editorState, setEditorState] = React.useState<InnerAdminEditorStateType>({
@@ -297,10 +312,13 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         beforeSubmit?.(newFormData, event);
         submitMutation.mutate(newFormData, {
           onSuccess: (newFormData) => {
-            addSnackbar(id ? "저장했습니다." : "페이지를 생성했습니다.", "success");
-            afterSubmit?.(newFormData, event);
-
-            if (!id && newFormData.id) navigate(`/${app}/${resource}/${newFormData.id}`);
+            if (!id && onCreated) {
+              onCreated(newFormData);
+            } else {
+              addSnackbar(id ? "저장했습니다." : "페이지를 생성했습니다.", "success");
+              afterSubmit?.(newFormData, event);
+              if (!id && newFormData.id) navigate(`/${app}/${resource}/${newFormData.id}`);
+            }
           },
           onError: addErrorSnackbar,
         });

@@ -1,43 +1,39 @@
 import * as Common from "@frontend/common";
-import { ContentCopy, KeyOff } from "@mui/icons-material";
-import {
-  Button,
-  ButtonProps,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  InputAdornment,
-  TextField,
-} from "@mui/material";
+import { KeyOff } from "@mui/icons-material";
+import { Button, ButtonProps, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
+import { PasswordResultDialog } from "./password_result_dialog";
+import { addErrorSnackbar } from "../../../utils/snackbar";
 import { AdminEditor } from "../../layouts/admin_editor";
 
 type PageStateType = {
   isConfirmDialogOpen: boolean;
   isResultDialogOpen: boolean;
   newPassword: string | null;
+  createdUserId: string | null;
 };
 
 export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
   { fallback: Common.Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
+    const navigate = useNavigate();
     const [pageState, setPageState] = React.useState<PageStateType>({
       isConfirmDialogOpen: false,
       isResultDialogOpen: false,
       newPassword: null,
+      createdUserId: null,
     });
     const openConfirmDialog = () => setPageState((ps) => ({ ...ps, isConfirmDialogOpen: true }));
     const closeConfirmDialog = () => setPageState((ps) => ({ ...ps, isConfirmDialogOpen: false }));
-    const closeResultDialog = () => setPageState((ps) => ({ ...ps, isResultDialogOpen: false, newPassword: null }));
+    const closeResultDialog = () => {
+      const userId = pageState.createdUserId;
+      setPageState((ps) => ({ ...ps, isResultDialogOpen: false, newPassword: null, createdUserId: null }));
+      if (userId) navigate(`/user/userext/${userId}`);
+    };
 
     const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
     const useResetPasswordMutation = Common.Hooks.BackendAdminAPI.useResetUserPasswordMutation(backendAdminClient, id || "");
@@ -58,13 +54,13 @@ export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
       }
     };
 
-    const copyPasswordToClipboard = () => {
-      if (pageState.newPassword) {
-        navigator.clipboard.writeText(pageState.newPassword).then(
-          () => addSnackbar("비밀번호가 클립보드에 복사되었습니다.", "success"),
-          () => addSnackbar("클립보드 복사에 실패했습니다.", "error")
-        );
-      }
+    const onCreated = (data: Record<string, string>) => {
+      setPageState((ps) => ({
+        ...ps,
+        isResultDialogOpen: true,
+        newPassword: data.password,
+        createdUserId: data.id,
+      }));
     };
 
     const resetUserPasswordButton: ButtonProps = {
@@ -91,35 +87,9 @@ export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
           </DialogActions>
         </Dialog>
 
-        <Dialog open={pageState.isResultDialogOpen} maxWidth="sm" fullWidth>
-          <DialogTitle>비밀번호가 초기화되었습니다</DialogTitle>
-          <DialogContent>
-            <DialogContentText sx={{ mb: 2 }}>
-              새로운 비밀번호가 생성되었습니다. 이 비밀번호는 다시 확인할 수 없으니 반드시 복사해 두세요.
-            </DialogContentText>
-            <TextField
-              fullWidth
-              value={pageState.newPassword || ""}
-              slotProps={{
-                input: {
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={copyPasswordToClipboard} edge="end">
-                        <ContentCopy />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeResultDialog}>닫기</Button>
-          </DialogActions>
-        </Dialog>
+        <PasswordResultDialog open={pageState.isResultDialogOpen} password={pageState.newPassword} onClose={closeResultDialog} />
 
-        <AdminEditor app="user" resource="userext" id={id} extraActions={[resetUserPasswordButton]} />
+        <AdminEditor app="user" resource="userext" id={id} extraActions={[resetUserPasswordButton]} onCreated={onCreated} />
       </>
     );
   })
