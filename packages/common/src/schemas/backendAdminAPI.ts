@@ -40,6 +40,10 @@ namespace BackendAdminAPISchemas {
     new_password_confirm: string;
   };
 
+  export type UserResetPasswordResponseSchema = {
+    password: string;
+  };
+
   export type PublicFileSchema = {
     id: string; // UUID
     file: string; // URL to the public file

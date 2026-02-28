@@ -20,7 +20,7 @@ namespace BackendAdminAPIs {
     client.post<void, BackendAdminAPISchemas.UserChangePasswordSchema>("v1/admin-api/user/userext/password/", data);
 
   export const resetUserPassword = (client: BackendAPIClient, id: string) => () =>
-    client.delete<void, void>(`v1/admin-api/user/userext/${id}/password/`);
+    client.delete<BackendAdminAPISchemas.UserResetPasswordResponseSchema>(`v1/admin-api/user/userext/${id}/password/`);
 
   export const list =
     <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
