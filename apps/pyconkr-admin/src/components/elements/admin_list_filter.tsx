@@ -5,14 +5,16 @@ import * as React from "react";
 import BackendAdminAPISchemas from "../../../../../packages/common/src/schemas/backendAdminAPI";
 
 type OpenAPIParameterSchema = BackendAdminAPISchemas.OpenAPIParameterSchema;
+type ChoicesResponse = BackendAdminAPISchemas.ChoicesResponse;
 
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];
   values: Record<string, string>;
+  choices?: ChoicesResponse;
   onApply: (values: Record<string, string>) => void;
 };
 
-export const AdminListFilter: React.FC<AdminListFilterProps> = ({ parameters, values, onApply }) => {
+export const AdminListFilter: React.FC<AdminListFilterProps> = ({ parameters, values, choices, onApply }) => {
   const [localValues, setLocalValues] = React.useState<Record<string, string>>(values);
 
   React.useEffect(() => {
@@ -44,7 +46,13 @@ export const AdminListFilter: React.FC<AdminListFilterProps> = ({ parameters, va
         </Stack>
         <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", alignItems: "flex-start" }}>
           {parameters.map((param) => (
-            <FilterField key={param.name} param={param} value={localValues[param.name] || ""} onChange={handleChange} />
+            <FilterField
+              key={param.name}
+              param={param}
+              value={localValues[param.name] || ""}
+              choices={choices?.[param.name]}
+              onChange={handleChange}
+            />
           ))}
         </Stack>
         <Stack direction="row" spacing={1}>
@@ -60,17 +68,38 @@ export const AdminListFilter: React.FC<AdminListFilterProps> = ({ parameters, va
   );
 };
 
+type ChoiceItem = { const: string | null; title: string };
+
 type FilterFieldProps = {
   param: OpenAPIParameterSchema;
   value: string;
+  choices?: ChoiceItem[];
   onChange: (name: string, value: string) => void;
 };
 
-const FilterField: React.FC<FilterFieldProps> = ({ param, value, onChange }) => {
+const FilterField: React.FC<FilterFieldProps> = ({ param, value, choices, onChange }) => {
   const { name, schema, description } = param;
 
   if (schema?.type === "array") return <ArrayFilterField name={name} items={schema.items} value={value} onChange={onChange} />;
   if (schema?.enum) return <EnumFilterField name={name} options={schema.enum} value={value} onChange={onChange} />;
+
+  if (choices && choices.length > 0) {
+    return (
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <InputLabel>{name}</InputLabel>
+        <Select value={value} label={name} onChange={(e) => onChange(name, e.target.value as string)}>
+          <MenuItem value="">
+            <em>전체</em>
+          </MenuItem>
+          {choices.map((choice) => (
+            <MenuItem key={choice.const ?? "__null__"} value={choice.const ?? ""}>
+              {choice.title}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  }
 
   const inputType = schema?.type === "integer" || schema?.type === "number" ? "number" : "text";
   const helperText = schema?.format === "uuid" ? "UUID" : description || undefined;

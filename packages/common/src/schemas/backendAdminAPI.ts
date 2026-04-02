@@ -18,6 +18,8 @@ namespace BackendAdminAPISchemas {
     translation_fields: string[];
   };
 
+  export type ChoicesResponse = Record<string, { const: string | null; title: string }[]>;
+
   export type UserSchema = {
     id: number;
     username: string;

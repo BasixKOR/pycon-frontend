@@ -39,6 +39,8 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
       [openApiSchemaQuery.data, app, resource]
     );
 
+    const choicesQuery = Common.Hooks.BackendAdminAPI.useChoicesQuery(backendAdminClient, app, resource);
+
     const handleFilterApply = (newParams: Record<string, string>) => setSearchParams(newParams, { replace: true });
 
     return (
@@ -47,7 +49,7 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
           {app.toUpperCase()} &gt; {resource.toUpperCase()} &gt; 목록
         </Typography>
         <br />
-        <AdminListFilter parameters={queryParameters} values={filterParams} onApply={handleFilterApply} />
+        <AdminListFilter parameters={queryParameters} values={filterParams} choices={choicesQuery.data} onApply={handleFilterApply} />
         <Box>
           {!hideCreateNew && (
             <Button variant="contained" onClick={() => navigate(`/${app}/${resource}/create`)} startIcon={<Add />}>

@@ -277,6 +277,21 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       });
       const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
       const { data: schemaInfo } = Common.Hooks.BackendAdminAPI.useSchemaQuery(backendAdminClient, app, resource);
+      const { data: choicesData } = Common.Hooks.BackendAdminAPI.useChoicesQuery(backendAdminClient, app, resource);
+
+      // Merge choices into schema for FK/M2M fields
+      React.useMemo(() => {
+        if (!choicesData || !schemaInfo.schema.properties) return;
+        for (const [fieldName, items] of Object.entries(choicesData)) {
+          const prop = (schemaInfo.schema.properties as Record<string, RJSFSchema>)[fieldName];
+          if (!prop) continue;
+          if (prop.type === "array" && prop.items) {
+            (prop.items as RJSFSchema).oneOf = items;
+          } else {
+            prop.oneOf = items;
+          }
+        }
+      }, [choicesData, schemaInfo.schema]);
 
       const setTab = (_: React.SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
       const setFormData = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));

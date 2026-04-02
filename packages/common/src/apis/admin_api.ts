@@ -58,6 +58,9 @@ namespace BackendAdminAPIs {
   export const schema = (client: BackendAPIClient, app: string, resource: string) => () =>
     client.get<BackendAdminAPISchemas.AdminSchemaDefinition>(`v1/admin-api/${app}/${resource}/json-schema/`);
 
+  export const choices = (client: BackendAPIClient, app: string, resource: string) => () =>
+    client.get<BackendAdminAPISchemas.ChoicesResponse>(`v1/admin-api/${app}/${resource}/choices/`);
+
   export const openApiSchema = (client: BackendAPIClient) => () =>
     client.get<BackendAdminAPISchemas.OpenAPISchema>("api/schema/v1/", { params: { format: "json" } });
 
