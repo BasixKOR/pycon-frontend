@@ -58,6 +58,9 @@ namespace BackendAdminAPIs {
   export const schema = (client: BackendAPIClient, app: string, resource: string) => () =>
     client.get<BackendAdminAPISchemas.AdminSchemaDefinition>(`v1/admin-api/${app}/${resource}/json-schema/`);
 
+  export const openApiSchema = (client: BackendAPIClient) => () =>
+    client.get<BackendAdminAPISchemas.OpenAPISchema>("api/schema/v1/", { params: { format: "json" } });
+
   export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
     const formData = new FormData();
     formData.append("file", file);

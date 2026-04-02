@@ -6,6 +6,7 @@ import {
   filterReadOnlyPropertiesInJsonSchema as _filterReadOnlyPropertiesInJsonSchema,
   filterWritablePropertiesInJsonSchema as _filterWritablePropertiesInJsonSchema,
 } from "./json_schema";
+import { extractQueryParameters as _extractQueryParameters } from "./openapi";
 import { isFilledString as _isFilledString, isValidHttpUrl as _isValidHttpUrl, rtrim as _rtrim } from "./string";
 
 namespace Utils {
@@ -21,6 +22,7 @@ namespace Utils {
   export const filterWritablePropertiesInJsonSchema = _filterWritablePropertiesInJsonSchema;
   export const filterReadOnlyPropertiesInJsonSchema = _filterReadOnlyPropertiesInJsonSchema;
   export const filterPropertiesByLanguageInJsonSchema = _filterPropertiesByLanguageInJsonSchema;
+  export const extractQueryParameters = _extractQueryParameters;
 }
 
 export default Utils;
