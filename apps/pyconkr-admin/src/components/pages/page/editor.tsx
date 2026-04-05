@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
 import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -45,14 +47,14 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
   return (
     <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <Stack sx={{ flexGrow: 1, width: "50%" }}>
-        <Common.Components.MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
+        <Components.MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
         <Button size="small" onClick={onInsertNewSection} startIcon={<Add />}>
           여기에 섹션 추가
         </Button>
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
         <ThemeProvider theme={muiTheme}>
-          <Common.Components.MDXRenderer text={defaultValue || ""} format="mdx" />
+          <Components.MDXRenderer text={defaultValue || ""} format="mdx" />
         </ThemeProvider>
       </Box>
     </Stack>
@@ -81,17 +83,17 @@ type AdminCMSPageEditorStateType = {
 };
 
 export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
-    const { frontendDomain } = Common.Hooks.Common.useCommonContext();
-    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data: initialSections } = Common.Hooks.BackendAdminAPI.useListPageSectionsQuery(backendAdminClient, id || "");
+    const { frontendDomain } = useCommonContext();
+    const backendAdminClient = useBackendAdminClient();
+    const { data: initialSections } = useListPageSectionsQuery(backendAdminClient, id || "");
     const [editorState, setEditorState] = React.useState<AdminCMSPageEditorStateType>({
       sections: initialSections,
       tab: 0,
     });
-    const bulkUpdateSectionsMutation = Common.Hooks.BackendAdminAPI.useBulkUpdatePageSectionsMutation(backendAdminClient, id || "");
+    const bulkUpdateSectionsMutation = useBulkUpdatePageSectionsMutation(backendAdminClient, id || "");
 
     const setTab = (_: React.SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
 

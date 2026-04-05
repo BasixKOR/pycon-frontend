@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import * as Common from "@frontend/common";
+import { useEmail } from "@frontend/common/src/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, X, YouTube } from "@mui/icons-material";
 import * as React from "react";
 
@@ -45,7 +45,7 @@ const defaultIcons: IconItem[] = [
 ];
 
 export default function MobileFooter() {
-  const { sendEmail } = Common.Hooks.Common.useEmail();
+  const { sendEmail } = useEmail();
   const { language } = useAppContext();
 
   const title = language === "ko" ? "Weave with Python, 파이콘 한국 2025" : "Weave with Python, Pycon KR 2025";

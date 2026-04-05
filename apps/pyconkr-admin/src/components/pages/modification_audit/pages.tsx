@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useModificationAuditPreviewQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import { Box, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -15,8 +16,8 @@ const InnerAdminModificationAuditEditor: React.FC = () => {
   const [editorState, setEditorState] = React.useState<EditorStateType>({});
   const { id } = useParams<{ id?: string }>();
 
-  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const { data } = Common.Hooks.BackendAdminAPI.useModificationAuditPreviewQuery<Record<string, string>>(backendAdminClient, id || "");
+  const backendAdminClient = useBackendAdminClient();
+  const { data } = useModificationAuditPreviewQuery<Record<string, string>>(backendAdminClient, id || "");
 
   if (!data) return <Navigate to="/admin/modification-audit" replace />;
 
@@ -66,7 +67,7 @@ const InnerAdminModificationAuditEditor: React.FC = () => {
 export const AdminModificationAuditEditor: React.FC = () => {
   return (
     <BackendAdminSignInGuard>
-      <ErrorBoundary fallback={Common.Components.ErrorFallback}>
+      <ErrorBoundary fallback={Components.ErrorFallback}>
         <Suspense fallback={<CircularProgress />}>
           <InnerAdminModificationAuditEditor />
         </Suspense>

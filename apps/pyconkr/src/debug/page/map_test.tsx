@@ -1,13 +1,14 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { getFormValue, isFormValid } from "@frontend/common/src/utils";
 import { Box, Button, FormControlLabel, Stack, Switch, TextField } from "@mui/material";
 import * as React from "react";
 
 type MapTestPageStateType = {
   checked: boolean;
-  mapProps: Common.Components.MDX.MapPropType;
+  mapProps: Components.MDX.MapPropType;
 };
 
-const INITIAL_DATA: Common.Components.MDX.MapPropType = {
+const INITIAL_DATA: Components.MDX.MapPropType = {
   geo: { lat: 37.5580918, lng: 126.9982178 },
   placeName: {
     ko: "동국대학교 신공학관",
@@ -41,21 +42,21 @@ export const MapTestPage: React.FC = () => {
     [geoForm, pNameForm, pCodeForm, gMapIframeUrl].forEach((formOrInput, index) => {
       if (!formOrInput) throw new Error(`${formOrInput}[${index}] is not defined.`);
 
-      if (formOrInput instanceof HTMLFormElement && !Common.Utils.isFormValid(formOrInput)) throw new Error(`${formOrInput}[${index}] is not valid.`);
+      if (formOrInput instanceof HTMLFormElement && !isFormValid(formOrInput)) throw new Error(`${formOrInput}[${index}] is not valid.`);
 
       if (formOrInput instanceof HTMLInputElement && !formOrInput.checkValidity()) throw new Error(`${formOrInput}[${index}] is not valid.`);
     });
     if (!(geoForm && pNameForm && pCodeForm && gMapIframeUrl)) return;
 
-    const strGeo = Common.Utils.getFormValue<{ lat: string; lng: string }>({ form: geoForm });
+    const strGeo = getFormValue<{ lat: string; lng: string }>({ form: geoForm });
     if (!strGeo.lat || !strGeo.lng || isNaN(parseFloat(strGeo.lat)) || isNaN(parseFloat(strGeo.lng))) {
       alert("위도와 경도를 올바르게 입력해주세요.");
       return;
     }
     const geo = { lat: parseFloat(strGeo.lat), lng: parseFloat(strGeo.lng) };
     const googleMapIframeSrc = gMapIframeUrl.value.trim();
-    const placeCode = Common.Utils.getFormValue<{ kakao: string; naver: string; google: string }>({ form: pCodeForm });
-    const placeName = Common.Utils.getFormValue<{ ko: string; en: string }>({ form: pNameForm });
+    const placeCode = getFormValue<{ kakao: string; naver: string; google: string }>({ form: pCodeForm });
+    const placeName = getFormValue<{ ko: string; en: string }>({ form: pNameForm });
     placeName.ko = placeName.ko.trim().replace("\\n", "\n");
     placeName.en = placeName.en.trim().replace("\\n", "\n");
 
@@ -89,7 +90,7 @@ export const MapTestPage: React.FC = () => {
         <Button onClick={onApply}>적용</Button>
       </Stack>
       <Box sx={{ width: "50%", maxWidth: "50%" }}>
-        <Common.Components.MDX.Map {...state.mapProps} />
+        <Components.MDX.Map {...state.mapProps} />
       </Box>
     </Stack>
   );

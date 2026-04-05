@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import { Add } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -23,11 +24,11 @@ type ListRowType = {
 };
 
 const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource, hideCreatedAt, hideUpdatedAt, hideCreateNew }) => {
     const navigate = useNavigate();
-    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(backendAdminClient, app, resource);
+    const backendAdminClient = useBackendAdminClient();
+    const listQuery = useListQuery<ListRowType>(backendAdminClient, app, resource);
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>

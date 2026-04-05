@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { useModificationAuditPreviewQuery, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
 import { Card, CardContent, Palette, PaletteColor, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -100,8 +100,8 @@ const AuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language, audit }
 export const InnerModificationAuditPreview: React.FC = () => {
   const { language } = useAppContext();
   const { auditId } = useParams<{ auditId?: string }>();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const { data: auditData } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditPreviewQuery(participantPortalClient, auditId ?? "");
+  const participantPortalClient = useParticipantPortalClient();
+  const { data: auditData } = useModificationAuditPreviewQuery(participantPortalClient, auditId ?? "");
 
   if (!auditData) return <Navigate to="/" replace />;
 

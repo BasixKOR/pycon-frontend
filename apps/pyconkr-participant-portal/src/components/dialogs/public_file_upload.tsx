@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useParticipantPortalClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -51,8 +53,8 @@ type PublicFileUploadDialogState = {
 export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ open, onClose, setFileIdAsValue }) => {
   const { language } = useAppContext();
   const [dialogState, setDialogState] = React.useState<PublicFileUploadDialogState>({ selectedFile: null, uploadedFileId: null });
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const uploadPublicFileMutation = Common.Hooks.BackendParticipantPortalAPI.useUploadPublicFileMutation(participantPortalClient);
+  const participantPortalClient = useParticipantPortalClient();
+  const uploadPublicFileMutation = useUploadPublicFileMutation(participantPortalClient);
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
@@ -80,7 +82,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
         console.error("Uploading file failed:", error);
 
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
         addSnackbar(`${failedToUploadStr}\n${errorMessage}`, "error");
       },
@@ -106,7 +108,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle children={titleStr} />
         <DialogContent>
-          <Common.Components.DndFileInput onFileChange={setFile} />
+          <Components.DndFileInput onFileChange={setFile} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" loading={loading} children={cancelStr} color="error" onClick={onClose} />

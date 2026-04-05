@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { useCancelModificationAuditMutation, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -14,8 +15,8 @@ type ModificationAuditCancelConfirmDialogProps = {
 export const ModificationAuditCancelConfirmDialog: React.FC<ModificationAuditCancelConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
   const reasonInputRef = React.useRef<HTMLInputElement>(null);
   const { language } = useAppContext();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const cancelModificationAuditMutation = Common.Hooks.BackendParticipantPortalAPI.useCancelModificationAuditMutation(participantPortalClient);
+  const participantPortalClient = useParticipantPortalClient();
+  const cancelModificationAuditMutation = useCancelModificationAuditMutation(participantPortalClient);
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
@@ -62,7 +63,7 @@ export const ModificationAuditCancelConfirmDialog: React.FC<ModificationAuditCan
           console.error("Canceling ModAudit failed:", error);
 
           let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-          if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+          if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
           addSnackbar(errorMessage, "error");
         },

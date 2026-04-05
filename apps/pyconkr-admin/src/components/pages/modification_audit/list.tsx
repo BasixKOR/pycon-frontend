@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import { CircularProgress, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -15,10 +16,10 @@ type ListRowType = {
 };
 
 const InnerAdminModificationAuditList: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
-    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const listQuery = Common.Hooks.BackendAdminAPI.useListQuery<ListRowType>(backendAdminClient, "modification-audit", "modification-audit");
+    const backendAdminClient = useBackendAdminClient();
+    const listQuery = useListQuery<ListRowType>(backendAdminClient, "modification-audit", "modification-audit");
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>

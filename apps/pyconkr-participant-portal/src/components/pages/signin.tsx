@@ -1,4 +1,7 @@
-import * as Common from "@frontend/common";
+import { useParticipantPortalClient, useSignInMutation, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useEmail } from "@frontend/common/src/hooks/useEmail";
+import { getFormValue, isFormValid } from "@frontend/common/src/utils";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -10,10 +13,10 @@ import { Page } from "../page";
 export const SignInPage: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
-  const { sendEmail } = Common.Hooks.Common.useEmail();
+  const { sendEmail } = useEmail();
   const { language } = useAppContext();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const { data } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalClient);
+  const participantPortalClient = useParticipantPortalClient();
+  const { data } = useSignedInUserQuery(participantPortalClient);
   if (data) return <Navigate to="/" replace />;
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
@@ -44,11 +47,11 @@ export const SignInPage: React.FC = () => {
       </>
     );
 
-  const signInMutation = Common.Hooks.BackendParticipantPortalAPI.useSignInMutation(participantPortalClient);
+  const signInMutation = useSignInMutation(participantPortalClient);
   const signIn = () => {
-    if (!Common.Utils.isFormValid(formRef.current)) return;
+    if (!isFormValid(formRef.current)) return;
 
-    const formData = Common.Utils.getFormValue<{ identity: string; password: string }>({ form: formRef.current });
+    const formData = getFormValue<{ identity: string; password: string }>({ form: formRef.current });
     signInMutation.mutate(formData, {
       onSuccess: () => {
         addSnackbar(signInSucceedStr, "success");
@@ -58,7 +61,7 @@ export const SignInPage: React.FC = () => {
         console.error("Sign in failed:", error);
 
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
         addSnackbar(
           <>

@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
 import { AccountCircle } from "@mui/icons-material";
 import { AppBar, ButtonBase, CircularProgress, IconButton, Menu, MenuItem, Stack, styled, Toolbar, Tooltip, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -60,7 +60,7 @@ type ProfileMenuButtonState = {
 
 const InnerProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ loading, signedIn }) => {
   const navigate = useNavigate();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
+  const participantPortalClient = useParticipantPortalClient();
   const [btnState, setBtnState] = React.useState<ProfileMenuButtonState>({});
   const openMenu: React.MouseEventHandler<HTMLButtonElement> = (evt) => setBtnState((ps) => ({ ...ps, anchorEl: evt.currentTarget }));
   const closeMenu = () => setBtnState((ps) => ({ ...ps, anchorEl: undefined }));
@@ -75,7 +75,7 @@ const InnerProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ loading, sig
     closeMenu();
   };
   const goToSignIn = () => navigate("/signin");
-  const signOutMutation = Common.Hooks.BackendParticipantPortalAPI.useSignOutMutation(participantPortalClient);
+  const signOutMutation = useSignOutMutation(participantPortalClient);
   const onSignInOutClick = () => {
     if (signedIn) signOutMutation.mutate();
     else goToSignIn();
@@ -99,8 +99,8 @@ const InnerProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ loading, sig
 const ProfileMenuButton: React.FC = ErrorBoundary.with(
   { fallback: <InnerProfileMenuButton /> },
   Suspense.with({ fallback: <InnerProfileMenuButton loading /> }, () => {
-    const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-    const { data } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalClient);
+    const participantPortalClient = useParticipantPortalClient();
+    const { data } = useSignedInUserQuery(participantPortalClient);
 
     return <InnerProfileMenuButton signedIn={!!data} />;
   })

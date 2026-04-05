@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, usePublicFileQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import {
   Accordion,
   AccordionDetails,
@@ -78,30 +79,30 @@ export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset,
 
 export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   return originalDataset[name] === previewDataset[name] ? (
-    <Common.Components.Fieldset legend={label} style={{ width: "100%" }}>
+    <Components.Fieldset legend={label} style={{ width: "100%" }}>
       <MarkdownContainerBox>
-        <Common.Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
+        <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
       </MarkdownContainerBox>
-    </Common.Components.Fieldset>
+    </Components.Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
       <Accordion>
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
-            <Common.Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
+            <Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
               <MarkdownContainerBox>
-                <Common.Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
+                <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
               </MarkdownContainerBox>
-            </Common.Components.Fieldset>
+            </Components.Fieldset>
             <Typography variant="caption">기존 값을 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Common.Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
+          <Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
             <MarkdownContainerBox>
-              <Common.Components.MDXRenderer format="md" text={(originalDataset[name] as string) || "(값 없음)"} />
+              <Components.MDXRenderer format="md" text={(originalDataset[name] as string) || "(값 없음)"} />
             </MarkdownContainerBox>
-          </Common.Components.Fieldset>
+          </Components.Fieldset>
         </AccordionDetails>
       </Accordion>
     </Box>
@@ -114,21 +115,21 @@ const ImageFallback: React.FC = () => (
   </Stack>
 );
 
-const WidthSpecifiedFallbackImage = styled(Common.Components.FallbackImage)({
+const WidthSpecifiedFallbackImage = styled(Components.FallbackImage)({
   maxWidth: "20rem",
   objectFit: "cover",
 });
 
 export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
-  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+  const backendAdminClient = useBackendAdminClient();
   const oldImgId = (originalDataset[name] as string) || "";
   const newImgId = (previewDataset[name] as string) || "";
 
-  const { data: originalImage } = Common.Hooks.BackendAdminAPI.usePublicFileQuery(backendAdminClient, oldImgId);
-  const { data: previewImage } = Common.Hooks.BackendAdminAPI.usePublicFileQuery(backendAdminClient, newImgId);
+  const { data: originalImage } = usePublicFileQuery(backendAdminClient, oldImgId);
+  const { data: previewImage } = usePublicFileQuery(backendAdminClient, newImgId);
 
   return originalImage?.id === previewImage?.id ? (
-    <Common.Components.Fieldset legend={label} style={{ width: "100%" }}>
+    <Components.Fieldset legend={label} style={{ width: "100%" }}>
       <Stack alignItems="center" justifyContent="center">
         {previewImage?.file ? (
           <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -136,13 +137,13 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
           <Typography variant="caption" children="이미지를 지정하지 않았습니다." />
         )}
       </Stack>
-    </Common.Components.Fieldset>
+    </Components.Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
       <Accordion>
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
-            <Common.Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
+            <Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
               <Stack alignItems="center" justifyContent="center">
                 {previewImage?.file ? (
                   <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -150,12 +151,12 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
                   <Typography variant="caption" children="새 이미지를 지정하지 않았습니다." />
                 )}
               </Stack>
-            </Common.Components.Fieldset>
+            </Components.Fieldset>
             <Typography variant="caption">기존 이미지를 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Common.Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
+          <Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
             <Stack alignItems="center" justifyContent="center">
               {originalImage?.file ? (
                 <WidthSpecifiedFallbackImage src={originalImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -163,7 +164,7 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
                 <Typography variant="caption" children="기존 이미지를 지정하지 않았습니다." />
               )}
             </Stack>
-          </Common.Components.Fieldset>
+          </Components.Fieldset>
         </AccordionDetails>
       </Accordion>
     </Box>

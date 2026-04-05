@@ -9,7 +9,7 @@ import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import * as R from "remeda";
 
-import Hooks from "../hooks";
+import * as Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
 import { LinkHandler } from "./link_handler";
 import { rtrim } from "../utils/string";

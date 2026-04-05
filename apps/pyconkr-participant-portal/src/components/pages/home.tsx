@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useListPresentationsQuery, useModificationAuditsQuery, useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
 import {
   Button,
   FormControlLabel,
@@ -69,7 +70,7 @@ const ProfileImageStyle: React.CSSProperties = {
   textAlign: "center",
 };
 
-const ProfileImage = styled(Common.Components.FallbackImage)(ProfileImageStyle);
+const ProfileImage = styled(Components.FallbackImage)(ProfileImageStyle);
 
 const ProfileImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
   const noProfileImageText = language === "ko" ? "프로필 이미지가 없어요." : "No profile image.";
@@ -94,10 +95,10 @@ const InnerLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useAppContext();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const participantPortalAPIClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalAPIClient);
-  const { data: audits } = Common.Hooks.BackendParticipantPortalAPI.useModificationAuditsQuery(participantPortalAPIClient);
-  const { data: sessions } = Common.Hooks.BackendParticipantPortalAPI.useListPresentationsQuery(participantPortalAPIClient);
+  const participantPortalAPIClient = useParticipantPortalClient();
+  const { data: profile } = useSignedInUserQuery(participantPortalAPIClient);
+  const { data: audits } = useModificationAuditsQuery(participantPortalAPIClient);
+  const { data: sessions } = useListPresentationsQuery(participantPortalAPIClient);
 
   const ongoingAudits = audits.filter((audit) => audit.status === "requested");
   const [state, setState] = React.useState<InnerLandingPageState>({ showAllAudits: R.isEmpty(ongoingAudits) });

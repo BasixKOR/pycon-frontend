@@ -1,11 +1,11 @@
 import * as React from "react";
 
-import GlobalContext from "../contexts";
+import { context } from "../contexts";
 
 export const useCommonContext = () => {
-  const context = React.useContext(GlobalContext.context);
-  if (!context) {
+  const ctx = React.useContext(context);
+  if (!ctx) {
     throw new Error("useCommonContext must be used within a CommonProvider");
   }
-  return context;
+  return ctx;
 };

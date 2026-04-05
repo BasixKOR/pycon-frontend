@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { useBackendAdminClient, useSignInMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { getFormValue } from "@frontend/common/src/utils";
+import { me } from "@frontend/common/src/apis/admin_api";
 import { Login } from "@mui/icons-material";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import * as React from "react";
@@ -16,14 +18,14 @@ export const SignInPage: React.FC = () => {
   const [pageState, setPageState] = React.useState<PageStateType>({ userJustSignedIn: false });
   const setUserJustSignedIn = () => setPageState((ps) => ({ ...ps, userJustSignedIn: true }));
 
-  const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const signInMutation = Common.Hooks.BackendAdminAPI.useSignInMutation(backendAdminAPIClient);
+  const backendAdminAPIClient = useBackendAdminClient();
+  const signInMutation = useSignInMutation(backendAdminAPIClient);
 
   const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formRef.current) return;
 
-    const formData = Common.Utils.getFormValue<{
+    const formData = getFormValue<{
       identity: string;
       password: string;
     }>({ form: formRef.current });
@@ -41,7 +43,7 @@ export const SignInPage: React.FC = () => {
     (async () => {
       if (pageState.userJustSignedIn) return;
 
-      const userInfo = await Common.BackendAdminAPIs.me(backendAdminAPIClient)();
+      const userInfo = await me(backendAdminAPIClient)();
       if (userInfo) {
         addSnackbar(`이미 ${userInfo.username}님으로 로그인되어 있습니다!`, "success");
         navigate("/");

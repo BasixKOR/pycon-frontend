@@ -1,5 +1,5 @@
-import * as Common from "@frontend/common";
-import BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
+import { Components } from "@frontend/common";
+import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Box, Button, Chip, Drawer, IconButton, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
@@ -183,7 +183,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <LogoAndTextContainer>
             <Link to="/" onClick={handleClose} style={{ textDecoration: "none" }}>
               <Stack direction="row" alignItems="center" spacing={0.375}>
-                <Common.Components.PythonKorea style={{ width: 29, height: 29 }} />
+                <Components.PythonKorea style={{ width: 29, height: 29 }} />
                 <HeaderTitle isMainPath={isMainPath}>파이콘 한국 2025</HeaderTitle>
               </Stack>
             </Link>

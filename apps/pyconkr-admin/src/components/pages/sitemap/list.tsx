@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useListQuery, useRemovePreparedMutation, useUpdatePreparedMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/src/utils";
 import { Add, Delete, Edit, Save } from "@mui/icons-material";
 import {
   Box,
@@ -93,20 +95,20 @@ type InnerSiteMapStateType = {
 const ModifyDetectionFields: (keyof FlatSiteMap)[] = ["order", "parent_sitemap"];
 
 const InnerSiteMapList: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
-    const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const { data } = Common.Hooks.BackendAdminAPI.useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap");
+    const backendAdminAPIClient = useBackendAdminClient();
+    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap");
     const originalFlatSiteMapObj = Object.values(data).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatSiteMapObj);
-    const deleteMutation = Common.Hooks.BackendAdminAPI.useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
-    const { mutateAsync: updateMutationAsync } = Common.Hooks.BackendAdminAPI.useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
+    const deleteMutation = useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
+    const { mutateAsync: updateMutationAsync } = useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
 
     const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
       enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
     const [state, setState] = React.useState<InnerSiteMapStateType>({ flatSiteMap: data });
-    const nestedSiteMap = Common.Utils.buildNestedSiteMap<FlatSiteMap>(state.flatSiteMap)[""];
-    const childrenFlatSiteMap = Common.Utils.buildFlatSiteMap<NestedSiteMap>(nestedSiteMap);
+    const nestedSiteMap = buildNestedSiteMap<FlatSiteMap>(state.flatSiteMap)[""];
+    const childrenFlatSiteMap = buildFlatSiteMap<NestedSiteMap>(nestedSiteMap);
     const childrenFlatSiteMapObj = Object.values(childrenFlatSiteMap).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatNestedSiteMap);
 
     React.useEffect(() => setState((ps) => ({ ...ps, flatSiteMap: data })), [data]);

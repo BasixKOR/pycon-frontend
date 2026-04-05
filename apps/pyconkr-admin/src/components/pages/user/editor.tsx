@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useResetUserPasswordMutation } from "@frontend/common/src/hooks/useAdminAPI";
 import { KeyOff } from "@mui/icons-material";
 import { Button, ButtonProps, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -17,7 +18,7 @@ type PageStateType = {
 };
 
 export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
@@ -35,8 +36,8 @@ export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
       if (userId) navigate(`/user/userext/${userId}`);
     };
 
-    const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-    const useResetPasswordMutation = Common.Hooks.BackendAdminAPI.useResetUserPasswordMutation(backendAdminClient, id || "");
+    const backendAdminClient = useBackendAdminClient();
+    const useResetPasswordMutation = useResetUserPasswordMutation(backendAdminClient, id || "");
 
     const resetUserPassword = () => {
       closeConfirmDialog();

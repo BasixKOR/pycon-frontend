@@ -1,9 +1,10 @@
-import * as Common from "@frontend/common";
+import { useBackendClient, useFlattenSiteMapQuery, useSponsorQuery } from "@frontend/common/src/hooks/useAPI";
+import { buildNestedSiteMap } from "@frontend/common/src/utils";
 import * as React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
-import BackendAPISchemas from "../../../packages/common/src/schemas/backendAPI";
+import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
 import { PresentationDetailPage } from "./components/pages/presentation_detail.tsx";
@@ -14,10 +15,10 @@ import { IS_DEBUG_ENV } from "./consts";
 import { useAppContext } from "./contexts/app_context";
 
 export const App: React.FC = () => {
-  const backendAPIClient = Common.Hooks.BackendAPI.useBackendClient();
-  const { data: sponsorTiers } = Common.Hooks.BackendAPI.useSponsorQuery(backendAPIClient);
-  const { data: flatSiteMap } = Common.Hooks.BackendAPI.useFlattenSiteMapQuery(backendAPIClient);
-  const siteMapNode = Common.Utils.buildNestedSiteMap(flatSiteMap)?.[""];
+  const backendAPIClient = useBackendClient();
+  const { data: sponsorTiers } = useSponsorQuery(backendAPIClient);
+  const { data: flatSiteMap } = useFlattenSiteMapQuery(backendAPIClient);
+  const siteMapNode = buildNestedSiteMap(flatSiteMap)?.[""];
 
   const location = useLocation();
   const { setAppContext, language } = useAppContext();

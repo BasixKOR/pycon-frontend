@@ -1,5 +1,6 @@
 import { Global } from "@emotion/react";
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import type { ContextOptions } from "@frontend/common/src/contexts";
 import * as Shop from "@frontend/shop";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -42,7 +43,7 @@ const queryClient = new QueryClient({
   }),
 });
 
-const CommonOptions: Common.Contexts.ContextOptions = {
+const CommonOptions: ContextOptions = {
   language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
@@ -60,9 +61,9 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
 };
 
 const SuspenseFallback = (
-  <Common.Components.CenteredPage>
+  <Components.CenteredPage>
     <CircularProgress />
-  </Common.Components.CenteredPage>
+  </Components.CenteredPage>
 );
 
 const MainApp: React.FC = () => {
@@ -83,9 +84,9 @@ const MainApp: React.FC = () => {
         <SnackbarProvider>
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <Common.Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
                 <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
-                  <ErrorBoundary fallback={Common.Components.ErrorFallback}>
+                  <ErrorBoundary fallback={Components.ErrorFallback}>
                     <Suspense fallback={SuspenseFallback}>
                       <ThemeProvider theme={muiTheme}>
                         <CssBaseline />
@@ -95,7 +96,7 @@ const MainApp: React.FC = () => {
                     </Suspense>
                   </ErrorBoundary>
                 </Shop.Components.Common.ShopContextProvider>
-              </Common.Components.CommonContextProvider>
+              </Components.CommonContextProvider>
             </AppContext.Provider>
           </BrowserRouter>
         </SnackbarProvider>

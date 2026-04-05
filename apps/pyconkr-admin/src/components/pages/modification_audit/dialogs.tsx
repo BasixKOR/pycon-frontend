@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useApproveModificationAuditMutation, useBackendAdminClient, useRejectModificationAuditMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -10,8 +12,8 @@ type SubmitConfirmDialogProps = {
 };
 
 export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
-  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const approveModificationAuditMutation = Common.Hooks.BackendAdminAPI.useApproveModificationAuditMutation(backendAdminClient, modificationAuditId);
+  const backendAdminClient = useBackendAdminClient();
+  const approveModificationAuditMutation = useApproveModificationAuditMutation(backendAdminClient, modificationAuditId);
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
@@ -25,7 +27,7 @@ export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({
       onError: (error) => {
         console.error("Approve modification audit failed:", error);
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
         addSnackbar(errorMessage, "error");
       },
     });
@@ -51,8 +53,8 @@ export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({
 
 export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const rejectModificationAuditMutation = Common.Hooks.BackendAdminAPI.useRejectModificationAuditMutation(backendAdminClient, modificationAuditId);
+  const backendAdminClient = useBackendAdminClient();
+  const rejectModificationAuditMutation = useRejectModificationAuditMutation(backendAdminClient, modificationAuditId);
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
@@ -68,7 +70,7 @@ export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ 
       onError: (error) => {
         console.error("Reject modification audit failed:", error);
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
         addSnackbar(errorMessage, "error");
       },
     });
@@ -83,9 +85,9 @@ export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ 
           <br />
           반려 후에는 다시 승인할 수 없습니다!
         </Typography>
-        <Common.Components.Fieldset legend="반려 사유 (선택)">
+        <Components.Fieldset legend="반려 사유 (선택)">
           <TextField fullWidth multiline minRows={4} inputRef={inputRef} label="반려 사유" />
-        </Common.Components.Fieldset>
+        </Components.Fieldset>
       </DialogContent>
       <DialogActions>
         <Button loading={rejectModificationAuditMutation.isPending} onClick={onClose} color="error" children="취소" />

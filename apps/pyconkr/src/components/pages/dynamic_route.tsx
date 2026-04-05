@@ -1,4 +1,7 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendClient, usePageQuery } from "@frontend/common/src/hooks/useAPI";
+import { parseCss } from "@frontend/common/src/utils";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,9 +61,9 @@ const LoginRequired: React.FC = () => <>401 Login Required</>;
 const PermissionDenied: React.FC = () => <>403 Permission Denied</>;
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 const CenteredLoadingPage: React.FC = () => (
-  <Common.Components.CenteredPage>
+  <Components.CenteredPage>
     <CircularProgress />
-  </Common.Components.CenteredPage>
+  </Components.CenteredPage>
 );
 
 const throwPageNotFound: (message: string) => never = (message) => {
@@ -68,11 +71,11 @@ const throwPageNotFound: (message: string) => never = (message) => {
   const axiosError = new AxiosError(errorStr, errorStr, undefined, undefined, {
     status: 404,
   } as AxiosResponse);
-  throw new Common.BackendAPIs.BackendAPIClientError(axiosError);
+  throw new BackendAPIClientError(axiosError);
 };
 
 const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
-  if (error instanceof Common.BackendAPIs.BackendAPIClientError) {
+  if (error instanceof BackendAPIClientError) {
     switch (error.status) {
       case 401:
         return <LoginRequired />;
@@ -81,10 +84,10 @@ const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ err
       case 404:
         return <PageNotFound />;
       default:
-        return <Common.Components.ErrorFallback error={error} reset={reset} />;
+        return <Components.ErrorFallback error={error} reset={reset} />;
     }
   }
-  return <Common.Components.ErrorFallback error={error} reset={reset} />;
+  return <Components.ErrorFallback error={error} reset={reset} />;
 };
 
 const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
@@ -101,8 +104,8 @@ const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredL
 
 const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
   const { setAppContext } = useAppContext();
-  const backendClient = Common.Hooks.BackendAPI.useBackendClient();
-  const { data } = Common.Hooks.BackendAPI.usePageQuery(backendClient, id);
+  const backendClient = useBackendClient();
+  const { data } = usePageQuery(backendClient, id);
 
   React.useEffect(() => {
     setAppContext((prev) => ({
@@ -114,10 +117,10 @@ const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <C
   }, [data, setAppContext]);
 
   return (
-    <Stack sx={initialPageStyle(Common.Utils.parseCss(data.css))}>
+    <Stack sx={initialPageStyle(parseCss(data.css))}>
       {data.sections.map((s) => (
-        <Stack sx={initialSectionStyle(Common.Utils.parseCss(s.css))} key={s.id}>
-          <Common.Components.MDXRenderer text={s.body} format="mdx" />
+        <Stack sx={initialSectionStyle(parseCss(s.css))} key={s.id}>
+          <Components.MDXRenderer text={s.body} format="mdx" />
         </Stack>
       ))}
     </Stack>
