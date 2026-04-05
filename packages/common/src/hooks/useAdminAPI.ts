@@ -10,6 +10,8 @@ const QUERY_KEYS = {
   ADMIN_LIST: ["query", "admin", "list"],
   ADMIN_RETRIEVE: ["query", "admin", "retrieve"],
   ADMIN_SCHEMA: ["query", "admin", "schema"],
+  ADMIN_CHOICES: ["query", "admin", "choices"],
+  ADMIN_OPENAPI_SCHEMA: ["query", "admin", "openapi-schema"],
   ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
 };
 
@@ -64,6 +66,19 @@ export const useSchemaQuery = (client: BackendAPIClient, app: string, resource: 
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_SCHEMA, app, resource],
     queryFn: BackendAdminAPIs.schema(client, app, resource),
+  });
+
+export const useChoicesQuery = (client: BackendAPIClient, app: string, resource: string) =>
+  useSuspenseQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
+    queryFn: BackendAdminAPIs.choices(client, app, resource),
+  });
+
+export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
+  useSuspenseQuery({
+    queryKey: QUERY_KEYS.ADMIN_OPENAPI_SCHEMA,
+    queryFn: BackendAdminAPIs.openApiSchema(client),
+    staleTime: Infinity,
   });
 
 export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>

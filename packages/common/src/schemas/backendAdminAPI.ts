@@ -17,6 +17,8 @@ export type AdminSchemaDefinition = {
   translation_fields: string[];
 };
 
+export type ChoicesResponse = Record<string, { const: string | null; title: string }[]>;
+
 export type UserSchema = {
   id: number;
   username: string;
@@ -132,3 +134,18 @@ export type ModificationAuditPreviewSchema<T> = {
   original: T;
   modified: T;
 };
+
+export type OpenAPIParameterSchema = {
+  name: string;
+  in: "query" | "path" | "header" | "cookie";
+  required?: boolean;
+  description?: string;
+  schema?: {
+    type?: string;
+    format?: string;
+    items?: { type?: string; enum?: string[] };
+    enum?: string[];
+  };
+};
+
+export type OpenAPISchema = { paths: Record<string, { get?: { parameters?: OpenAPIParameterSchema[] } }> };

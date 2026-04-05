@@ -1,7 +1,18 @@
 import { Components } from "@frontend/common";
-import { useBackendAdminClient, useCreateMutation, useRemoveMutation, useSchemaQuery, useUpdateMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { filterPropertiesByLanguageInJsonSchema, filterReadOnlyPropertiesInJsonSchema, filterWritablePropertiesInJsonSchema } from "@frontend/common/src/utils";
 import { retrieve } from "@frontend/common/src/apis/admin_api";
+import {
+  useBackendAdminClient,
+  useChoicesQuery,
+  useCreateMutation,
+  useRemoveMutation,
+  useSchemaQuery,
+  useUpdateMutation,
+} from "@frontend/common/src/hooks/useAdminAPI";
+import {
+  filterPropertiesByLanguageInJsonSchema,
+  filterReadOnlyPropertiesInJsonSchema,
+  filterWritablePropertiesInJsonSchema,
+} from "@frontend/common/src/utils";
 import { Add, Close, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
@@ -170,29 +181,26 @@ const MDRendererContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const MDEditorField: Field = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
-  ({ disabled, formData, name, onChange: rawOnChange }) => {
-    const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
-    const onChange = (value?: string) => {
-      setValueState(value);
-      rawOnChange(value, undefined, name);
-    };
-    return (
-      <MUIStyledFieldset>
-        <Typography variant="subtitle2" component="legend" children={name} />
-        <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
-          <Box sx={{ width: "50%", maxWidth: "50%" }}>
-            <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
-          </Box>
-          <MDRendererContainer>
-            <Components.MDXRenderer text={valueState || ""} format="md" />
-          </MDRendererContainer>
-        </Stack>
-      </MUIStyledFieldset>
-    );
-  }
-);
+const MDEditorField: Field = ErrorBoundary.with({ fallback: Components.ErrorFallback }, ({ disabled, formData, name, onChange: rawOnChange }) => {
+  const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
+  const onChange = (value?: string) => {
+    setValueState(value);
+    rawOnChange(value, undefined, name);
+  };
+  return (
+    <MUIStyledFieldset>
+      <Typography variant="subtitle2" component="legend" children={name} />
+      <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
+        <Box sx={{ width: "50%", maxWidth: "50%" }}>
+          <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
+        </Box>
+        <MDRendererContainer>
+          <Components.MDXRenderer text={valueState || ""} format="md" />
+        </MDRendererContainer>
+      </Stack>
+    </MUIStyledFieldset>
+  );
+});
 
 type ReadOnlyValueFieldStateType = {
   loading: boolean;
@@ -278,8 +286,24 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         tab: 0,
         formData: undefined,
       });
+
       const backendAdminClient = useBackendAdminClient();
       const { data: schemaInfo } = useSchemaQuery(backendAdminClient, app, resource);
+      const { data: choicesData } = useChoicesQuery(backendAdminClient, app, resource);
+
+      // Merge choices into schema for FK/M2M fields
+      React.useMemo(() => {
+        if (!choicesData || !schemaInfo.schema.properties) return;
+        for (const [fieldName, items] of Object.entries(choicesData)) {
+          const prop = (schemaInfo.schema.properties as Record<string, RJSFSchema>)[fieldName];
+          if (!prop) continue;
+          if (prop.type === "array" && prop.items) {
+            (prop.items as RJSFSchema).oneOf = items;
+          } else {
+            prop.oneOf = items;
+          }
+        }
+      }, [choicesData, schemaInfo.schema]);
 
       const setTab = (_: React.SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
       const setFormData = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));
