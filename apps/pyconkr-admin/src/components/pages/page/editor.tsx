@@ -8,15 +8,12 @@ import { commands } from "@uiw/react-md-editor";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 
-// I don't know why, I don't want to know why, I shouldn't have to wonder why,
-// but for whatever reason this stupid namespace won't import on Common.Schemas.BackendAdminAPI.PageSectionSchema.
-// TODO: FIXME: Remove this hack when the issue is resolved. This is dumb.
-import BackendAdminAPISchemas from "../../../../../../packages/common/src/schemas/backendAdminAPI";
+import { PageSectionSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
 import { muiTheme } from "../../../styles/globalStyles";
 import { addErrorSnackbar } from "../../../utils/snackbar";
 import { AdminEditor } from "../../layouts/admin_editor";
 
-type SectionType = BackendAdminAPISchemas.PageSectionSchema;
+type SectionType = PageSectionSchema;
 
 type CommonSectionEditorPropType = {
   disabled?: boolean;

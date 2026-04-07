@@ -21,13 +21,13 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { GroupOptions, ReactSortable, SortableEvent, SortableOptions } from "react-sortablejs";
 
-import BackendAdminAPISchemas from "../../../../../../packages/common/src/schemas/backendAdminAPI";
+import { FlattenedSiteMapSchema, NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
 import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
 import { AdminEditor } from "../../layouts/admin_editor";
 
-type FlatSiteMap = BackendAdminAPISchemas.FlattenedSiteMapSchema;
+type FlatSiteMap = FlattenedSiteMapSchema;
 type FlatSiteMapObj = Record<string, FlatSiteMap>;
-type NestedSiteMap = BackendAdminAPISchemas.NestedSiteMapSchema;
+type NestedSiteMap = NestedSiteMapSchema;
 type FlatNestedSiteMap = Record<string, NestedSiteMap>;
 
 const DepthColorMap: React.CSSProperties["backgroundColor"][] = [

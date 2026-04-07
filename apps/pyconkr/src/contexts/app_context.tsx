@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import BackendAPISchemas from "../../../../packages/common/src/schemas/backendAPI";
+import { NestedSiteMapSchema, SponsorTierSchema } from "../../../../packages/common/src/schemas/backendAPI";
 
 type LanguageType = "ko" | "en";
 
@@ -9,10 +9,10 @@ export type AppContextType = {
   shouldShowTitleBanner: boolean;
   shouldShowSponsorBanner: boolean;
 
-  siteMapNode?: BackendAPISchemas.NestedSiteMapSchema;
-  sponsorTiers?: BackendAPISchemas.SponsorTierSchema[];
+  siteMapNode?: NestedSiteMapSchema;
+  sponsorTiers?: SponsorTierSchema[];
   title: string;
-  currentSiteMapDepth: (BackendAPISchemas.NestedSiteMapSchema | undefined)[];
+  currentSiteMapDepth: (NestedSiteMapSchema | undefined)[];
 
   setAppContext: React.Dispatch<React.SetStateAction<Omit<AppContextType, "setAppContext">>>;
 };

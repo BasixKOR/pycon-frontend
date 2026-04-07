@@ -3,11 +3,11 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import BackendAPISchemas from "../../../../../../packages/common/src/schemas/backendAPI";
+import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
 
 type BreadCrumbPropType = {
   title: string;
-  parentSiteMaps: (BackendAPISchemas.NestedSiteMapSchema | undefined)[];
+  parentSiteMaps: (NestedSiteMapSchema | undefined)[];
 };
 
 export const BreadCrumb: React.FC<BreadCrumbPropType> = ({ title, parentSiteMaps }) => {
