@@ -5,7 +5,7 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import * as R from "remeda";
 
-import BackendAPISchemas from "../../../../../packages/common/src/schemas/backendAPI";
+import { SponsorTierSchema } from "../../../../../packages/common/src/schemas/backendAPI";
 import { useAppContext } from "../../contexts/app_context";
 import { PageLayout } from "../layout/PageLayout";
 
@@ -54,7 +54,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, sponsorTiers, setAppContext } = useAppContext();
-    const sponsors = sponsorTiers?.reduce((acc, tier) => [...acc, ...tier.sponsors], [] as BackendAPISchemas.SponsorTierSchema["sponsors"]);
+    const sponsors = sponsorTiers?.reduce((acc, tier) => [...acc, ...tier.sponsors], [] as SponsorTierSchema["sponsors"]);
     const sponsor = sponsors?.find((s) => s.id === id);
 
     const title = language === "ko" ? "후원사" : "Sponsor";

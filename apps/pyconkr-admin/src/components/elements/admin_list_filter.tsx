@@ -2,10 +2,7 @@ import { Add, Clear, FilterList, RestartAlt } from "@mui/icons-material";
 import { Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import * as React from "react";
 
-import BackendAdminAPISchemas from "../../../../../packages/common/src/schemas/backendAdminAPI";
-
-type OpenAPIParameterSchema = BackendAdminAPISchemas.OpenAPIParameterSchema;
-type ChoicesResponse = BackendAdminAPISchemas.ChoicesResponse;
+import { ChoicesResponse, OpenAPIParameterSchema } from "../../../../../packages/common/src/schemas/backendAdminAPI";
 
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];

@@ -6,7 +6,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import BackendAPISchemas from "../../../../../../packages/common/src/schemas/backendAPI";
+import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
 import { useAppContext } from "../../../contexts/app_context";
 import { CartBadgeButton } from "../CartBadgeButton";
 import LanguageSelector from "../LanguageSelector";
@@ -14,7 +14,7 @@ import { SignInButton } from "../SignInButton";
 // import { ScanCodeIconButton } from "../UserScanCodeButton";
 import { MobileHeader } from "./Mobile/MobileHeader";
 
-type MenuType = BackendAPISchemas.NestedSiteMapSchema;
+type MenuType = NestedSiteMapSchema;
 type MenuOrUndefinedType = MenuType | undefined;
 
 type NavigationStateType = {
