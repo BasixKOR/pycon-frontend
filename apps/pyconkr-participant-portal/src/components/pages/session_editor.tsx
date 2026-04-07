@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useParticipantPortalClient, useRetrievePresentationQuery, useUpdatePresentationMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { SendAndArchive } from "@mui/icons-material";
 import { Box, Button, Divider, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -138,7 +140,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
           disabled={disabled}
           fullWidth
         />
-        <Common.Components.Fieldset legend={slideShowStr}>
+        <Components.Fieldset legend={slideShowStr}>
           <BlockQuote children={slideShowDescription} />
           <TextField
             label={slideShowStr}
@@ -148,7 +150,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
             sx={{ mt: 2 }}
             fullWidth
           />
-        </Common.Components.Fieldset>
+        </Components.Fieldset>
         <MultiLanguageField
           label={{ ko: "발표 요약", en: "Session Summary" }}
           description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
@@ -222,9 +224,9 @@ const InnerSessionEditor: React.FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const { language } = useAppContext();
   const [editorState, setEditorState] = React.useState<SessionEditorState>({ openSubmitConfirmDialog: false });
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const updateSessionMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdatePresentationMutation(participantPortalClient);
-  const { data: session } = Common.Hooks.BackendParticipantPortalAPI.useRetrievePresentationQuery(participantPortalClient, sessionId || "");
+  const participantPortalClient = useParticipantPortalClient();
+  const updateSessionMutation = useUpdatePresentationMutation(participantPortalClient);
+  const { data: session } = useRetrievePresentationQuery(participantPortalClient, sessionId || "");
 
   if (!sessionId || !session) return <Navigate to="/" replace />;
 
@@ -251,7 +253,7 @@ const InnerSessionEditor: React.FC = () => {
         console.error("Updating session failed:", error);
 
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
         addSnackbar(errorMessage, "error");
       },

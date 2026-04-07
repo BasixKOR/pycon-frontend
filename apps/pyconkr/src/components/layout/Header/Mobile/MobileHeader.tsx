@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
 import { Box, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -31,7 +31,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = f
           <LogoAndTextContainer>
             <Link to="/" style={{ textDecoration: "none" }}>
               <Stack direction="row" alignItems="center" spacing={0.375}>
-                <Common.Components.PythonKorea style={{ width: 29, height: 29 }} />
+                <Components.PythonKorea style={{ width: 29, height: 29 }} />
                 <Typography
                   variant="h6"
                   sx={{

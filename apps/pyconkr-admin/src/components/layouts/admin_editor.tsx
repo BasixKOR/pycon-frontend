@@ -1,4 +1,18 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { retrieve } from "@frontend/common/src/apis/admin_api";
+import {
+  useBackendAdminClient,
+  useChoicesQuery,
+  useCreateMutation,
+  useRemoveMutation,
+  useSchemaQuery,
+  useUpdateMutation,
+} from "@frontend/common/src/hooks/useAdminAPI";
+import {
+  filterPropertiesByLanguageInJsonSchema,
+  filterReadOnlyPropertiesInJsonSchema,
+  filterWritablePropertiesInJsonSchema,
+} from "@frontend/common/src/utils";
 import { Add, Close, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
@@ -132,7 +146,7 @@ const fieldPropsToSelectedProps = (props: FieldProps): OutlinedSelectProps & { d
 };
 
 const M2MSelect: Field = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, (props) => {
     const selectable = (props.schema.items as JSONSchema7).oneOf as DescriptedEnum[];
     const selectableListObj: DescriptedEnumObject = selectable.reduce((a, i) => ({ ...a, [i.const]: i }), {} as DescriptedEnumObject);
@@ -167,29 +181,26 @@ const MDRendererContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const MDEditorField: Field = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
-  ({ disabled, formData, name, onChange: rawOnChange }) => {
-    const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
-    const onChange = (value?: string) => {
-      setValueState(value);
-      rawOnChange(value, undefined, name);
-    };
-    return (
-      <MUIStyledFieldset>
-        <Typography variant="subtitle2" component="legend" children={name} />
-        <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
-          <Box sx={{ width: "50%", maxWidth: "50%" }}>
-            <Common.Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
-          </Box>
-          <MDRendererContainer>
-            <Common.Components.MDXRenderer text={valueState || ""} format="md" />
-          </MDRendererContainer>
-        </Stack>
-      </MUIStyledFieldset>
-    );
-  }
-);
+const MDEditorField: Field = ErrorBoundary.with({ fallback: Components.ErrorFallback }, ({ disabled, formData, name, onChange: rawOnChange }) => {
+  const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
+  const onChange = (value?: string) => {
+    setValueState(value);
+    rawOnChange(value, undefined, name);
+  };
+  return (
+    <MUIStyledFieldset>
+      <Typography variant="subtitle2" component="legend" children={name} />
+      <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
+        <Box sx={{ width: "50%", maxWidth: "50%" }}>
+          <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
+        </Box>
+        <MDRendererContainer>
+          <Components.MDXRenderer text={valueState || ""} format="md" />
+        </MDRendererContainer>
+      </Stack>
+    </MUIStyledFieldset>
+  );
+});
 
 type ReadOnlyValueFieldStateType = {
   loading: boolean;
@@ -234,7 +245,7 @@ const ReadOnlyValueField: React.FC<{
         )}
         {fieldState.blob.type.startsWith("application/json") && fieldState.blobText && (
           <Box sx={{ maxWidth: "600px", overflow: "auto" }}>
-            <Common.Components.LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
+            <Components.LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
           </Box>
         )}
         <a href={value as string}>링크</a>
@@ -251,7 +262,7 @@ type InnerAdminEditorStateType = {
 };
 
 const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
     ({
@@ -275,9 +286,10 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         tab: 0,
         formData: undefined,
       });
-      const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-      const { data: schemaInfo } = Common.Hooks.BackendAdminAPI.useSchemaQuery(backendAdminClient, app, resource);
-      const { data: choicesData } = Common.Hooks.BackendAdminAPI.useChoicesQuery(backendAdminClient, app, resource);
+
+      const backendAdminClient = useBackendAdminClient();
+      const { data: schemaInfo } = useSchemaQuery(backendAdminClient, app, resource);
+      const { data: choicesData } = useChoicesQuery(backendAdminClient, app, resource);
 
       // Merge choices into schema for FK/M2M fields
       React.useMemo(() => {
@@ -299,9 +311,9 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
       const notSelectedLanguage = editorState.tab === 0 ? "en" : "ko";
 
-      const createMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<Record<string, string>>(backendAdminClient, app, resource);
-      const modifyMutation = Common.Hooks.BackendAdminAPI.useUpdateMutation<Record<string, string>>(backendAdminClient, app, resource, id || "");
-      const deleteMutation = Common.Hooks.BackendAdminAPI.useRemoveMutation(backendAdminClient, app, resource, id || "undefined");
+      const createMutation = useCreateMutation<Record<string, string>>(backendAdminClient, app, resource);
+      const modifyMutation = useUpdateMutation<Record<string, string>>(backendAdminClient, app, resource, id || "");
+      const deleteMutation = useRemoveMutation(backendAdminClient, app, resource, id || "undefined");
       const submitMutation = id ? modifyMutation : createMutation;
 
       React.useEffect(() => {
@@ -311,7 +323,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
             return;
           }
 
-          const initialData = await Common.BackendAdminAPIs.retrieve<Record<string, string>>(backendAdminClient, app, resource, id)();
+          const initialData = await retrieve<Record<string, string>>(backendAdminClient, app, resource, id)();
           setFormData({ ...initialData, ...context });
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -359,13 +371,13 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {} as RJSFSchema);
       }
 
-      const writableSchema = Common.Utils.filterPropertiesByLanguageInJsonSchema(
-        Common.Utils.filterWritablePropertiesInJsonSchema(schemaInfo.schema),
+      const writableSchema = filterPropertiesByLanguageInJsonSchema(
+        filterWritablePropertiesInJsonSchema(schemaInfo.schema),
         schemaInfo.translation_fields,
         selectedLanguage
       );
-      const readOnlySchema = Common.Utils.filterPropertiesByLanguageInJsonSchema(
-        Common.Utils.filterReadOnlyPropertiesInJsonSchema(schemaInfo.schema),
+      const readOnlySchema = filterPropertiesByLanguageInJsonSchema(
+        filterReadOnlyPropertiesInJsonSchema(schemaInfo.schema),
         schemaInfo.translation_fields,
         selectedLanguage
       );

@@ -2,7 +2,7 @@ import { Button, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import CommonContext from "../hooks/";
+import * as CommonContext from "../hooks";
 
 const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   console.error(error);

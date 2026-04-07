@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
 import { Box, Stack } from "@mui/material";
 import React from "react";
 
@@ -25,10 +25,10 @@ export const MdiTestPage: React.FC = () => {
       }}
     >
       <Box sx={HalfWidthStyle}>
-        <Common.Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
+        <Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
       </Box>
       <Box sx={HalfWidthStyle}>
-        <Common.Components.MDXRenderer {...state} format="mdx" />
+        <Components.MDXRenderer {...state} format="mdx" />
       </Box>
     </Stack>
   );

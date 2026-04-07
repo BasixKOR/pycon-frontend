@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useBackendAdminClient, useCreateMutation, useListQuery, useRemovePreparedMutation, useSchemaQuery, useUpdatePreparedMutation } from "@frontend/common/src/hooks/useAdminAPI";
 import { Autocomplete, Box, Button, Card, CardContent, CircularProgress, Stack, styled, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
@@ -143,10 +144,10 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
                 <Typography variant="subtitle2" component="legend" children="발표자 소개" />
                 <Stack direction="row" spacing={2}>
                   <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                    <Common.Components.MarkdownEditor disabled={disabled} value={speaker[bioField]} name={bioField} onChange={onSpeakerBioChange} />
+                    <Components.MarkdownEditor disabled={disabled} value={speaker[bioField]} name={bioField} onChange={onSpeakerBioChange} />
                   </Box>
                   <MDXRendererContainer>
-                    <Common.Components.MDXRenderer text={speaker[bioField]} format="md" />
+                    <Components.MDXRenderer text={speaker[bioField]} format="md" />
                   </MDXRendererContainer>
                 </Stack>
               </MUIStyledFieldset>
@@ -263,29 +264,29 @@ type PresentationEditorStateType = {
 };
 
 export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
 
     const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
       enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-    const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
+    const backendAdminAPIClient = useBackendAdminClient();
     const speakerQueryParams = [backendAdminAPIClient, "event", "presentationspeaker"] as const;
     const presentation = id || DUMMY_UUID;
-    const speakerCreateMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<OnMemoeryPresentationSpeaker>(...speakerQueryParams);
-    const speakerUpdateMutation = Common.Hooks.BackendAdminAPI.useUpdatePreparedMutation<PresentationSpeaker>(...speakerQueryParams);
-    const speakerDeleteMutation = Common.Hooks.BackendAdminAPI.useRemovePreparedMutation(...speakerQueryParams);
-    const { data: speakerJsonSchema } = Common.Hooks.BackendAdminAPI.useSchemaQuery(...speakerQueryParams);
-    const { data: speakerInitialData } = Common.Hooks.BackendAdminAPI.useListQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
+    const speakerCreateMutation = useCreateMutation<OnMemoeryPresentationSpeaker>(...speakerQueryParams);
+    const speakerUpdateMutation = useUpdatePreparedMutation<PresentationSpeaker>(...speakerQueryParams);
+    const speakerDeleteMutation = useRemovePreparedMutation(...speakerQueryParams);
+    const { data: speakerJsonSchema } = useSchemaQuery(...speakerQueryParams);
+    const { data: speakerInitialData } = useListQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
     const speakers = speakerInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     const scheduleQueryParams = [backendAdminAPIClient, "event", "roomschedule"] as const;
-    const scheduleCreateMutation = Common.Hooks.BackendAdminAPI.useCreateMutation<OnMemorySchedule>(...scheduleQueryParams);
-    const scheduleUpdateMutation = Common.Hooks.BackendAdminAPI.useUpdatePreparedMutation<Schedule>(...scheduleQueryParams);
-    const scheduleDeleteMutation = Common.Hooks.BackendAdminAPI.useRemovePreparedMutation(...scheduleQueryParams);
-    const { data: scheduleJsonSchema } = Common.Hooks.BackendAdminAPI.useSchemaQuery(...scheduleQueryParams);
-    const { data: scheduleInitialData } = Common.Hooks.BackendAdminAPI.useListQuery<Schedule>(...scheduleQueryParams, { presentation });
+    const scheduleCreateMutation = useCreateMutation<OnMemorySchedule>(...scheduleQueryParams);
+    const scheduleUpdateMutation = useUpdatePreparedMutation<Schedule>(...scheduleQueryParams);
+    const scheduleDeleteMutation = useRemovePreparedMutation(...scheduleQueryParams);
+    const { data: scheduleJsonSchema } = useSchemaQuery(...scheduleQueryParams);
+    const { data: scheduleInitialData } = useListQuery<Schedule>(...scheduleQueryParams, { presentation });
     const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     const createEmptySpeaker = (): OnMemoeryPresentationSpeaker => ({
@@ -359,7 +360,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
       <AdminEditor app="event" resource="presentation" id={id} afterSubmit={onPresentationSubmit}>
         {id ? (
           <Stack sx={{ mb: 2 }} spacing={2}>
-            <Common.Components.Fieldset legend="스케줄 정보">
+            <Components.Fieldset legend="스케줄 정보">
               <Typography variant="h6">스케줄 정보</Typography>
               <Stack spacing={2}>
                 {editorState.schedules.map((s) => (
@@ -373,8 +374,8 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
                 ))}
                 <Button variant="outlined" onClick={onScheduleCreate} children="스케줄 추가" />
               </Stack>
-            </Common.Components.Fieldset>
-            <Common.Components.Fieldset legend="발표자 정보">
+            </Components.Fieldset>
+            <Components.Fieldset legend="발표자 정보">
               <Typography variant="h6">발표자 정보</Typography>
               <Stack spacing={2}>
                 {editorState.speakers.map((s) => (
@@ -388,7 +389,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
                 ))}
                 <Button variant="outlined" onClick={onSpeakerCreate} children="발표자 추가" />
               </Stack>
-            </Common.Components.Fieldset>
+            </Components.Fieldset>
           </Stack>
         ) : (
           <Stack>

@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { useParticipantPortalClient, useSignedInUserQuery, useUpdateMeMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Key, SendAndArchive } from "@mui/icons-material";
 import { Button, SelectChangeEvent, Stack } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -38,9 +39,9 @@ const DummyProfile: ProfileSchema = {
 
 const InnerProfileEditor: React.FC = () => {
   const { language } = useAppContext();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const { data: profile } = Common.Hooks.BackendParticipantPortalAPI.useSignedInUserQuery(participantPortalClient);
-  const updateMeMutation = Common.Hooks.BackendParticipantPortalAPI.useUpdateMeMutation(participantPortalClient);
+  const participantPortalClient = useParticipantPortalClient();
+  const { data: profile } = useSignedInUserQuery(participantPortalClient);
+  const updateMeMutation = useUpdateMeMutation(participantPortalClient);
   const [editorState, setEditorState] = React.useState<ProfileEditorState>({
     openChangePasswordDialog: false,
     openSubmitConfirmDialog: false,
@@ -86,7 +87,7 @@ const InnerProfileEditor: React.FC = () => {
           console.error("Updating profile failed:", error);
 
           let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-          if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+          if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
           addSnackbar(errorMessage, "error");
         },

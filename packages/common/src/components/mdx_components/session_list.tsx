@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import * as R from "remeda";
 
 import PyCon2025Logo from "../../assets/pyconkr2025_logo.png";
-import Hooks from "../../hooks";
-import BackendAPISchemas from "../../schemas/backendAPI";
+import * as Hooks from "../../hooks";
+import * as BackendAPISchemas from "../../schemas/backendAPI";
 import { ErrorFallback } from "../error_handler";
 import { FallbackImage } from "../fallback_image";
 import { StyledDivider } from "./styled_divider";

@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { me } from "@frontend/common/src/apis/admin_api";
+import { useBackendAdminClient, useChangePasswordMutation, useSignOutMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { getFormValue, isFormValid } from "@frontend/common/src/utils";
 import { Logout } from "@mui/icons-material";
 import { Button, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
 import * as React from "react";
@@ -16,9 +18,9 @@ export const AccountManagementPage: React.FC = () => {
   const changePasswordFormRef = React.useRef<HTMLFormElement>(null);
   const [pageState, setPageState] = React.useState<{ tab: number }>({ tab: 0 });
   const navigate = useNavigate();
-  const backendAdminAPIClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const signOutMutation = Common.Hooks.BackendAdminAPI.useSignOutMutation(backendAdminAPIClient);
-  const changePasswordMutation = Common.Hooks.BackendAdminAPI.useChangePasswordMutation(backendAdminAPIClient);
+  const backendAdminAPIClient = useBackendAdminClient();
+  const signOutMutation = useSignOutMutation(backendAdminAPIClient);
+  const changePasswordMutation = useChangePasswordMutation(backendAdminAPIClient);
 
   const setTab = (_: React.SyntheticEvent, tab: number) => setPageState((ps) => ({ ...ps, tab }));
 
@@ -37,12 +39,12 @@ export const AccountManagementPage: React.FC = () => {
     event.stopPropagation();
 
     const form = changePasswordFormRef.current;
-    if (!Common.Utils.isFormValid(form)) {
+    if (!isFormValid(form)) {
       addSnackbar("폼에 오류가 있습니다. 다시 확인해주세요.", "error");
       return;
     }
 
-    const formData = Common.Utils.getFormValue<ChangePasswordFormType>({ form });
+    const formData = getFormValue<ChangePasswordFormType>({ form });
     if (formData.new_password !== formData.new_password_confirm) {
       addSnackbar("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.", "error");
       return;
@@ -59,7 +61,7 @@ export const AccountManagementPage: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
-      const userInfo = await Common.BackendAdminAPIs.me(backendAdminAPIClient)();
+      const userInfo = await me(backendAdminAPIClient)();
       if (!userInfo) {
         addSnackbar("로그아웃 상태입니다!", "error");
         navigate("/");

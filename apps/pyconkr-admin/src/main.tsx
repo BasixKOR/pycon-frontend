@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import type { ContextOptions } from "@frontend/common/src/contexts";
 import * as Shop from "@frontend/shop";
 import { CircularProgress } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -30,7 +31,7 @@ const queryClient = new QueryClient({
   }),
 });
 
-const CommonOptions: Common.Contexts.ContextOptions = {
+const CommonOptions: ContextOptions = {
   debug: true,
   language: "ko",
   baseUrl: ".",
@@ -51,17 +52,17 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
 
 ReactDom.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary fallback={<Common.Components.CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</Common.Components.CenteredPage>}>
+    <ErrorBoundary fallback={<Components.CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</Components.CenteredPage>}>
       <Suspense
         fallback={
-          <Common.Components.CenteredPage>
+          <Components.CenteredPage>
             <CircularProgress />
-          </Common.Components.CenteredPage>
+          </Components.CenteredPage>
         }
       >
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools buttonPosition="top-right" position="right" />
-          <Common.Components.CommonContextProvider options={CommonOptions}>
+          <Components.CommonContextProvider options={CommonOptions}>
             <Shop.Components.Common.ShopContextProvider options={ShopOptions}>
               <SnackbarProvider>
                 <BrowserRouter>
@@ -77,7 +78,7 @@ ReactDom.createRoot(document.getElementById("root")!).render(
                 </BrowserRouter>
               </SnackbarProvider>
             </Shop.Components.Common.ShopContextProvider>
-          </Common.Components.CommonContextProvider>
+          </Components.CommonContextProvider>
         </QueryClientProvider>
       </Suspense>
     </ErrorBoundary>

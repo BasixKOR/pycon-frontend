@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import * as Common from "@frontend/common";
+import { useEmail } from "@frontend/common/src/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, YouTube } from "@mui/icons-material";
 import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
@@ -50,7 +50,7 @@ const defaultIcons: IconItem[] = [
 const Bar: React.FC = () => <div style={{ display: "inline-block", padding: "0 0.25rem" }}>|</div>;
 
 export default function Footer() {
-  const { sendEmail } = Common.Hooks.Common.useEmail();
+  const { sendEmail } = useEmail();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 

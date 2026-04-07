@@ -1,12 +1,12 @@
 import * as React from "react";
 
-import GlobalContext from "../contexts";
+import { context, ContextOptions } from "../contexts";
 
 type CommonContextProps = {
-  options: GlobalContext.ContextOptions;
+  options: ContextOptions;
   children: React.ReactNode;
 };
 
 export const CommonContextProvider: React.FC<CommonContextProps> = (props) => (
-  <GlobalContext.context.Provider value={props.options}>{props.children}</GlobalContext.context.Provider>
+  <context.Provider value={props.options}>{props.children}</context.Provider>
 );

@@ -1,4 +1,6 @@
-import * as Common from "@frontend/common";
+import { useChangePasswordMutation, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { getFormValue, isFormValid } from "@frontend/common/src/utils";
+import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -19,8 +21,8 @@ type PasswordFormDataType = {
 export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open, onClose }) => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const { language } = useAppContext();
-  const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-  const changePasswordMutation = Common.Hooks.BackendParticipantPortalAPI.useChangePasswordMutation(participantPortalClient);
+  const participantPortalClient = useParticipantPortalClient();
+  const changePasswordMutation = useChangePasswordMutation(participantPortalClient);
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
@@ -34,9 +36,9 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open
   const passwordChangedStr = language === "ko" ? "비밀번호가 성공적으로 변경되었습니다." : "Password changed successfully.";
 
   const handleSubmit = () => {
-    if (!Common.Utils.isFormValid(formRef.current)) return;
+    if (!isFormValid(formRef.current)) return;
 
-    const formData = Common.Utils.getFormValue<PasswordFormDataType>({ form: formRef.current });
+    const formData = getFormValue<PasswordFormDataType>({ form: formRef.current });
     changePasswordMutation.mutate(formData, {
       onSuccess: () => {
         addSnackbar(passwordChangedStr, "success");
@@ -46,7 +48,7 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open
         console.error("Change password failed:", error);
 
         let errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        if (error instanceof Common.BackendAPIs.BackendAPIClientError) errorMessage = error.message;
+        if (error instanceof BackendAPIClientError) errorMessage = error.message;
 
         addSnackbar(errorMessage, "error");
       },

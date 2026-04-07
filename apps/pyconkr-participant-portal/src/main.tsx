@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import type { ContextOptions } from "@frontend/common/src/contexts";
 import { CircularProgress, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -33,7 +34,7 @@ const queryClient = new QueryClient({
 
 export const muiTheme = createTheme();
 
-const CommonOptions: Common.Contexts.ContextOptions = {
+const CommonOptions: ContextOptions = {
   language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
@@ -44,9 +45,9 @@ const CommonOptions: Common.Contexts.ContextOptions = {
 };
 
 const SuspenseFallback = (
-  <Common.Components.CenteredPage>
+  <Components.CenteredPage>
     <CircularProgress />
-  </Common.Components.CenteredPage>
+  </Components.CenteredPage>
 );
 
 const MainApp: React.FC = () => {
@@ -61,7 +62,7 @@ const MainApp: React.FC = () => {
         <SnackbarProvider>
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <Common.Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
                 <ErrorBoundary fallback={ErrorPage}>
                   <Suspense fallback={SuspenseFallback}>
                     <ThemeProvider theme={muiTheme}>
@@ -70,7 +71,7 @@ const MainApp: React.FC = () => {
                     </ThemeProvider>
                   </Suspense>
                 </ErrorBoundary>
-              </Common.Components.CommonContextProvider>
+              </Components.CommonContextProvider>
             </AppContext.Provider>
           </BrowserRouter>
         </SnackbarProvider>

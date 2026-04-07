@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { useBackendAdminClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useAdminAPI";
 import { CloudUpload, PermMedia } from "@mui/icons-material";
 import { Box, Button, Input, Stack, Typography } from "@mui/material";
 import * as React from "react";
@@ -25,8 +25,8 @@ const InnerPublicFileUploadPage: React.FC = () => {
   });
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const fileDragBoxRef = React.useRef<HTMLDivElement>(null);
-  const backendAdminClient = Common.Hooks.BackendAdminAPI.useBackendAdminClient();
-  const uploadPublicFileMutation = Common.Hooks.BackendAdminAPI.useUploadPublicFileMutation(backendAdminClient);
+  const backendAdminClient = useBackendAdminClient();
+  const uploadPublicFileMutation = useUploadPublicFileMutation(backendAdminClient);
 
   const forceRerender = React.useCallback(
     () =>

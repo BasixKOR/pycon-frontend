@@ -1,10 +1,6 @@
-import BackendAdminAPISchemas from "../schemas/backendAdminAPI";
+import { OpenAPIParameterSchema, OpenAPISchema } from "../schemas/backendAdminAPI";
 
-export const extractQueryParameters = (
-  schema: BackendAdminAPISchemas.OpenAPISchema,
-  app: string,
-  resource: string
-): BackendAdminAPISchemas.OpenAPIParameterSchema[] => {
+export const extractQueryParameters = (schema: OpenAPISchema, app: string, resource: string): OpenAPIParameterSchema[] => {
   const pathItem = schema.paths[`/v1/admin-api/${app}/${resource}/`];
   if (!pathItem?.get?.parameters) return [];
 

@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -11,9 +11,9 @@ import { PageLayout } from "../layout/PageLayout";
 
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 const CenteredLoadingPage: React.FC = () => (
-  <Common.Components.CenteredPage>
+  <Components.CenteredPage>
     <CircularProgress />
-  </Common.Components.CenteredPage>
+  </Components.CenteredPage>
 );
 
 const LogoImage = styled("img")(({ theme }) => ({
@@ -50,7 +50,7 @@ const DescriptionBox = styled(Box)(({ theme }) => ({
 }));
 
 export const SponsorDetailPage: React.FC = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, sponsorTiers, setAppContext } = useAppContext();
@@ -88,7 +88,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
         </Typography>
         <Divider flexItem />
         <DescriptionBox>
-          <Common.Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" />
+          <Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" />
         </DescriptionBox>
       </PageLayout>
     );

@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
 import { Box, SelectProps, Stack, styled, Tab, Tabs, TextField, TextFieldProps, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 
@@ -167,7 +167,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
           <Stack direction="row" spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
             {!disabled && (
               <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                <Common.Components.MarkdownEditor
+                <Components.MarkdownEditor
                   defaultValue={inputDefaultValue}
                   value={inputValue}
                   onChange={handleChange}
@@ -177,7 +177,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
               </Box>
             )}
             <MDRendererContainer fullWidth={disabled}>
-              <Common.Components.MDXRenderer text={inputValue || ""} format="md" />
+              <Components.MDXRenderer text={inputValue || ""} format="md" />
             </MDRendererContainer>
           </Stack>
         </FieldContainer>

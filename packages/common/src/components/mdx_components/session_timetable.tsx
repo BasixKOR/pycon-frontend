@@ -5,8 +5,8 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import Hooks from "../../hooks";
-import BackendAPISchemas from "../../schemas/backendAPI";
+import * as Hooks from "../../hooks";
+import * as BackendAPISchemas from "../../schemas/backendAPI";
 import { CenteredPage } from "../centered_page";
 import { ErrorFallback } from "../error_handler";
 import { StyledDivider } from "./styled_divider";

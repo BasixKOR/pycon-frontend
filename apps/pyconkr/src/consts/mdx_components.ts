@@ -1,5 +1,5 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
 import * as Shop from "@frontend/shop";
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
@@ -131,16 +131,16 @@ const MUIMDXComponents: MDXComponents = {
 };
 
 const PyConKRCommonMDXComponents: MDXComponents = {
-  Common__Components__Lottie: Common.Components.LottiePlayer,
-  Common__Components__NetworkLottie: Common.Components.NetworkLottiePlayer,
-  Common__Components__MDX__Confetti: Common.Components.MDX.Confetti,
-  Common__Components__MDX__PrimaryStyledDetails: Common.Components.MDX.PrimaryStyledDetails,
-  Common__Components__MDX__SecondaryStyledDetails: Common.Components.MDX.SecondaryStyledDetails,
-  Common__Components__MDX__Map: Common.Components.MDX.Map,
-  Common__Components__MDX__FAQAccordion: Common.Components.MDX.FAQAccordion,
-  Common__Components__MDX__FullWidthStyledButton: Common.Components.MDX.StyledFullWidthButton,
-  Common__Components__Session__List: Common.Components.MDX.SessionList,
-  Common__Components__Session__TimeTable: Common.Components.MDX.SessionTimeTable,
+  Common__Components__Lottie: Components.LottiePlayer,
+  Common__Components__NetworkLottie: Components.NetworkLottiePlayer,
+  Common__Components__MDX__Confetti: Components.MDX.Confetti,
+  Common__Components__MDX__PrimaryStyledDetails: Components.MDX.PrimaryStyledDetails,
+  Common__Components__MDX__SecondaryStyledDetails: Components.MDX.SecondaryStyledDetails,
+  Common__Components__MDX__Map: Components.MDX.Map,
+  Common__Components__MDX__FAQAccordion: Components.MDX.FAQAccordion,
+  Common__Components__MDX__FullWidthStyledButton: Components.MDX.StyledFullWidthButton,
+  Common__Components__Session__List: Components.MDX.SessionList,
+  Common__Components__Session__TimeTable: Components.MDX.SessionTimeTable,
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {

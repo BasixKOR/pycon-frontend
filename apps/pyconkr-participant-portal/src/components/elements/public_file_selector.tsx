@@ -1,4 +1,5 @@
-import * as Common from "@frontend/common";
+import { Components } from "@frontend/common";
+import { useParticipantPortalClient, usePublicFilesQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
 import { PermMedia } from "@mui/icons-material";
 import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectProps, Stack, styled, useMediaQuery } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -19,20 +20,20 @@ type PublicFileSelectorState = {
   openUploadDialog?: boolean;
 };
 
-const ScaledFallbackImage = styled(Common.Components.FallbackImage)({
+const ScaledFallbackImage = styled(Components.FallbackImage)({
   width: "100%",
   maxWidth: "20rem",
   objectFit: "contain",
 });
 
 export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBoundary.with(
-  { fallback: Common.Components.ErrorFallback },
+  { fallback: Components.ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ value, onChange, disabled, ...props }) => {
     const selectInputRef = React.useRef<HTMLSelectElement | null>(null);
     const [selectorState, setSelectorState] = React.useState<PublicFileSelectorState>({ value });
     const { language } = useAppContext();
-    const participantPortalClient = Common.Hooks.BackendParticipantPortalAPI.useParticipantPortalClient();
-    const { data } = Common.Hooks.BackendParticipantPortalAPI.usePublicFilesQuery(participantPortalClient);
+    const participantPortalClient = useParticipantPortalClient();
+    const { data } = usePublicFilesQuery(participantPortalClient);
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
     const setSelectedFile: SelectProps<string | null>["onChange"] = (event, child) => {
