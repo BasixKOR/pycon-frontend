@@ -4,27 +4,33 @@ import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion, Stack, T
 import * as React from "react";
 import Marquee from "react-fast-marquee";
 
-import { useAppContext } from "../../../../../apps/pyconkr/src/contexts/app_context";
-import PyCon2025HostLogoBig from "../../assets/pyconkr2025_hostlogo_big.png";
-import PyCon2025HostLogoSmall from "../../assets/pyconkr2025_hostlogo_small.png";
+import * as Hooks from "../../hooks";
 
-const MarqueeAccordion: React.FC = () => {
+const MarqueeAccordion: React.FC<{ marqueeText: string; marqueeLogoSrc: string }> = ({ marqueeText, marqueeLogoSrc }) => {
   const marqueeWidth = window.innerWidth * 0.9;
   const marqueeGradientWidth = window.innerWidth * 0.1;
   const items = React.useMemo(() => {
     return Array.from({ length: 100 }, () => (
       <Stack direction="row" sx={{ gap: 0 }}>
-        <StyledTypography>AUG 15 - 17</StyledTypography>
-        <img alt="logo" src={PyCon2025HostLogoSmall} />
+        <StyledTypography>{marqueeText}</StyledTypography>
+        <img alt="logo" src={marqueeLogoSrc} />
       </Stack>
     ));
-  }, []);
+  }, [marqueeText, marqueeLogoSrc]);
 
   return <Marquee loop={0} gradient={true} gradientWidth={marqueeGradientWidth} speed={30} style={{ width: marqueeWidth }} children={items} />;
 };
 
-export const MobileAccordion: React.FC = () => {
-  const { language } = useAppContext();
+type MobileAccordionProps = {
+  marqueeText: string;
+  marqueeLogoSrc: string;
+  hostLogoBigSrc: string;
+  venueKo: string;
+  venueEnLines: string[];
+};
+
+export const MobileAccordion: React.FC<MobileAccordionProps> = ({ marqueeText, marqueeLogoSrc, hostLogoBigSrc, venueKo, venueEnLines }) => {
+  const { language } = Hooks.Common.useCommonContext();
   const [expanded, setExpanded] = React.useState<boolean>(false);
 
   return (
@@ -44,27 +50,26 @@ export const MobileAccordion: React.FC = () => {
           }
           sx={{ margin: 0, padding: 0 }}
         >
-          {expanded ? null : <MarqueeAccordion />}
+          {expanded ? null : <MarqueeAccordion marqueeText={marqueeText} marqueeLogoSrc={marqueeLogoSrc} />}
         </AccordionSummary>
         <StyledAccordionDetails>
           <Stack>
             <Stack sx={{ padding: "30px 0px", borderRadius: "16px", alignItems: "center", justifyContent: "center" }}>
-              <img src={PyCon2025HostLogoBig} alt="PyCon 2025 Host Logo" style={{ width: "90%", height: "90%" }} />
+              <img src={hostLogoBigSrc} alt="Host Logo" style={{ width: "90%", height: "90%" }} />
             </Stack>
             {language === "ko" ? (
               <Stack direction="column" sx={{ transform: "translateY(-280%)" }}>
                 <Typography color="#938A85" textAlign="center" fontSize="11px" fontWeight={400}>
-                  {"서울특별시 중구 필동로 1길 30 동국대학교 신공학관"}
+                  {venueKo}
                 </Typography>
               </Stack>
             ) : (
               <Stack direction="column" sx={{ transform: "translateY(-180%)" }}>
-                <Typography color="#938A85" textAlign="center" fontSize="10px" fontWeight={400}>
-                  {"New Engineering Building, Dongguk University"}
-                </Typography>
-                <Typography color="#938A85" textAlign="center" fontWeight={400} fontSize="10px">
-                  {"Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"}
-                </Typography>
+                {venueEnLines.map((line, i) => (
+                  <Typography key={i} color="#938A85" textAlign="center" fontWeight={400} fontSize="10px">
+                    {line}
+                  </Typography>
+                ))}
               </Stack>
             )}
           </Stack>

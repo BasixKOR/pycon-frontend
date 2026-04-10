@@ -5,6 +5,10 @@ import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
 import * as React from "react";
 
+import PyCon2025HostLogoBig from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_big.png";
+import PyCon2025HostLogoSmall from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_small.png";
+import PyCon2025MobileLogoImage from "../../../../packages/common/src/assets/pyconkr2025_main_cover_image.png";
+import PyCon2025MobileLogoTitle from "../../../../packages/common/src/assets/pyconkr2025_main_cover_title.png";
 import PyCon2025Logo from "../assets/pyconkr2025_logo.png";
 
 const MUIMDXComponents: MDXComponents = {
@@ -160,6 +164,21 @@ const PyConKR2025SessionTimeTable: React.FC<React.ComponentProps<typeof Componen
     getSessionUrl: getPyConKR2025SessionUrl,
   });
 
+const PyConKR2025MobileAccordion: React.FC<object> = () =>
+  React.createElement(Components.MDX.MobileAccordion, {
+    marqueeText: "AUG 15 - 17",
+    marqueeLogoSrc: PyCon2025HostLogoSmall,
+    hostLogoBigSrc: PyCon2025HostLogoBig,
+    venueKo: "서울특별시 중구 필동로 1길 30 동국대학교 신공학관",
+    venueEnLines: ["New Engineering Building, Dongguk University", "Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"],
+  });
+
+const PyConKR2025MobileCover: React.FC<object> = () =>
+  React.createElement(Components.MDX.MobileCover, {
+    coverImageSrc: PyCon2025MobileLogoImage,
+    coverTitleSrc: PyCon2025MobileLogoTitle,
+  });
+
 const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__Lottie: Components.LottiePlayer,
   Common__Components__NetworkLottie: Components.NetworkLottiePlayer,
@@ -171,6 +190,8 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__FullWidthStyledButton: Components.MDX.StyledFullWidthButton,
   Common__Components__Session__List: PyConKR2025SessionList,
   Common__Components__Session__TimeTable: PyConKR2025SessionTimeTable,
+  Common__Components__MDX__MobileAccordion: PyConKR2025MobileAccordion,
+  Common__Components__MDX__MobileCover: PyConKR2025MobileCover,
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {
