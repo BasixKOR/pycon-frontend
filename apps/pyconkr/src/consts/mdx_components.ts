@@ -1,8 +1,11 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
-import { Components } from "@frontend/common";
+import { Components, Schemas } from "@frontend/common";
 import * as Shop from "@frontend/shop";
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
+import * as React from "react";
+
+import PyCon2025Logo from "../assets/pyconkr2025_logo.png";
 
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: mui.Accordion,
@@ -130,6 +133,33 @@ const MUIMDXComponents: MDXComponents = {
   Mui__material__Zoom: mui.Zoom,
 };
 
+const getPyConKR2025SessionUrl = (session: Schemas.BackendAPI.SessionSchema): string => {
+  const urlSafeTitle = session.title
+    .replace(/ /g, "-")
+    .replace(/([.])/g, "_")
+    .replace(/(?![.0-9A-Za-zㄱ-ㅣ가-힣-])./g, "");
+  return `/presentations/${session.id}#${urlSafeTitle}`;
+};
+
+const PyConKR2025FallbackImage = React.createElement("img", {
+  src: PyCon2025Logo,
+  alt: "PyCon 2025 Logo",
+  style: { width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" },
+});
+
+const PyConKR2025SessionList: React.FC<React.ComponentProps<typeof Components.MDX.SessionList>> = (props) =>
+  React.createElement(Components.MDX.SessionList, {
+    ...props,
+    fallbackImage: PyConKR2025FallbackImage,
+    getSessionUrl: getPyConKR2025SessionUrl,
+  });
+
+const PyConKR2025SessionTimeTable: React.FC<React.ComponentProps<typeof Components.MDX.SessionTimeTable>> = (props) =>
+  React.createElement(Components.MDX.SessionTimeTable, {
+    ...props,
+    getSessionUrl: getPyConKR2025SessionUrl,
+  });
+
 const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__Lottie: Components.LottiePlayer,
   Common__Components__NetworkLottie: Components.NetworkLottiePlayer,
@@ -139,8 +169,8 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__Map: Components.MDX.Map,
   Common__Components__MDX__FAQAccordion: Components.MDX.FAQAccordion,
   Common__Components__MDX__FullWidthStyledButton: Components.MDX.StyledFullWidthButton,
-  Common__Components__Session__List: Components.MDX.SessionList,
-  Common__Components__Session__TimeTable: Components.MDX.SessionTimeTable,
+  Common__Components__Session__List: PyConKR2025SessionList,
+  Common__Components__Session__TimeTable: PyConKR2025SessionTimeTable,
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {
