@@ -1,5 +1,13 @@
 import { Components } from "@frontend/common";
-import { useBackendAdminClient, useCreateMutation, useListQuery, useRemovePreparedMutation, useSchemaQuery, useUpdatePreparedMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import {
+  useBackendAdminClient,
+  useCreateMutation,
+  useListQuery,
+  useRemovePreparedMutation,
+  useSchemaQuery,
+  useUpdatePreparedMutation,
+} from "@frontend/common/src/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Autocomplete, Box, Button, Card, CardContent, CircularProgress, Stack, styled, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
@@ -10,6 +18,7 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 
+import { ErrorFallback } from "../../elements/error_fallback";
 import { AdminEditor } from "../../layouts/admin_editor";
 
 const DUMMY_UUID = "00000000-0000-4000-8000-000000000000";
@@ -87,6 +96,7 @@ type AutoCompleteType = {
 };
 
 const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ disabled, schema, speaker, onChange, onRemove }) => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   const [formState, setFormState] = React.useState<PresentationSpeakerFormStateType>({ tab: "ko" });
   const setLanguage = (_: React.SyntheticEvent, tab: "ko" | "en") => setFormState((ps) => ({ ...ps, tab }));
 
@@ -147,7 +157,7 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
                     <Components.MarkdownEditor disabled={disabled} value={speaker[bioField]} name={bioField} onChange={onSpeakerBioChange} />
                   </Box>
                   <MDXRendererContainer>
-                    <Components.MDXRenderer text={speaker[bioField]} format="md" />
+                    <Components.MDXRenderer text={speaker[bioField]} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
                   </MDXRendererContainer>
                 </Stack>
               </MUIStyledFieldset>
@@ -264,7 +274,7 @@ type PresentationEditorStateType = {
 };
 
 export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
 

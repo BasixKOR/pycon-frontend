@@ -1,4 +1,3 @@
-import { Components } from "@frontend/common";
 import { useBackendAdminClient, useListQuery, useRemovePreparedMutation, useUpdatePreparedMutation } from "@frontend/common/src/hooks/useAdminAPI";
 import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/src/utils";
 import { Add, Delete, Edit, Save } from "@mui/icons-material";
@@ -23,6 +22,7 @@ import { GroupOptions, ReactSortable, SortableEvent, SortableOptions } from "rea
 
 import { FlattenedSiteMapSchema, NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
 import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
+import { ErrorFallback } from "../../elements/error_fallback";
 import { AdminEditor } from "../../layouts/admin_editor";
 
 type FlatSiteMap = FlattenedSiteMapSchema;
@@ -95,7 +95,7 @@ type InnerSiteMapStateType = {
 const ModifyDetectionFields: (keyof FlatSiteMap)[] = ["order", "parent_sitemap"];
 
 const InnerSiteMapList: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const backendAdminAPIClient = useBackendAdminClient();
     const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap");

@@ -1,4 +1,3 @@
-import { Components } from "@frontend/common";
 import { useBackendAdminClient, useChoicesQuery, useListQuery, useOpenApiSchemaQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import { extractQueryParameters } from "@frontend/common/src/utils";
 import { Add } from "@mui/icons-material";
@@ -9,6 +8,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { AdminListFilter } from "../elements/admin_list_filter";
 import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
+import { ErrorFallback } from "../elements/error_fallback";
 
 type AdminListProps = {
   app: string;
@@ -26,7 +26,7 @@ type ListRowType = {
 };
 
 const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ app, resource, hideCreatedAt, hideUpdatedAt, hideCreateNew }) => {
     const navigate = useNavigate();
 

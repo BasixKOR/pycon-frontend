@@ -1,5 +1,6 @@
 import { Components } from "@frontend/common";
 import { useBackendAdminClient, usePublicFileQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import {
   Accordion,
   AccordionDetails,
@@ -78,10 +79,11 @@ export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset,
 };
 
 export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   return originalDataset[name] === previewDataset[name] ? (
     <Components.Fieldset legend={label} style={{ width: "100%" }}>
       <MarkdownContainerBox>
-        <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
+        <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} baseUrl={baseUrl} mdxComponents={mdxComponents} />
       </MarkdownContainerBox>
     </Components.Fieldset>
   ) : (
@@ -91,7 +93,12 @@ export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ origin
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
             <Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
               <MarkdownContainerBox>
-                <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} />
+                <Components.MDXRenderer
+                  format="md"
+                  text={(previewDataset[name] as string) || "(값 없음)"}
+                  baseUrl={baseUrl}
+                  mdxComponents={mdxComponents}
+                />
               </MarkdownContainerBox>
             </Components.Fieldset>
             <Typography variant="caption">기존 값을 보려면 여기를 클릭해주세요.</Typography>
@@ -100,7 +107,12 @@ export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ origin
         <AccordionDetails>
           <Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
             <MarkdownContainerBox>
-              <Components.MDXRenderer format="md" text={(originalDataset[name] as string) || "(값 없음)"} />
+              <Components.MDXRenderer
+                format="md"
+                text={(originalDataset[name] as string) || "(값 없음)"}
+                baseUrl={baseUrl}
+                mdxComponents={mdxComponents}
+              />
             </MarkdownContainerBox>
           </Components.Fieldset>
         </AccordionDetails>

@@ -1,4 +1,5 @@
 import { Components } from "@frontend/common";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Box, SelectProps, Stack, styled, Tab, Tabs, TextField, TextFieldProps, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 
@@ -143,6 +144,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
   ...props
 }) => {
   const { language } = useAppContext();
+  const { baseUrl, mdxComponents } = useCommonContext();
   const [fieldState, setFieldState] = React.useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
   const setFieldLanguage = (_: React.SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
   const koreanStr = language === "ko" ? "한국어" : "Korean";
@@ -177,7 +179,7 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
               </Box>
             )}
             <MDRendererContainer fullWidth={disabled}>
-              <Components.MDXRenderer text={inputValue || ""} format="md" />
+              <Components.MDXRenderer text={inputValue || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
             </MDRendererContainer>
           </Stack>
         </FieldContainer>

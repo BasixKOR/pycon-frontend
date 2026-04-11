@@ -8,6 +8,7 @@ import {
   useSchemaQuery,
   useUpdateMutation,
 } from "@frontend/common/src/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import {
   filterPropertiesByLanguageInJsonSchema,
   filterReadOnlyPropertiesInJsonSchema,
@@ -50,6 +51,7 @@ import * as R from "remeda";
 
 import { addErrorSnackbar, addSnackbar } from "../../utils/snackbar";
 import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
+import { ErrorFallback } from "../elements/error_fallback";
 
 type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
 type onSubmitType = (data: Record<string, string>, event: React.FormEvent<unknown>) => void;
@@ -146,7 +148,7 @@ const fieldPropsToSelectedProps = (props: FieldProps): OutlinedSelectProps & { d
 };
 
 const M2MSelect: Field = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, (props) => {
     const selectable = (props.schema.items as JSONSchema7).oneOf as DescriptedEnum[];
     const selectableListObj: DescriptedEnumObject = selectable.reduce((a, i) => ({ ...a, [i.const]: i }), {} as DescriptedEnumObject);
@@ -181,7 +183,8 @@ const MDRendererContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const MDEditorField: Field = ErrorBoundary.with({ fallback: Components.ErrorFallback }, ({ disabled, formData, name, onChange: rawOnChange }) => {
+const MDEditorField: Field = ErrorBoundary.with({ fallback: ErrorFallback }, ({ disabled, formData, name, onChange: rawOnChange }) => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
   const onChange = (value?: string) => {
     setValueState(value);
@@ -195,7 +198,7 @@ const MDEditorField: Field = ErrorBoundary.with({ fallback: Components.ErrorFall
           <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
         </Box>
         <MDRendererContainer>
-          <Components.MDXRenderer text={valueState || ""} format="md" />
+          <Components.MDXRenderer text={valueState || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </MDRendererContainer>
       </Stack>
     </MUIStyledFieldset>
@@ -262,7 +265,7 @@ type InnerAdminEditorStateType = {
 };
 
 const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
     ({

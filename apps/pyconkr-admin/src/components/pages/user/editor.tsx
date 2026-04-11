@@ -1,4 +1,3 @@
-import { Components } from "@frontend/common";
 import { useBackendAdminClient, useResetUserPasswordMutation } from "@frontend/common/src/hooks/useAdminAPI";
 import { KeyOff } from "@mui/icons-material";
 import { Button, ButtonProps, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
@@ -8,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { PasswordResultDialog } from "./password_result_dialog";
 import { addErrorSnackbar } from "../../../utils/snackbar";
+import { ErrorFallback } from "../../elements/error_fallback";
 import { AdminEditor } from "../../layouts/admin_editor";
 
 type PageStateType = {
@@ -18,7 +18,7 @@ type PageStateType = {
 };
 
 export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();

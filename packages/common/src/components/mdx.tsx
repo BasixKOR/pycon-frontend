@@ -9,7 +9,6 @@ import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import * as R from "remeda";
 
-import * as Hooks from "../hooks";
 import { ErrorFallback } from "./error_handler";
 import { LinkHandler } from "./link_handler";
 import { rtrim } from "../utils/string";
@@ -88,10 +87,11 @@ type MDXRendererPropType = {
   text: string;
   resetKey?: number;
   format?: "mdx" | "md";
+  baseUrl: string;
+  mdxComponents?: MDXComponents;
 };
 
-export const MDXRenderer: React.FC<MDXRendererPropType> = ({ text, resetKey, format }) => {
-  const { baseUrl, mdxComponents } = Hooks.Common.useCommonContext();
+export const MDXRenderer: React.FC<MDXRendererPropType> = ({ text, resetKey, format, baseUrl, mdxComponents }) => {
   const [state, setState] = React.useState<{
     component: React.ReactNode;
     resetKey: number;
