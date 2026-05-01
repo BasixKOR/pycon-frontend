@@ -1,5 +1,6 @@
 import { Components } from "@frontend/common";
 import { useBackendClient, usePageQuery } from "@frontend/common/src/hooks/useAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { parseCss } from "@frontend/common/src/utils";
 import { BackendAPIClientError } from "@frontend/common/src/apis";
 import { CircularProgress, Stack, Theme } from "@mui/material";
@@ -104,6 +105,7 @@ const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredL
 
 const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
   const { setAppContext } = useAppContext();
+  const { baseUrl, mdxComponents } = useCommonContext();
   const backendClient = useBackendClient();
   const { data } = usePageQuery(backendClient, id);
 
@@ -120,7 +122,7 @@ const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <C
     <Stack sx={initialPageStyle(parseCss(data.css))}>
       {data.sections.map((s) => (
         <Stack sx={initialSectionStyle(parseCss(s.css))} key={s.id}>
-          <Components.MDXRenderer text={s.body} format="mdx" />
+          <Components.MDXRenderer text={s.body} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </Stack>
       ))}
     </Stack>

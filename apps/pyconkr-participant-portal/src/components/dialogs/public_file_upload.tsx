@@ -108,7 +108,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle children={titleStr} />
         <DialogContent>
-          <Components.DndFileInput onFileChange={setFile} />
+          <Components.DndFileInput onFileChange={setFile} language={language} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" loading={loading} children={cancelStr} color="error" onClick={onClose} />

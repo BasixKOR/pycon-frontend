@@ -107,6 +107,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   const navigate = useNavigate();
   const [, forceRender] = React.useReducer((x) => x + 1, 0);
   const [helperText, setHelperText] = React.useState<string | undefined>(undefined);
+  const { baseUrl, mdxComponents } = Common.Hooks.Common.useCommonContext();
   const { handleSubmit, subscribe, control, getValues, register, formState } = useForm<Record<string, string>>({ mode: "all" });
   const shopAPIClient = ShopHooks.useShopClient();
   const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
@@ -262,7 +263,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
   return (
     <>
-      <Common.Components.MDXRenderer text={product.description || ""} format="mdx" />
+      <Common.Components.MDXRenderer text={product.description || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
       <br />
       <Divider />
       {R.isNullish(notPurchasableReason) ? (

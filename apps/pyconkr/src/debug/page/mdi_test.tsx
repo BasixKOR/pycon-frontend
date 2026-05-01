@@ -1,10 +1,12 @@
 import { Components } from "@frontend/common";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Box, Stack } from "@mui/material";
 import React from "react";
 
 const HalfWidthStyle: React.CSSProperties = { width: "50%", maxWidth: "50%" };
 
 export const MdiTestPage: React.FC = () => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   const [state, setState] = React.useState<{ text: string; resetKey: number }>({
     text: "",
     resetKey: Math.random(),
@@ -28,7 +30,7 @@ export const MdiTestPage: React.FC = () => {
         <Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
       </Box>
       <Box sx={HalfWidthStyle}>
-        <Components.MDXRenderer {...state} format="mdx" />
+        <Components.MDXRenderer {...state} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
       </Box>
     </Stack>
   );

@@ -3,8 +3,6 @@ import { Box, Button, Input, Stack, styled } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 
-import { useCommonContext } from "../hooks/useCommonContext";
-
 const ignoreEvent = (e: React.BaseSyntheticEvent | Event) => {
   e.preventDefault();
   e.stopPropagation();
@@ -26,6 +24,7 @@ const FileDragBox = styled(Box)<{ isMouseHover?: boolean }>(({ theme, isMouseHov
 
 type DndFileInputProps = {
   onFileChange?: (file: File | null) => void;
+  language: "ko" | "en";
 };
 
 type DndFileInputState = {
@@ -33,10 +32,9 @@ type DndFileInputState = {
   openSetValueDialog?: boolean;
 };
 
-export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange }) => {
+export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, language }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const fileDragBoxRef = React.useRef<HTMLDivElement>(null);
-  const { language } = useCommonContext();
   const [state, setState] = React.useState<DndFileInputState>({});
   const [, forceRender] = React.useReducer((x) => x + 1, 0);
 

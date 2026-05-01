@@ -1,5 +1,6 @@
 import { Components } from "@frontend/common";
 import { useBackendClient, useSessionQuery } from "@frontend/common/src/hooks/useAPI";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
@@ -100,6 +101,7 @@ const ProfileImageErrorFallback: React.FC = () => (
 );
 
 const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = ({ speaker }) => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   return (
     <>
       <Stack direction="row" spacing={4} sx={{ px: 2, py: 1 }}>
@@ -109,7 +111,9 @@ const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = 
         <Stack alignItems="flex-start" justifyContent="center" sx={{ flexGrow: 1 }}>
           <Typography variant="h4" fontWeight="700" fontSize="2rem" children={speaker.nickname} />
           {speaker.biography ? (
-            <BiographyBox children={<Components.MDXRenderer text={speaker.biography || ""} format="md" />} />
+            <BiographyBox
+              children={<Components.MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />}
+            />
           ) : (
             <>
               <br />
@@ -147,6 +151,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, setAppContext } = useAppContext();
+    const { baseUrl, mdxComponents } = useCommonContext();
     const backendClient = useBackendClient();
     const { data: presentation } = useSessionQuery(backendClient, id || "");
 
@@ -259,7 +264,12 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
           />
         )}
         <DescriptionBox>
-          <Components.MDXRenderer text={presentation.description || descriptionFallback} format="md" />
+          <Components.MDXRenderer
+            text={presentation.description || descriptionFallback}
+            format="md"
+            baseUrl={baseUrl}
+            mdxComponents={mdxComponents}
+          />
         </DescriptionBox>
         <Divider flexItem />
         {presentation.speakers && (

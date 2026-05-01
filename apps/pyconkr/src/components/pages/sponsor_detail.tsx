@@ -1,4 +1,5 @@
 import { Components } from "@frontend/common";
+import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -54,6 +55,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, sponsorTiers, setAppContext } = useAppContext();
+    const { baseUrl, mdxComponents } = useCommonContext();
     const sponsors = sponsorTiers?.reduce((acc, tier) => [...acc, ...tier.sponsors], [] as SponsorTierSchema["sponsors"]);
     const sponsor = sponsors?.find((s) => s.id === id);
 
@@ -88,7 +90,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
         </Typography>
         <Divider flexItem />
         <DescriptionBox>
-          <Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" />
+          <Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </DescriptionBox>
       </PageLayout>
     );

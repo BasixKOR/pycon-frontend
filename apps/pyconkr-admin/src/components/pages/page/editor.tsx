@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { PageSectionSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
 import { muiTheme } from "../../../styles/globalStyles";
 import { addErrorSnackbar } from "../../../utils/snackbar";
+import { ErrorFallback } from "../../elements/error_fallback";
 import { AdminEditor } from "../../layouts/admin_editor";
 
 type SectionType = PageSectionSchema;
@@ -33,6 +34,7 @@ type SectionEditorPropType = CommonSectionEditorPropType & {
 };
 
 const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+  const { baseUrl, mdxComponents } = useCommonContext();
   const deleteActionButton = commands.group([], {
     name: "delete",
     groupName: "delete",
@@ -51,7 +53,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
         <ThemeProvider theme={muiTheme}>
-          <Components.MDXRenderer text={defaultValue || ""} format="mdx" />
+          <Components.MDXRenderer text={defaultValue || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </ThemeProvider>
       </Box>
     </Stack>
@@ -80,7 +82,7 @@ type AdminCMSPageEditorStateType = {
 };
 
 export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const { frontendDomain } = useCommonContext();

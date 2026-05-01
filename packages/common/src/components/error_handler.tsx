@@ -2,8 +2,6 @@ import { Button, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import * as CommonContext from "../hooks";
-
 const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   console.error(error);
   const errorObject = Object.getOwnPropertyNames(error).reduce(
@@ -61,15 +59,10 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => 
   );
 };
 
-export const ErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
-  const InnerErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
-    const { debug } = CommonContext.Common.useCommonContext();
-    return debug ? <DetailedErrorFallback error={error} reset={reset} /> : <SimplifiedErrorFallback reset={reset} />;
-  };
-
+export const ErrorFallback: React.FC<{ error: Error; reset: () => void; debug?: boolean }> = ({ error, reset, debug }) => {
   return (
     <Suspense fallback={<>로딩 중...</>}>
-      <InnerErrorFallback error={error} reset={reset} />
+      {debug ? <DetailedErrorFallback error={error} reset={reset} /> : <SimplifiedErrorFallback reset={reset} />}
     </Suspense>
   );
 };
