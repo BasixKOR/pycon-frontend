@@ -21,6 +21,8 @@ import {
 } from "./mdx_components/faq_accordion";
 import type { MapPropType as MapComponentPropType } from "./mdx_components/map";
 import { Map as MapComponent } from "./mdx_components/map";
+import { MobileAccordion as MobileAccordionComponent } from "./mdx_components/mobile_accordion";
+import { MobileCover as MobileCoverComponent } from "./mdx_components/mobile_cover";
 import { OneDetailsOpener as OneDetailsOpenerComponent } from "./mdx_components/one_details_opener";
 import { SessionList as SessionListComponent } from "./mdx_components/session_list";
 import { SessionTimeTable as SessionTimeTableComponent } from "./mdx_components/session_timetable";
@@ -51,6 +53,8 @@ namespace Components {
 
   export namespace MDX {
     export const Confetti = ConfettiComponent;
+    export const MobileAccordion = MobileAccordionComponent;
+    export const MobileCover = MobileCoverComponent;
     export const StyledFullWidthButton = StyledFullWidthButtonComponent;
     export const PrimaryStyledDetails = PrimaryStyledDetailsComponent;
     export const SecondaryStyledDetails = SecondaryStyledDetailsComponent;

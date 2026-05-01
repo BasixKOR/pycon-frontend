@@ -4,7 +4,6 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import PyCon2025Logo from "../../assets/pyconkr2025_logo.png";
 import * as Hooks from "../../hooks";
 import * as BackendAPISchemas from "../../schemas/backendAPI";
 import { ErrorFallback } from "../error_handler";
@@ -13,65 +12,72 @@ import { StyledDivider } from "./styled_divider";
 
 const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];
 
-const SessionItem: React.FC<{ session: BackendAPISchemas.SessionSchema; enableLink?: boolean }> = Suspense.with(
-  { fallback: <CircularProgress /> },
-  ({ session, enableLink }) => {
-    const sessionTitle = session.title.replace("\\n", "\n");
+const SessionItem: React.FC<{
+  session: BackendAPISchemas.SessionSchema;
+  enableLink?: boolean;
+  fallbackImage?: React.ReactNode;
+  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
+}> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, fallbackImage, getSessionUrl }) => {
+  const sessionTitle = session.title.replace("\\n", "\n");
 
-    let speakerImgSrc = session.image || "";
-    if (!speakerImgSrc && R.isArray(session.speakers) && !R.isEmpty(session.speakers)) {
-      for (const speaker of session.speakers) {
-        if (speaker.image) {
-          speakerImgSrc = speaker.image;
-          break;
-        }
+  let speakerImgSrc = session.image || "";
+  if (!speakerImgSrc && R.isArray(session.speakers) && !R.isEmpty(session.speakers)) {
+    for (const speaker of session.speakers) {
+      if (speaker.image) {
+        speakerImgSrc = speaker.image;
+        break;
       }
     }
-
-    const urlSafeTitle = session.title
-      .replace(/ /g, "-")
-      .replace(/([.])/g, "_")
-      .replace(/(?![0-9A-Za-zㄱ-ㅣ가-힣-_])./g, "");
-    const sessionDetailedUrl = `/presentations/${session.id}#${urlSafeTitle}`;
-    const result = (
-      <SessionItemContainer direction="row">
-        <SessionImageContainer
-          children={<SessionImage src={speakerImgSrc} alt="Session Image" loading="lazy" errorFallback={<SessionImageErrorFallback />} />}
-        />
-        <Stack direction="column" sx={{ flexGrow: 1, py: 0.5, gap: 0.75 }}>
-          <SessionTitle children={sessionTitle} />
-          {session.summary && <Typography variant="subtitle1" sx={{ whiteSpace: "pre-wrap" }} children={session.summary} />}
-          <Stack direction="row" spacing={0.5}>
-            {session.speakers.map((speaker) => (
-              <Chip key={speaker.id} size="small" label={speaker.nickname} />
-            ))}
-          </Stack>
-          <Stack direction="row" spacing={0.5}>
-            {session.categories.map((tag) => (
-              <Chip key={tag.id} variant="outlined" color="primary" size="small" label={tag.name} />
-            ))}
-          </Stack>
-        </Stack>
-      </SessionItemContainer>
-    );
-    return (
-      <>
-        {enableLink ? <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }} children={result} /> : result}
-        <StyledDivider />
-      </>
-    );
   }
-);
+
+  const sessionDetailedUrl = getSessionUrl ? getSessionUrl(session) : undefined;
+  const result = (
+    <SessionItemContainer direction="row">
+      <SessionImageContainer
+        children={
+          <SessionImage
+            src={speakerImgSrc}
+            alt="Session Image"
+            loading="lazy"
+            errorFallback={<SessionImageErrorFallback>{fallbackImage}</SessionImageErrorFallback>}
+          />
+        }
+      />
+      <Stack direction="column" sx={{ flexGrow: 1, py: 0.5, gap: 0.75 }}>
+        <SessionTitle children={sessionTitle} />
+        {session.summary && <Typography variant="subtitle1" sx={{ whiteSpace: "pre-wrap" }} children={session.summary} />}
+        <Stack direction="row" spacing={0.5}>
+          {session.speakers.map((speaker) => (
+            <Chip key={speaker.id} size="small" label={speaker.nickname} />
+          ))}
+        </Stack>
+        <Stack direction="row" spacing={0.5}>
+          {session.categories.map((tag) => (
+            <Chip key={tag.id} variant="outlined" color="primary" size="small" label={tag.name} />
+          ))}
+        </Stack>
+      </Stack>
+    </SessionItemContainer>
+  );
+  return (
+    <>
+      {enableLink && sessionDetailedUrl ? <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }} children={result} /> : result}
+      <StyledDivider />
+    </>
+  );
+});
 
 type SessionListPropType = {
   event?: string;
   types?: string | string[];
   enableLink?: boolean;
+  fallbackImage?: React.ReactNode;
+  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
 };
 
 export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink, fallbackImage, getSessionUrl }) => {
     const { language } = Hooks.Common.useCommonContext();
     const backendAPIClient = Hooks.BackendAPI.useBackendClient();
     const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
@@ -122,7 +128,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
           )}
         </Box>
         {filteredSessions.map((s) => (
-          <SessionItem key={s.id} session={s} enableLink={enableLink} />
+          <SessionItem key={s.id} session={s} enableLink={enableLink} fallbackImage={fallbackImage} getSessionUrl={getSessionUrl} />
         ))}
       </Box>
     );
@@ -194,10 +200,8 @@ const SessionImageErrorFallbackBox = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const SessionImageErrorFallback: React.FC = () => (
-  <SessionImageErrorFallbackBox>
-    <img src={PyCon2025Logo} alt="PyCon 2025 Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-  </SessionImageErrorFallbackBox>
+const SessionImageErrorFallback: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  <SessionImageErrorFallbackBox>{children}</SessionImageErrorFallbackBox>
 );
 
 const SessionTitle = styled(Typography)({
