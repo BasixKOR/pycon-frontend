@@ -25,7 +25,7 @@
     /* Paths */
     "baseUrl": ".",
     "paths": {
-      "@apps/pyconkr/*": ["apps/pyconkr/src/*"],
+      "@apps/pyconkr-2025/*": ["apps/pyconkr-2025/src/*"],
     }
   },
   "include": ["src", "vite.config.mts", "vite-env.d.ts", "../../types"],

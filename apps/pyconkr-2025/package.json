@@ -1,5 +1,5 @@
 {
-    "name": "@apps/pyconkr",
+    "name": "@apps/pyconkr-2025",
     "dependencies": {
         "@frontend/common": "workspace:*",
         "@frontend/shop": "workspace:*"

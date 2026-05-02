@@ -5,10 +5,10 @@
     "@frontend/common": "pnpm -F @frontend/common",
     "@frontend/shop": "pnpm -F @frontend/shop",
     "build:@frontend": "pnpm -r run build",
-    "@apps/pyconkr": "pnpm -F ./apps/pyconkr",
-    "dev:@apps/pyconkr": "pnpm vite ./apps/pyconkr",
-    "build:@apps/pyconkr": "tsc -b && pnpm vite build ./apps/pyconkr",
-    "preview:@apps/pyconkr": "pnpm vite preview ./apps/pyconkr",
+    "@apps/pyconkr-2025": "pnpm -F ./apps/pyconkr-2025",
+    "dev:@apps/pyconkr-2025": "pnpm vite ./apps/pyconkr-2025",
+    "build:@apps/pyconkr-2025": "tsc -b && pnpm vite build ./apps/pyconkr-2025",
+    "preview:@apps/pyconkr-2025": "pnpm vite preview ./apps/pyconkr-2025",
     "dev:@apps/pyconkr-admin": "pnpm vite ./apps/pyconkr-admin",
     "build:@apps/pyconkr-admin": "tsc -b && pnpm vite build ./apps/pyconkr-admin",
     "preview:@apps/pyconkr-admin": "pnpm vite preview ./apps/pyconkr-participant-portal",
@@ -18,7 +18,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"{apps,packages}/**/*.{js,jsx,ts,tsx}\"",
     "format:check": "prettier --check \"{apps,packages}/**/*.{js,jsx,ts,tsx}\"",
-    "predeploy": "pnpm build:@apps/pyconkr",
+    "predeploy": "pnpm build:@apps/pyconkr-2025",
     "deploy": "gh-pages -d dist"
   },
   "workspaces": [

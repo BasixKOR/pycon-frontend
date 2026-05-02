@@ -39,9 +39,9 @@ jobs:
 
     strategy:
       matrix:
-        application: [pyconkr, pyconkr-admin, pyconkr-participant-portal]
+        application: [pyconkr-2025, pyconkr-admin, pyconkr-participant-portal]
         include:
-          - application: pyconkr
+          - application: pyconkr-2025
             aws_s3_bucket_key: AWS_S3_PYCONKR_FRONTEND_BUCKET
             aws_cloudfront_distribution_key: AWS_CLOUDFRONT_PYCONKR_FRONTEND_DISTRIBUTION_ID
           - application: pyconkr-admin
