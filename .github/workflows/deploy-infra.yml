@@ -1,0 +1,146 @@
+name: Deploy frontend to infrastructure
+
+concurrency:
+  group: deploy-infra-${{ github.ref }}-${{ inputs.WORKFLOW_PHASE || 'dev' }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      WORKFLOW_PHASE:
+        description: "Phase to deploy"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prd
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      phase: ${{ steps.set.outputs.phase }}
+      matrix: ${{ steps.set.outputs.matrix }}
+      keys: ${{ steps.set.outputs.keys }}
+    env:
+      PHASE: ${{ github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev' }}
+    steps:
+      - id: set
+        run: |
+          set -euo pipefail
+          # Per-phase {key, app} list. `key` matches infra repo's vars.yaml
+          # `frontends.<key>` and is also the upload-artifact name suffix.
+          # `mode` is derived from PHASE at build time, not encoded here.
+          case "$PHASE" in
+            dev)
+              INCLUDE='[
+                {"key":"admin-dev","app":"pyconkr-admin"},
+                {"key":"participant-dev","app":"pyconkr-participant-portal"},
+                {"key":"pyconkr-dev","app":"pyconkr-2026"}
+              ]' ;;
+            prd)
+              INCLUDE='[
+                {"key":"admin","app":"pyconkr-admin"},
+                {"key":"participant","app":"pyconkr-participant-portal"},
+                {"key":"pyconkr-2026","app":"pyconkr-2026"},
+                {"key":"pyconkr-2025","app":"pyconkr-2025"}
+              ]' ;;
+          esac
+          MATRIX=$(jq -nc --argjson inc "$INCLUDE" '{include: $inc}')
+          KEYS=$(echo "$MATRIX" | jq -c '[.include[].key]')
+          {
+            echo "phase=$PHASE"
+            echo "matrix=$MATRIX"
+            echo "keys=$KEYS"
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: config
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.config.outputs.matrix) }}
+    env:
+      VITE_MODE: ${{ needs.config.outputs.phase == 'prd' && 'production' || 'development' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build ${{ matrix.app }} (${{ env.VITE_MODE }})
+        run: pnpm build:@apps/${{ matrix.app }} --mode ${{ env.VITE_MODE }}
+
+      # Artifact name = `frontend-<key>` (infra repo vars.yaml `frontends.<key>`).
+      - uses: actions/upload-artifact@v7
+        with:
+          name: frontend-${{ matrix.key }}
+          path: apps/${{ matrix.app }}/dist/
+          retention-days: 7
+          if-no-files-found: error
+
+  trigger:
+    if: always()
+    needs: [config, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions
+
+      - name: Generate App token (cross-repo dispatch)
+        id: app-token
+        if: needs.build.result == 'success'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.DEPLOY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ secrets.INFRA_REPO_NAME }}
+
+      - name: Dispatch deploy-frontend to infrastructure
+        if: needs.build.result == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          INFRA_REPO: ${{ github.repository_owner }}/${{ secrets.INFRA_REPO_NAME }}
+          PHASE: ${{ needs.config.outputs.phase }}
+          KEYS: ${{ needs.config.outputs.keys }}
+        run: |
+          set -euo pipefail
+          # Build payload via jq so `keys` stays a real JSON array (gh api -f
+          # would coerce values to strings).
+          jq -n \
+            --arg phase "$PHASE" \
+            --arg src "${{ github.repository }}" \
+            --arg run "${{ github.run_id }}" \
+            --argjson keys "$KEYS" \
+            '{event_type:"deploy-frontend",client_payload:{phase:$phase,source_repo:$src,source_run_id:$run,keys:$keys}}' \
+            | gh api "repos/$INFRA_REPO/dispatches" --input -
+
+      # If build failed/cancelled, dispatch is skipped — fail this job so
+      # job.status reflects the real outcome for the slack step.
+      - name: Propagate upstream status
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+
+      - uses: ./.github/actions/notify-slack-deploy
+        if: always()
+        with:
+          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack-channel: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
+          header-prefix: "frontend → infrastructure (${{ needs.config.outputs.phase || '?' }})"
+          section-text: "keys: `${{ needs.config.outputs.keys || '?' }}`\n실제 배포 결과는 infrastructure repo `Deploy frontend` 알림 확인"

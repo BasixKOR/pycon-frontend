@@ -83,67 +83,9 @@ jobs:
 
       - run: aws cloudfront create-invalidation --distribution-id ${{ env[matrix.aws_cloudfront_distribution_key] }} --paths "/*"
 
-      # Notify to Slack (Success)
-      - name: Notify deployment to Slack
-        if: failure() || cancelled()
-        uses: slackapi/slack-github-action@v1.26.0
+      - uses: ./.github/actions/notify-slack-deploy
+        if: always()
         with:
-          channel-id: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "${{ steps.info.outputs.repository_name }} ${{ matrix.application }} (${{ env.API_STAGE }}) 배포 실패 :rotating_light: (${{ job.status }})",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {"type": "mrkdwn", "text": "GitHub Action 바로가기"},
-                  "accessory": {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "${{ github.run_id }}"},
-                    "value": "github_action",
-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                    "action_id": "button-action"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
-      # Notify to Slack (Failure)
-      - name: Notify deployment to Slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "${{ steps.info.outputs.repository_name }} ${{ matrix.application }} (${{ env.API_STAGE }}) 배포 성공 :tada:",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {"type": "mrkdwn", "text": "GitHub Action 바로가기"},
-                  "accessory": {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "${{ github.run_id }}"},
-                    "value": "github_action",
-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                    "action_id": "button-action"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack-channel: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
+          header-prefix: "${{ steps.info.outputs.repository_name }} ${{ matrix.application }} (${{ env.API_STAGE }}) 배포"
