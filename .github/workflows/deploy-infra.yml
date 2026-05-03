@@ -29,6 +29,7 @@ jobs:
       phase: ${{ steps.set.outputs.phase }}
       matrix: ${{ steps.set.outputs.matrix }}
       keys: ${{ steps.set.outputs.keys }}
+      keys_display: ${{ steps.set.outputs.keys_display }}
     env:
       PHASE: ${{ github.event_name == 'workflow_dispatch' && inputs.WORKFLOW_PHASE || 'dev' }}
     steps:
@@ -55,10 +56,12 @@ jobs:
           esac
           MATRIX=$(jq -nc --argjson inc "$INCLUDE" '{include: $inc}')
           KEYS=$(echo "$MATRIX" | jq -c '[.include[].key]')
+          KEYS_DISPLAY=$(echo "$MATRIX" | jq -r '[.include[].key] | join(" & ")')
           {
             echo "phase=$PHASE"
             echo "matrix=$MATRIX"
             echo "keys=$KEYS"
+            echo "keys_display=$KEYS_DISPLAY"
           } >> "$GITHUB_OUTPUT"
 
   build:
@@ -143,4 +146,4 @@ jobs:
           slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
           slack-channel: ${{ vars.SLACK_DEPLOYMENT_ALERT_CHANNEL }}
           header-prefix: "frontend → infrastructure (${{ needs.config.outputs.phase || '?' }})"
-          section-text: "keys: `${{ needs.config.outputs.keys || '?' }}`\n실제 배포 결과는 infrastructure repo `Deploy frontend` 알림 확인"
+          section-text: "${{ needs.config.outputs.keys_display || '?' }} 빌드"
