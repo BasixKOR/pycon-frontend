@@ -1,4 +1,4 @@
-import { Components } from "@frontend/common";
+import { Components, Utils } from "@frontend/common";
 import type { ContextOptions } from "@frontend/common/src/contexts";
 import * as Shop from "@frontend/shop";
 import { CircularProgress } from "@mui/material";
@@ -49,6 +49,8 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
   shopApiTimeout: 10000,
   shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
+
+Utils.registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -1,4 +1,4 @@
-import { Components } from "@frontend/common";
+import { Components, Utils } from "@frontend/common";
 import type { ContextOptions } from "@frontend/common/src/contexts";
 import { CircularProgress, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -79,5 +79,7 @@ const MainApp: React.FC = () => {
     </React.StrictMode>
   );
 };
+
+Utils.registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);

@@ -1,5 +1,5 @@
 import { Global } from "@emotion/react";
-import { Components } from "@frontend/common";
+import { Components, Utils } from "@frontend/common";
 import type { ContextOptions } from "@frontend/common/src/contexts";
 import * as Shop from "@frontend/shop";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
@@ -104,5 +104,7 @@ const MainApp: React.FC = () => {
     </React.StrictMode>
   );
 };
+
+Utils.registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);
