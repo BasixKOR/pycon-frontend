@@ -14,7 +14,7 @@ export default function LanguageSelector() {
 
   return (
     <Stack direction="row" alignItems="center" spacing={0.5}>
-      <Language sx={{ color: "text.secondary", fontSize: "1.25rem" }} />
+      <Language sx={{ color: (theme) => theme.palette.primary.nonFocus, w: "1.5rem", h: "1.5rem" }} />
       <LanguageItem onClick={toggleLanguage} selected={language === "ko"}>
         KO
       </LanguageItem>
@@ -26,11 +26,8 @@ export default function LanguageSelector() {
 }
 
 const LanguageItem = styled(Button)<{ selected: boolean }>(({ selected, theme }) => ({
-  color: selected ? theme.palette.primary.main : theme.palette.text.secondary,
+  color: selected ? theme.palette.primary.dark : theme.palette.primary.nonFocus,
   minWidth: 0,
   padding: "0.375rem 0.25rem",
   transition: "color 0.2s ease",
-  "&:hover": {
-    color: theme.palette.primary.light,
-  },
 }));

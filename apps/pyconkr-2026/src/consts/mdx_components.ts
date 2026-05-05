@@ -1,14 +1,15 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
 import { Components, Schemas } from "@frontend/common";
+import * as Shop from "@frontend/shop";
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
 import * as React from "react";
 
 import PyCon2025HostLogoBig from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_small.png";
-import PyConKR2026CoverImage from "../assets/pyconkr2026_main_cover_image.png";
-
-const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=";
+import PyCon2025Logo from "../../../../packages/common/src/assets/pyconkr2025_logo.png";
+import PyCon2025MobileLogoImage from "../../../../packages/common/src/assets/pyconkr2025_main_cover_image.png";
+import PyCon2025MobileLogoTitle from "../../../../packages/common/src/assets/pyconkr2025_main_cover_title.png";
 
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: mui.Accordion,
@@ -136,7 +137,7 @@ const MUIMDXComponents: MDXComponents = {
   Mui__material__Zoom: mui.Zoom,
 };
 
-const getPyConKR2026SessionUrl = (session: Schemas.BackendAPI.SessionSchema): string => {
+const getPyConKR2025SessionUrl = (session: Schemas.BackendAPI.SessionSchema): string => {
   const urlSafeTitle = session.title
     .replace(/ /g, "-")
     .replace(/([.])/g, "_")
@@ -144,19 +145,26 @@ const getPyConKR2026SessionUrl = (session: Schemas.BackendAPI.SessionSchema): st
   return `/presentations/${session.id}#${urlSafeTitle}`;
 };
 
-const PyConKR2026SessionList: React.FC<React.ComponentProps<typeof Components.MDX.SessionList>> = (props) =>
+const PyConKR2025FallbackImage = React.createElement("img", {
+  src: PyCon2025Logo,
+  alt: "PyCon 2025 Logo",
+  style: { width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" },
+});
+
+const PyConKR2025SessionList: React.FC<React.ComponentProps<typeof Components.MDX.SessionList>> = (props) =>
   React.createElement(Components.MDX.SessionList, {
     ...props,
-    getSessionUrl: getPyConKR2026SessionUrl,
+    fallbackImage: PyConKR2025FallbackImage,
+    getSessionUrl: getPyConKR2025SessionUrl,
   });
 
-const PyConKR2026SessionTimeTable: React.FC<React.ComponentProps<typeof Components.MDX.SessionTimeTable>> = (props) =>
+const PyConKR2025SessionTimeTable: React.FC<React.ComponentProps<typeof Components.MDX.SessionTimeTable>> = (props) =>
   React.createElement(Components.MDX.SessionTimeTable, {
     ...props,
-    getSessionUrl: getPyConKR2026SessionUrl,
+    getSessionUrl: getPyConKR2025SessionUrl,
   });
 
-const PyConKR2026MobileAccordion: React.FC<object> = () =>
+const PyConKR2025MobileAccordion: React.FC<object> = () =>
   React.createElement(Components.MDX.MobileAccordion, {
     marqueeText: "AUG 15 - 17",
     marqueeLogoSrc: PyCon2025HostLogoSmall,
@@ -165,10 +173,10 @@ const PyConKR2026MobileAccordion: React.FC<object> = () =>
     venueEnLines: ["New Engineering Building, Dongguk University", "Pildong-ro 1-gil, Jung-gu, Seoul, Republic of Korea"],
   });
 
-const PyConKR2026MobileCover: React.FC<object> = () =>
+const PyConKR2025MobileCover: React.FC<object> = () =>
   React.createElement(Components.MDX.MobileCover, {
-    coverImageSrc: PyConKR2026CoverImage,
-    coverTitleSrc: TRANSPARENT_PIXEL,
+    coverImageSrc: PyCon2025MobileLogoImage,
+    coverTitleSrc: PyCon2025MobileLogoTitle,
   });
 
 const PyConKRCommonMDXComponents: MDXComponents = {
@@ -180,13 +188,28 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__Map: Components.MDX.Map,
   Common__Components__MDX__FAQAccordion: Components.MDX.FAQAccordion,
   Common__Components__MDX__FullWidthStyledButton: Components.MDX.StyledFullWidthButton,
-  Common__Components__Session__List: PyConKR2026SessionList,
-  Common__Components__Session__TimeTable: PyConKR2026SessionTimeTable,
-  Common__Components__MDX__MobileAccordion: PyConKR2026MobileAccordion,
-  Common__Components__MDX__MobileCover: PyConKR2026MobileCover,
+  Common__Components__Session__List: PyConKR2025SessionList,
+  Common__Components__Session__TimeTable: PyConKR2025SessionTimeTable,
+  Common__Components__MDX__MobileAccordion: PyConKR2025MobileAccordion,
+  Common__Components__MDX__MobileCover: PyConKR2025MobileCover,
 };
 
-export const PyConKR2026MDXComponents = {
+const PythonKRShopMDXComponents: MDXComponents = {
+  Shop__Common__PriceDisplay: Shop.Components.Common.PriceDisplay,
+  Shop__Common__SignInGuard: Shop.Components.Common.SignInGuard,
+  Shop__Common__ContextProvider: Shop.Components.Common.ShopContextProvider,
+  Shop__Common__UserSignInMethod: Shop.Components.Common.UserSignInMethod,
+  Shop__Common__UserSignInAccount: Shop.Components.Common.UserSignInAccount,
+  Shop__Feature__CartStatus: Shop.Components.Features.CartStatus,
+  Shop__Feature__ProductList: Shop.Components.Features.ProductList,
+  Shop__Feature__ProductImageCardList: Shop.Components.Features.ProductImageCardList,
+  Shop__Feature__OrderList: Shop.Components.Features.OrderList,
+  Shop__Feature__UserInfo: Shop.Components.Features.UserInfo,
+  Shop__Feature__PatronList: Shop.Components.Features.PatronList,
+};
+
+export const PyConKRMDXComponents = {
   ...MUIMDXComponents,
   ...PyConKRCommonMDXComponents,
+  ...PythonKRShopMDXComponents,
 };

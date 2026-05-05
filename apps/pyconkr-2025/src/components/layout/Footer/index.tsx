@@ -4,7 +4,7 @@ import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, Yo
 import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
-import FlickrIcon from "@apps/pyconkr/assets/thirdparty/flickr.svg?react";
+import FlickrIcon from "@apps/pyconkr-2025/assets/thirdparty/flickr.svg?react";
 
 // import MobileFooter from "./Mobile/MobileFooter";
 import { useAppContext } from "../../../contexts/app_context";

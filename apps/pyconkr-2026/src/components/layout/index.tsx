@@ -2,16 +2,20 @@ import styled from "@emotion/styled";
 import { Stack } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
+import { useAppContext } from "../../contexts/app_context";
 import Footer from "./Footer";
 import Header from "./Header";
+import { Sponsor } from "./Sponsor";
 
 export default function MainLayout() {
+  const { shouldShowSponsorBanner } = useAppContext();
   return (
     <Stack sx={{ minHeight: "100dvh" }}>
       <Header />
       <MainContent>
         <Outlet />
       </MainContent>
+      {shouldShowSponsorBanner && <Sponsor />}
       <Footer />
     </Stack>
   );

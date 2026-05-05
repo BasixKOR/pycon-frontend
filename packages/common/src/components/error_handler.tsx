@@ -1,6 +1,47 @@
-import { Button, Typography } from "@mui/material";
+import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
+
+import { CenteredPage } from "./centered_page";
+import { isChunkLoadError, reloadForChunkLoadError } from "../utils/chunk_load_error";
+
+const ChunkLoadErrorFallback: React.FC = () => {
+  const [reloadSkipped, setReloadSkipped] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!reloadForChunkLoadError()) setReloadSkipped(true);
+  }, []);
+
+  if (reloadSkipped) {
+    return (
+      <CenteredPage>
+        <Stack spacing={2} alignItems="center">
+          <Typography variant="body2" color="text.secondary" align="center">
+            업데이트를 위해 페이지 새로고침이 필요합니다.
+            <br />
+            Please refresh the page to load the latest version.
+          </Typography>
+          <Button variant="outlined" onClick={() => window.location.reload()}>
+            새로고침 | Reload
+          </Button>
+        </Stack>
+      </CenteredPage>
+    );
+  }
+
+  return (
+    <CenteredPage>
+      <Stack spacing={2} alignItems="center">
+        <CircularProgress />
+        <Typography variant="body2" color="text.secondary" align="center">
+          새로운 버전으로 업데이트 중입니다...
+          <br />
+          Updating to the latest version...
+        </Typography>
+      </Stack>
+    </CenteredPage>
+  );
+};
 
 const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   console.error(error);
@@ -60,6 +101,7 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => 
 };
 
 export const ErrorFallback: React.FC<{ error: Error; reset: () => void; debug?: boolean }> = ({ error, reset, debug }) => {
+  if (isChunkLoadError(error)) return <ChunkLoadErrorFallback />;
   return (
     <Suspense fallback={<>로딩 중...</>}>
       {debug ? <DetailedErrorFallback error={error} reset={reset} /> : <SimplifiedErrorFallback reset={reset} />}

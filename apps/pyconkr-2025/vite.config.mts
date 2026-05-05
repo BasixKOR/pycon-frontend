@@ -16,7 +16,7 @@ export default defineConfig({
       "@frontend/common/src": path.resolve(__dirname, "../../packages/common/src"),
       "@frontend/common": path.resolve(__dirname, "../../packages/common/src/index.ts"),
       "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src/index.ts"),
-      "@apps/pyconkr": path.resolve(__dirname, "./src"),
+      "@apps/pyconkr-2025": path.resolve(__dirname, "./src"),
     },
   },
 });

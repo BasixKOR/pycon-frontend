@@ -1,6 +1,7 @@
 import { Global } from "@emotion/react";
-import { Components } from "@frontend/common";
+import { Components, Utils } from "@frontend/common";
 import type { ContextOptions } from "@frontend/common/src/contexts";
+import * as Shop from "@frontend/shop";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { LOCAL_STORAGE_LANGUAGE_KEY } from "./consts/local_stroage.ts";
-import { PyConKR2026MDXComponents } from "./consts/mdx_components.ts";
+import { PyConKRMDXComponents } from "./consts/mdx_components.ts";
 import { AppContext, AppContextType } from "./contexts/app_context.tsx";
 import { globalStyles, muiTheme } from "./styles/globalStyles.ts";
 
@@ -48,7 +49,15 @@ const CommonOptions: ContextOptions = {
   baseUrl: ".",
   backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
   backendApiTimeout: 10000,
-  mdxComponents: PyConKR2026MDXComponents,
+  mdxComponents: PyConKRMDXComponents,
+};
+
+const ShopOptions: Shop.Contexts.ContextOptions = {
+  language: "ko",
+  shopApiDomain: import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN,
+  shopApiCSRFCookieName: import.meta.env.VITE_PYCONKR_SHOP_CSRF_COOKIE_NAME,
+  shopApiTimeout: 10000,
+  shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
 
 const SuspenseFallback = (
@@ -76,15 +85,17 @@ const MainApp: React.FC = () => {
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
               <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
-                <ErrorBoundary fallback={Components.ErrorFallback}>
-                  <Suspense fallback={SuspenseFallback}>
-                    <ThemeProvider theme={muiTheme}>
-                      <CssBaseline />
-                      <Global styles={globalStyles} />
-                      <App />
-                    </ThemeProvider>
-                  </Suspense>
-                </ErrorBoundary>
+                <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
+                  <ErrorBoundary fallback={Components.ErrorFallback}>
+                    <Suspense fallback={SuspenseFallback}>
+                      <ThemeProvider theme={muiTheme}>
+                        <CssBaseline />
+                        <Global styles={globalStyles} />
+                        <App />
+                      </ThemeProvider>
+                    </Suspense>
+                  </ErrorBoundary>
+                </Shop.Components.Common.ShopContextProvider>
               </Components.CommonContextProvider>
             </AppContext.Provider>
           </BrowserRouter>
@@ -93,5 +104,7 @@ const MainApp: React.FC = () => {
     </React.StrictMode>
   );
 };
+
+Utils.registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);

@@ -54,7 +54,9 @@ export default function Header() {
           <Link to="/" onClick={resetDepths}>
             <Stack direction="row" alignItems="center" spacing={0.75}>
               <Components.PythonKorea style={{ width: 36, height: 36 }} />
-              <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem", letterSpacing: "0.01em" }}>PyCon Korea 2026</Typography>
+              <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem", letterSpacing: "0.01em" }}>
+                PyCon Korea 2026
+              </Typography>
             </Stack>
           </Link>
         </NavSideElementContainer>

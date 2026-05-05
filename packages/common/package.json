@@ -6,6 +6,6 @@
     "build": "rollup -c"
   },
   "dependencies": {
-    "@apps/pyconkr": "link:."
+    "@apps/pyconkr-2025": "link:."
   }
 }

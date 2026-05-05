@@ -1,19 +1,16 @@
 import { useBackendClient, useFlattenSiteMapQuery, useSponsorQuery } from "@frontend/common/src/hooks/useAPI";
+import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
 import { buildNestedSiteMap } from "@frontend/common/src/utils";
 import * as React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
-import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
 import { PresentationDetailPage } from "./components/pages/presentation_detail.tsx";
+import { ShopSignInPage } from "./components/pages/sign_in.tsx";
 import { SponsorDetailPage } from "./components/pages/sponsor_detail.tsx";
-import { IS_DEBUG_ENV } from "./consts";
-import { PyConKR2026MDXComponents } from "./consts/mdx_components";
 import { useAppContext } from "./contexts/app_context";
-
-const DebugMobileCover = PyConKR2026MDXComponents["Common__Components__MDX__MobileCover"] as React.FC;
 
 export const App: React.FC = () => {
   const backendAPIClient = useBackendClient();
@@ -48,7 +45,7 @@ export const App: React.FC = () => {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        {IS_DEBUG_ENV && <Route path="/debug" element={<DebugMobileCover />} />}
+        <Route path="/account/sign-in" element={<ShopSignInPage />} />
         <Route path="/sponsors/:id" element={<SponsorDetailPage />} />
         <Route path="/presentations/:id" element={<PresentationDetailPage />} />
         <Route path="/pages/:id" element={<PageIdParamRenderer />} />

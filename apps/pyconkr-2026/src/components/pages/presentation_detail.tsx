@@ -8,6 +8,7 @@ import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import * as R from "remeda";
 
+import PyCon2025Logo from "../../../../../packages/common/src/assets/pyconkr2025_logo.png";
 import { useAppContext } from "../../contexts/app_context";
 import { PageLayout } from "../layout/PageLayout";
 
@@ -82,7 +83,7 @@ const ProfileImageContainer = styled(Stack)({
   maxHeight: PROFILE_IMAGE_SIZE,
   overflow: "hidden",
   borderRadius: "50%",
-  border: `1px solid rgba(255, 255, 255, 0.12)`,
+  border: `1px solid rgba(0, 0, 0, 0.12)`,
 });
 
 const ProfileImageStyle: React.CSSProperties = {
@@ -93,12 +94,9 @@ const ProfileImageStyle: React.CSSProperties = {
 
 const ProfileImage = styled(Components.FallbackImage)(ProfileImageStyle);
 
-// TODO: 2026 로고 에셋 준비 후 교체
 const ProfileImageErrorFallback: React.FC = () => (
-  <Stack alignItems="center" justifyContent="center" sx={{ ...ProfileImageStyle, backgroundColor: "rgba(237, 94, 189, 0.1)" }}>
-    <Typography variant="caption" color="text.secondary">
-      ?
-    </Typography>
+  <Stack alignItems="center" justifyContent="center" sx={{ ...ProfileImageStyle }}>
+    <img src={PyCon2025Logo} alt="PyCon 2025 Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
   </Stack>
 );
 
@@ -169,14 +167,16 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
     const datetimeSeparator = language === "ko" ? " ~ " : " - ";
     const minText = language === "ko" ? "분" : "min.";
 
+    // 동일 시간별로 모아서 보여줌. 단, 방은 콤마(,)로 join해서 보여줌
     const scheduleMap: Record<string, string[]> = presentation.room_schedules.reduce(
       (acc, schedule) => {
         const startAt = DateTime.fromISO(schedule.start_at).setLocale(language);
         const endAt = DateTime.fromISO(schedule.end_at).setLocale(language);
-        if (!startAt.isValid || !endAt.isValid) return acc;
+        if (!startAt.isValid || !endAt.isValid) return acc; // 유효하지 않은 날짜는 무시
 
         const duration = Number.parseInt(endAt.diff(startAt, ["minutes"]).minutes.toString());
         const startAtFormatted = startAt.toLocaleString(DateTime.DATETIME_MED);
+        // 동일 일자인 경우, 시간만 표시
         const endAtFormatted = endAt.toLocaleString(startAt.hasSame(endAt, "day") ? DateTime.TIME_SIMPLE : DateTime.DATETIME_MED);
 
         const key = `${startAtFormatted} ${datetimeSeparator} ${endAtFormatted} (${duration}${minText})`;

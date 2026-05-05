@@ -15,6 +15,7 @@ export default defineConfig({
     alias: {
       "@frontend/common/src": path.resolve(__dirname, "../../packages/common/src"),
       "@frontend/common": path.resolve(__dirname, "../../packages/common/src/index.ts"),
+      "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src/index.ts"),
       "@apps/pyconkr-2026": path.resolve(__dirname, "./src"),
     },
   },

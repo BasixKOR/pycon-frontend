@@ -12,6 +12,7 @@ export const muiTheme = createTheme({
       main: "#ed5ebd",
       light: "#f5a0dc",
       dark: "#c93da0",
+      nonFocus: "#c97baa",
     },
     secondary: {
       main: "#ed5ebd",
@@ -23,6 +24,59 @@ export const muiTheme = createTheme({
       light: "#f9d86d",
       dark: "#d4a818",
       contrastText: "#12091e",
+    },
+    mobileHeader: {
+      main: {
+        background: "rgba(237, 94, 189, 0.1)",
+        text: "#ededde",
+        activeLanguage: "#888880",
+      },
+      sub: {
+        background: "#1e1230",
+        text: "rgba(237, 94, 189, 0.6)",
+        activeLanguage: "#ed5ebd",
+      },
+    },
+    mobileNavigation: {
+      main: {
+        background:
+          "linear-gradient(0deg, rgba(18, 9, 30, 0.85), rgba(18, 9, 30, 0.85)), linear-gradient(0deg, rgba(237, 94, 189, 0.08), rgba(237, 94, 189, 0.08))",
+        text: "#ededde",
+        chip: {
+          background: "rgba(237, 94, 189, 0.15)",
+          hover: "rgba(237, 94, 189, 0.25)",
+        },
+        divider: "rgba(237, 94, 189, 0.2)",
+        languageToggle: {
+          background: "transparent",
+          active: {
+            background: "rgba(237, 94, 189, 0.3)",
+            hover: "rgba(237, 94, 189, 0.4)",
+          },
+          inactive: {
+            hover: "rgba(237, 94, 189, 0.1)",
+          },
+        },
+      },
+      sub: {
+        background: "#1e1230",
+        text: "rgba(237, 94, 189, 0.9)",
+        chip: {
+          background: "rgba(237, 94, 189, 0.15)",
+          hover: "rgba(237, 94, 189, 0.25)",
+        },
+        divider: "rgba(237, 94, 189, 0.2)",
+        languageToggle: {
+          background: "rgba(237, 94, 189, 0.05)",
+          active: {
+            background: "rgba(237, 94, 189, 0.3)",
+            hover: "rgba(237, 94, 189, 0.4)",
+          },
+          inactive: {
+            hover: "rgba(237, 94, 189, 0.1)",
+          },
+        },
+      },
     },
     text: {
       primary: "#ededde",
