@@ -20,6 +20,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: "local.dev.pycon.kr",
     allowedHosts: ["local.dev.pycon.kr"],
   },
 });

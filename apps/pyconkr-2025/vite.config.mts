@@ -19,4 +19,8 @@ export default defineConfig({
       "@apps/pyconkr-2025": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: "local.dev.pycon.kr",
+    allowedHosts: ["local.dev.pycon.kr"],
+  },
 });
