@@ -11,9 +11,12 @@ import {
   DialogTitle,
   IconButton,
   IconButtonProps,
+  MenuItem,
+  Select,
   Stack,
   styled,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
@@ -94,17 +97,18 @@ type InnerSiteMapStateType = {
 
 const ModifyDetectionFields: (keyof FlatSiteMap)[] = ["order", "parent_sitemap"];
 
-const InnerSiteMapList: React.FC = ErrorBoundary.with(
+const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, () => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ year }: { year: number }) => {
     const backendAdminAPIClient = useBackendAdminClient();
-    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap");
-    const originalFlatSiteMapObj = Object.values(data).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatSiteMapObj);
+    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap", { year: String(year) });
     const deleteMutation = useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
     const { mutateAsync: updateMutationAsync } = useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
 
     const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
       enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
+
+    const originalFlatSiteMapObj = Object.values(data).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatSiteMapObj);
 
     const [state, setState] = React.useState<InnerSiteMapStateType>({ flatSiteMap: data });
     const nestedSiteMap = buildNestedSiteMap<FlatSiteMap>(state.flatSiteMap)[""];
@@ -241,8 +245,29 @@ const InnerSiteMapList: React.FC = ErrorBoundary.with(
   })
 );
 
-export const SiteMapList: React.FC = () => (
-  <BackendAdminSignInGuard>
-    <InnerSiteMapList />
-  </BackendAdminSignInGuard>
-);
+const YEAR_OPTIONS = [2025, 2026];
+
+export const SiteMapList: React.FC = () => {
+  const [year, setYear] = React.useState(new Date().getFullYear());
+
+  return (
+    <BackendAdminSignInGuard>
+      <Stack spacing={2} sx={{ width: "100%", height: "100%" }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="body2" fontWeight="bold">연도</Typography>
+          <Select
+            size="small"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            sx={{ width: 100 }}
+          >
+            {YEAR_OPTIONS.map((y) => (
+              <MenuItem key={y} value={y}>{y}</MenuItem>
+            ))}
+          </Select>
+        </Stack>
+        <InnerSiteMapList year={year} />
+      </Stack>
+    </BackendAdminSignInGuard>
+  );
+};
