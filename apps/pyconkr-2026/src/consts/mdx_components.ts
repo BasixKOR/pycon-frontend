@@ -7,9 +7,9 @@ import * as React from "react";
 
 import PyCon2025HostLogoBig from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_small.png";
+import PyCon2025Logo from "../../../../packages/common/src/assets/pyconkr2025_logo.png";
 import PyCon2025MobileLogoImage from "../../../../packages/common/src/assets/pyconkr2025_main_cover_image.png";
 import PyCon2025MobileLogoTitle from "../../../../packages/common/src/assets/pyconkr2025_main_cover_title.png";
-import PyCon2025Logo from "../../../../packages/common/src/assets/pyconkr2025_logo.png";
 
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: mui.Accordion,

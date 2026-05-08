@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 import { useEmail } from "@frontend/common/src/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, YouTube } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr-2026/assets/thirdparty/flickr.svg?react";
 
 import { useAppContext } from "../../../contexts/app_context";
+import MobileFooter from "./Mobile/MobileFooter";
 
 interface IconItem {
   icon: React.FC<{ width?: number; height?: number }>;
@@ -49,8 +50,12 @@ const Bar: React.FC = () => <div style={{ display: "inline-block", padding: "0 0
 
 export default function Footer() {
   const { sendEmail } = useEmail();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { language } = useAppContext();
+
+  if (isMobile) return <MobileFooter />;
 
   const corpPasamoStr = language === "ko" ? "사단법인 파이썬사용자모임" : "Python Korea";
   const corpAddressStr =
@@ -137,8 +142,14 @@ export default function Footer() {
 }
 
 const FooterContainer = styled.footer`
-  background-color: ${({ theme }) => theme.palette.primary.main};
-  color: ${({ theme }) => theme.palette.common.white};
+  background: linear-gradient(
+    to bottom,
+    ${({ theme }) => theme.palette.background.default} 0%,
+    ${({ theme }) => theme.palette.background.paper} 25%,
+    ${({ theme }) => theme.palette.primary.dark} 75%,
+    ${({ theme }) => theme.palette.primary.main} 100%
+  );
+  color: ${({ theme }) => theme.palette.text.primary};
   font-size: 0.75rem;
   display: flex;
   flex-direction: column;

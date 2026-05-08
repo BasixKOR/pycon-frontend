@@ -7,6 +7,7 @@ import * as Hooks from "../../hooks";
 type MobileCoverProps = {
   coverImageSrc: string;
   coverTitleSrc: string;
+  coverImageObjectFit?: React.CSSProperties["objectFit"];
   buttonTextKo?: string;
   buttonTextEn?: string;
 };
@@ -14,6 +15,7 @@ type MobileCoverProps = {
 export const MobileCover: React.FC<MobileCoverProps> = ({
   coverImageSrc,
   coverTitleSrc,
+  coverImageObjectFit = "cover",
   buttonTextKo = "티켓 구매하기",
   buttonTextEn = "Buy Ticket",
 }) => {
@@ -22,8 +24,8 @@ export const MobileCover: React.FC<MobileCoverProps> = ({
 
   return (
     <Stack sx={{ display: "flex", flexDirection: "column", position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
-      <Stack sx={{ zIndex: 1, position: "absolute", top: 0, left: 0, flex: 1, display: "flex", width: "100%" }}>
-        <img src={coverImageSrc} alt="Mobile Cover Image" style={{ flex: 1, objectFit: "cover" }} />
+      <Stack sx={{ zIndex: 1, position: "absolute", top: 0, left: 0, flex: 1, display: "flex", width: "100%", height: "100%" }}>
+        <img src={coverImageSrc} alt="Mobile Cover Image" style={{ flex: 1, width: "100%", height: "100%", objectFit: coverImageObjectFit, objectPosition: "center center" }} />
       </Stack>
       <Stack sx={{ zIndex: 2, position: "absolute", top: 96, left: 46 }}>
         <img src={coverTitleSrc} alt="Mobile Cover Title" style={{ objectFit: "contain" }} />
