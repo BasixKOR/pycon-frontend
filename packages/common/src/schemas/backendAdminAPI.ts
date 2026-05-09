@@ -63,7 +63,7 @@ export type PageSectionSchema = {
 
 export type FlattenedSiteMapSchema = {
   id: string;
-  year: number;
+  domain_group: string;
   route_code: string;
   name_ko: string;
   name_en: string;
@@ -76,7 +76,7 @@ export type FlattenedSiteMapSchema = {
 
 export type NestedSiteMapSchema = {
   id: string;
-  year: number;
+  domain_group: string;
   route_code: string;
   name_ko: string;
   name_en: string;
