@@ -1,4 +1,10 @@
-import { useBackendAdminClient, useListQuery, useRemovePreparedMutation, useUpdatePreparedMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import {
+  useBackendAdminClient,
+  useChoicesQuery,
+  useListQuery,
+  useRemovePreparedMutation,
+  useUpdatePreparedMutation,
+} from "@frontend/common/src/hooks/useAdminAPI";
 import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/src/utils";
 import { Add, Delete, Edit, Save } from "@mui/icons-material";
 import {
@@ -9,8 +15,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
   IconButtonProps,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -97,11 +105,13 @@ type InnerSiteMapStateType = {
 
 const ModifyDetectionFields: (keyof FlatSiteMap)[] = ["order", "parent_sitemap"];
 
-const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
+type InnerSiteMapListProps = { domainGroupId: string; headerSlot: React.ReactNode };
+
+const InnerSiteMapList: React.FC<InnerSiteMapListProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ year }: { year: number }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ domainGroupId, headerSlot }: InnerSiteMapListProps) => {
     const backendAdminAPIClient = useBackendAdminClient();
-    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap", { year: String(year) });
+    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap", { domain_group: domainGroupId });
     const deleteMutation = useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
     const { mutateAsync: updateMutationAsync } = useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
 
@@ -126,7 +136,10 @@ const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
 
     const disabled = deleteMutation.isPending;
     const editorId = state.editorSiteMapId === "add" ? undefined : state.editorSiteMapId;
-    const editorContext = state.parentSiteMapId ? { parent_sitemap: state.parentSiteMapId } : undefined;
+    const editorContext = {
+      domain_group: domainGroupId,
+      ...(state.parentSiteMapId ? { parent_sitemap: state.parentSiteMapId } : {}),
+    };
 
     const resetFlatSiteMap = () => setState((ps) => ({ ...ps, flatSiteMap: data }));
     const applyChanges = () => {
@@ -221,9 +234,12 @@ const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
         </Dialog>
         <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%" }}>
           <Stack sx={{ flexGrow: 1, width: "40%", height: "100%" }} spacing={2}>
-            <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
-              <Button variant="outlined" color="error" startIcon={<Delete />} onClick={resetFlatSiteMap} children="초기화" />
-              <Button variant="outlined" color="primary" startIcon={<Save />} onClick={applyChanges} children="반영" />
+            <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+              {headerSlot}
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Button variant="outlined" color="error" startIcon={<Delete />} onClick={resetFlatSiteMap} children="초기화" />
+                <Button variant="outlined" color="primary" startIcon={<Save />} onClick={applyChanges} children="반영" />
+              </Stack>
             </Stack>
             <Node node={nestedSiteMap} index={[0]} parentRoute="" depth={0} />
           </Stack>
@@ -235,7 +251,7 @@ const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
                 id={editorId}
                 onClose={closeEditor}
                 context={editorContext}
-                hidingFields={["parent_sitemap", "order"]}
+                hidingFields={["domain_group", "parent_sitemap", "order"]}
               />
             )}
           </Box>
@@ -245,29 +261,42 @@ const InnerSiteMapList: React.FC<{ year: number }> = ErrorBoundary.with(
   })
 );
 
-const YEAR_OPTIONS = [2025, 2026];
+const DomainGroupSelector: React.FC = ErrorBoundary.with(
+  { fallback: ErrorFallback },
+  Suspense.with({ fallback: <CircularProgress /> }, () => {
+    const backendAdminAPIClient = useBackendAdminClient();
+    const { data: choices } = useChoicesQuery(backendAdminAPIClient, "cms", "sitemap");
+    const domainGroupChoices = (choices["domain_group"] ?? []).filter((c): c is { const: string; title: string } => c.const !== null);
 
-export const SiteMapList: React.FC = () => {
-  const [year, setYear] = React.useState(new Date().getFullYear());
+    const [domainGroupId, setDomainGroupId] = React.useState<string>(() => domainGroupChoices[0]?.const ?? "");
 
-  return (
-    <BackendAdminSignInGuard>
-      <Stack spacing={2} sx={{ width: "100%", height: "100%" }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="body2" fontWeight="bold">연도</Typography>
-          <Select
-            size="small"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            sx={{ width: 100 }}
-          >
-            {YEAR_OPTIONS.map((y) => (
-              <MenuItem key={y} value={y}>{y}</MenuItem>
-            ))}
-          </Select>
-        </Stack>
-        <InnerSiteMapList year={year} />
-      </Stack>
-    </BackendAdminSignInGuard>
-  );
-};
+    if (domainGroupChoices.length === 0) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          등록된 도메인 그룹이 없습니다. 먼저 도메인 그룹을 추가해주세요.
+        </Typography>
+      );
+    }
+
+    const selector = (
+      <FormControl size="small" sx={{ minWidth: 240 }}>
+        <InputLabel id="sitemap-domain-group-label">도메인 그룹</InputLabel>
+        <Select labelId="sitemap-domain-group-label" label="도메인 그룹" value={domainGroupId} onChange={(e) => setDomainGroupId(e.target.value)}>
+          {domainGroupChoices.map((c) => (
+            <MenuItem key={c.const} value={c.const}>
+              {c.title}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+
+    return <InnerSiteMapList key={domainGroupId} domainGroupId={domainGroupId} headerSlot={selector} />;
+  })
+);
+
+export const SiteMapList: React.FC = () => (
+  <BackendAdminSignInGuard>
+    <DomainGroupSelector />
+  </BackendAdminSignInGuard>
+);
