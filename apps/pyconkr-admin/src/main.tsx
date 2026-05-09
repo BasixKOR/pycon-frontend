@@ -3,7 +3,7 @@ import type { ContextOptions } from "@frontend/common/src/contexts";
 import * as Shop from "@frontend/shop";
 import { CircularProgress } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
 import * as React from "react";
@@ -24,9 +24,13 @@ const queryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
-    onSuccess: () => {
-      queryClient.invalidateQueries({ predicate: () => true });
-      queryClient.resetQueries({ predicate: () => true });
+    onSuccess: (_data, _variables, _context, mutation) => {
+      queryClient.invalidateQueries({
+        predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
+      });
+      queryClient.resetQueries({
+        predicate: (query) => mutation.meta?.invalidates?.some((queryKey) => matchQuery({ queryKey }, query)) ?? true,
+      });
     },
   }),
 });
