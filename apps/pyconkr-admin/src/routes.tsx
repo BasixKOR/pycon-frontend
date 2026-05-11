@@ -5,16 +5,23 @@ import {
   Article,
   AutoFixHigh,
   Category,
+  ChatBubble,
   ClearAll,
+  Email,
   Event,
   FilePresent,
+  Forum,
   Handshake,
   ManageAccounts,
+  MarkEmailRead,
   MeetingRoom,
   NoteAlt,
   Public,
+  Send,
+  Sms,
   StickyNote2,
   Tag,
+  VpnKey,
 } from "@mui/icons-material";
 
 import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./components/layouts/admin_editor";
@@ -23,9 +30,15 @@ import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
 import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
+import { AdminGoogleOAuth2Editor } from "./components/pages/external_api/google_oauth2_editor";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
 import { AdminModificationAuditEditor } from "./components/pages/modification_audit/pages";
+import { AdminEmailTemplateEditor } from "./components/pages/notification/email_template_editor";
+import { AdminKakaoAlimTalkTemplateEditor } from "./components/pages/notification/kakao_alimtalk_template_editor";
+import { AdminNotificationHistoryCreate } from "./components/pages/notification/send_history_create";
+import { AdminNotificationHistoryEditor } from "./components/pages/notification/send_history_result";
+import { AdminSMSTemplateEditor } from "./components/pages/notification/sms_template_editor";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 import { AdminPresentationEditor } from "./components/pages/presentation/editor";
 import { SiteMapList } from "./components/pages/sitemap/list";
@@ -187,6 +200,77 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "organization",
   },
   {
+    type: "separator",
+    key: "notification-template-separator",
+    title: "알림 템플릿",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-email-template",
+    icon: Email,
+    title: "이메일 템플릿",
+    app: "notification/email",
+    resource: "template",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-kakao-alimtalk-template",
+    icon: Forum,
+    title: "카카오 알림톡 템플릿",
+    app: "notification/kakao-alimtalk",
+    resource: "template",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-sms-template",
+    icon: Sms,
+    title: "SMS 템플릿",
+    app: "notification/sms",
+    resource: "template",
+  },
+  {
+    type: "separator",
+    key: "notification-history-separator",
+    title: "알림 발송 이력",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-email-history",
+    icon: MarkEmailRead,
+    title: "이메일 발송 이력",
+    app: "notification/email",
+    resource: "history",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-kakao-alimtalk-history",
+    icon: ChatBubble,
+    title: "카카오 알림톡 발송 이력",
+    app: "notification/kakao-alimtalk",
+    resource: "history",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "notification-sms-history",
+    icon: Send,
+    title: "SMS 발송 이력",
+    app: "notification/sms",
+    resource: "history",
+  },
+  {
+    type: "separator",
+    key: "external-api-separator",
+    title: "외부 API",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "external-api-google-oauth2",
+    icon: VpnKey,
+    title: "Google OAuth2",
+    app: "external-api/google",
+    resource: "oauth2",
+  },
+  {
     type: "routeDefinition",
     key: "user-account",
     icon: AccountCircle,
@@ -216,6 +300,20 @@ export const RegisteredRoutes = {
   ),
   "/cms/page/create": <AdminCMSPageEditor />,
   "/cms/page/:id": <AdminCMSPageEditor />,
+  "/notification/email/template/create": <AdminEmailTemplateEditor />,
+  "/notification/email/template/:id": <AdminEmailTemplateEditor />,
+  "/notification/email/history/create": <AdminNotificationHistoryCreate app="notification/email" />,
+  "/notification/email/history/:id": <AdminNotificationHistoryEditor app="notification/email" />,
+  "/notification/kakao-alimtalk/template": <AdminList app="notification/kakao-alimtalk" resource="template" hideCreateNew />,
+  "/notification/kakao-alimtalk/template/:id": <AdminKakaoAlimTalkTemplateEditor />,
+  "/notification/kakao-alimtalk/history/create": <AdminNotificationHistoryCreate app="notification/kakao-alimtalk" />,
+  "/notification/kakao-alimtalk/history/:id": <AdminNotificationHistoryEditor app="notification/kakao-alimtalk" />,
+  "/notification/sms/template/create": <AdminSMSTemplateEditor />,
+  "/notification/sms/template/:id": <AdminSMSTemplateEditor />,
+  "/notification/sms/history/create": <AdminNotificationHistoryCreate app="notification/sms" />,
+  "/notification/sms/history/:id": <AdminNotificationHistoryEditor app="notification/sms" />,
+  "/external-api/google/oauth2/create": <AdminGoogleOAuth2Editor />,
+  "/external-api/google/oauth2/:id": <AdminGoogleOAuth2Editor />,
   "/file/publicfile/create": <PublicFileUploadPage />,
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,

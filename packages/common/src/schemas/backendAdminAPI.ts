@@ -151,3 +151,14 @@ export type OpenAPIParameterSchema = {
 };
 
 export type OpenAPISchema = { paths: Record<string, { get?: { parameters?: OpenAPIParameterSchema[] } }> };
+
+export type GoogleOAuth2AccessTokenResponseSchema = {
+  is_valid: boolean;
+  access_token: string | null;
+  token_type: string | null;
+  expires_in: number | null;
+  scopes: string[];
+  email: string | null;
+  audience: string | null;
+  error: string | null;
+};

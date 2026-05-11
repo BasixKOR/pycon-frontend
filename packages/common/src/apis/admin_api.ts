@@ -2,6 +2,7 @@ import { BackendAPIClient } from "./client";
 import {
   AdminSchemaDefinition,
   ChoicesResponse,
+  GoogleOAuth2AccessTokenResponseSchema,
   ModificationAuditPreviewSchema,
   ModificationAuditSchema,
   OpenAPISchema,
@@ -105,3 +106,20 @@ export const previewModificationAudit =
   <T>(client: BackendAPIClient, id: string) =>
   () =>
     client.get<ModificationAuditPreviewSchema<T>>(`v1/admin-api/modification-audit/modification-audit/${id}/preview/`);
+
+export const renderTemplate =
+  (client: BackendAPIClient, app: string, resource: string) =>
+  ({ id, context }: { id: string; context: Record<string, unknown> }) =>
+    client.post<string, { context: Record<string, unknown> }>(`v1/admin-api/${app}/${resource}/${id}/render/`, { context });
+
+export const retryHistory = (client: BackendAPIClient, app: string, resource: string, id: string) => () =>
+  client.post<unknown, undefined>(`v1/admin-api/${app}/${resource}/${id}/retry/`, undefined);
+
+export const retrySentTo = (client: BackendAPIClient, app: string, resource: string, id: string, sentToId: string) => () =>
+  client.post<unknown, undefined>(`v1/admin-api/${app}/${resource}/${id}/sent-to/${sentToId}/retry/`, undefined);
+
+export const renderSentTo = (client: BackendAPIClient, app: string, resource: string, id: string, sentToId: string) => () =>
+  client.get<string>(`v1/admin-api/${app}/${resource}/${id}/sent-to/${sentToId}/render/`);
+
+export const issueGoogleOAuth2AccessToken = (client: BackendAPIClient, id: string) => () =>
+  client.post<GoogleOAuth2AccessTokenResponseSchema, undefined>(`v1/admin-api/external-api/google/oauth2/${id}/access-token/`, undefined);

@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { useBackendContext } from "./useAPI";
 import * as BackendAdminAPIs from "../apis/admin_api";
@@ -13,6 +13,7 @@ const QUERY_KEYS = {
   ADMIN_CHOICES: ["query", "admin", "choices"],
   ADMIN_OPENAPI_SCHEMA: ["query", "admin", "openapi-schema"],
   ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
+  ADMIN_RENDER_SENT_TO: ["query", "admin", "render-sent-to"],
 };
 
 const MUTATION_KEYS = {
@@ -25,6 +26,10 @@ const MUTATION_KEYS = {
   ADMIN_REMOVE: ["mutation", "admin", "remove"],
   ADMIN_APPROVE_MODIFICATION_AUDIT: ["mutation", "admin", "approve", "modification-audit"],
   ADMIN_REJECT_MODIFICATION_AUDIT: ["mutation", "admin", "reject", "modification-audit"],
+  ADMIN_RENDER_TEMPLATE: ["mutation", "admin", "render-template"],
+  ADMIN_RETRY_HISTORY: ["mutation", "admin", "retry-history"],
+  ADMIN_RETRY_SENT_TO: ["mutation", "admin", "retry-sent-to"],
+  ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN: ["mutation", "admin", "google-oauth2-access-token"],
 };
 
 export const useBackendAdminClient = () => {
@@ -163,4 +168,37 @@ export const useRejectModificationAuditMutation = (client: BackendAPIClient, id:
   useMutation({
     mutationKey: MUTATION_KEYS.ADMIN_REJECT_MODIFICATION_AUDIT,
     mutationFn: BackendAdminAPIs.rejectModificationAudit(client, id),
+  });
+
+export const useRenderTemplateMutation = (client: BackendAPIClient, app: string, resource: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_RENDER_TEMPLATE, app, resource],
+    mutationFn: BackendAdminAPIs.renderTemplate(client, app, resource),
+    meta: { invalidates: [] },
+  });
+
+export const useRetryHistoryMutation = (client: BackendAPIClient, app: string, resource: string, id: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_RETRY_HISTORY, app, resource, id],
+    mutationFn: BackendAdminAPIs.retryHistory(client, app, resource, id),
+  });
+
+export const useRetrySentToMutation = (client: BackendAPIClient, app: string, resource: string, id: string, sentToId: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_RETRY_SENT_TO, app, resource, id, sentToId],
+    mutationFn: BackendAdminAPIs.retrySentTo(client, app, resource, id, sentToId),
+  });
+
+export const useRenderSentToQuery = (client: BackendAPIClient, app: string, resource: string, id: string, sentToId: string | null) =>
+  useQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_RENDER_SENT_TO, app, resource, id, sentToId],
+    queryFn: BackendAdminAPIs.renderSentTo(client, app, resource, id, sentToId ?? ""),
+    enabled: !!sentToId,
+  });
+
+export const useIssueGoogleOAuth2AccessTokenMutation = (client: BackendAPIClient, id: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN, id],
+    mutationFn: BackendAdminAPIs.issueGoogleOAuth2AccessToken(client, id),
+    meta: { invalidates: [] },
   });
