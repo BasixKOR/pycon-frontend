@@ -33,8 +33,8 @@ import { AdminGoogleOAuth2Editor } from "./components/pages/external_api/google_
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
 import { AdminModificationAuditEditor } from "./components/pages/modification_audit/pages";
-import { AdminNotificationHistoryCreate } from "./components/pages/notification/create";
-import { AdminNotificationHistoryEditor } from "./components/pages/notification/editor";
+import { AdminNotificationHistoryCreate } from "./components/pages/notification/send_history_create";
+import { AdminNotificationHistoryEditor } from "./components/pages/notification/send_history_result";
 import { AdminEmailTemplateEditor } from "./components/pages/notification/email_template_editor";
 import { AdminKakaoAlimTalkTemplateEditor } from "./components/pages/notification/kakao_alimtalk_template_editor";
 import { AdminSMSTemplateEditor } from "./components/pages/notification/sms_template_editor";
