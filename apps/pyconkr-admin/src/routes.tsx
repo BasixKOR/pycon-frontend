@@ -12,6 +12,7 @@ import {
   ManageAccounts,
   MeetingRoom,
   NoteAlt,
+  Public,
   StickyNote2,
   Tag,
 } from "@mui/icons-material";
@@ -47,6 +48,14 @@ export const RouteDefinitions: RouteDef[] = [
     type: "separator",
     key: "cms-separator",
     title: "CMS",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "cms-domain-group",
+    icon: Public,
+    title: "도메인 그룹",
+    app: "cms",
+    resource: "domain-group",
   },
   {
     type: "autoAdminRouteDefinition",
