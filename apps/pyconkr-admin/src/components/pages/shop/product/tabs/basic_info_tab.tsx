@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
+import { IMAGE_FILE_EXTENSIONS } from "../../../../../consts/file_extensions";
+import { PublicFilePicker } from "../../../../elements/public_file_picker";
 import { ProductFormValues, SetField } from "../form";
 import { CategoryGroupAdminWithCategories, TagAdmin } from "../types";
 
@@ -55,6 +57,16 @@ export const BasicInfoTab: React.FC<Props> = ({ values, setField, disabled, grou
 
   return (
     <Stack spacing={2}>
+      <PublicFilePicker
+        label="대표 이미지"
+        value={values.image}
+        onChange={(v) => setField("image", v)}
+        choicesApp="shop"
+        choicesResource="products"
+        choicesField="image"
+        acceptExtensions={IMAGE_FILE_EXTENSIONS}
+      />
+
       <TextField select label="카테고리" required value={values.category} onChange={(e) => setField("category", e.target.value)} fullWidth>
         {groups.flatMap((group) => [
           <MenuItem key={`group-${group.id}`} disabled sx={{ fontWeight: 600, opacity: "0.8 !important" }}>
