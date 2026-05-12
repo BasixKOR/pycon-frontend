@@ -6,6 +6,7 @@ import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { PasswordResultDialog } from "./password_result_dialog";
+import { ShopOrderSection } from "./shop_order_section";
 import { addErrorSnackbar } from "../../../utils/snackbar";
 import { ErrorFallback } from "../../elements/error_fallback";
 import { AdminEditor } from "../../layouts/admin_editor";
@@ -90,7 +91,10 @@ export const AdminUserExtEditor: React.FC = ErrorBoundary.with(
 
         <PasswordResultDialog open={pageState.isResultDialogOpen} password={pageState.newPassword} onClose={closeResultDialog} />
 
-        <AdminEditor app="user" resource="userext" id={id} extraActions={[resetUserPasswordButton]} onCreated={onCreated} />
+        <AdminEditor app="user" resource="userext" id={id} extraActions={[resetUserPasswordButton]} onCreated={onCreated}>
+          {id && <ShopOrderSection userId={id} />}
+          <br />
+        </AdminEditor>
       </>
     );
   })
