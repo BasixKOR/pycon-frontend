@@ -34,11 +34,14 @@ const queryClient = new QueryClient({
 
 export const muiTheme = createTheme();
 
+const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
+const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
+
 const CommonOptions: ContextOptions = {
   language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
-  backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  backendApiDomain,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
   mdxComponents: {},

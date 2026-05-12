@@ -35,12 +35,15 @@ const queryClient = new QueryClient({
   }),
 });
 
+const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
+const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
+
 const CommonOptions: ContextOptions = {
   debug: true,
   language: "ko",
   baseUrl: ".",
   frontendDomain: import.meta.env.VITE_PYCONKR_FRONTEND_DOMAIN,
-  backendApiDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  backendApiDomain,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
   mdxComponents: PyConKRMDXComponents,
