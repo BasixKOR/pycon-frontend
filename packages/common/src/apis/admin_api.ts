@@ -8,6 +8,7 @@ import {
   OpenAPISchema,
   PageSectionBulkUpdateSchema,
   PageSectionSchema,
+  PaginatedListResponse,
   PublicFileSchema,
   UserChangePasswordSchema,
   UserResetPasswordResponseSchema,
@@ -39,6 +40,11 @@ export const list =
   <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   () =>
     client.get<T[]>(`v1/admin-api/${app}/${resource}/`, { params });
+
+export const listPaginated =
+  <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  () =>
+    client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
 
 export const retrieve =
   <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>

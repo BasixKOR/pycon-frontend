@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/src/hooks/useAdminAPI";
 import {
   Chip,
   CircularProgress,
@@ -18,6 +18,7 @@ import * as React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { OrderAdmin, PaymentStatus } from "./types";
+import { AdminPagination } from "../../../elements/admin_pagination";
 import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
 import { ErrorFallback } from "../../../elements/error_fallback";
 import { PAYMENT_STATUS_LABEL } from "../_common/status_labels";
@@ -36,20 +37,37 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
     const emailQuery = searchParams.get("email") ?? "";
     const impIdQuery = searchParams.get("imp_id") ?? "";
     const statusQuery = (searchParams.get("status") ?? "all") as StatusFilter;
+    const page = Number(searchParams.get("page") ?? 1);
+    const pageSize = Number(searchParams.get("page_size") ?? 50);
 
-    const apiParams: Record<string, string> = {};
+    const apiParams: Record<string, string> = { page: String(page), page_size: String(pageSize) };
     if (nameQuery.trim()) apiParams.name = nameQuery.trim();
     if (emailQuery.trim()) apiParams.email = emailQuery.trim();
     if (impIdQuery.trim()) apiParams.imp_id = impIdQuery.trim();
     if (statusQuery !== "all") apiParams.status = statusQuery;
 
-    const ordersQuery = useListQuery<OrderAdmin>(client, "shop", "orders", apiParams);
-    const orders = ordersQuery.data ?? [];
+    const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "orders", apiParams);
+    const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
 
-    const updateParam = (key: string, value: string) => {
+    const updateFilterParam = (key: string, value: string) => {
       const next = new URLSearchParams(searchParams);
       if (value) next.set(key, value);
       else next.delete(key);
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+    };
+
+    const setPage = (p: number) => {
+      const next = new URLSearchParams(searchParams);
+      if (p <= 1) next.delete("page");
+      else next.set("page", String(p));
+      setSearchParams(next, { replace: true });
+    };
+
+    const setPageSize = (size: number) => {
+      const next = new URLSearchParams(searchParams);
+      next.set("page_size", String(size));
+      next.delete("page");
       setSearchParams(next, { replace: true });
     };
 
@@ -62,27 +80,27 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
             size="small"
             label="이름 검색 (사용자/고객)"
             value={nameQuery}
-            onChange={(e) => updateParam("name", e.target.value)}
+            onChange={(e) => updateFilterParam("name", e.target.value)}
             sx={{ minWidth: 220 }}
           />
           <TextField
             size="small"
             label="이메일 검색"
             value={emailQuery}
-            onChange={(e) => updateParam("email", e.target.value)}
+            onChange={(e) => updateFilterParam("email", e.target.value)}
             sx={{ minWidth: 220 }}
           />
           <TextField
             size="small"
             label="PortOne imp_id"
             value={impIdQuery}
-            onChange={(e) => updateParam("imp_id", e.target.value)}
+            onChange={(e) => updateFilterParam("imp_id", e.target.value)}
             sx={{ minWidth: 200 }}
           />
           <Select
             size="small"
             value={statusQuery}
-            onChange={(e) => updateParam("status", e.target.value === "all" ? "" : (e.target.value as string))}
+            onChange={(e) => updateFilterParam("status", e.target.value === "all" ? "" : (e.target.value as string))}
             sx={{ minWidth: 140 }}
           >
             <MenuItem value="all">전체 상태</MenuItem>
@@ -91,9 +109,6 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
             <MenuItem value="partial_refunded">부분환불</MenuItem>
             <MenuItem value="refunded">환불</MenuItem>
           </Select>
-          <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
-            {orders.length} 건
-          </Typography>
         </Stack>
 
         <Table>
@@ -138,6 +153,8 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
             })}
           </TableBody>
         </Table>
+
+        <AdminPagination count={count} page={page} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </Stack>
     );
   })

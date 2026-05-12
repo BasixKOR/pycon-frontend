@@ -92,6 +92,12 @@ export const useListQuery = <T>(client: BackendAPIClient, app: string, resource:
     queryFn: BackendAdminAPIs.list<T>(client, app, resource, params),
   });
 
+export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  useSuspenseQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "paginated", JSON.stringify(params)],
+    queryFn: BackendAdminAPIs.listPaginated<T>(client, app, resource, params),
+  });
+
 export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, id],
