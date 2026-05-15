@@ -9,9 +9,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
 import * as React from "react";
 import * as ReactDom from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 
-import { App } from "./App.tsx";
+import { router } from "./router.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { LOCAL_STORAGE_LANGUAGE_KEY } from "./consts/local_stroage.ts";
 import { PyConKRMDXComponents } from "./consts/mdx_components.ts";
@@ -85,23 +85,21 @@ const MainApp: React.FC = () => {
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <SnackbarProvider>
-          <BrowserRouter>
-            <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
-                <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
-                  <ErrorBoundary fallback={Components.ErrorFallback}>
-                    <Suspense fallback={SuspenseFallback}>
-                      <ThemeProvider theme={muiTheme}>
-                        <CssBaseline />
-                        <Global styles={globalStyles} />
-                        <App />
-                      </ThemeProvider>
-                    </Suspense>
-                  </ErrorBoundary>
-                </Shop.Components.Common.ShopContextProvider>
-              </Components.CommonContextProvider>
-            </AppContext.Provider>
-          </BrowserRouter>
+          <AppContext.Provider value={{ ...appState, setAppContext }}>
+            <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
+                <ErrorBoundary fallback={Components.ErrorFallback}>
+                  <Suspense fallback={SuspenseFallback}>
+                    <ThemeProvider theme={muiTheme}>
+                      <CssBaseline />
+                      <Global styles={globalStyles} />
+                      <RouterProvider router={router} />
+                    </ThemeProvider>
+                  </Suspense>
+                </ErrorBoundary>
+              </Shop.Components.Common.ShopContextProvider>
+            </Components.CommonContextProvider>
+          </AppContext.Provider>
         </SnackbarProvider>
       </QueryClientProvider>
     </React.StrictMode>
