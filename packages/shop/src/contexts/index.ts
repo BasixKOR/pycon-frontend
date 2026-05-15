@@ -1,5 +1,4 @@
-import * as React from "react";
-
+import { createContext } from "react";
 export type ContextOptions = {
   language: "ko" | "en";
   shopApiDomain: string;
@@ -8,7 +7,7 @@ export type ContextOptions = {
   shopImpAccountId: string;
 };
 
-export const context = React.createContext<ContextOptions>({
+export const context = createContext<ContextOptions>({
   language: "ko",
   shopApiDomain: "",
   shopApiCSRFCookieName: "",

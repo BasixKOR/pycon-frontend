@@ -1,6 +1,6 @@
 import { ContentCopy } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputAdornment, TextField } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 
 import { addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
@@ -10,7 +10,7 @@ type PasswordResultDialogProps = {
   onClose: () => void;
 };
 
-export const PasswordResultDialog: React.FC<PasswordResultDialogProps> = ({ open, password, onClose }) => {
+export const PasswordResultDialog: FC<PasswordResultDialogProps> = ({ open, password, onClose }) => {
   const copyPasswordToClipboard = () => {
     if (password) {
       navigator.clipboard.writeText(password).then(

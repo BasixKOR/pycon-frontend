@@ -1,7 +1,7 @@
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, MouseEventHandler, useRef } from "react";
 
 import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
 import type { CustomerInfo } from "@frontend/shop/schemas";
@@ -13,16 +13,16 @@ type CustomerInfoFormDialogPropsType = {
   defaultValue?: CustomerInfo | null;
 };
 
-export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> = Suspense.with(
+export const CustomerInfoFormDialog: FC<CustomerInfoFormDialogPropsType> = Suspense.with(
   { fallback: <CircularProgress /> },
   ({ open, closeFunc, onSubmit, defaultValue }) => {
-    const formRef = React.useRef<HTMLFormElement | null>(null);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
     const { language } = useShopContext();
     const shopAPIClient = useShopClient();
     const { data: userInfo } = useUserStatus(shopAPIClient);
 
-    const onSubmitFunc: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    const onSubmitFunc: MouseEventHandler<HTMLButtonElement> = (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (isFormValid(formRef?.current)) onSubmit?.(getFormValue<CustomerInfo>({ form: formRef.current }));

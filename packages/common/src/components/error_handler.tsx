@@ -1,15 +1,15 @@
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useEffect, useState } from "react";
 
 import { isChunkLoadError, reloadForChunkLoadError } from "@frontend/common/utils/chunk_load_error";
 
 import { CenteredPage } from "./centered_page";
 
-const ChunkLoadErrorFallback: React.FC = () => {
-  const [reloadSkipped, setReloadSkipped] = React.useState(false);
+const ChunkLoadErrorFallback: FC = () => {
+  const [reloadSkipped, setReloadSkipped] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!reloadForChunkLoadError()) setReloadSkipped(true);
   }, []);
 
@@ -44,7 +44,7 @@ const ChunkLoadErrorFallback: React.FC = () => {
   );
 };
 
-const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
+const DetailedErrorFallback: FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   console.error(error);
   const errorObject = Object.getOwnPropertyNames(error).reduce(
     (acc, key) => ({
@@ -80,7 +80,7 @@ const DetailedErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ 
   );
 };
 
-const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => {
+const SimplifiedErrorFallback: FC<{ reset: () => void }> = ({ reset }) => {
   return (
     <>
       <Typography variant="body2" color="error">
@@ -101,7 +101,7 @@ const SimplifiedErrorFallback: React.FC<{ reset: () => void }> = ({ reset }) => 
   );
 };
 
-export const ErrorFallback: React.FC<{ error: Error; reset: () => void; debug?: boolean }> = ({ error, reset, debug }) => {
+export const ErrorFallback: FC<{ error: Error; reset: () => void; debug?: boolean }> = ({ error, reset, debug }) => {
   if (isChunkLoadError(error)) return <ChunkLoadErrorFallback />;
   return (
     <Suspense fallback={<>로딩 중...</>}>

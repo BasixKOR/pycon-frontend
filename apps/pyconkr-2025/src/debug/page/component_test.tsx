@@ -1,8 +1,7 @@
 import { PrimaryStyledDetails, SecondaryStyledDetails } from "@frontend/common/components/mdx_components";
 import { Chip, Stack, Table, TableBody, TableCell, TableRow } from "@mui/material";
-import * as React from "react";
-
-const HighlightedChip: React.FC<{ label: string }> = ({ label }) => (
+import { FC } from "react";
+const HighlightedChip: FC<{ label: string }> = ({ label }) => (
   <Chip
     label={label}
     sx={(theme) => ({
@@ -14,7 +13,7 @@ const HighlightedChip: React.FC<{ label: string }> = ({ label }) => (
   />
 );
 
-export const ComponentTestPage: React.FC = () => {
+export const ComponentTestPage: FC = () => {
   return (
     <Stack direction="column" spacing={2} sx={{ p: 2 }}>
       <PrimaryStyledDetails summary="자가용 이용시">

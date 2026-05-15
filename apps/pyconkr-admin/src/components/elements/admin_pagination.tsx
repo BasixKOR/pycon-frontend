@@ -1,6 +1,5 @@
 import { FormControl, InputLabel, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
-import * as React from "react";
-
+import { FC } from "react";
 type Props = {
   count: number;
   page: number;
@@ -15,7 +14,7 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [25, 50, 100, 200];
 
 const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-export const AdminPagination: React.FC<Props> = ({
+export const AdminPagination: FC<Props> = ({
   count,
   page,
   pageSize,

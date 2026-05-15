@@ -8,8 +8,8 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
-import * as React from "react";
-import * as ReactDom from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/layouts/global";
@@ -61,8 +61,8 @@ const ShopOptions: ShopContextOptions = {
 
 registerChunkLoadErrorReloadHandler();
 
-ReactDom.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
     <ErrorBoundary fallback={<CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</CenteredPage>}>
       <Suspense
         fallback={
@@ -93,5 +93,5 @@ ReactDom.createRoot(document.getElementById("root")!).render(
         </QueryClientProvider>
       </Suspense>
     </ErrorBoundary>
-  </React.StrictMode>
+  </StrictMode>
 );

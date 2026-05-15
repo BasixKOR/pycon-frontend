@@ -6,8 +6,8 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
-import * as React from "react";
-import * as ReactDom from "react-dom/client";
+import { FC, StrictMode, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./App.tsx";
@@ -54,13 +54,13 @@ const SuspenseFallback = (
   </CenteredPage>
 );
 
-export const MainApp: React.FC = () => {
-  const [appState, setAppContext] = React.useState<Omit<AppContextType, "setAppContext">>({
+export const MainApp: FC = () => {
+  const [appState, setAppContext] = useState<Omit<AppContextType, "setAppContext">>({
     language: (localStorage.getItem(LOCAL_STORAGE_LANGUAGE_KEY) as "ko" | "en" | null) ?? "ko",
   });
 
   return (
-    <React.StrictMode>
+    <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <SnackbarProvider>
@@ -80,10 +80,10 @@ export const MainApp: React.FC = () => {
           </BrowserRouter>
         </SnackbarProvider>
       </QueryClientProvider>
-    </React.StrictMode>
+    </StrictMode>
   );
 };
 
 registerChunkLoadErrorReloadHandler();
 
-ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);
+createRoot(document.getElementById("root")!).render(<MainApp />);

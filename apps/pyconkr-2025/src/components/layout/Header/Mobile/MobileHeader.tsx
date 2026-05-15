@@ -1,6 +1,6 @@
 import { PythonKorea } from "@frontend/common/components";
 import { Box, Stack, styled, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
@@ -14,10 +14,10 @@ interface MobileHeaderProps {
   onToggleNavigation?: () => void;
 }
 
-export const MobileHeader: React.FC<MobileHeaderProps> = ({ isNavigationOpen = false, onToggleNavigation }) => {
+export const MobileHeader: FC<MobileHeaderProps> = ({ isNavigationOpen = false, onToggleNavigation }) => {
   const { siteMapNode } = useAppContext();
   const location = useLocation();
-  const [internalNavigationOpen, setInternalNavigationOpen] = React.useState(false);
+  const [internalNavigationOpen, setInternalNavigationOpen] = useState(false);
 
   const navigationOpen = onToggleNavigation ? isNavigationOpen : internalNavigationOpen;
   const toggleNavigation = onToggleNavigation || (() => setInternalNavigationOpen(!internalNavigationOpen));

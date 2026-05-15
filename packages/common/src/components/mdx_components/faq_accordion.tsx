@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion as MuiAccordion, AccordionDetails, AccordionSummary } from "@mui/material";
-import * as React from "react";
-
+import { FC, Fragment } from "react";
 export interface FAQItem {
   id: string;
   question: string;
@@ -13,11 +12,11 @@ export interface FAQAccordionProps {
   items: FAQItem[];
 }
 
-export const FAQAccordion: React.FC<FAQAccordionProps> = ({ items }) => {
+export const FAQAccordion: FC<FAQAccordionProps> = ({ items }) => {
   return (
     <AccordionWrapper>
       {items.map((faq, index) => (
-        <React.Fragment key={faq.id}>
+        <Fragment key={faq.id}>
           <StyledAccordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`panel${faq.id}-content`} id={`panel${faq.id}-header`}>
               <Number>{faq.id}</Number>
@@ -26,7 +25,7 @@ export const FAQAccordion: React.FC<FAQAccordionProps> = ({ items }) => {
             <StyledAccordionDetails>{faq.answer}</StyledAccordionDetails>
           </StyledAccordion>
           {index !== items.length - 1 && <Divider />}
-        </React.Fragment>
+        </Fragment>
       ))}
     </AccordionWrapper>
   );

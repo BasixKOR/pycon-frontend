@@ -1,6 +1,5 @@
-import * as React from "react";
-
-export const PythonKorea: React.FC<{ style: React.CSSProperties }> = (props) => (
+import { CSSProperties, FC } from "react";
+export const PythonKorea: FC<{ style: CSSProperties }> = (props) => (
   <svg width="226.667" height="226.667" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 226.667 226.667" {...props}>
     <defs>
       <clipPath clipPathUnits="userSpaceOnUse" id="a">

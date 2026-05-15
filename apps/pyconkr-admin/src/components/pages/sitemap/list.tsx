@@ -29,7 +29,7 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { CSSProperties, FC, ReactElement, ReactNode, cloneElement, useEffect, useState } from "react";
 import { GroupOptions, ReactSortable, SortableEvent, SortableOptions } from "react-sortablejs";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
@@ -41,7 +41,7 @@ type FlatSiteMapObj = Record<string, FlatSiteMap>;
 type NestedSiteMap = NestedSiteMapSchema;
 type FlatNestedSiteMap = Record<string, NestedSiteMap>;
 
-const DepthColorMap: React.CSSProperties["backgroundColor"][] = [
+const DepthColorMap: CSSProperties["backgroundColor"][] = [
   "rgba(255, 229, 204, 1)",
   "rgba(255, 255, 204, 1)",
   "rgba(204, 255, 204, 1)",
@@ -88,11 +88,11 @@ type NodePropType = {
 
 type TooltipBtnPropType = IconButtonProps & {
   tooltip: string;
-  icon: React.ReactElement<{ fontSize: string }>;
+  icon: ReactElement<{ fontSize: string }>;
 };
 
-const TooltipBtn: React.FC<TooltipBtnPropType> = ({ tooltip, icon, ...props }) => (
-  <Tooltip title={tooltip} arrow children={<IconButton size="small" {...props} children={React.cloneElement(icon, { fontSize: "small" })} />} />
+const TooltipBtn: FC<TooltipBtnPropType> = ({ tooltip, icon, ...props }) => (
+  <Tooltip title={tooltip} arrow children={<IconButton size="small" {...props} children={cloneElement(icon, { fontSize: "small" })} />} />
 );
 
 type InnerSiteMapStateType = {
@@ -105,9 +105,9 @@ type InnerSiteMapStateType = {
 
 const ModifyDetectionFields: (keyof FlatSiteMap)[] = ["order", "parent_sitemap"];
 
-type InnerSiteMapListProps = { domainGroupId: string; headerSlot: React.ReactNode };
+type InnerSiteMapListProps = { domainGroupId: string; headerSlot: ReactNode };
 
-const InnerSiteMapList: React.FC<InnerSiteMapListProps> = ErrorBoundary.with(
+const InnerSiteMapList: FC<InnerSiteMapListProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ domainGroupId, headerSlot }: InnerSiteMapListProps) => {
     const backendAdminAPIClient = useBackendAdminClient();
@@ -115,17 +115,17 @@ const InnerSiteMapList: React.FC<InnerSiteMapListProps> = ErrorBoundary.with(
     const deleteMutation = useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
     const { mutateAsync: updateMutationAsync } = useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
 
-    const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+    const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
       enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
     const originalFlatSiteMapObj = Object.values(data).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatSiteMapObj);
 
-    const [state, setState] = React.useState<InnerSiteMapStateType>({ flatSiteMap: data });
+    const [state, setState] = useState<InnerSiteMapStateType>({ flatSiteMap: data });
     const nestedSiteMap = buildNestedSiteMap<FlatSiteMap>(state.flatSiteMap)[""];
     const childrenFlatSiteMap = buildFlatSiteMap<NestedSiteMap>(nestedSiteMap);
     const childrenFlatSiteMapObj = Object.values(childrenFlatSiteMap).reduce((acc, item) => ({ ...acc, [item.id]: item }), {} as FlatNestedSiteMap);
 
-    React.useEffect(() => setState((ps) => ({ ...ps, flatSiteMap: data })), [data]);
+    useEffect(() => setState((ps) => ({ ...ps, flatSiteMap: data })), [data]);
 
     const setEditorSiteMapId = (editorSiteMapId: string | undefined) => setState((ps) => ({ ...ps, editorSiteMapId }));
     const setDeleteSiteMapId = (deleteSiteMapId: string | undefined) => setState((ps) => ({ ...ps, deleteSiteMapId }));
@@ -197,7 +197,7 @@ const InnerSiteMapList: React.FC<InnerSiteMapListProps> = ErrorBoundary.with(
       onAdd,
     };
 
-    const Node: React.FC<NodePropType> = ({ node, index, parentRoute, depth }) => {
+    const Node: FC<NodePropType> = ({ node, index, parentRoute, depth }) => {
       const isSelected = state.editorSiteMapId === node.id;
       const route = parentRoute || node.route_code ? `${parentRoute}/${node.route_code}` : "";
       const group: GroupOptions = { pull: depth !== 0, put: depth !== 0, name: node.id };
@@ -261,14 +261,14 @@ const InnerSiteMapList: React.FC<InnerSiteMapListProps> = ErrorBoundary.with(
   })
 );
 
-const DomainGroupSelector: React.FC = ErrorBoundary.with(
+const DomainGroupSelector: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const backendAdminAPIClient = useBackendAdminClient();
     const { data: choices } = useChoicesQuery(backendAdminAPIClient, "cms", "sitemap");
     const domainGroupChoices = (choices["domain_group"] ?? []).filter((c): c is { const: string; title: string } => c.const !== null);
 
-    const [domainGroupId, setDomainGroupId] = React.useState<string>(() => domainGroupChoices[0]?.const ?? "");
+    const [domainGroupId, setDomainGroupId] = useState<string>(() => domainGroupChoices[0]?.const ?? "");
 
     if (domainGroupChoices.length === 0) {
       return (
@@ -295,7 +295,7 @@ const DomainGroupSelector: React.FC = ErrorBoundary.with(
   })
 );
 
-export const SiteMapList: React.FC = () => (
+export const SiteMapList: FC = () => (
   <BackendAdminSignInGuard>
     <DomainGroupSelector />
   </BackendAdminSignInGuard>

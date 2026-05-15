@@ -1,15 +1,15 @@
 import { CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, ReactNode } from "react";
 
 import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
 
 type SignInGuardProps = {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: ReactNode;
+  fallback?: ReactNode;
 };
 
-export const SignInGuard: React.FC<SignInGuardProps> = Suspense.with({ fallback: <CircularProgress /> }, ({ children, fallback }) => {
+export const SignInGuard: FC<SignInGuardProps> = Suspense.with({ fallback: <CircularProgress /> }, ({ children, fallback }) => {
   const { language } = useShopContext();
   const shopAPIClient = useShopClient();
   const { data } = useUserStatus(shopAPIClient);

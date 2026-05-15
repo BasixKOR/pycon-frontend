@@ -3,19 +3,18 @@ import { Fieldset } from "@frontend/common/components";
 import { useApproveModificationAuditMutation, useBackendAdminClient, useRejectModificationAuditMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
-
+import { FC, ReactNode, useRef } from "react";
 type SubmitConfirmDialogProps = {
   open: boolean;
   onClose: () => void;
   modificationAuditId: string;
 };
 
-export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
+export const ApproveSubmitConfirmDialog: FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
   const backendAdminClient = useBackendAdminClient();
   const approveModificationAuditMutation = useApproveModificationAuditMutation(backendAdminClient, modificationAuditId);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const onApproveClick = () => {
@@ -51,12 +50,12 @@ export const ApproveSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({
   );
 };
 
-export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
-  const inputRef = React.useRef<HTMLInputElement>(null);
+export const RejectSubmitConfirmDialog: FC<SubmitConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const backendAdminClient = useBackendAdminClient();
   const rejectModificationAuditMutation = useRejectModificationAuditMutation(backendAdminClient, modificationAuditId);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const onRejectClick = () => {

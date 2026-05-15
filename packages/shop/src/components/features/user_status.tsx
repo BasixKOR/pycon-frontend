@@ -1,12 +1,12 @@
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, FormEvent, useRef } from "react";
 
 import { useShopClient, useSignInWithEmailMutation, useSignInWithSNSMutation, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 
-export const UserInfo: React.FC = () => {
-  const formRef = React.useRef<HTMLFormElement>(null);
+export const UserInfo: FC = () => {
+  const formRef = useRef<HTMLFormElement>(null);
   const shopAPIClient = useShopClient();
   const signInWithEmailMutation = useSignInWithEmailMutation(shopAPIClient);
   const SignInWithSNSMutation = useSignInWithSNSMutation(shopAPIClient);
@@ -17,7 +17,7 @@ export const UserInfo: React.FC = () => {
       provider: "google",
       callback_url: window.location.href,
     });
-  const signInWithEmail = (e: React.FormEvent) => {
+  const signInWithEmail = (e: FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -31,7 +31,7 @@ export const UserInfo: React.FC = () => {
 
   const disabled = SignInWithSNSMutation.isPending || signInWithEmailMutation.isPending || signOutMutation.isPending;
 
-  const WrappedUserStatus: React.FC = () => {
+  const WrappedUserStatus: FC = () => {
     const shopAPIClient = useShopClient();
     const { data } = useUserStatus(shopAPIClient);
 

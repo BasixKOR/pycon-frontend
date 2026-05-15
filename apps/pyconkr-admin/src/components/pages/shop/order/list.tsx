@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { AdminFilterFieldset } from "@apps/pyconkr-admin/components/elements/admin_filter_fieldset";
@@ -32,7 +32,7 @@ const DEFAULT_PAGE_SIZE = 50;
 
 type StatusFilter = "all" | PaymentStatus;
 
-const InnerOrderList: React.FC = ErrorBoundary.with(
+const InnerOrderList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const client = useBackendAdminClient();
@@ -66,7 +66,7 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
     const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "orders", apiParams);
     const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "category-groups", {});
     const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
-    const groups = React.useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
+    const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
 
     const updateFilterParam = (key: string, value: string) => {
       const next = new URLSearchParams(searchParams);
@@ -262,7 +262,7 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
   })
 );
 
-export const ShopOrderListPage: React.FC = () => (
+export const ShopOrderListPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerOrderList />
   </BackendAdminSignInGuard>

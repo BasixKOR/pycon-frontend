@@ -2,7 +2,7 @@ import { useBackendAdminClient, useIssueGoogleOAuth2AccessTokenMutation } from "
 import { GoogleOAuth2AccessTokenResponseSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { VpnKey } from "@mui/icons-material";
 import { Box, Button, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
@@ -31,10 +31,10 @@ const loadCachedToken = (id: string): TokenState | null => {
   }
 };
 
-export const AdminGoogleOAuth2Editor: React.FC = () => {
+export const AdminGoogleOAuth2Editor: FC = () => {
   const { id } = useParams<{ id?: string }>();
   const backendAdminClient = useBackendAdminClient();
-  const [tokenState, setTokenState] = React.useState<TokenState | null>(() => (id ? loadCachedToken(id) : null));
+  const [tokenState, setTokenState] = useState<TokenState | null>(() => (id ? loadCachedToken(id) : null));
 
   const accessTokenMutation = useIssueGoogleOAuth2AccessTokenMutation(backendAdminClient, id ?? "");
 
@@ -51,7 +51,7 @@ export const AdminGoogleOAuth2Editor: React.FC = () => {
     });
   };
 
-  const renderValue = (key: string, value: unknown): React.ReactNode => {
+  const renderValue = (key: string, value: unknown): ReactNode => {
     if (Array.isArray(value)) {
       return (
         <Box component="ul" sx={{ m: 0, pl: 2 }}>

@@ -9,7 +9,7 @@ import { extractQueryParameters } from "@frontend/common/utils";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import { Box, Button, CircularProgress, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, type ReactNode, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { AdminListFilter } from "@apps/pyconkr-admin/components/elements/admin_list_filter";
@@ -29,7 +29,7 @@ export type AdminListColumn = {
   header: string;
   width?: string | number;
   align?: "left" | "right" | "center";
-  render?: (row: Record<string, unknown>) => React.ReactNode;
+  render?: (row: Record<string, unknown>) => ReactNode;
 };
 
 type AdminListProps = {
@@ -43,7 +43,7 @@ type AdminListProps = {
   enableRowActions?: boolean;
 };
 
-const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
+const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
@@ -57,10 +57,7 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
       const listQuery = useListQuery<ListRowType & Record<string, unknown>>(backendAdminClient, app, resource, filterParams);
 
       const openApiSchemaQuery = useOpenApiSchemaQuery(backendAdminClient);
-      const queryParameters = React.useMemo(
-        () => extractQueryParameters(openApiSchemaQuery.data, app, resource),
-        [openApiSchemaQuery.data, app, resource]
-      );
+      const queryParameters = useMemo(() => extractQueryParameters(openApiSchemaQuery.data, app, resource), [openApiSchemaQuery.data, app, resource]);
 
       const choicesQuery = useChoicesQuery(backendAdminClient, app, resource);
 
@@ -178,7 +175,7 @@ const InnerAdminList: React.FC<AdminListProps> = ErrorBoundary.with(
   )
 );
 
-export const AdminList: React.FC<AdminListProps> = (props) => (
+export const AdminList: FC<AdminListProps> = (props) => (
   <BackendAdminSignInGuard>
     <InnerAdminList {...props} />
   </BackendAdminSignInGuard>

@@ -1,5 +1,5 @@
 import { Stack, TextField, Typography } from "@mui/material";
-import * as React from "react";
+import { ChangeEvent, FC } from "react";
 
 import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
 
@@ -14,12 +14,12 @@ const dateTimeFieldProps = (values: ProductFormValues, setField: SetField, key: 
   label,
   type: "datetime-local" as const,
   value: values[key]?.slice(0, 16) ?? "",
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => setField(key, e.target.value),
+  onChange: (e: ChangeEvent<HTMLInputElement>) => setField(key, e.target.value),
   fullWidth: true,
   slotProps: { inputLabel: { shrink: true } },
 });
 
-export const TimeSettingsTab: React.FC<Props> = ({ values, setField }) => (
+export const TimeSettingsTab: FC<Props> = ({ values, setField }) => (
   <Stack spacing={2}>
     <Typography variant="subtitle2" color="text.secondary">
       비워두면 항상 활성으로 처리됩니다.

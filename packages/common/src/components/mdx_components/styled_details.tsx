@@ -11,13 +11,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import * as React from "react";
-
-type StyledDetailsProps = React.PropsWithChildren<
+import { FC, PropsWithChildren, ReactNode } from "react";
+type StyledDetailsProps = PropsWithChildren<
   AccordionProps & {
-    expandIcon?: React.ReactNode;
-    summary?: React.ReactNode;
-    actions?: React.ReactNode;
+    expandIcon?: ReactNode;
+    summary?: ReactNode;
+    actions?: ReactNode;
   }
 >;
 
@@ -26,15 +25,7 @@ type BaseStyledDetailsProps = StyledDetailsProps & {
   transparencyOnExpand?: number;
 };
 
-const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
-  expandIcon,
-  summary,
-  children,
-  actions,
-  paletteColor,
-  transparencyOnExpand,
-  ...props
-}) => {
+const BaseStyledDetails: FC<BaseStyledDetailsProps> = ({ expandIcon, summary, children, actions, paletteColor, transparencyOnExpand, ...props }) => {
   const StyledAccordion = styled(Accordion)(({ theme }) => ({
     width: "100%",
     paddingRight: theme.spacing(1),
@@ -71,12 +62,12 @@ const BaseStyledDetails: React.FC<BaseStyledDetailsProps> = ({
   );
 };
 
-export const PrimaryStyledDetails: React.FC<StyledDetailsProps> = (props) => {
+export const PrimaryStyledDetails: FC<StyledDetailsProps> = (props) => {
   const { palette } = useTheme();
   return <BaseStyledDetails {...props} paletteColor={palette.primary} transparencyOnExpand={20} />;
 };
 
-export const HighlightedStyledDetails: React.FC<StyledDetailsProps> = (props) => {
+export const HighlightedStyledDetails: FC<StyledDetailsProps> = (props) => {
   const { palette } = useTheme();
   return <BaseStyledDetails {...props} paletteColor={palette.highlight} transparencyOnExpand={10} />;
 };

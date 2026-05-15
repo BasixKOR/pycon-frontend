@@ -3,7 +3,7 @@ import { useParticipantPortalClient, usePublicFilesQuery } from "@frontend/commo
 import { PermMedia } from "@mui/icons-material";
 import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectProps, Stack, styled, useMediaQuery } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { ChangeEvent, FC, useRef, useState } from "react";
 
 import { PublicFileUploadDialog } from "@apps/pyconkr-participant-portal/components/dialogs/public_file_upload";
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
@@ -12,7 +12,7 @@ import { Fieldset } from "./fieldset";
 
 type PublicFileSelectorProps = Omit<SelectProps<string | null>, "inputRef">;
 
-const ImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => (
+const ImageFallback: FC<{ language: "ko" | "en" }> = ({ language }) => (
   <Box children={language === "ko" ? "이미지가 없습니다." : "No image available."} />
 );
 
@@ -27,11 +27,11 @@ const ScaledFallbackImage = styled(FallbackImage)({
   objectFit: "contain",
 });
 
-export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBoundary.with(
+export const PublicFileSelector: FC<PublicFileSelectorProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ value, onChange, disabled, ...props }) => {
-    const selectInputRef = React.useRef<HTMLSelectElement | null>(null);
-    const [selectorState, setSelectorState] = React.useState<PublicFileSelectorState>({ value });
+    const selectInputRef = useRef<HTMLSelectElement | null>(null);
+    const [selectorState, setSelectorState] = useState<PublicFileSelectorState>({ value });
     const { language } = useAppContext();
     const participantPortalClient = useParticipantPortalClient();
     const { data } = usePublicFilesQuery(participantPortalClient);
@@ -45,7 +45,7 @@ export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBounda
       if (selectInputRef.current) selectInputRef.current.value = value || "";
 
       setSelectorState((ps) => ({ ...ps, value }));
-      onChange?.({ target: { value } } as React.ChangeEvent<HTMLSelectElement & HTMLInputElement>, null);
+      onChange?.({ target: { value } } as ChangeEvent<HTMLSelectElement & HTMLInputElement>, null);
     };
     const openUploadDialog = () => setSelectorState((ps) => ({ ...ps, openUploadDialog: true }));
     const closeUploadDialog = () => setSelectorState((ps) => ({ ...ps, openUploadDialog: false }));

@@ -14,9 +14,9 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode } from "react";
 import { useForm } from "react-hook-form";
-import * as R from "remeda";
+import { isNullish } from "remeda";
 
 import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import {
@@ -57,7 +57,7 @@ type OrderProductRelationItemProps = Omit<AccordionProps, "children"> & {
   optionsOfOneItemInOrderPatchMutation: ReturnType<typeof useOptionsOfOneItemInOrderPatchMutation>;
 };
 
-const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
+const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
   language,
   order,
   prodRel,
@@ -77,7 +77,7 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       {}
     );
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const hasPatchableOption = Object.entries(currentCustomOptionValues).length > 0;
@@ -97,8 +97,8 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
       ? "옵션 수정 중 문제가 발생했습니다,\n잠시 후 다시 시도해주세요."
       : "An error occurred while modifying the options,\nplease try again later.";
 
-  const refundBtnDisabled = isPending || !R.isNullish(prodRel.not_refundable_reason);
-  const refundBtnText = R.isNullish(prodRel.not_refundable_reason)
+  const refundBtnDisabled = isPending || !isNullish(prodRel.not_refundable_reason);
+  const refundBtnText = isNullish(prodRel.not_refundable_reason)
     ? refundOneProductStr
     : prodRel.status === "refunded"
       ? refundedStr
@@ -181,14 +181,14 @@ const OrderProductRelationItem: React.FC<OrderProductRelationItemProps> = ({
 
 type OrderItemProps = Omit<AccordionProps, "children"> & { order: Order; disabled?: boolean };
 
-const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
+const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   const { language, shopApiDomain } = useShopContext();
   const shopAPIClient = useShopClient();
   const orderRefundMutation = useOrderRefundMutation(shopAPIClient);
   const oneItemRefundMutation = useOneItemRefundMutation(shopAPIClient);
   const optionsOfOneItemInOrderPatchMutation = useOptionsOfOneItemInOrderPatchMutation(shopAPIClient);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const PaymentHistoryStatus = language === "ko" ? PaymentHistoryStatusKo : PaymentHistoryStatusEn;
@@ -215,9 +215,9 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
 
   const isPending = disabled || orderRefundMutation.isPending || oneItemRefundMutation.isPending || optionsOfOneItemInOrderPatchMutation.isPending;
-  const refundBtnDisabled = isPending || !R.isNullish(order.not_fully_refundable_reason);
+  const refundBtnDisabled = isPending || !isNullish(order.not_fully_refundable_reason);
   const receipyBtnDisabled = isPending || order.current_status === "pending";
-  const btnText = R.isNullish(order.not_fully_refundable_reason)
+  const btnText = isNullish(order.not_fully_refundable_reason)
     ? refundFullOrderStr
     : order.current_status === "refunded"
       ? orderFullyRefundedStr
@@ -306,8 +306,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   );
 };
 
-export const OrderList: React.FC = () => {
-  const WrappedOrderList: React.FC = () => {
+export const OrderList: FC = () => {
+  const WrappedOrderList: FC = () => {
     const shopAPIClient = useShopClient();
     const { data } = useOrders(shopAPIClient);
 

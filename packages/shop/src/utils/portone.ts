@@ -1,5 +1,5 @@
 import { RequestPayResponse } from "iamport-typings/src";
-import * as R from "remeda";
+import { isEmpty, isString } from "remeda";
 
 import type { Order } from "@frontend/shop/schemas";
 
@@ -16,7 +16,7 @@ export const startPortOnePurchase = (
     return;
   }
 
-  if (!R.isString(portOneAccountId) || R.isEmpty(portOneAccountId)) {
+  if (!isString(portOneAccountId) || isEmpty(portOneAccountId)) {
     alert("PortOne 계정 ID가 설정되지 않았습니다.");
     return;
   }

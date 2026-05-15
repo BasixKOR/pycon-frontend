@@ -6,7 +6,7 @@ import { Add, Delete, OpenInNew } from "@mui/icons-material";
 import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { commands } from "@uiw/react-md-editor";
-import * as React from "react";
+import { FC, SyntheticEvent, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
@@ -33,7 +33,7 @@ type SectionEditorPropType = CommonSectionEditorPropType & {
   onChange: (value: SectionType) => void;
 };
 
-const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+const SectionTextEditor: FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   const deleteActionButton = commands.group([], {
     name: "delete",
@@ -60,7 +60,7 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
   );
 };
 
-const SectionEditorField: React.FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+const SectionEditorField: FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
 
   return (
@@ -81,20 +81,20 @@ type AdminCMSPageEditorStateType = {
   sections?: SectionType[];
 };
 
-export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
+export const AdminCMSPageEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const { frontendDomain } = useCommonContext();
     const backendAdminClient = useBackendAdminClient();
     const { data: initialSections } = useListPageSectionsQuery(backendAdminClient, id || "");
-    const [editorState, setEditorState] = React.useState<AdminCMSPageEditorStateType>({
+    const [editorState, setEditorState] = useState<AdminCMSPageEditorStateType>({
       sections: initialSections,
       tab: 0,
     });
     const bulkUpdateSectionsMutation = useBulkUpdatePageSectionsMutation(backendAdminClient, id || "");
 
-    const setTab = (_: React.SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
+    const setTab = (_: SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
 
     const openOnSiteButton: ButtonProps = {
       variant: "outlined",

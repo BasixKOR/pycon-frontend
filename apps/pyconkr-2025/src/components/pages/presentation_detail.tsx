@@ -4,9 +4,9 @@ import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
-import * as React from "react";
+import { CSSProperties, FC, useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isString } from "remeda";
 
 import PyCon2025Logo from "@apps/pyconkr-2025/assets/pyconkr2025_logo.png";
 import { PageLayout } from "@apps/pyconkr-2025/components/layout/PageLayout";
@@ -21,7 +21,7 @@ type SimplifiedSpeakerSchema = {
   biography: string;
 };
 
-const CenteredLoadingPage: React.FC = () => (
+const CenteredLoadingPage: FC = () => (
   <CenteredPage>
     <CircularProgress />
   </CenteredPage>
@@ -86,7 +86,7 @@ const ProfileImageContainer = styled(Stack)({
   border: `1px solid rgba(0, 0, 0, 0.12)`,
 });
 
-const ProfileImageStyle: React.CSSProperties = {
+const ProfileImageStyle: CSSProperties = {
   width: "100%",
   height: "100%",
   objectFit: "cover",
@@ -94,13 +94,13 @@ const ProfileImageStyle: React.CSSProperties = {
 
 const ProfileImage = styled(FallbackImage)(ProfileImageStyle);
 
-const ProfileImageErrorFallback: React.FC = () => (
+const ProfileImageErrorFallback: FC = () => (
   <Stack alignItems="center" justifyContent="center" sx={{ ...ProfileImageStyle }}>
     <img src={PyCon2025Logo} alt="PyCon 2025 Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
   </Stack>
 );
 
-const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = ({ speaker }) => {
+const PresentationSpeakerItem: FC<{ speaker: SimplifiedSpeakerSchema }> = ({ speaker }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   return (
     <>
@@ -125,7 +125,7 @@ const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = 
   );
 };
 
-const PresentationImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
+const PresentationImageFallback: FC<{ language: "ko" | "en" }> = ({ language }) => {
   const message =
     language === "ko" ? (
       <>
@@ -144,7 +144,7 @@ const PresentationImageFallback: React.FC<{ language: "ko" | "en" }> = ({ langua
   return <Typography variant="caption" color="textSecondary" children={message} />;
 };
 
-export const PresentationDetailPage: React.FC = ErrorBoundary.with(
+export const PresentationDetailPage: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
@@ -186,7 +186,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
       {} as Record<string, string[]>
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
       setAppContext((prev) => ({
         ...prev,
         title: language === "ko" ? "발표 상세" : "Presentation Detail",
@@ -244,7 +244,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
                 </TableCell>
               </TableRow>
             ) : null}
-            {R.isString(presentation.public_slideshow_file) ? (
+            {isString(presentation.public_slideshow_file) ? (
               <TableRow>
                 <HeaderTableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
                 <TableCell sx={(theme) => ({ color: theme.palette.primary.main, textDecoration: "underline" })}>

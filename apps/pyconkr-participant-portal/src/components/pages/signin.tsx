@@ -4,14 +4,14 @@ import { useParticipantPortalClient, useSignInMutation, useSignedInUserQuery } f
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useRef } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import { Page } from "@apps/pyconkr-participant-portal/components/page";
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
-export const SignInPage: React.FC = () => {
-  const formRef = React.useRef<HTMLFormElement>(null);
+export const SignInPage: FC = () => {
+  const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const { sendEmail } = useEmail();
   const { language } = useAppContext();
@@ -20,7 +20,7 @@ export const SignInPage: React.FC = () => {
   const signInMutation = useSignInMutation(participantPortalClient);
   if (data) return <Navigate to="/" replace />;
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const signInStr = language === "ko" ? "로그인" : "Sign In";

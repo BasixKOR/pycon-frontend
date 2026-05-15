@@ -1,16 +1,16 @@
 import { PythonKorea } from "@frontend/common/components";
-import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Box, Button, Chip, Drawer, IconButton, Stack, styled } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty } from "remeda";
 
 import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
 
 import { HamburgerButton } from "./HamburgerButton";
 
-type MenuType = BackendAPISchemas.NestedSiteMapSchema;
+type MenuType = NestedSiteMapSchema;
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -27,8 +27,8 @@ interface NavigationState {
   breadcrumbs: { name: string; level: NavigationLevel }[];
 }
 
-export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose, siteMapNode }) => {
-  const [navState, setNavState] = React.useState<NavigationState>({ level: "depth1", breadcrumbs: [] });
+export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, siteMapNode }) => {
+  const [navState, setNavState] = useState<NavigationState>({ level: "depth1", breadcrumbs: [] });
 
   const resetNavigation = () => setNavState({ level: "depth1", breadcrumbs: [] });
 
@@ -66,14 +66,14 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           .filter((s) => !s.hide)
           .map((menu) => (
             <MenuItem key={menu.id}>
-              {!R.isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) ? (
+              {!isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) ? (
                 <MenuButton onClick={() => navigateToDepth2(menu)}>{menu.name}</MenuButton>
               ) : (
                 <MenuLink to={menu.route_code} onClick={handleClose}>
                   {menu.name}
                 </MenuLink>
               )}
-              {!R.isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) && (
+              {!isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) && (
                 <MenuArrowButton onClick={() => navigateToDepth2(menu)}>
                   <ArrowForward fontSize="small" />
                 </MenuArrowButton>
@@ -103,7 +103,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
                 <Link to={`${navState.depth1!.route_code}/${menu.route_code}`} onClick={handleClose} style={{ textDecoration: "none" }}>
                   <MenuChip label={menu.name} clickable />
                 </Link>
-                {!R.isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) && (
+                {!isEmpty(menu.children) && Object.values(menu.children).some((c) => !c.hide) && (
                   <MenuArrowButton onClick={() => navigateToDepth3(menu)}>
                     <ArrowForward fontSize="small" />
                   </MenuArrowButton>

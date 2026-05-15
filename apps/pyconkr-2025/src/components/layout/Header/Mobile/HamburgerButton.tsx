@@ -1,13 +1,12 @@
 import { IconButton, styled } from "@mui/material";
-import * as React from "react";
-
+import { FC } from "react";
 interface HamburgerButtonProps {
   isOpen: boolean;
   onClick: () => void;
   isMainPath?: boolean;
 }
 
-export const HamburgerButton: React.FC<HamburgerButtonProps> = ({ isOpen, onClick, isMainPath = true }) => {
+export const HamburgerButton: FC<HamburgerButtonProps> = ({ isOpen, onClick, isMainPath = true }) => {
   return (
     <StyledIconButton onClick={onClick} isMainPath={isMainPath}>
       <HamburgerIcon isOpen={isOpen} isMainPath={isMainPath}>

@@ -1,8 +1,7 @@
 import { ChoicesResponse, OpenAPIParameterSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Clear, FilterList, RestartAlt } from "@mui/icons-material";
 import { Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
-import * as React from "react";
-
+import { FC, useEffect, useState } from "react";
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];
   values: Record<string, string>;
@@ -10,10 +9,10 @@ type AdminListFilterProps = {
   onApply: (values: Record<string, string>) => void;
 };
 
-export const AdminListFilter: React.FC<AdminListFilterProps> = ({ parameters, values, choices, onApply }) => {
-  const [localValues, setLocalValues] = React.useState<Record<string, string>>(values);
+export const AdminListFilter: FC<AdminListFilterProps> = ({ parameters, values, choices, onApply }) => {
+  const [localValues, setLocalValues] = useState<Record<string, string>>(values);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalValues(values);
   }, [values]);
 
@@ -73,7 +72,7 @@ type FilterFieldProps = {
   onChange: (name: string, value: string) => void;
 };
 
-const FilterField: React.FC<FilterFieldProps> = ({ param, value, choices, onChange }) => {
+const FilterField: FC<FilterFieldProps> = ({ param, value, choices, onChange }) => {
   const { name, schema, description } = param;
 
   if (schema?.type === "array") return <ArrayFilterField name={name} items={schema.items} value={value} onChange={onChange} />;
@@ -120,7 +119,7 @@ type EnumFilterFieldProps = {
   onChange: (name: string, value: string) => void;
 };
 
-const EnumFilterField: React.FC<EnumFilterFieldProps> = ({ name, options, value, onChange }) => {
+const EnumFilterField: FC<EnumFilterFieldProps> = ({ name, options, value, onChange }) => {
   const selectedValues = value ? value.split(",") : [];
 
   const handleChange = (newValues: string | string[]) => {
@@ -161,7 +160,7 @@ type ArrayFilterFieldProps = {
   onChange: (name: string, value: string) => void;
 };
 
-const ArrayFilterField: React.FC<ArrayFilterFieldProps> = ({ name, items, value, onChange }) => {
+const ArrayFilterField: FC<ArrayFilterFieldProps> = ({ name, items, value, onChange }) => {
   const values = value ? value.split(",") : [];
 
   const updateValues = (newValues: string[]) => onChange(name, newValues.filter((v) => v !== "").join(","));

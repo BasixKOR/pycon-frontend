@@ -1,6 +1,5 @@
-import * as R from "remeda";
-
-export const isFilledString = (obj: unknown): obj is string => R.isString(obj) && !R.isEmpty(obj);
+import { isEmpty, isString } from "remeda";
+export const isFilledString = (obj: unknown): obj is string => isString(obj) && !isEmpty(obj);
 
 export const isValidHttpUrl = (obj: unknown): obj is string => {
   try {

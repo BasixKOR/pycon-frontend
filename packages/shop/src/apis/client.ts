@@ -1,6 +1,6 @@
 import { getCookie } from "@frontend/common/utils";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import * as R from "remeda";
+import { isString } from "remeda";
 
 import { isObjectErrorResponseSchema, type ErrorResponseSchema } from "@frontend/shop/schemas";
 
@@ -33,7 +33,7 @@ export class ShopAPIClientError extends Error {
               errors: [
                 {
                   code: "unknown",
-                  detail: R.isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
+                  detail: isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
                   attr: null,
                 },
               ],
@@ -58,8 +58,12 @@ export class ShopAPIClientError extends Error {
   }
 }
 
-type AxiosRequestWithoutPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<R>;
-type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>) => Promise<R>;
+type AxiosRequestWithoutPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<Resp>;
+type AxiosRequestWithPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+) => Promise<Resp>;
 
 export class ShopAPIClient {
   readonly baseURL: string;
@@ -87,9 +91,9 @@ export class ShopAPIClient {
   }
 
   _safe_request_without_payload(requestFunc: AxiosRequestWithoutPayload): AxiosRequestWithoutPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, config);
+        return await requestFunc<T, Resp, D>(url, config);
       } catch (error) {
         throw new ShopAPIClientError(error);
       }
@@ -97,9 +101,9 @@ export class ShopAPIClient {
   }
 
   _safe_request_with_payload(requestFunc: AxiosRequestWithPayload): AxiosRequestWithPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, data, config);
+        return await requestFunc<T, Resp, D>(url, data, config);
       } catch (error) {
         throw new ShopAPIClientError(error);
       }

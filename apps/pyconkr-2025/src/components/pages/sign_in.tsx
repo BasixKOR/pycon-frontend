@@ -3,7 +3,7 @@ import { AccountCircleOutlined, Google } from "@mui/icons-material";
 import { Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { PageLayout } from "@apps/pyconkr-2025/components/layout/PageLayout";
@@ -13,9 +13,9 @@ type PageeStateType = {
   openBackdrop: boolean;
 };
 
-export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
+export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const { setAppContext, language } = useAppContext();
-  const [state, setState] = React.useState<PageeStateType>({ openBackdrop: false });
+  const [state, setState] = useState<PageeStateType>({ openBackdrop: false });
   const navigate = useNavigate();
   const shopAPIClient = useShopClient();
   const SignInMutation = useSignInWithSNSMutation(shopAPIClient);
@@ -23,7 +23,7 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
 
   const shouldOpenBackdrop = SignInMutation.isPending || state.openBackdrop;
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const triggerSignIn = (provider: "google" | "kakao" | "naver") => {
@@ -39,7 +39,7 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
   const signInWithKakaoStr = language === "ko" ? "카카오로 로그인" : "Sign In with Kakao";
   const signInWithNaverStr = language === "ko" ? "네이버로 로그인" : "Sign In with Naver";
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (data && data.meta.is_authenticated) {
       addSnackbar(
         language === "ko" ? `이미 ${data.data.user.username}님으로 로그인되어 있습니다!` : `You are already signed in as ${data.data.user.username}!`,

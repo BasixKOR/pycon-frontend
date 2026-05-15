@@ -3,7 +3,7 @@ import { useChangePasswordMutation, useParticipantPortalClient } from "@frontend
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useRef } from "react";
 
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
@@ -18,13 +18,13 @@ type PasswordFormDataType = {
   new_password_confirm: string;
 };
 
-export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open, onClose }) => {
-  const formRef = React.useRef<HTMLFormElement>(null);
+export const ChangePasswordDialog: FC<ChangePasswordDialogProps> = ({ open, onClose }) => {
+  const formRef = useRef<HTMLFormElement>(null);
   const { language } = useAppContext();
   const participantPortalClient = useParticipantPortalClient();
   const changePasswordMutation = useChangePasswordMutation(participantPortalClient);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const titleStr = language === "ko" ? "비밀번호 변경" : "Change Password";

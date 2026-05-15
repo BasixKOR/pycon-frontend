@@ -3,10 +3,10 @@ import { AccordionProps, Backdrop, Button, CircularProgress, Divider, Stack, Typ
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import * as R from "remeda";
+import { isArray } from "remeda";
 
 import { ShopAPIClientError } from "@frontend/shop/apis/client";
 import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
@@ -14,7 +14,7 @@ import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, us
 import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
 import { startPortOnePurchase } from "@frontend/shop/utils";
 
-const CartItem: React.FC<
+const CartItem: FC<
   Omit<AccordionProps, "children"> & {
     language: "ko" | "en";
     cartProdRel: OrderProductItem;
@@ -70,19 +70,19 @@ type CartStatusStateType = {
   openBackdrop: boolean;
 };
 
-export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
+export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { language, shopImpAccountId } = useShopContext();
   const shopAPIClient = useShopClient();
   const cartOrderStartMutation = usePrepareCartOrderMutation(shopAPIClient);
   const removeItemFromCartMutation = useRemoveItemFromCartMutation(shopAPIClient);
-  const [state, setState] = React.useState<CartStatusStateType>({
+  const [state, setState] = useState<CartStatusStateType>({
     openDialog: false,
     openBackdrop: false,
   });
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const cartIsEmptyStr = language === "ko" ? "장바구니가 비어있어요!" : "Your cart is empty!";
@@ -141,10 +141,10 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
 
   const disabled = removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
 
-  const WrappedShopCartList: React.FC = () => {
+  const WrappedShopCartList: FC = () => {
     const { data } = useCart(shopAPIClient);
 
-    return !R.isArray(data.products) || data.products.length === 0 ? (
+    return !isArray(data.products) || data.products.length === 0 ? (
       <Typography variant="body1" color="error">
         {cartIsEmptyStr}
       </Typography>

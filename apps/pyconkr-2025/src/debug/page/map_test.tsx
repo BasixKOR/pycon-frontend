@@ -1,8 +1,7 @@
 import { Map as MDXMap, MapPropType } from "@frontend/common/components/mdx_components";
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Box, Button, FormControlLabel, Stack, Switch, TextField } from "@mui/material";
-import * as React from "react";
-
+import { FC, useRef, useState } from "react";
 type MapTestPageStateType = {
   checked: boolean;
   mapProps: MapPropType;
@@ -23,13 +22,13 @@ const INITIAL_DATA: MapPropType = {
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3162.871473157695!2d126.99821779999999!3d37.5580918!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ca302befa0c31%3A0xbc66c66731962172!2z64-Z6rWt64yA7ZWZ6rWQIOyLoOqzte2Vmeq0gA!5e0!3m2!1sko!2sen!4v1748768615566!5m2!1sko!2sen",
 };
 
-export const MapTestPage: React.FC = () => {
-  const geoFormRef = React.useRef<HTMLFormElement>(null);
-  const placeNameFormRef = React.useRef<HTMLFormElement>(null);
-  const placeCodeFormRef = React.useRef<HTMLFormElement>(null);
-  const gMapIframeUrlInputRef = React.useRef<HTMLInputElement>(null);
+export const MapTestPage: FC = () => {
+  const geoFormRef = useRef<HTMLFormElement>(null);
+  const placeNameFormRef = useRef<HTMLFormElement>(null);
+  const placeCodeFormRef = useRef<HTMLFormElement>(null);
+  const gMapIframeUrlInputRef = useRef<HTMLInputElement>(null);
 
-  const [state, setState] = React.useState<MapTestPageStateType>({ checked: false, mapProps: INITIAL_DATA });
+  const [state, setState] = useState<MapTestPageStateType>({ checked: false, mapProps: INITIAL_DATA });
   const setChecked = (checked: boolean) => setState((ps) => ({ ...ps, checked }));
   const language = state.checked ? "en" : "ko";
 

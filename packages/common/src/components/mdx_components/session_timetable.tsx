@@ -1,14 +1,14 @@
 import { Button, Chip, CircularProgress, Stack, styled, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
-import * as React from "react";
+import { FC, useState } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
+import { isArray, isEmpty, isString } from "remeda";
 
 import { CenteredPage } from "@frontend/common/components/centered_page";
 import { ErrorFallback } from "@frontend/common/components/error_handler";
-import * as Hooks from "@frontend/common/hooks";
-import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+import { BackendAPI, Common } from "@frontend/common/hooks";
+import { SessionSchema } from "@frontend/common/schemas/backendAPI";
 
 import { StyledDivider } from "./styled_divider";
 
@@ -22,7 +22,7 @@ type TimeTableData = {
       [room: string]:
         | {
             rowSpan: number;
-            session: BackendAPISchemas.SessionSchema;
+            session: SessionSchema;
           }
         | undefined;
     };
@@ -31,11 +31,11 @@ type TimeTableData = {
 
 const getPaddedTime = (time: DateTime) => `${time.hour}:${time.minute.toString().padStart(2, "0")}`;
 
-const getRooms = (data: BackendAPISchemas.SessionSchema[]) => {
+const getRooms = (data: SessionSchema[]) => {
   return Array.from(new Set<string>(data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => r.room_name)], [] as string[])));
 };
 
-const getConfStartEndTimePerDay: (data: BackendAPISchemas.SessionSchema[]) => {
+const getConfStartEndTimePerDay: (data: SessionSchema[]) => {
   [date: string]: { start: DateTime; end: DateTime };
 } = (data) => {
   const startTimes = data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.start_at))], [] as DateTime[]);
@@ -75,7 +75,7 @@ const getEveryTenMinutesArr = (start: DateTime, end: DateTime) => {
   return arr;
 };
 
-const getTimeTableData: (data: BackendAPISchemas.SessionSchema[]) => TimeTableData = (data) => {
+const getTimeTableData: (data: SessionSchema[]) => TimeTableData = (data) => {
   // Initialize timeTableData structure
   const timeTableData: TimeTableData = Object.entries(getConfStartEndTimePerDay(data)).reduce(
     (acc, [date, { start, end }]) => ({
@@ -104,14 +104,14 @@ const getTimeTableData: (data: BackendAPISchemas.SessionSchema[]) => TimeTableDa
   return timeTableData;
 };
 
-const SessionColumn: React.FC<{
+const SessionColumn: FC<{
   rowSpan: number;
   colSpan?: number;
-  session: BackendAPISchemas.SessionSchema;
-  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
+  session: SessionSchema;
+  getSessionUrl?: (session: SessionSchema) => string;
 }> = ({ rowSpan, colSpan, session, getSessionUrl }) => {
   const sessionUrl = getSessionUrl ? getSessionUrl(session) : undefined;
-  const clickable = R.isArray(session.speakers) && !R.isEmpty(session.speakers) && !!sessionUrl;
+  const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
   // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
   const sessionBoxHeight = `${TD_HEIGHT * rowSpan}rem`;
   return (
@@ -141,7 +141,7 @@ const SessionColumn: React.FC<{
   );
 };
 
-const BreakTime: React.FC<{ language: "ko" | "en"; duration: number }> = ({ language, duration }) => {
+const BreakTime: FC<{ language: "ko" | "en"; duration: number }> = ({ language, duration }) => {
   const text = language === "ko" ? `휴식 (${duration}분)` : `Break Time (${duration}min.)`;
   return <Typography variant="subtitle2" fontWeight="500" children={text} />;
 };
@@ -149,18 +149,18 @@ const BreakTime: React.FC<{ language: "ko" | "en"; duration: number }> = ({ lang
 type SessionTimeTablePropType = {
   event?: string;
   types?: string | string[];
-  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
+  getSessionUrl?: (session: SessionSchema) => string;
 };
 
-export const SessionTimeTable: React.FC<SessionTimeTablePropType> = ErrorBoundary.with(
+export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types, getSessionUrl }) => {
-    const [confDate, setConfDate] = React.useState("");
+    const [confDate, setConfDate] = useState("");
 
-    const { language } = Hooks.Common.useCommonContext();
-    const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
-    const { data: sessionList } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
+    const { language } = Common.useCommonContext();
+    const backendAPIClient = BackendAPI.useBackendClient();
+    const params = { ...(event && { event }), ...(types && { types: isString(types) ? types : types.join(",") }) };
+    const { data: sessionList } = BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const timeTableData = getTimeTableData(sessionList);
     const dates = Object.keys(timeTableData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());

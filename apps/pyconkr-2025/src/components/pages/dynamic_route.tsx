@@ -7,13 +7,13 @@ import { CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
-import * as React from "react";
+import { CSSProperties, FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty, isString } from "remeda";
 
 import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
 
-const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties = (additionalStyle) => (theme) => ({
+const initialPageStyle: (additionalStyle: CSSProperties) => (theme: Theme) => CSSProperties = (additionalStyle) => (theme) => ({
   width: "100%",
   display: "flex",
   justifyContent: "flex-start",
@@ -22,7 +22,7 @@ const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme)
 
   marginTop: theme.spacing(4),
 
-  ...(!R.isEmpty(additionalStyle)
+  ...(!isEmpty(additionalStyle)
     ? additionalStyle
     : {
         [theme.breakpoints.down("lg")]: {
@@ -34,7 +34,7 @@ const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme)
       }),
 });
 
-const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties = (additionalStyle) => (theme) => ({
+const initialSectionStyle: (additionalStyle: CSSProperties) => (theme: Theme) => CSSProperties = (additionalStyle) => (theme) => ({
   width: "100%",
   maxWidth: "1200px",
   display: "flex",
@@ -44,7 +44,7 @@ const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: The
   paddingLeft: theme.spacing(16),
 
   "& .markdown-body": { width: "100%" },
-  ...(!R.isEmpty(additionalStyle)
+  ...(!isEmpty(additionalStyle)
     ? additionalStyle
     : {
         [theme.breakpoints.down("lg")]: {
@@ -58,10 +58,10 @@ const initialSectionStyle: (additionalStyle: React.CSSProperties) => (theme: The
       }),
 });
 
-const LoginRequired: React.FC = () => <>401 Login Required</>;
-const PermissionDenied: React.FC = () => <>403 Permission Denied</>;
-const PageNotFound: React.FC = () => <>404 Not Found</>;
-const CenteredLoadingPage: React.FC = () => (
+const LoginRequired: FC = () => <>401 Login Required</>;
+const PermissionDenied: FC = () => <>403 Permission Denied</>;
+const PageNotFound: FC = () => <>404 Not Found</>;
+const CenteredLoadingPage: FC = () => (
   <CenteredPage>
     <CircularProgress />
   </CenteredPage>
@@ -75,7 +75,7 @@ const throwPageNotFound: (message: string) => never = (message) => {
   throw new BackendAPIClientError(axiosError);
 };
 
-const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
+const RouteErrorFallback: FC<{ error: Error; reset: () => void }> = ({ error, reset }) => {
   if (error instanceof BackendAPIClientError) {
     switch (error.status) {
       case 401:
@@ -91,11 +91,11 @@ const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ err
   return <ErrorFallback error={error} reset={reset} />;
 };
 
-const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
-  const [isFetching, setIsFetching] = React.useState(true);
+const WaitedCenteredLoadingPage: FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
+  const [isFetching, setIsFetching] = useState(true);
   const qClient = useQueryClient();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = qClient.getQueryCache().subscribe(() => setIsFetching(qClient.isFetching() > 0));
     return () => unsubscribe();
   }, [qClient]);
@@ -103,13 +103,13 @@ const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredL
   return isFetching ? <CenteredLoadingPage /> : <PageNotFound />;
 });
 
-const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
+const InnerPageRenderer: FC<{ id: string }> = Suspense.with({ fallback: <CenteredLoadingPage /> }, ({ id }) => {
   const { setAppContext } = useAppContext();
   const { baseUrl, mdxComponents } = useCommonContext();
   const backendClient = useBackendClient();
   const { data } = usePageQuery(backendClient, id);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAppContext((prev) => ({
       ...prev,
       title: data.title,
@@ -129,26 +129,26 @@ const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <C
   );
 });
 
-export const PageRenderer: React.FC<{ id: string }> = ({ id }) => (
+export const PageRenderer: FC<{ id: string }> = ({ id }) => (
   <ErrorBoundary fallback={RouteErrorFallback} resetKeys={[id]}>
     <InnerPageRenderer id={id} />
   </ErrorBoundary>
 );
 
-export const RouteRenderer: React.FC = ErrorBoundary.with(
+export const RouteRenderer: FC = ErrorBoundary.with(
   { fallback: RouteErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { siteMapNode, currentSiteMapDepth } = useAppContext();
-    const routeInfo = !R.isEmpty(currentSiteMapDepth) && currentSiteMapDepth[currentSiteMapDepth.length - 1];
+    const routeInfo = !isEmpty(currentSiteMapDepth) && currentSiteMapDepth[currentSiteMapDepth.length - 1];
 
     if (!(siteMapNode && routeInfo)) return <WaitedCenteredLoadingPage />;
-    if (R.isString(routeInfo.page)) return <PageRenderer id={routeInfo.page} />;
-    if (R.isString(routeInfo.external_link)) window.location.replace(routeInfo.external_link);
+    if (isString(routeInfo.page)) return <PageRenderer id={routeInfo.page} />;
+    if (isString(routeInfo.external_link)) window.location.replace(routeInfo.external_link);
     return <PageNotFound />;
   })
 );
 
-export const PageIdParamRenderer: React.FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
+export const PageIdParamRenderer: FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
   const { id } = useParams();
   if (!id) throwPageNotFound("Page ID is required");
   return <PageRenderer id={id} />;

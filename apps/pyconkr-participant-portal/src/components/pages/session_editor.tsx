@@ -9,7 +9,7 @@ import { SendAndArchive } from "@mui/icons-material";
 import { Box, Button, Divider, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { SubmitConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/submit_confirm";
@@ -64,8 +64,8 @@ type SessionEditorFormProps = {
 
 type SessionEditorFormState = SessionSchema;
 
-export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
-  const [formState, setFormState] = React.useState<SessionEditorFormState>(defaultValue);
+export const SessionEditorForm: FC<SessionEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
+  const [formState, setFormState] = useState<SessionEditorFormState>(defaultValue);
 
   const setTitle = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`title_${lang}`]: value }));
   const setSummary = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
@@ -224,10 +224,10 @@ type SessionEditorState = {
   formData?: SessionUpdateSchema;
 };
 
-const InnerSessionEditor: React.FC = () => {
+const InnerSessionEditor: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const { language } = useAppContext();
-  const [editorState, setEditorState] = React.useState<SessionEditorState>({ openSubmitConfirmDialog: false });
+  const [editorState, setEditorState] = useState<SessionEditorState>({ openSubmitConfirmDialog: false });
   const participantPortalClient = useParticipantPortalClient();
   const updateSessionMutation = useUpdatePresentationMutation(participantPortalClient);
   const { data: session } = useRetrievePresentationQuery(participantPortalClient, sessionId || "");
@@ -239,7 +239,7 @@ const InnerSessionEditor: React.FC = () => {
       ? "발표 정보 수정을 요청했어요. 검토 후 반영될 예정이에요."
       : "Presentation information update requested. It will be applied after review.";
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const openSubmitConfirmDialog = (formData: SessionUpdateSchema) => setEditorState((ps) => ({ ...ps, openSubmitConfirmDialog: true, formData }));
@@ -283,7 +283,7 @@ const InnerSessionEditor: React.FC = () => {
   );
 };
 
-export const SessionEditor: React.FC = ErrorBoundary.with(
+export const SessionEditor: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerSessionEditor />} />)
 );

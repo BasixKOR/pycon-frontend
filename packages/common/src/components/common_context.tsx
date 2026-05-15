@@ -1,12 +1,10 @@
-import * as React from "react";
+import { FC, ReactNode } from "react";
 
 import { context, ContextOptions } from "@frontend/common/contexts";
 
 type CommonContextProps = {
   options: ContextOptions;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
-export const CommonContextProvider: React.FC<CommonContextProps> = (props) => (
-  <context.Provider value={props.options}>{props.children}</context.Provider>
-);
+export const CommonContextProvider: FC<CommonContextProps> = (props) => <context.Provider value={props.options}>{props.children}</context.Provider>;

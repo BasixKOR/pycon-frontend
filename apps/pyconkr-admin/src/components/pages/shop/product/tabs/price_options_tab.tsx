@@ -1,5 +1,5 @@
 import { Checkbox, Divider, FormControlLabel, Stack, TextField } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 
 import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
 
@@ -8,7 +8,7 @@ type Props = {
   setField: SetField;
 };
 
-export const PriceOptionsTab: React.FC<Props> = ({ values, setField }) => (
+export const PriceOptionsTab: FC<Props> = ({ values, setField }) => (
   <Stack spacing={2}>
     <Stack direction="row" spacing={2}>
       <TextField label="가격 (₩)" type="number" required value={values.price} onChange={(e) => setField("price", e.target.value)} fullWidth />

@@ -27,10 +27,10 @@ import {
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useReducer, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
 import { ShopAPIClientError } from "@frontend/shop/apis/client";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
@@ -70,9 +70,9 @@ const getProductNotPurchasableReason = (language: "ko" | "en", product: Product)
   }
   if (orderableEndsAt < now) return language === "ko" ? "판매가 종료됐어요!" : "This product is no longer available for purchase!";
 
-  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0)
+  if (isNumber(product.leftover_stock) && product.leftover_stock <= 0)
     return language === "ko" ? "상품이 매진되었어요!" : "This product is out of stock!";
-  if (product.option_groups.some((og) => !R.isEmpty(og.options) && og.options.every((o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0)))
+  if (product.option_groups.some((og) => !isEmpty(og.options) && og.options.every((o) => isNumber(o.leftover_stock) && o.leftover_stock <= 0)))
     return language === "ko"
       ? "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!"
       : "All selectable options for this product are out of stock!";
@@ -80,7 +80,7 @@ const getProductNotPurchasableReason = (language: "ko" | "en", product: Product)
   return null;
 };
 
-const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
+const NotPurchasable: FC<PropsWithChildren> = ({ children }) => {
   return (
     <Typography variant="body1" color="error" sx={{ width: "100%", textAlign: "center", mt: "2rem", mb: "1rem" }}>
       {children}
@@ -105,18 +105,18 @@ const isZeroPriceProduct = (p: Product): boolean => {
   return p.price + p.option_groups.reduce((sum, group) => sum + group.options.reduce((s, o) => s + (o.additional_price || 0), 0), 0) === 0;
 };
 
-const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
+const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
   const navigate = useNavigate();
-  const [, forceRender] = React.useReducer((x) => x + 1, 0);
-  const [helperText, setHelperText] = React.useState<string | undefined>(undefined);
+  const [, forceRender] = useReducer((x) => x + 1, 0);
+  const [helperText, setHelperText] = useState<string | undefined>(undefined);
   const { baseUrl, mdxComponents } = useCommonContext();
   const { handleSubmit, subscribe, control, getValues, register, formState } = useForm<Record<string, string>>({ mode: "all" });
   const shopAPIClient = useShopClient();
   const addItemToCartMutation = useAddItemToCartMutation(shopAPIClient);
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const callback = subscribe({
       formState: { values: true },
       callback: forceRender,
@@ -179,10 +179,10 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   const actionButtonProps: ButtonProps = {
     variant: "contained",
     color: "secondary",
-    disabled: disabled || R.isString(helperText) || !formState.isValid,
+    disabled: disabled || isString(helperText) || !formState.isValid,
   };
 
-  const validateDonationPrice: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+  const validateDonationPrice: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     const value = e.target.value || "0";
 
     if (!/^[0-9]*$/.test(value)) {
@@ -268,7 +268,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       <MDXRenderer text={product.description || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
       <br />
       <Divider />
-      {R.isNullish(notPurchasableReason) ? (
+      {isNullish(notPurchasableReason) ? (
         <>
           <br />
           <form onSubmit={handleSubmit(() => {})}>
@@ -321,7 +321,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
       ) : (
         <NotPurchasable>{notPurchasableReason}</NotPurchasable>
       )}
-      {R.isNullish(notPurchasableReason) && (
+      {isNullish(notPurchasableReason) && (
         <SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
           <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", mt: 2 }}>
             <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
@@ -335,7 +335,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
 type FoldableProductItemPropType = Omit<AccordionProps, "children"> & ProductItemPropType;
 
-const FoldableProductItem: React.FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+const FoldableProductItem: FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
   return (
     <PrimaryStyledDetails {...props} summary={product.name}>
       <ProductItem disabled={disabled} language={language} product={product} startPurchaseProcess={startPurchaseProcess} />
@@ -355,7 +355,7 @@ type DialogedProductItemPropType = Omit<DialogProps, "children"> &
     product?: Product;
   };
 
-const DialogedProductItem: React.FC<DialogedProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+const DialogedProductItem: FC<DialogedProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
   const dialogTitle = language === "ko" ? "상품 상세 정보" : "Product Details";
   const onCloseClick = (props.onClose as () => void) || (() => {});
   return (
@@ -397,7 +397,7 @@ const StyledProductImageCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
+const ProductImageCard: FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
   const showDetailStr = language === "ko" ? "상품 상세 정보 보기" : "View Product Details";
   return (
     <StyledProductImageCard onClick={() => showDetail(product)} elevation={0}>
@@ -431,8 +431,8 @@ type ProductListStateType = {
   oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductList: React.FC<ProductListQueryParams> = (qs) => {
-  const WrappedProductList: React.FC = () => {
+export const ProductList: FC<ProductListQueryParams> = (qs) => {
+  const WrappedProductList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { language, shopImpAccountId } = useShopContext();
@@ -440,7 +440,7 @@ export const ProductList: React.FC<ProductListQueryParams> = (qs) => {
     const oneItemOrderStartMutation = usePrepareOneItemOrderMutation(shopAPIClient);
     const { data } = useProducts(shopAPIClient, qs);
 
-    const [state, setState] = React.useState<ProductListStateType>({
+    const [state, setState] = useState<ProductListStateType>({
       openDialog: false,
       openBackdrop: false,
       resetKey: Math.random().toString(36).substring(2),
@@ -531,8 +531,8 @@ type ProductImageCardListStateType = {
   oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductImageCardList: React.FC<ProductListQueryParams> = (qs) => {
-  const WrappedProductImageCardList: React.FC = () => {
+export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
+  const WrappedProductImageCardList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { language, shopImpAccountId } = useShopContext();
@@ -540,7 +540,7 @@ export const ProductImageCardList: React.FC<ProductListQueryParams> = (qs) => {
     const oneItemOrderStartMutation = usePrepareOneItemOrderMutation(shopAPIClient);
     const { data } = useProducts(shopAPIClient, qs);
 
-    const [state, setState] = React.useState<ProductImageCardListStateType>({
+    const [state, setState] = useState<ProductImageCardListStateType>({
       openProductDialog: false,
       openCustomerInfoDialog: false,
       openBackdrop: false,

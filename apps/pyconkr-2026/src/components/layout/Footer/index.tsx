@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useEmail } from "@frontend/common/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, OpenInNew, X, YouTube } from "@mui/icons-material";
 import { Button, useMediaQuery, useTheme } from "@mui/material";
-import * as React from "react";
+import { FC, Fragment } from "react";
 
 import FlickrIcon from "@apps/pyconkr-2026/assets/thirdparty/flickr.svg?react";
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
@@ -10,7 +10,7 @@ import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 import MobileFooter from "./Mobile/MobileFooter";
 
 interface IconItem {
-  icon: React.FC<{ width?: number; height?: number }>;
+  icon: FC<{ width?: number; height?: number }>;
   alt: string;
   href: string;
 }
@@ -46,7 +46,7 @@ const defaultIcons: IconItem[] = [
   },
 ];
 
-const Bar: React.FC = () => <div style={{ display: "inline-block", padding: "0 0.25rem" }}>|</div>;
+const Bar: FC = () => <div style={{ display: "inline-block", padding: "0 0.25rem" }}>|</div>;
 
 export default function Footer() {
   const { sendEmail } = useEmail();
@@ -117,12 +117,12 @@ export default function Footer() {
         </FooterText>
         <FooterLinks>
           {links.map((link, index) => (
-            <React.Fragment key={index}>
+            <Fragment key={index}>
               <Link key={link.text} href={link.href}>
                 {link.text}
               </Link>
               {index < links.length - 1 && <Separator>|</Separator>}
-            </React.Fragment>
+            </Fragment>
           ))}
         </FooterLinks>
         <FooterIcons>

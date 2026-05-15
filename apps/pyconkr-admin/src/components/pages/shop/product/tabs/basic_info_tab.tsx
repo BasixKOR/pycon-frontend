@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 
 import { PublicFilePicker } from "@apps/pyconkr-admin/components/elements/public_file_picker";
 import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
@@ -47,8 +47,8 @@ type Props = {
   tags: TagAdmin[];
 };
 
-export const BasicInfoTab: React.FC<Props> = ({ values, setField, disabled, groups, tags }) => {
-  const [langTab, setLangTab] = React.useState<"ko" | "en">("ko");
+export const BasicInfoTab: FC<Props> = ({ values, setField, disabled, groups, tags }) => {
+  const [langTab, setLangTab] = useState<"ko" | "en">("ko");
   const { baseUrl, mdxComponents } = useCommonContext();
   const selectedTags = tags.filter((t) => values.tag_set.includes(t.id));
   const isKo = langTab === "ko";

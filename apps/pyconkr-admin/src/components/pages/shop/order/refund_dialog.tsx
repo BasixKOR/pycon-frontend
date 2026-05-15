@@ -1,7 +1,7 @@
 import { useBackendAdminClient } from "@frontend/common/hooks/useAdminAPI";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import * as React from "react";
+import { FC, useEffect, useState } from "react";
 
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
@@ -15,12 +15,12 @@ type RefundDialogProps = {
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
-export const RefundDialog: React.FC<RefundDialogProps> = ({ open, onClose, order }) => {
+export const RefundDialog: FC<RefundDialogProps> = ({ open, onClose, order }) => {
   const client = useBackendAdminClient();
-  const [totp, setTotp] = React.useState("");
-  const [touched, setTouched] = React.useState(false);
+  const [totp, setTotp] = useState("");
+  const [touched, setTouched] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setTotp("");
       setTouched(false);

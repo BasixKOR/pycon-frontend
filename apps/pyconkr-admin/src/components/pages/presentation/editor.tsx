@@ -16,7 +16,7 @@ import { PickerValue } from "@mui/x-date-pickers/internals";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, SyntheticEvent, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
@@ -96,10 +96,10 @@ type AutoCompleteType = {
   label: string;
 };
 
-const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ disabled, schema, speaker, onChange, onRemove }) => {
+const PresentationSpeakerForm: FC<PresentationSpeakerFormPropType> = ({ disabled, schema, speaker, onChange, onRemove }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
-  const [formState, setFormState] = React.useState<PresentationSpeakerFormStateType>({ tab: "ko" });
-  const setLanguage = (_: React.SyntheticEvent, tab: "ko" | "en") => setFormState((ps) => ({ ...ps, tab }));
+  const [formState, setFormState] = useState<PresentationSpeakerFormStateType>({ tab: "ko" });
+  const setLanguage = (_: SyntheticEvent, tab: "ko" | "en") => setFormState((ps) => ({ ...ps, tab }));
 
   const userOptions: AutoCompleteType[] = schema.schema.properties.user.oneOf.map((item) => ({
     name: "user",
@@ -116,7 +116,7 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
 
   const bioField = formState.tab === "ko" ? "biography_ko" : "biography_en";
   const onSpeakerBioChange = (value?: string) => onChange({ ...speaker, [bioField]: value || "" });
-  const onSpeakerChange = (fieldName: string) => (_: React.SyntheticEvent, selected: AutoCompleteType | null) => {
+  const onSpeakerChange = (fieldName: string) => (_: SyntheticEvent, selected: AutoCompleteType | null) => {
     onChange({ ...speaker, [fieldName]: selected?.value || "" });
   };
   const onSpeakerRemove = () => {
@@ -206,7 +206,7 @@ type ScheduleFormPropType = {
   onRemove: (schedule: OnMemorySchedule) => void;
 };
 
-const PresentationScheduleForm: React.FC<ScheduleFormPropType> = ({ schema, disabled, schedule, onChange, onRemove }) => {
+const PresentationScheduleForm: FC<ScheduleFormPropType> = ({ schema, disabled, schedule, onChange, onRemove }) => {
   const roomOptions: AutoCompleteType[] = schema.schema.properties.room.oneOf.map((item) => ({
     name: "room",
     value: item.const || "",
@@ -214,7 +214,7 @@ const PresentationScheduleForm: React.FC<ScheduleFormPropType> = ({ schema, disa
   }));
   const currentSelectedRoom = roomOptions.find((r) => r.value === schedule.room?.toString());
 
-  const onSelectChange = (fieldName: string) => (_: React.SyntheticEvent, selected: AutoCompleteType | null) => {
+  const onSelectChange = (fieldName: string) => (_: SyntheticEvent, selected: AutoCompleteType | null) => {
     onChange({ ...schedule, [fieldName]: selected?.value || "" });
   };
 
@@ -274,12 +274,12 @@ type PresentationEditorStateType = {
   schedules: OnMemorySchedule[];
 };
 
-export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
+export const AdminPresentationEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
 
-    const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+    const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
       enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
     const backendAdminAPIClient = useBackendAdminClient();
@@ -302,7 +302,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
     const { data: scheduleInitialData } = useListQuery<Schedule>(...scheduleQueryParams, { presentation });
     const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
-    React.useMemo(() => {
+    useMemo(() => {
       const mergeChoices = (
         schema: { schema?: { properties?: Record<string, { oneOf?: enumItemType[] }> } },
         choices: Record<string, enumItemType[]>
@@ -335,7 +335,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
       end_at: DateTime.now().plus({ hours: 1 }).toISO({ includeOffset: false }),
     });
 
-    const [editorState, setEditorState] = React.useState<PresentationEditorStateType>({ speakers, schedules });
+    const [editorState, setEditorState] = useState<PresentationEditorStateType>({ speakers, schedules });
     const onSpeakerCreate = () => setEditorState((ps) => ({ ...ps, speakers: [...ps.speakers, createEmptySpeaker()] }));
     const onSpeakerRemove = (oldSpeaker: OnMemoeryPresentationSpeaker) =>
       setEditorState((ps) => ({ ...ps, speakers: ps.speakers.filter((s) => s.trackId !== oldSpeaker.trackId) }));

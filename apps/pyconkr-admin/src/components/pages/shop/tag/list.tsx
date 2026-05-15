@@ -1,5 +1,5 @@
 import { Chip } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
 
 import { AdminList, AdminListColumn } from "@apps/pyconkr-admin/components/layouts/admin_list";
@@ -48,4 +48,4 @@ const columns: AdminListColumn[] = [
   },
 ];
 
-export const ShopTagListPage: React.FC = () => <AdminList app="shop" resource="tags" columns={columns} enableRowActions />;
+export const ShopTagListPage: FC = () => <AdminList app="shop" resource="tags" columns={columns} enableRowActions />;

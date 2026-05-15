@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Tab, Tabs } from "@mui/material";
-import * as React from "react";
+import { CSSProperties, FC, SyntheticEvent, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
@@ -29,8 +29,8 @@ export type MapDataType = {
     en: string;
   };
   color: {
-    backgroundColor: React.CSSProperties["backgroundColor"];
-    color: React.CSSProperties["color"];
+    backgroundColor: CSSProperties["backgroundColor"];
+    color: CSSProperties["color"];
   };
   basePlaceInfoUrl: string;
   hideInTabs?: boolean;
@@ -55,14 +55,14 @@ const MapData: { [key in SupportedMapType]: MapDataType } = {
   },
 };
 
-export const Map: React.FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIframeSrc }) => {
+export const Map: FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIframeSrc }) => {
   const { language } = useCommonContext();
-  const kakaoMapRef = React.useRef<HTMLDivElement>(null);
-  const [mapState, setMapState] = React.useState<MapStateType>({ tab: 0 });
+  const kakaoMapRef = useRef<HTMLDivElement>(null);
+  const [mapState, setMapState] = useState<MapStateType>({ tab: 0 });
   const selectedMapType = MAP_TYPES[mapState.tab] || "kakao";
-  const setTab = (_: React.SyntheticEvent, tab: number) => setMapState((ps) => ({ ...ps, tab }));
+  const setTab = (_: SyntheticEvent, tab: number) => setMapState((ps) => ({ ...ps, tab }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     const kakaoMapDiv = kakaoMapRef.current;
     if (!(window.kakao && window.kakao.maps && kakaoMapDiv)) return;
 
@@ -95,7 +95,7 @@ export const Map: React.FC<MapPropType> = ({ geo, placeName, placeCode, googleMa
     };
   }, [mapState.tab, geo, language, placeName, placeCode.kakao]);
 
-  const mapStyle: React.CSSProperties = { border: 0, width: "100%", aspectRatio: "3/2" };
+  const mapStyle: CSSProperties = { border: 0, width: "100%", aspectRatio: "3/2" };
 
   return (
     <Box>

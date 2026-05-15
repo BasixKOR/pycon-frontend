@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
@@ -33,23 +33,23 @@ import { OrderAdmin, SimpleCustomerInfo, SimpleOrderProductRelation } from "./ty
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
 // ----------------- Customer Info Tab (editable) -----------------
-const CustomerInfoTab: React.FC<{ order: OrderAdmin }> = ({ order }) => {
+const CustomerInfoTab: FC<{ order: OrderAdmin }> = ({ order }) => {
   const client = useBackendAdminClient();
   const updateMutation = useUpdateMutation<{ customer_info: SimpleCustomerInfo }>(client, "shop", "orders", order.id);
 
-  const [name, setName] = React.useState(order.customer_info?.name ?? "");
-  const [phone, setPhone] = React.useState(order.customer_info?.phone ?? "");
-  const [email, setEmail] = React.useState(order.customer_info?.email ?? "");
-  const [organization, setOrganization] = React.useState(order.customer_info?.organization ?? "");
+  const [name, setName] = useState(order.customer_info?.name ?? "");
+  const [phone, setPhone] = useState(order.customer_info?.phone ?? "");
+  const [email, setEmail] = useState(order.customer_info?.email ?? "");
+  const [organization, setOrganization] = useState(order.customer_info?.organization ?? "");
 
-  React.useEffect(() => {
+  useEffect(() => {
     setName(order.customer_info?.name ?? "");
     setPhone(order.customer_info?.phone ?? "");
     setEmail(order.customer_info?.email ?? "");
     setOrganization(order.customer_info?.organization ?? "");
   }, [order.customer_info]);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !email.trim()) {
       addSnackbar("이름, 연락처, 이메일은 필수입니다.", "error");
@@ -90,7 +90,7 @@ const CustomerInfoTab: React.FC<{ order: OrderAdmin }> = ({ order }) => {
   );
 };
 
-const OrderProductRow: React.FC<{ relation: SimpleOrderProductRelation }> = ({ relation }) => {
+const OrderProductRow: FC<{ relation: SimpleOrderProductRelation }> = ({ relation }) => {
   const status = ORDER_PRODUCT_STATUS_LABEL[relation.status];
   return (
     <>
@@ -143,7 +143,7 @@ const OrderProductRow: React.FC<{ relation: SimpleOrderProductRelation }> = ({ r
   );
 };
 
-const OrderProductsTab: React.FC<{ order: OrderAdmin }> = ({ order }) => (
+const OrderProductsTab: FC<{ order: OrderAdmin }> = ({ order }) => (
   <Table>
     <TableHead>
       <TableRow>
@@ -169,7 +169,7 @@ const OrderProductsTab: React.FC<{ order: OrderAdmin }> = ({ order }) => (
   </Table>
 );
 
-const PaymentHistoryTab: React.FC<{ order: OrderAdmin; onRefund: () => void }> = ({ order, onRefund }) => {
+const PaymentHistoryTab: FC<{ order: OrderAdmin; onRefund: () => void }> = ({ order, onRefund }) => {
   const histories = [...order.payment_histories].sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
   const canRefund = order.current_paid_price > 0 && (order.current_status === "completed" || order.current_status === "partial_refunded");
 
@@ -222,14 +222,14 @@ const PaymentHistoryTab: React.FC<{ order: OrderAdmin; onRefund: () => void }> =
   );
 };
 
-const InnerOrderEditor: React.FC = ErrorBoundary.with(
+const InnerOrderEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
     const client = useBackendAdminClient();
-    const [tab, setTab] = React.useState(0);
-    const [refundOpen, setRefundOpen] = React.useState(false);
+    const [tab, setTab] = useState(0);
+    const [refundOpen, setRefundOpen] = useState(false);
 
     const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "orders", id ?? "");
     const order = orderQuery.data;
@@ -346,7 +346,7 @@ const InnerOrderEditor: React.FC = ErrorBoundary.with(
   })
 );
 
-export const ShopOrderEditorPage: React.FC = () => (
+export const ShopOrderEditorPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerOrderEditor />
   </BackendAdminSignInGuard>

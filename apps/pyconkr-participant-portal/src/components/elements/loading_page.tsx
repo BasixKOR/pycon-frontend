@@ -1,10 +1,10 @@
 import { CircularProgress, Stack, Typography } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 
 import { Page } from "@apps/pyconkr-participant-portal/components/page";
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
-export const LoadingPage: React.FC = () => {
+export const LoadingPage: FC = () => {
   const { language } = useAppContext();
   const loadingStr = language === "ko" ? "페이지를 불러오는 중입니다..." : "Loading...";
 

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import * as R from "remeda";
+import { isString } from "remeda";
 
-import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+import { ErrorResponseSchema, isObjectErrorResponseSchema } from "@frontend/common/schemas/backendAPI";
 import { getCookie } from "@frontend/common/utils/cookie";
 
 const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
@@ -13,12 +13,12 @@ const DEFAULT_ERROR_RESPONSE = {
 export class BackendAPIClientError extends Error {
   readonly name = "BackendAPIClientError";
   readonly status: number;
-  readonly detail: BackendAPISchemas.ErrorResponseSchema;
+  readonly detail: ErrorResponseSchema;
   readonly originalError: unknown;
 
   constructor(error?: unknown) {
     let message: string = DEFAULT_ERROR_MESSAGE;
-    let detail: BackendAPISchemas.ErrorResponseSchema = DEFAULT_ERROR_RESPONSE;
+    let detail: ErrorResponseSchema = DEFAULT_ERROR_RESPONSE;
     let status = -1;
 
     if (axios.isAxiosError(error)) {
@@ -26,14 +26,14 @@ export class BackendAPIClientError extends Error {
 
       if (response) {
         status = response.status;
-        detail = BackendAPISchemas.isObjectErrorResponseSchema(response.data)
+        detail = isObjectErrorResponseSchema(response.data)
           ? response.data
           : {
               type: "axios_error",
               errors: [
                 {
                   code: "unknown",
-                  detail: R.isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
+                  detail: isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
                   attr: null,
                 },
               ],
@@ -61,8 +61,12 @@ export class BackendAPIClientError extends Error {
 
 type supportedLanguages = "ko" | "en";
 
-type AxiosRequestWithoutPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<R>;
-type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>) => Promise<R>;
+type AxiosRequestWithoutPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<Resp>;
+type AxiosRequestWithPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+) => Promise<Resp>;
 
 export class BackendAPIClient {
   readonly language: supportedLanguages;
@@ -107,9 +111,9 @@ export class BackendAPIClient {
   }
 
   _safe_request_without_payload(requestFunc: AxiosRequestWithoutPayload): AxiosRequestWithoutPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, config);
+        return await requestFunc<T, Resp, D>(url, config);
       } catch (error) {
         throw new BackendAPIClientError(error);
       }
@@ -117,9 +121,9 @@ export class BackendAPIClient {
   }
 
   _safe_request_with_payload(requestFunc: AxiosRequestWithPayload): AxiosRequestWithPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, data, config);
+        return await requestFunc<T, Resp, D>(url, data, config);
       } catch (error) {
         throw new BackendAPIClientError(error);
       }

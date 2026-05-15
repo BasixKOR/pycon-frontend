@@ -1,5 +1,5 @@
 import { ButtonBase, styled } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 
 import { LOCAL_STORAGE_LANGUAGE_KEY } from "@apps/pyconkr-2025/consts/local_stroage";
 import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
@@ -8,7 +8,7 @@ interface MobileLanguageToggleProps {
   isMainPath?: boolean;
 }
 
-export const MobileLanguageToggle: React.FC<MobileLanguageToggleProps> = ({ isMainPath = true }) => {
+export const MobileLanguageToggle: FC<MobileLanguageToggleProps> = ({ isMainPath = true }) => {
   const { language, setAppContext } = useAppContext();
 
   const toggleLanguage = () => {

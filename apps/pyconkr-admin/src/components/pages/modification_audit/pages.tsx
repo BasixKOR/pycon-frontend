@@ -1,7 +1,7 @@
 import { useBackendAdminClient, useModificationAuditPreviewQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Box, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
@@ -13,8 +13,8 @@ import { SubModificationAuditPage } from "./sub_pages";
 
 type EditorStateType = { actionStatus?: "approve" | "reject" };
 
-const InnerAdminModificationAuditEditor: React.FC = () => {
-  const [editorState, setEditorState] = React.useState<EditorStateType>({});
+const InnerAdminModificationAuditEditor: FC = () => {
+  const [editorState, setEditorState] = useState<EditorStateType>({});
   const { id } = useParams<{ id?: string }>();
 
   const backendAdminClient = useBackendAdminClient();
@@ -65,7 +65,7 @@ const InnerAdminModificationAuditEditor: React.FC = () => {
   );
 };
 
-export const AdminModificationAuditEditor: React.FC = () => {
+export const AdminModificationAuditEditor: FC = () => {
   return (
     <BackendAdminSignInGuard>
       <ErrorBoundary fallback={ErrorFallback}>

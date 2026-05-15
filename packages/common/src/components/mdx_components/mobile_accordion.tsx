@@ -1,15 +1,14 @@
 import styled from "@emotion/styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion, Stack, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, useMemo, useState } from "react";
 import Marquee from "react-fast-marquee";
 
-import * as Hooks from "@frontend/common/hooks";
-
-const MarqueeAccordion: React.FC<{ marqueeText: string; marqueeLogoSrc: string }> = ({ marqueeText, marqueeLogoSrc }) => {
+import { Common } from "@frontend/common/hooks";
+const MarqueeAccordion: FC<{ marqueeText: string; marqueeLogoSrc: string }> = ({ marqueeText, marqueeLogoSrc }) => {
   const marqueeWidth = window.innerWidth * 0.9;
   const marqueeGradientWidth = window.innerWidth * 0.1;
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     return Array.from({ length: 100 }, () => (
       <Stack direction="row" sx={{ gap: 0 }}>
         <StyledTypography>{marqueeText}</StyledTypography>
@@ -29,9 +28,9 @@ type MobileAccordionProps = {
   venueEnLines: string[];
 };
 
-export const MobileAccordion: React.FC<MobileAccordionProps> = ({ marqueeText, marqueeLogoSrc, hostLogoBigSrc, venueKo, venueEnLines }) => {
-  const { language } = Hooks.Common.useCommonContext();
-  const [expanded, setExpanded] = React.useState<boolean>(false);
+export const MobileAccordion: FC<MobileAccordionProps> = ({ marqueeText, marqueeLogoSrc, hostLogoBigSrc, venueKo, venueEnLines }) => {
+  const { language } = Common.useCommonContext();
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
     <AccordionWrapper>

@@ -1,5 +1,5 @@
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
@@ -10,7 +10,7 @@ type SubmitConfirmDialogProps = {
   disabled?: boolean;
 };
 
-export const SubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ open, onClose, onSubmit, disabled }) => {
+export const SubmitConfirmDialog: FC<SubmitConfirmDialogProps> = ({ open, onClose, onSubmit, disabled }) => {
   const { language } = useAppContext();
 
   const titleStr = language === "ko" ? "제출 확인" : "Confirm Submission";

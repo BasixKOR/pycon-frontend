@@ -3,9 +3,9 @@ import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
-import * as React from "react";
+import { CSSProperties, Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty, isNonNullish, isString } from "remeda";
 
 import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
@@ -21,14 +21,14 @@ type NavigationStateType = {
   depth3?: MenuType;
 };
 
-const HeaderHeight: React.CSSProperties["height"] = "3.625rem";
-const BreadCrumbHeight: React.CSSProperties["height"] = "4.5rem";
+const HeaderHeight: CSSProperties["height"] = "3.625rem";
+const BreadCrumbHeight: CSSProperties["height"] = "4.5rem";
 
 export default function Header() {
   const { title, language, siteMapNode, currentSiteMapDepth, shouldShowTitleBanner } = useAppContext();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [navState, setNavState] = React.useState<NavigationStateType>({});
+  const [navState, setNavState] = useState<NavigationStateType>({});
 
   const resetDepths = () => setNavState({});
   const setDepth1 = (depth1: MenuOrUndefinedType) => setNavState({ depth1 });
@@ -38,13 +38,13 @@ export default function Header() {
   const getDepth2Route = (nextRoute?: string) => (navState.depth1?.route_code || "") + `/${nextRoute || ""}`;
   const getDepth3Route = (nextRoute?: string) => getDepth2Route(navState.depth2?.route_code) + `/${nextRoute || ""}`;
 
-  React.useEffect(resetDepths, [language]);
+  useEffect(resetDepths, [language]);
 
   if (isMobile) return <MobileHeader />;
 
   let breadCrumbRoute = "";
   let breadCrumbArray = currentSiteMapDepth.slice(1, -1);
-  if (R.isEmpty(breadCrumbArray)) breadCrumbArray = currentSiteMapDepth.slice(0, -1);
+  if (isEmpty(breadCrumbArray)) breadCrumbArray = currentSiteMapDepth.slice(0, -1);
 
   const headerStyle: SxProps<Theme> = shouldShowTitleBanner ? {} : { backgroundColor: "transparent" };
 
@@ -70,8 +70,8 @@ export default function Header() {
                 <Link
                   key={r.id}
                   onClick={resetDepths}
-                  target={R.isString(r.external_link) ? "_blank" : undefined}
-                  rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                  target={isString(r.external_link) ? "_blank" : undefined}
+                  rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                   to={r.external_link || r.route_code}
                 >
                   <NavButton onMouseEnter={() => setDepth1(r)} isActive={navState.depth1?.id === r.id}>
@@ -106,9 +106,9 @@ export default function Header() {
                       className={r.id === navState.depth2?.id ? "active" : ""}
                       onClick={resetDepths}
                       onMouseEnter={() => setDepth2(r)}
-                      onMouseLeave={() => R.isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
-                      target={R.isString(r.external_link) ? "_blank" : undefined}
-                      rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                      onMouseLeave={() => isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
+                      target={isString(r.external_link) ? "_blank" : undefined}
+                      rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                       to={r.external_link || getDepth2Route(r.route_code)}
                     >
                       {r.name}
@@ -116,7 +116,7 @@ export default function Header() {
                   ))}
               </Stack>
 
-              {navState.depth2 && !R.isEmpty(navState.depth2.children) && (
+              {navState.depth2 && !isEmpty(navState.depth2.children) && (
                 <>
                   <Depth2to3Divider orientation="vertical" flexItem />
                   <Stack spacing={1.5}>
@@ -129,8 +129,8 @@ export default function Header() {
                           onClick={resetDepths}
                           onMouseEnter={() => setDepth3(r)}
                           onMouseLeave={() => setDepth3(undefined)}
-                          target={R.isString(r.external_link) ? "_blank" : undefined}
-                          rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                          target={isString(r.external_link) ? "_blank" : undefined}
+                          rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                           to={r.external_link || getDepth3Route(r?.route_code)}
                         >
                           {r.name}
@@ -149,14 +149,14 @@ export default function Header() {
           <BreadCrumbContainer>
             <Stack direction="row" alignItems="center" spacing={0.5}>
               {breadCrumbArray
-                .filter((routeInfo) => R.isNonNullish(routeInfo))
+                .filter((routeInfo) => isNonNullish(routeInfo))
                 .map(({ route_code, name }, index) => {
                   breadCrumbRoute += `${route_code}/`;
                   return (
-                    <React.Fragment key={index}>
+                    <Fragment key={index}>
                       {index > 0 && <ArrowForwardIos sx={{ fontSize: "0.75rem", color: "rgba(237,94,189,0.6)" }} />}
                       <Link to={breadCrumbRoute} children={name} />
-                    </React.Fragment>
+                    </Fragment>
                   );
                 })}
             </Stack>

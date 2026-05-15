@@ -1,11 +1,11 @@
 import { AutoTextLinking } from "@frontend/common/components";
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC } from "react";
 
 import { usePatrons, useShopClient } from "@frontend/shop/hooks";
 
-const InnerPatronList: React.FC<{ year: number }> = ErrorBoundary.with(
+const InnerPatronList: FC<{ year: number }> = ErrorBoundary.with(
   { fallback: <>개인후원자 목록을 불러오는 중 문제가 발생했습니다.</> },
   Suspense.with({ fallback: <CircularProgress /> }, ({ year }) => {
     const shopAPIClient = useShopClient();
@@ -21,4 +21,4 @@ const InnerPatronList: React.FC<{ year: number }> = ErrorBoundary.with(
   })
 );
 
-export const PatronList: React.FC<{ year: number }> = ({ year }) => <Stack children={<InnerPatronList year={year} />} />;
+export const PatronList: FC<{ year: number }> = ({ year }) => <Stack children={<InnerPatronList year={year} />} />;

@@ -17,9 +17,8 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
-import * as React from "react";
-import * as R from "remeda";
-
+import { FC, ReactNode } from "react";
+import { isArray, isEmpty } from "remeda";
 type SharedPreviewFieldProps = {
   originalDataset: Record<string, unknown>;
   previewDataset: Record<string, unknown>;
@@ -39,7 +38,7 @@ const MarkdownContainerBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset, previewDataset, name, ...props }) => {
+export const PreviewTextField: FC<PreviewFieldProps> = ({ originalDataset, previewDataset, name, ...props }) => {
   const textFieldSx: TextFieldProps["sx"] = {
     "& .MuiInputBase-input, & .Mui-disabled": {
       color: "black",
@@ -78,7 +77,7 @@ export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset,
   );
 };
 
-export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
+export const PreviewMarkdownField: FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   return originalDataset[name] === previewDataset[name] ? (
     <Fieldset legend={label} style={{ width: "100%" }}>
@@ -111,7 +110,7 @@ export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ origin
   );
 };
 
-const ImageFallback: React.FC = () => (
+const ImageFallback: FC = () => (
   <Stack sx={{ width: "100%", height: "100%", alignItems: "center", justifyContent: "center" }}>
     <Typography variant="caption" color="textSecondary" children="이미지를 불러오는 중 문제가 발생했습니다." />
   </Stack>
@@ -122,7 +121,7 @@ const WidthSpecifiedFallbackImage = styled(FallbackImage)({
   objectFit: "cover",
 });
 
-export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
+export const PreviewImageField: FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   const backendAdminClient = useBackendAdminClient();
   const oldImgId = (originalDataset[name] as string) || "";
   const newImgId = (previewDataset[name] as string) || "";
@@ -184,9 +183,9 @@ type SimplifiedModificationAudit = {
   }[];
 };
 
-export const ModificationAuditProperties: React.FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => {
-  let rejectReason: React.ReactNode = null;
-  if (R.isArray(audit.comments) && !R.isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
+export const ModificationAuditProperties: FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => {
+  let rejectReason: ReactNode = null;
+  if (isArray(audit.comments) && !isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
     const comment = audit.comments.filter((c) => c.created_by.is_superuser)[0];
     rejectReason = (
       <>

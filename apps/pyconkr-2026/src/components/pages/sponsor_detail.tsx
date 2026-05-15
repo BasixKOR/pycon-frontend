@@ -3,15 +3,15 @@ import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { SponsorTierSchema } from "@frontend/common/schemas/backendAPI";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isNonNullish } from "remeda";
 
 import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
-const PageNotFound: React.FC = () => <>404 Not Found</>;
-const CenteredLoadingPage: React.FC = () => (
+const PageNotFound: FC = () => <>404 Not Found</>;
+const CenteredLoadingPage: FC = () => (
   <CenteredPage>
     <CircularProgress />
   </CenteredPage>
@@ -50,7 +50,7 @@ const DescriptionBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const SponsorDetailPage: React.FC = ErrorBoundary.with(
+export const SponsorDetailPage: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
@@ -62,12 +62,12 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
     const title = language === "ko" ? "후원사" : "Sponsor";
     const descriptionFallback = language === "ko" ? "해당 후원사의 설명은 준비 중이에요!" : "This sponsor's description is under preparation!";
 
-    React.useEffect(() => {
+    useEffect(() => {
       setAppContext((prev) => ({
         ...prev,
         title: `${title} - ${sponsor?.name || "Detail"}`,
         shouldShowTitleBanner: true,
-        shouldShowSponsorBanner: !R.isNonNullish(sponsor),
+        shouldShowSponsorBanner: !isNonNullish(sponsor),
       }));
     }, [sponsor, title, setAppContext]);
 

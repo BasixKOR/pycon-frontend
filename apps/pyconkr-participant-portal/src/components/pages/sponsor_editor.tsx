@@ -1,13 +1,13 @@
 import { FormControl, InputLabel, Select, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC } from "react";
 
 import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
 import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
 import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
 import { Page } from "@apps/pyconkr-participant-portal/components/page";
 
-const InnerSponsorEditor: React.FC = () => {
+const InnerSponsorEditor: FC = () => {
   return (
     <SignInGuard>
       <Page>
@@ -31,7 +31,7 @@ const InnerSponsorEditor: React.FC = () => {
   );
 };
 
-export const SponsorEditor: React.FC = ErrorBoundary.with(
+export const SponsorEditor: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerSponsorEditor />} />)
 );

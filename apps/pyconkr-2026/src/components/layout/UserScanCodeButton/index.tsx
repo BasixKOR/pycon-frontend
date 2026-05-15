@@ -2,13 +2,13 @@ import { useShopClient, useUserInfo } from "@frontend/shop/hooks";
 import { QrCode2 } from "@mui/icons-material";
 import { Button, IconButton, IconButtonProps } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, Fragment } from "react";
 
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
-export const ScanCodeIconButton: React.FC<{ sx?: IconButtonProps["sx"] }> = Suspense.with(
-  { fallback: <React.Fragment /> },
-  ErrorBoundary.with({ fallback: <React.Fragment /> }, ({ sx }) => {
+export const ScanCodeIconButton: FC<{ sx?: IconButtonProps["sx"] }> = Suspense.with(
+  { fallback: <Fragment /> },
+  ErrorBoundary.with({ fallback: <Fragment /> }, ({ sx }) => {
     const shopAPIClient = useShopClient();
     const { data } = useUserInfo(shopAPIClient);
 
@@ -27,7 +27,7 @@ export const ScanCodeIconButton: React.FC<{ sx?: IconButtonProps["sx"] }> = Susp
   })
 );
 
-export const ScanCodeButton: React.FC = Suspense.with(
+export const ScanCodeButton: FC = Suspense.with(
   { fallback: null },
   ErrorBoundary.with({ fallback: null }, () => {
     const { language } = useAppContext();

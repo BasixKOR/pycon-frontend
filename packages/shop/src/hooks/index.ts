@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import * as React from "react";
+import { useContext } from "react";
 
 import {
   appendItemToCart,
@@ -46,7 +46,7 @@ const MUTATION_KEYS = {
 };
 
 export const useShopContext = () => {
-  const context = React.useContext(shopContext);
+  const context = useContext(shopContext);
   if (!context) {
     throw new Error("useShopContext must be used within a ShopProvider");
   }

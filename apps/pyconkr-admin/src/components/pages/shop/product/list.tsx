@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useMutation } from "@tanstack/react-query";
-import * as React from "react";
+import { FC, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
@@ -36,7 +36,7 @@ const formatLeftoverStock = (leftover: number | null | undefined) => {
 
 type StatusFilter = "all" | ProductCurrentStatus;
 
-const InnerProductList: React.FC = ErrorBoundary.with(
+const InnerProductList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const client = useBackendAdminClient();
@@ -58,9 +58,9 @@ const InnerProductList: React.FC = ErrorBoundary.with(
     const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "category-groups", {});
 
     const products = productsQuery.data ?? [];
-    const groups = React.useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
+    const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
 
-    const categoryToGroup: Record<string, { groupId: string; groupName: string; categoryName: string }> = React.useMemo(() => {
+    const categoryToGroup: Record<string, { groupId: string; groupName: string; categoryName: string }> = useMemo(() => {
       const map: Record<string, { groupId: string; groupName: string; categoryName: string }> = {};
       for (const g of groups) {
         for (const c of g.categories ?? []) {
@@ -207,7 +207,7 @@ const InnerProductList: React.FC = ErrorBoundary.with(
   })
 );
 
-export const ShopProductListPage: React.FC = () => (
+export const ShopProductListPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerProductList />
   </BackendAdminSignInGuard>

@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useMutation } from "@tanstack/react-query";
-import * as React from "react";
+import { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
@@ -54,15 +54,15 @@ type CategoryDialogProps = {
   category?: Category;
 };
 
-const CategoryDialog: React.FC<CategoryDialogProps> = ({ open, onClose, group, category }) => {
+const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, category }) => {
   const client = useBackendAdminClient();
 
-  const [values, setValues] = React.useState<CategoryFormValues>({
+  const [values, setValues] = useState<CategoryFormValues>({
     name: category?.name ?? "",
     priority: category ? String(category.priority) : "0",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setValues({
         name: category?.name ?? "",
@@ -137,13 +137,13 @@ const CategoryDialog: React.FC<CategoryDialogProps> = ({ open, onClose, group, c
   );
 };
 
-const InnerChildCategoryList: React.FC<{ groupId: string }> = ErrorBoundary.with(
+const InnerChildCategoryList: FC<{ groupId: string }> = ErrorBoundary.with(
   { fallback: () => null },
   Suspense.with({ fallback: <CircularProgress /> }, ({ groupId }) => {
     const client = useBackendAdminClient();
     const groupQuery = useRetrieveQuery<CategoryGroup>(client, "shop", "category-groups", groupId);
     const group = groupQuery.data;
-    const [dialogState, setDialogState] = React.useState<{ open: boolean; category?: Category }>({ open: false });
+    const [dialogState, setDialogState] = useState<{ open: boolean; category?: Category }>({ open: false });
 
     const deleteMutation = useMutation({
       mutationFn: async (categoryId: string) => {
@@ -215,7 +215,7 @@ const InnerChildCategoryList: React.FC<{ groupId: string }> = ErrorBoundary.with
   })
 );
 
-export const ShopCategoryGroupEditorPage: React.FC = () => {
+export const ShopCategoryGroupEditorPage: FC = () => {
   const { id } = useParams<{ id?: string }>();
 
   return (

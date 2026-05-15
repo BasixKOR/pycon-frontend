@@ -20,9 +20,9 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { CSSProperties, FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty } from "remeda";
 
 import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
 import { Fieldset } from "@apps/pyconkr-participant-portal/components/elements/fieldset";
@@ -31,7 +31,7 @@ import { SignInGuard } from "@apps/pyconkr-participant-portal/components/element
 import { Page } from "@apps/pyconkr-participant-portal/components/page";
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
-const ProfileImageSize: React.CSSProperties["width" | "height"] = "8rem";
+const ProfileImageSize: CSSProperties["width" | "height"] = "8rem";
 
 type AuditState = "requested" | "approved" | "rejected" | "cancelled";
 
@@ -66,7 +66,7 @@ const ProfileImageContainer = styled(Stack)({
   maxHeight: ProfileImageSize,
 });
 
-const ProfileImageStyle: React.CSSProperties = {
+const ProfileImageStyle: CSSProperties = {
   border: "1px solid #ccc",
   width: "100%",
   height: "100%",
@@ -77,7 +77,7 @@ const ProfileImageStyle: React.CSSProperties = {
 
 const ProfileImage = styled(FallbackImage)(ProfileImageStyle);
 
-const ProfileImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
+const ProfileImageFallback: FC<{ language: "ko" | "en" }> = ({ language }) => {
   const noProfileImageText = language === "ko" ? "프로필 이미지가 없어요." : "No profile image.";
   const registerProfileImageText = language === "ko" ? "이미지를 등록해주세요." : "Please register your profile image.";
 
@@ -96,7 +96,7 @@ type InnerLandingPageState = {
   showAllAudits: boolean;
 };
 
-const InnerLandingPage: React.FC = () => {
+const InnerLandingPage: FC = () => {
   const navigate = useNavigate();
   const { language } = useAppContext();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -106,7 +106,7 @@ const InnerLandingPage: React.FC = () => {
   const { data: sessions } = useListPresentationsQuery(participantPortalAPIClient);
 
   const ongoingAudits = audits.filter((audit) => audit.status === "requested");
-  const [state, setState] = React.useState<InnerLandingPageState>({ showAllAudits: R.isEmpty(ongoingAudits) });
+  const [state, setState] = useState<InnerLandingPageState>({ showAllAudits: isEmpty(ongoingAudits) });
 
   if (!profile) {
     return (
@@ -211,7 +211,7 @@ const InnerLandingPage: React.FC = () => {
   );
 };
 
-export const LandingPage: React.FC = ErrorBoundary.with(
+export const LandingPage: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerLandingPage />} />)
 );

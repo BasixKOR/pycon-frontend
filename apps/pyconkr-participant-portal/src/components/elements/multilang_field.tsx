@@ -1,7 +1,7 @@
 import { MDXRenderer, MarkdownEditor } from "@frontend/common/components";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, SelectProps, Stack, styled, Tab, Tabs, TextField, TextFieldProps, Typography, useMediaQuery } from "@mui/material";
-import * as React from "react";
+import { CSSProperties, ChangeEvent, FC, ReactNode, SyntheticEvent, useState } from "react";
 
 import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
@@ -9,7 +9,7 @@ import { BlockQuote } from "./blockquote";
 import { Fieldset } from "./fieldset";
 import { PublicFileSelector } from "./public_file_selector";
 
-const ButtonWidth: React.CSSProperties["width"] = "4.5rem";
+const ButtonWidth: CSSProperties["width"] = "4.5rem";
 
 const FieldContainer = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -64,8 +64,8 @@ type TranslatedText = {
 };
 
 type TranslatedNode = {
-  ko: React.ReactNode;
-  en: React.ReactNode;
+  ko: ReactNode;
+  en: ReactNode;
 };
 
 type MultiLanguageCommonProps = {
@@ -84,10 +84,10 @@ type MultiLanguageFieldState = {
   selectedFieldLanguage: "ko" | "en";
 };
 
-export const MultiLanguageField: React.FC<MultiLanguageFieldProps> = ({ label, description, defaultValue, value, onChange, ...props }) => {
+export const MultiLanguageField: FC<MultiLanguageFieldProps> = ({ label, description, defaultValue, value, onChange, ...props }) => {
   const { language } = useAppContext();
-  const [fieldState, setFieldState] = React.useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
-  const setFieldLanguage = (_: React.SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
+  const [fieldState, setFieldState] = useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
+  const setFieldLanguage = (_: SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
   const koreanStr = language === "ko" ? "한국어" : "Korean";
   const englishStr = language === "ko" ? "영어" : "English";
 
@@ -96,7 +96,7 @@ export const MultiLanguageField: React.FC<MultiLanguageFieldProps> = ({ label, d
 
   const inputDefaultValue = defaultValue && defaultValue[fieldState.selectedFieldLanguage];
   const inputValue = value && value[fieldState.selectedFieldLanguage];
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value, fieldState.selectedFieldLanguage);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value, fieldState.selectedFieldLanguage);
 
   return (
     <Fieldset legend={label[language]}>
@@ -135,7 +135,7 @@ const MDRendererContainer = styled(Box)<{ fullWidth?: boolean }>(({ theme, fullW
   },
 }));
 
-export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProps> = ({
+export const MultiLanguageMarkdownField: FC<MultiLanguageMarkdownFieldProps> = ({
   label,
   description,
   defaultValue,
@@ -146,8 +146,8 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
 }) => {
   const { language } = useAppContext();
   const { baseUrl, mdxComponents } = useCommonContext();
-  const [fieldState, setFieldState] = React.useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
-  const setFieldLanguage = (_: React.SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
+  const [fieldState, setFieldState] = useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
+  const setFieldLanguage = (_: SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
   const koreanStr = language === "ko" ? "한국어" : "Korean";
   const englishStr = language === "ko" ? "영어" : "English";
 
@@ -185,10 +185,10 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
 
 type MultiLanguagePublicFileSelect = Omit<SelectProps<string | null>, "label"> & MultiLanguageCommonProps;
 
-export const MultiLanguagePublicFileSelect: React.FC<MultiLanguagePublicFileSelect> = ({ label, description, ...props }) => {
+export const MultiLanguagePublicFileSelect: FC<MultiLanguagePublicFileSelect> = ({ label, description, ...props }) => {
   const { language } = useAppContext();
-  const [fieldState, setFieldState] = React.useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
-  const setFieldLanguage = (_: React.SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
+  const [fieldState, setFieldState] = useState<MultiLanguageFieldState>({ selectedFieldLanguage: language });
+  const setFieldLanguage = (_: SyntheticEvent, selectedFieldLanguage: "ko" | "en") => setFieldState((ps) => ({ ...ps, selectedFieldLanguage }));
   const koreanStr = language === "ko" ? "한국어" : "Korean";
   const englishStr = language === "ko" ? "영어" : "English";
 

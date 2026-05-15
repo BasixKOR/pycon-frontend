@@ -3,7 +3,7 @@ import { useBackendAdminClient, useChangePasswordMutation, useSignOutMutation } 
 import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Logout } from "@mui/icons-material";
 import { Button, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, FormEvent, SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
@@ -14,15 +14,15 @@ type ChangePasswordFormType = {
   new_password_confirm: string;
 };
 
-export const AccountManagementPage: React.FC = () => {
-  const changePasswordFormRef = React.useRef<HTMLFormElement>(null);
-  const [pageState, setPageState] = React.useState<{ tab: number }>({ tab: 0 });
+export const AccountManagementPage: FC = () => {
+  const changePasswordFormRef = useRef<HTMLFormElement>(null);
+  const [pageState, setPageState] = useState<{ tab: number }>({ tab: 0 });
   const navigate = useNavigate();
   const backendAdminAPIClient = useBackendAdminClient();
   const signOutMutation = useSignOutMutation(backendAdminAPIClient);
   const changePasswordMutation = useChangePasswordMutation(backendAdminAPIClient);
 
-  const setTab = (_: React.SyntheticEvent, tab: number) => setPageState((ps) => ({ ...ps, tab }));
+  const setTab = (_: SyntheticEvent, tab: number) => setPageState((ps) => ({ ...ps, tab }));
 
   const handleSignOut = () => {
     signOutMutation.mutate(undefined, {
@@ -34,7 +34,7 @@ export const AccountManagementPage: React.FC = () => {
     });
   };
 
-  const handleChangePassword = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleChangePassword = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -59,7 +59,7 @@ export const AccountManagementPage: React.FC = () => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const userInfo = await me(backendAdminAPIClient)();
       if (!userInfo) {

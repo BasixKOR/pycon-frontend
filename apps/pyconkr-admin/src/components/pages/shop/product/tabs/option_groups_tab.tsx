@@ -25,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import * as React from "react";
+import { FC, useEffect, useState } from "react";
 
 import { OptionAdmin, OptionGroupAdmin } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
@@ -47,10 +47,10 @@ type OptionDialogProps = {
   option?: OptionAdmin;
 };
 
-const OptionDialog: React.FC<OptionDialogProps> = ({ open, onClose, optionGroup, option }) => {
+const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, option }) => {
   const client = useBackendAdminClient();
   const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "option-groups", optionGroup.id);
-  const [values, setValues] = React.useState<OptionFormValues>({
+  const [values, setValues] = useState<OptionFormValues>({
     name_ko: "",
     name_en: "",
     additional_price: "0",
@@ -59,7 +59,7 @@ const OptionDialog: React.FC<OptionDialogProps> = ({ open, onClose, optionGroup,
     priority: "0",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setValues({
         name_ko: option?.name_ko ?? "",
@@ -190,12 +190,12 @@ type OptionGroupDialogProps = {
   existingGroupCount: number;
 };
 
-const OptionGroupDialog: React.FC<OptionGroupDialogProps> = ({ open, onClose, productId, group, existingGroupCount }) => {
+const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productId, group, existingGroupCount }) => {
   const client = useBackendAdminClient();
   const createMutation = useCreateMutation<OptionGroupAdmin>(client, "shop", "option-groups");
   const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "option-groups", group?.id ?? "");
 
-  const [values, setValues] = React.useState<OptionGroupFormValues>({
+  const [values, setValues] = useState<OptionGroupFormValues>({
     name_ko: "",
     name_en: "",
     min_quantity_per_product: "0",
@@ -206,7 +206,7 @@ const OptionGroupDialog: React.FC<OptionGroupDialogProps> = ({ open, onClose, pr
     response_modifiable_ends_at: "",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setValues({
         name_ko: group?.name_ko ?? "",
@@ -347,10 +347,10 @@ type Props = {
   optionGroups: OptionGroupAdmin[];
 };
 
-export const OptionGroupsTab: React.FC<Props> = ({ productId, optionGroups }) => {
+export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
   const client = useBackendAdminClient();
-  const [groupDialog, setGroupDialog] = React.useState<{ open: boolean; group?: OptionGroupAdmin }>({ open: false });
-  const [optionDialog, setOptionDialog] = React.useState<{ open: boolean; optionGroup?: OptionGroupAdmin; option?: OptionAdmin }>({ open: false });
+  const [groupDialog, setGroupDialog] = useState<{ open: boolean; group?: OptionGroupAdmin }>({ open: false });
+  const [optionDialog, setOptionDialog] = useState<{ open: boolean; optionGroup?: OptionGroupAdmin; option?: OptionAdmin }>({ open: false });
 
   const deleteGroupMutation = useMutation({
     mutationFn: async (groupId: string) => client.delete<void>(`v1/admin-api/shop/option-groups/${groupId}/`),
