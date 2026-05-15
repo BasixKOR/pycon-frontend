@@ -4,7 +4,7 @@ import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typogr
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type ModificationAuditCancelConfirmDialogProps = {
   modificationAuditId: string;

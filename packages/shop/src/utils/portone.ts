@@ -1,7 +1,7 @@
 import { RequestPayResponse } from "iamport-typings/src";
 import * as R from "remeda";
 
-import type { Order } from "../schemas";
+import type { Order } from "@frontend/shop/schemas";
 
 export const startPortOnePurchase = (
   portOneAccountId: string,

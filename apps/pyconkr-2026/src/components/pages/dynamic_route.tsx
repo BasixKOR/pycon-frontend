@@ -11,7 +11,7 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import * as R from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 const initialPageStyle: (additionalStyle: React.CSSProperties) => (theme: Theme) => React.CSSProperties = (additionalStyle) => (theme) => ({
   width: "100%",

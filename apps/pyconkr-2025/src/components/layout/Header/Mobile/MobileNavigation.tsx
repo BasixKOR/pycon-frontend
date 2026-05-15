@@ -6,10 +6,11 @@ import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
+import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton";
+
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
-import { SignInButton } from "../../SignInButton";
-// import { ScanCodeButton } from "../../UserScanCodeButton";
+// import { ScanCodeButton } from "@apps/pyconkr-2025/components/layout/UserScanCodeButton";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 

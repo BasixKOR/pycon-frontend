@@ -3,7 +3,7 @@ import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/mat
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { useShopClient, useSignInWithEmailMutation, useSignInWithSNSMutation, useSignOutMutation, useUserStatus } from "../../hooks";
+import { useShopClient, useSignInWithEmailMutation, useSignInWithSNSMutation, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 
 export const UserInfo: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);

@@ -1,9 +1,8 @@
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { Stack, styled } from "@mui/material";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
-
-import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
 
 type BreadCrumbPropType = {
   title: string;

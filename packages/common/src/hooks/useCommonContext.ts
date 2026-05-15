@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { context } from "../contexts";
+import { context } from "@frontend/common/contexts";
 
 export const useCommonContext = () => {
   const ctx = React.useContext(context);

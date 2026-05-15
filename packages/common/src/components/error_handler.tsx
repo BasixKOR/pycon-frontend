@@ -2,8 +2,9 @@ import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
+import { isChunkLoadError, reloadForChunkLoadError } from "@frontend/common/utils/chunk_load_error";
+
 import { CenteredPage } from "./centered_page";
-import { isChunkLoadError, reloadForChunkLoadError } from "../utils/chunk_load_error";
 
 const ChunkLoadErrorFallback: React.FC = () => {
   const [reloadSkipped, setReloadSkipped] = React.useState(false);

@@ -19,8 +19,8 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 
-import { ErrorFallback } from "../../elements/error_fallback";
-import { AdminEditor } from "../../layouts/admin_editor";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
 
 const DUMMY_UUID = "00000000-0000-4000-8000-000000000000";
 

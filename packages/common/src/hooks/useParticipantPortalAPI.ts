@@ -1,8 +1,9 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
+import { BackendAPIClient } from "@frontend/common/apis/client";
+import * as ParticipantPortalAPI from "@frontend/common/apis/participant_portal_api";
+
 import { useBackendContext } from "./useAPI";
-import { BackendAPIClient } from "../apis/client";
-import * as ParticipantPortalAPI from "../apis/participant_portal_api";
 
 const QUERY_KEYS = {
   PARTICIPANT_ME: ["query", "participant", "me"],

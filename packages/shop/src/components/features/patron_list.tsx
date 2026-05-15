@@ -3,7 +3,7 @@ import { CircularProgress, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { usePatrons, useShopClient } from "../../hooks";
+import { usePatrons, useShopClient } from "@frontend/shop/hooks";
 
 const InnerPatronList: React.FC<{ year: number }> = ErrorBoundary.with(
   { fallback: <>개인후원자 목록을 불러오는 중 문제가 발생했습니다.</> },

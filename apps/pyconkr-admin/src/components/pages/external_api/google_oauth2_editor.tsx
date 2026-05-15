@@ -5,8 +5,8 @@ import { Box, Button, Stack, Table, TableBody, TableCell, TableHead, TableRow, T
 import * as React from "react";
 import { useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { AdminEditor } from "../../layouts/admin_editor";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type CachedToken = { issuedAt: number; response: GoogleOAuth2AccessTokenResponseSchema };
 type TokenState = { issuedAt: Date; response: GoogleOAuth2AccessTokenResponseSchema };

@@ -1,7 +1,7 @@
 import { Checkbox, Divider, FormControlLabel, Stack, TextField } from "@mui/material";
 import * as React from "react";
 
-import { ProductFormValues, SetField } from "../form";
+import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
 
 type Props = {
   values: ProductFormValues;

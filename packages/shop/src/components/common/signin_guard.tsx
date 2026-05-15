@@ -2,7 +2,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { useShopClient, useShopContext, useUserStatus } from "../../hooks";
+import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
 
 type SignInGuardProps = {
   children: React.ReactNode;

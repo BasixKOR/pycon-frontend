@@ -5,10 +5,11 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import * as Hooks from "../../hooks";
-import * as BackendAPISchemas from "../../schemas/backendAPI";
-import { CenteredPage } from "../centered_page";
-import { ErrorFallback } from "../error_handler";
+import { CenteredPage } from "@frontend/common/components/centered_page";
+import { ErrorFallback } from "@frontend/common/components/error_handler";
+import * as Hooks from "@frontend/common/hooks";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+
 import { StyledDivider } from "./styled_divider";
 
 const TD_HEIGHT = 4;

@@ -1,6 +1,5 @@
+import { NestedSiteMapSchema, SponsorTierSchema } from "@frontend/common/schemas/backendAPI";
 import * as React from "react";
-
-import { NestedSiteMapSchema, SponsorTierSchema } from "../../../../packages/common/src/schemas/backendAPI";
 
 type LanguageType = "ko" | "en";
 

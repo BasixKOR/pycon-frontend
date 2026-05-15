@@ -2,7 +2,7 @@ import { Box, Button, Stack, Tab, Tabs } from "@mui/material";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { useCommonContext } from "../../hooks/useCommonContext";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 
 type SupportedMapType = "kakao" | "google" | "naver";
 const MAP_TYPES: SupportedMapType[] = ["kakao", "google", "naver"];

@@ -1,7 +1,7 @@
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import * as React from "react";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type SubmitConfirmDialogProps = {
   open: boolean;

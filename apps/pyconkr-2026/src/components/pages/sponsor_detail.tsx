@@ -1,14 +1,14 @@
 import { CenteredPage, ErrorFallback, MDXRenderer } from "@frontend/common/components";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { SponsorTierSchema } from "@frontend/common/schemas/backendAPI";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import * as R from "remeda";
 
-import { SponsorTierSchema } from "../../../../../packages/common/src/schemas/backendAPI";
-import { useAppContext } from "../../contexts/app_context";
-import { PageLayout } from "../layout/PageLayout";
+import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 const CenteredLoadingPage: React.FC = () => (

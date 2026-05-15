@@ -2,7 +2,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { ButtonBase, Stack, Typography } from "@mui/material";
 import * as React from "react";
 
-import * as Hooks from "../../hooks";
+import * as Hooks from "@frontend/common/hooks";
 
 type MobileCoverProps = {
   coverImageSrc: string;

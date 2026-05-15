@@ -27,8 +27,8 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import * as React from "react";
 
-import { addErrorSnackbar, addSnackbar } from "../../../../../utils/snackbar";
-import { OptionAdmin, OptionGroupAdmin } from "../types";
+import { OptionAdmin, OptionGroupAdmin } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 // ----------------- Option dialog -----------------
 type OptionFormValues = {

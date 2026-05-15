@@ -3,10 +3,11 @@ import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, SelectProps, Stack, styled, Tab, Tabs, TextField, TextFieldProps, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
+
 import { BlockQuote } from "./blockquote";
 import { Fieldset } from "./fieldset";
 import { PublicFileSelector } from "./public_file_selector";
-import { useAppContext } from "../../contexts/app_context";
 
 const ButtonWidth: React.CSSProperties["width"] = "4.5rem";
 

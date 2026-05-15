@@ -4,10 +4,11 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import * as Hooks from "../../hooks";
-import * as BackendAPISchemas from "../../schemas/backendAPI";
-import { ErrorFallback } from "../error_handler";
-import { FallbackImage } from "../fallback_image";
+import { ErrorFallback } from "@frontend/common/components/error_handler";
+import { FallbackImage } from "@frontend/common/components/fallback_image";
+import * as Hooks from "@frontend/common/hooks";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+
 import { StyledDivider } from "./styled_divider";
 
 const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];

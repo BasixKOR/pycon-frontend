@@ -6,8 +6,9 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
+import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
+
 import { HamburgerButton } from "./HamburgerButton";
-import LanguageSelector from "../../LanguageSelector";
 
 type MenuType = BackendAPISchemas.NestedSiteMapSchema;
 

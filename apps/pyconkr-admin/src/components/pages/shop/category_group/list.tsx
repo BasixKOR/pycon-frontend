@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { AdminList, AdminListColumn } from "../../../layouts/admin_list";
+import { AdminList, AdminListColumn } from "@apps/pyconkr-admin/components/layouts/admin_list";
 
 const columns: AdminListColumn[] = [
   {

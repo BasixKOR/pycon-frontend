@@ -8,7 +8,7 @@ import * as React from "react";
 import * as R from "remeda";
 // import * as CryptoJS from "crypto-js";
 
-import * as Hooks from "../hooks";
+import * as Hooks from "@frontend/common/hooks";
 
 type CustomComponentInfoType = {
   k: string; // key

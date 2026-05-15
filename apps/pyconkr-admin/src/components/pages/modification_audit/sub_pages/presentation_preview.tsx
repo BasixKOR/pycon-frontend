@@ -1,7 +1,8 @@
 import { Fieldset } from "@frontend/common/components";
 import { Card, Divider, TextField, Typography } from "@mui/material";
 
-import { PreviewImageField, PreviewMarkdownField, PreviewTextField } from "../components";
+import { PreviewImageField, PreviewMarkdownField, PreviewTextField } from "@apps/pyconkr-admin/components/pages/modification_audit/components";
+
 import { PresentationPreviewSchema, SubModificationAuditPageType } from "./types";
 
 type PresentationSpeakerPreviewItemProps = {

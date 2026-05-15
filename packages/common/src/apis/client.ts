@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as R from "remeda";
 
-import * as BackendAPISchemas from "../schemas/backendAPI";
-import { getCookie } from "../utils/cookie";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+import { getCookie } from "@frontend/common/utils/cookie";
 
 const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {

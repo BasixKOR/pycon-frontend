@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { context, ContextOptions } from "../contexts";
+import { context, ContextOptions } from "@frontend/common/contexts";
 
 type CommonContextProps = {
   options: ContextOptions;

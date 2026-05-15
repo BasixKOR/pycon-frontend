@@ -1,3 +1,4 @@
+import PyCon2025Logo from "@frontend/common/assets/pyconkr2025_logo.png";
 import { CenteredPage, ErrorFallback, FallbackImage, LinkHandler, MDXRenderer } from "@frontend/common/components";
 import { useBackendClient, useSessionQuery } from "@frontend/common/hooks/useAPI";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
@@ -8,9 +9,8 @@ import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import * as R from "remeda";
 
-import PyCon2025Logo from "../../../../../packages/common/src/assets/pyconkr2025_logo.png";
-import { useAppContext } from "../../contexts/app_context";
-import { PageLayout } from "../layout/PageLayout";
+import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 const PROFILE_IMAGE_SIZE = "7rem";
 

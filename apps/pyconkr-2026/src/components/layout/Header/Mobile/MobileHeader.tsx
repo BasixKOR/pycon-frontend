@@ -3,10 +3,11 @@ import { Box, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
 import { Link } from "react-router-dom";
 
+import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
+
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileNavigation } from "./MobileNavigation";
-import { useAppContext } from "../../../../contexts/app_context";
-import LanguageSelector from "../../LanguageSelector";
 
 export const MobileHeader: React.FC = () => {
   const { siteMapNode } = useAppContext();

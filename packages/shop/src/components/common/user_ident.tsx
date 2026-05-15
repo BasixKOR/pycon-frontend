@@ -3,7 +3,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import * as R from "remeda";
 
-import { useShopClient, useShopContext, useUserStatus } from "../../hooks";
+import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
 
 const ProviderTranslation: Record<string, { ko: string; en: string }> = {
   google: { ko: "구글", en: "Google" },

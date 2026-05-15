@@ -3,8 +3,9 @@ import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack
 import { useMutation } from "@tanstack/react-query";
 import * as React from "react";
 
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
 import { OrderAdmin } from "./types";
-import { addErrorSnackbar, addSnackbar } from "../../../../utils/snackbar";
 
 type RefundDialogProps = {
   open: boolean;

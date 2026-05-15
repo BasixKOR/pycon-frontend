@@ -5,11 +5,12 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
+import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
 import { PasswordResultDialog } from "./password_result_dialog";
 import { ShopOrderSection } from "./shop_order_section";
-import { addErrorSnackbar } from "../../../utils/snackbar";
-import { ErrorFallback } from "../../elements/error_fallback";
-import { AdminEditor } from "../../layouts/admin_editor";
 
 type PageStateType = {
   isConfirmDialogOpen: boolean;

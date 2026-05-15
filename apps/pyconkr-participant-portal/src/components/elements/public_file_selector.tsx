@@ -5,9 +5,10 @@ import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Selec
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
+import { PublicFileUploadDialog } from "@apps/pyconkr-participant-portal/components/dialogs/public_file_upload";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
+
 import { Fieldset } from "./fieldset";
-import { useAppContext } from "../../contexts/app_context";
-import { PublicFileUploadDialog } from "../dialogs/public_file_upload";
 
 type PublicFileSelectorProps = Omit<SelectProps<string | null>, "inputRef">;
 

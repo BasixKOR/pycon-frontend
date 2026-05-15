@@ -1,8 +1,8 @@
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import * as React from "react";
 
-import { useAppContext } from "../../contexts/app_context";
-import { Page } from "../page";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 export const LoadingPage: React.FC = () => {
   const { language } = useAppContext();

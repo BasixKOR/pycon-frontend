@@ -5,9 +5,9 @@ import { Button, useMediaQuery, useTheme } from "@mui/material";
 import * as React from "react";
 
 import FlickrIcon from "@apps/pyconkr-2026/assets/thirdparty/flickr.svg?react";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 import MobileFooter from "./Mobile/MobileFooter";
-import { useAppContext } from "../../../contexts/app_context";
 
 interface IconItem {
   icon: React.FC<{ width?: number; height?: number }>;

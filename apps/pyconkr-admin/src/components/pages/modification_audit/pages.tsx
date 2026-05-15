@@ -4,11 +4,12 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+
 import { ModificationAuditProperties } from "./components";
 import { ApproveSubmitConfirmDialog, RejectSubmitConfirmDialog } from "./dialogs";
 import { SubModificationAuditPage } from "./sub_pages";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
 
 type EditorStateType = { actionStatus?: "approve" | "reject" };
 

@@ -22,12 +22,13 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { ORDER_PRODUCT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
 import { RefundDialog } from "./refund_dialog";
 import { OrderAdmin, SimpleCustomerInfo, SimpleOrderProductRelation } from "./types";
-import { addErrorSnackbar, addSnackbar } from "../../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
-import { ORDER_PRODUCT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "../_common/status_labels";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 

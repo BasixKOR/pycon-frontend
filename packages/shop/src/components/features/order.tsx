@@ -18,6 +18,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as R from "remeda";
 
+import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import {
   useOneItemRefundMutation,
   useOptionsOfOneItemInOrderPatchMutation,
@@ -25,10 +26,9 @@ import {
   useOrders,
   useShopClient,
   useShopContext,
-} from "../../hooks";
-import type { Order, OrderOptionsPatchRequest, OrderProductItem, PaymentHistoryStatus } from "../../schemas";
-import { isOrderProductOptionModifiable } from "../../utils";
-import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "../common";
+} from "@frontend/shop/hooks";
+import type { Order, OrderOptionsPatchRequest, OrderProductItem, PaymentHistoryStatus } from "@frontend/shop/schemas";
+import { isOrderProductOptionModifiable } from "@frontend/shop/utils";
 
 const PaymentHistoryStatusKo: {
   [k in PaymentHistoryStatus]: string;

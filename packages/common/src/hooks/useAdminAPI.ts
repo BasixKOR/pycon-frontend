@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
+import * as BackendAdminAPIs from "@frontend/common/apis/admin_api";
+import { BackendAPIClient } from "@frontend/common/apis/client";
+import * as BackendAdminAPISchemas from "@frontend/common/schemas/backendAdminAPI";
+
 import { useBackendContext } from "./useAPI";
-import * as BackendAdminAPIs from "../apis/admin_api";
-import { BackendAPIClient } from "../apis/client";
-import * as BackendAdminAPISchemas from "../schemas/backendAdminAPI";
 
 const QUERY_KEYS = {
   ADMIN_ME: ["query", "admin", "me"],

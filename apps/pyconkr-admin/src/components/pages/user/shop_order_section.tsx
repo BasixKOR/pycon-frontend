@@ -4,9 +4,9 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { ErrorFallback } from "../../elements/error_fallback";
-import { PAYMENT_STATUS_LABEL } from "../shop/_common/status_labels";
-import { PaymentStatus } from "../shop/order/types";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { PaymentStatus } from "@apps/pyconkr-admin/components/pages/shop/order/types";
 
 type OrderListRow = {
   id: string;

@@ -8,11 +8,11 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
-import { ShopAPIClientError } from "../../apis/client";
-import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "../../hooks";
-import type { CustomerInfo, Order, OrderProductItem } from "../../schemas";
-import { startPortOnePurchase } from "../../utils";
-import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "../common";
+import { ShopAPIClientError } from "@frontend/shop/apis/client";
+import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
+import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "@frontend/shop/hooks";
+import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
+import { startPortOnePurchase } from "@frontend/shop/utils";
 
 const CartItem: React.FC<
   Omit<AccordionProps, "children"> & {

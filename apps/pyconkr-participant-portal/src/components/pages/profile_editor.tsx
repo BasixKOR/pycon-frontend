@@ -6,17 +6,17 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 
-import { useAppContext } from "../../contexts/app_context";
-import { ChangePasswordDialog } from "../dialogs/change_password";
-import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { MultiLanguageField } from "../elements/multilang_field";
-import { PublicFileSelector } from "../elements/public_file_selector";
-import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
-import { SignInGuard } from "../elements/signin_guard";
-import { PrimaryTitle } from "../elements/titles";
-import { Page } from "../page";
+import { ChangePasswordDialog } from "@apps/pyconkr-participant-portal/components/dialogs/change_password";
+import { SubmitConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/submit_confirm";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { MultiLanguageField } from "@apps/pyconkr-participant-portal/components/elements/multilang_field";
+import { PublicFileSelector } from "@apps/pyconkr-participant-portal/components/elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "@apps/pyconkr-participant-portal/components/elements/requested_modification_audit_available_header";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { PrimaryTitle } from "@apps/pyconkr-participant-portal/components/elements/titles";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 export type ProfileSchema = {
   email: string;

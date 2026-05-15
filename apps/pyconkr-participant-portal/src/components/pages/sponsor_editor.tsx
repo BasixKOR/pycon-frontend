@@ -2,10 +2,10 @@ import { FormControl, InputLabel, Select, Stack, Tab, Tabs, TextField, Typograph
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { SignInGuard } from "../elements/signin_guard";
-import { Page } from "../page";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
 
 const InnerSponsorEditor: React.FC = () => {
   return (

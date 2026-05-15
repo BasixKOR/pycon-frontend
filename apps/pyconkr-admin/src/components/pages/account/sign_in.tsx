@@ -6,7 +6,7 @@ import { Button, Stack, TextField, Typography } from "@mui/material";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type PageStateType = {
   userJustSignedIn: boolean;

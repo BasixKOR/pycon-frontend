@@ -5,8 +5,8 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 
 const APP = "notification/kakao-alimtalk";
 const RESOURCE = "template";

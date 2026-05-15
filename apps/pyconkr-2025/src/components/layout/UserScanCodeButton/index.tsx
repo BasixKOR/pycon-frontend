@@ -4,7 +4,7 @@ import { Button, IconButton, IconButtonProps } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { useAppContext } from "../../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
 
 export const ScanCodeIconButton: React.FC<{ sx?: IconButtonProps["sx"] }> = Suspense.with(
   { fallback: <React.Fragment /> },

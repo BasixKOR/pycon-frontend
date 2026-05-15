@@ -1,5 +1,6 @@
+import * as BackendSessionAPISchemas from "@frontend/common/schemas/backendSessionAPI";
+
 import { BackendAPIClient } from "./client";
-import * as BackendSessionAPISchemas from "../schemas/backendSessionAPI";
 
 export const sessionList = (client: BackendAPIClient) => async () => {
   return await client.get<BackendSessionAPISchemas.SessionSchema[]>("v1/event/presentation/");

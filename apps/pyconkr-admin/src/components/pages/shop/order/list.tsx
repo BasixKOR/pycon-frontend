@@ -17,13 +17,14 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import { AdminFilterFieldset } from "@apps/pyconkr-admin/components/elements/admin_filter_fieldset";
+import { AdminPagination } from "@apps/pyconkr-admin/components/elements/admin_pagination";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+
 import { OrderAdmin, PaymentStatus } from "./types";
-import { AdminFilterFieldset } from "../../../elements/admin_filter_fieldset";
-import { AdminPagination } from "../../../elements/admin_pagination";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
-import { PAYMENT_STATUS_LABEL } from "../_common/status_labels";
-import { CategoryGroupAdminWithCategories } from "../product/types";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 

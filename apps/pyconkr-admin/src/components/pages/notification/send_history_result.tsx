@@ -33,9 +33,9 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type NotificationChannelApp = "notification/email" | "notification/kakao-alimtalk" | "notification/sms";
 

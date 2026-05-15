@@ -17,10 +17,10 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-import { IMAGE_FILE_EXTENSIONS } from "../../../../../consts/file_extensions";
-import { PublicFilePicker } from "../../../../elements/public_file_picker";
-import { ProductFormValues, SetField } from "../form";
-import { CategoryGroupAdminWithCategories, TagAdmin } from "../types";
+import { PublicFilePicker } from "@apps/pyconkr-admin/components/elements/public_file_picker";
+import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
+import { CategoryGroupAdminWithCategories, TagAdmin } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+import { IMAGE_FILE_EXTENSIONS } from "@apps/pyconkr-admin/consts/file_extensions";
 
 const MUIStyledFieldset = styled("fieldset")(({ theme }) => ({
   color: theme.palette.text.secondary,

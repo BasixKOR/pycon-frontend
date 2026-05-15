@@ -4,7 +4,7 @@ import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion, Stack, T
 import * as React from "react";
 import Marquee from "react-fast-marquee";
 
-import * as Hooks from "../../hooks";
+import * as Hooks from "@frontend/common/hooks";
 
 const MarqueeAccordion: React.FC<{ marqueeText: string; marqueeLogoSrc: string }> = ({ marqueeText, marqueeLogoSrc }) => {
   const marqueeWidth = window.innerWidth * 0.9;

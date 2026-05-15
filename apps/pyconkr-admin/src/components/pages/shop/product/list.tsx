@@ -21,11 +21,12 @@ import { useMutation } from "@tanstack/react-query";
 import * as React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { PRODUCT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
 import { CategoryGroupAdminWithCategories, ProductAdmin, ProductCurrentStatus } from "./types";
-import { addErrorSnackbar, addSnackbar } from "../../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
-import { PRODUCT_STATUS_LABEL } from "../_common/status_labels";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 const formatLeftoverStock = (leftover: number | null | undefined) => {

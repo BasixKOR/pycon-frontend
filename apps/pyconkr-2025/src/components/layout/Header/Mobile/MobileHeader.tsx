@@ -3,10 +3,11 @@ import { Box, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
+
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
 import { MobileNavigation } from "./MobileNavigation";
-import { useAppContext } from "../../../../contexts/app_context";
 
 interface MobileHeaderProps {
   isNavigationOpen?: boolean;

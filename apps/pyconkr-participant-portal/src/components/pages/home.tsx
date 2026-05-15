@@ -24,12 +24,12 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
-import { ErrorPage } from "../elements/error_page";
-import { Fieldset } from "../elements/fieldset";
-import { LoadingPage } from "../elements/loading_page";
-import { SignInGuard } from "../elements/signin_guard";
-import { Page } from "../page";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { Fieldset } from "@apps/pyconkr-participant-portal/components/elements/fieldset";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 const ProfileImageSize: React.CSSProperties["width" | "height"] = "8rem";
 

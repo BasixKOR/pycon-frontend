@@ -5,11 +5,12 @@ import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import * as R from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { SignInGuard } from "../elements/signin_guard";
-import { Page } from "../page";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
+
 import { ProfileEditorForm, ProfileSchema } from "./profile_editor";
 import { SessionEditorForm, SessionSchema } from "./session_editor";
 

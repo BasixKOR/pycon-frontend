@@ -1,6 +1,6 @@
 import * as R from "remeda";
 
-import type { OptionGroup, OrderProductItem } from "../schemas";
+import type { OptionGroup, OrderProductItem } from "@frontend/shop/schemas";
 
 export { startPortOnePurchase } from "./portone";
 

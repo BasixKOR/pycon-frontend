@@ -4,8 +4,8 @@ import { Box, Button, Input, Stack, Typography } from "@mui/material";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type PublicFileUploadPageStateType = {
   isMouseOnDragBox: boolean;

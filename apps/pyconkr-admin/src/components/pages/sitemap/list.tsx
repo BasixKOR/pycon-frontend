@@ -5,6 +5,7 @@ import {
   useRemovePreparedMutation,
   useUpdatePreparedMutation,
 } from "@frontend/common/hooks/useAdminAPI";
+import { FlattenedSiteMapSchema, NestedSiteMapSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/utils";
 import { Add, Delete, Edit, Save } from "@mui/icons-material";
 import {
@@ -31,10 +32,9 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { GroupOptions, ReactSortable, SortableEvent, SortableOptions } from "react-sortablejs";
 
-import { FlattenedSiteMapSchema, NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
-import { AdminEditor } from "../../layouts/admin_editor";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
 
 type FlatSiteMap = FlattenedSiteMapSchema;
 type FlatSiteMapObj = Record<string, FlatSiteMap>;

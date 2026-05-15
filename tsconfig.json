@@ -28,6 +28,8 @@
     "paths": {
       "@apps/pyconkr-2025/*": ["apps/pyconkr-2025/src/*"],
       "@apps/pyconkr-2026/*": ["apps/pyconkr-2026/src/*"],
+      "@apps/pyconkr-admin/*": ["apps/pyconkr-admin/src/*"],
+      "@apps/pyconkr-participant-portal/*": ["apps/pyconkr-participant-portal/src/*"],
       "@frontend/common": ["packages/common/src/index.ts"],
       "@frontend/common/*": ["packages/common/src/*"],
       "@frontend/shop": ["packages/shop/src/index.ts"],

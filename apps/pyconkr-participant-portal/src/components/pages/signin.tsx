@@ -7,8 +7,8 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
-import { useAppContext } from "../../contexts/app_context";
-import { Page } from "../page";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 export const SignInPage: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);

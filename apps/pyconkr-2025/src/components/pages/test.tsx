@@ -1,10 +1,10 @@
 import { Button, Stack } from "@mui/material";
 import * as React from "react";
 
-import { ComponentTestPage } from "../../debug/page/component_test";
-import { MapTestPage } from "../../debug/page/map_test";
-import { MdiTestPage } from "../../debug/page/mdi_test";
-import { ShopTestPage } from "../../debug/page/shop_test";
+import { ComponentTestPage } from "@apps/pyconkr-2025/debug/page/component_test";
+import { MapTestPage } from "@apps/pyconkr-2025/debug/page/map_test";
+import { MdiTestPage } from "@apps/pyconkr-2025/debug/page/mdi_test";
+import { ShopTestPage } from "@apps/pyconkr-2025/debug/page/shop_test";
 
 const LOCAL_STORAGE_KEY = "selectedTab";
 type SelectedTabType = "shop" | "mdi" | "map" | "component";

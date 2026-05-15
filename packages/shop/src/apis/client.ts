@@ -2,7 +2,7 @@ import { getCookie } from "@frontend/common/utils";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as R from "remeda";
 
-import { isObjectErrorResponseSchema, type ErrorResponseSchema } from "../schemas";
+import { isObjectErrorResponseSchema, type ErrorResponseSchema } from "@frontend/shop/schemas";
 
 const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {

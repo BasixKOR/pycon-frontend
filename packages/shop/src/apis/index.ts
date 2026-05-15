@@ -13,7 +13,8 @@ import type {
   SocialSignInRequest,
   UserRow,
   UserSignedInStatus,
-} from "../schemas";
+} from "@frontend/shop/schemas";
+
 import { ShopAPIClient } from "./client";
 
 export { ShopAPIClient, ShopAPIClientError } from "./client";

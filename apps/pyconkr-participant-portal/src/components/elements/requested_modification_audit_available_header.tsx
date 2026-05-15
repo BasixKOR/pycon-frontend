@@ -1,7 +1,7 @@
 import { Button, Card, CardContent, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
 
-import { ModificationAuditCancelConfirmDialog } from "../dialogs/modification_audit_cancel_confirm";
+import { ModificationAuditCancelConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/modification_audit_cancel_confirm";
 
 const StyledAlertCard = styled(Card)(({ theme }) => ({
   width: "100%",

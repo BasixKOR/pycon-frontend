@@ -1,5 +1,6 @@
+import * as ParticipantPortalAPISchemas from "@frontend/common/schemas/backendParticipantPortalAPI";
+
 import { BackendAPIClient } from "./client";
-import * as ParticipantPortalAPISchemas from "../schemas/backendParticipantPortalAPI";
 
 export const me = (client: BackendAPIClient) => async () => {
   try {

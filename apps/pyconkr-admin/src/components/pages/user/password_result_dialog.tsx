@@ -2,7 +2,7 @@ import { ContentCopy } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputAdornment, TextField } from "@mui/material";
 import * as React from "react";
 
-import { addSnackbar } from "../../../utils/snackbar";
+import { addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type PasswordResultDialogProps = {
   open: boolean;

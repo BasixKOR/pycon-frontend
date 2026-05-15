@@ -1,6 +1,7 @@
 import { MDXEditor, MDXRenderer } from "@frontend/common/components";
 import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/hooks/useAdminAPI";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { PageSectionSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
 import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -8,11 +9,10 @@ import { commands } from "@uiw/react-md-editor";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 
-import { PageSectionSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
-import { muiTheme } from "../../../styles/globalStyles";
-import { addErrorSnackbar } from "../../../utils/snackbar";
-import { ErrorFallback } from "../../elements/error_fallback";
-import { AdminEditor } from "../../layouts/admin_editor";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
+import { muiTheme } from "@apps/pyconkr-admin/styles/globalStyles";
+import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type SectionType = PageSectionSchema;
 

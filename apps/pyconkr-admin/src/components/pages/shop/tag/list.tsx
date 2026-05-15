@@ -2,7 +2,7 @@ import { Chip } from "@mui/material";
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { AdminList, AdminListColumn } from "../../../layouts/admin_list";
+import { AdminList, AdminListColumn } from "@apps/pyconkr-admin/components/layouts/admin_list";
 
 const formatStock = (stock: number) => (stock === 0 ? "무한대" : stock.toLocaleString());
 const formatMaxPerUser = (qty: number) => (qty === 0 ? "제한 없음" : qty.toLocaleString());

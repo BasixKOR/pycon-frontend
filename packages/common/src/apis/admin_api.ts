@@ -1,4 +1,3 @@
-import { BackendAPIClient } from "./client";
 import {
   AdminSchemaDefinition,
   ChoicesResponse,
@@ -14,7 +13,9 @@ import {
   UserResetPasswordResponseSchema,
   UserSchema,
   UserSignInSchema,
-} from "../schemas/backendAdminAPI";
+} from "@frontend/common/schemas/backendAdminAPI";
+
+import { BackendAPIClient } from "./client";
 
 export const me = (client: BackendAPIClient) => async () => {
   try {

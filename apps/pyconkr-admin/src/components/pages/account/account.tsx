@@ -4,7 +4,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Navigate } from "react-router-dom";
 
-import { ErrorFallback } from "../../elements/error_fallback";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 
 export const AccountRedirectPage: React.FC = ErrorBoundary.with(
   { fallback: ErrorFallback },

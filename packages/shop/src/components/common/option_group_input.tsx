@@ -4,10 +4,11 @@ import * as React from "react";
 import { Control, Controller, FieldValues } from "react-hook-form";
 import * as R from "remeda";
 
+import { useShopContext } from "@frontend/shop/hooks";
+import type { Option, OrderProductItem } from "@frontend/shop/schemas";
+import { getCustomResponsePattern, isOrderProductOptionModifiable } from "@frontend/shop/utils";
+
 import { PriceDisplay } from "./price_display";
-import { useShopContext } from "../../hooks";
-import type { Option, OrderProductItem } from "../../schemas";
-import { getCustomResponsePattern, isOrderProductOptionModifiable } from "../../utils";
 
 type CommonOptionGroupType = {
   id: string;

@@ -1,8 +1,8 @@
 import { Language } from "@mui/icons-material";
 import { Button, Stack, styled } from "@mui/material";
 
-import { LOCAL_STORAGE_LANGUAGE_KEY } from "../../../consts/local_stroage";
-import { useAppContext } from "../../../contexts/app_context";
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "@apps/pyconkr-2026/consts/local_stroage";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 export default function LanguageSelector() {
   const { language, setAppContext } = useAppContext();

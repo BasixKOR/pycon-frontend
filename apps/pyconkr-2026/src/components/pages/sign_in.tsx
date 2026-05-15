@@ -6,8 +6,8 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAppContext } from "../../contexts/app_context";
-import { PageLayout } from "../layout/PageLayout";
+import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 type PageeStateType = {
   openBackdrop: boolean;

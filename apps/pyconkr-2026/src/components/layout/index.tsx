@@ -2,10 +2,11 @@ import styled from "@emotion/styled";
 import { Stack } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
+
 import Footer from "./Footer";
 import Header from "./Header";
 import { Sponsor } from "./Sponsor";
-import { useAppContext } from "../../contexts/app_context";
 
 export default function MainLayout() {
   const { shouldShowSponsorBanner } = useAppContext();

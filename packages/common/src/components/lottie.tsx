@@ -4,8 +4,9 @@ import { ErrorBoundary } from "@suspensive/react";
 import * as React from "react";
 import Lottie, { Options } from "react-lottie";
 
+import { isValidHttpUrl } from "@frontend/common/utils/string";
+
 import { ErrorFallback } from "./error_handler";
-import { isValidHttpUrl } from "../utils/string";
 
 type PlayState = "playing" | "paused" | "stopped";
 

@@ -18,10 +18,10 @@ import {
   signInWithEmail,
   signInWithSNS,
   signOut,
-} from "../apis";
-import { ShopAPIClient } from "../apis/client";
-import { context as shopContext } from "../contexts";
-import type { ProductListQueryParams } from "../schemas";
+} from "@frontend/shop/apis";
+import { ShopAPIClient } from "@frontend/shop/apis/client";
+import { context as shopContext } from "@frontend/shop/contexts";
+import type { ProductListQueryParams } from "@frontend/shop/schemas";
 
 const QUERY_KEYS = {
   BASE: ["query", "shop"],

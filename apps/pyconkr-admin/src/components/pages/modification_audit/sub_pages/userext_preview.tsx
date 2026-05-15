@@ -1,7 +1,8 @@
 import { Fieldset } from "@frontend/common/components";
 import { Typography } from "@mui/material";
 
-import { PreviewImageField, PreviewTextField } from "../components";
+import { PreviewImageField, PreviewTextField } from "@apps/pyconkr-admin/components/pages/modification_audit/components";
+
 import { SubModificationAuditPageType, UserPreviewSchema } from "./types";
 
 export const UserExtPreviewSubPage: SubModificationAuditPageType<UserPreviewSchema> = ({ original, modified }) => {

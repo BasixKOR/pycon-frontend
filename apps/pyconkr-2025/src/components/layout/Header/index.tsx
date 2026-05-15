@@ -1,4 +1,5 @@
 import { PythonKorea } from "@frontend/common/components";
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
@@ -6,12 +7,12 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as R from "remeda";
 
-import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
-import { useAppContext } from "../../../contexts/app_context";
-import { CartBadgeButton } from "../CartBadgeButton";
-import LanguageSelector from "../LanguageSelector";
-import { SignInButton } from "../SignInButton";
-// import { ScanCodeIconButton } from "../UserScanCodeButton";
+import { CartBadgeButton } from "@apps/pyconkr-2025/components/layout/CartBadgeButton";
+import LanguageSelector from "@apps/pyconkr-2025/components/layout/LanguageSelector";
+import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton";
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
+
+// import { ScanCodeIconButton } from "@apps/pyconkr-2025/components/layout/UserScanCodeButton";
 import { MobileHeader } from "./Mobile/MobileHeader";
 
 type MenuType = NestedSiteMapSchema;

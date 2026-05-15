@@ -1,8 +1,7 @@
+import { ChoicesResponse, OpenAPIParameterSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Clear, FilterList, RestartAlt } from "@mui/icons-material";
 import { Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import * as React from "react";
-
-import { ChoicesResponse, OpenAPIParameterSchema } from "../../../../../packages/common/src/schemas/backendAdminAPI";
 
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];

@@ -1,4 +1,4 @@
-import BackendAdminAPISchemas from "../../../../../../../packages/common/src/schemas/backendAdminAPI";
+import BackendAdminAPISchemas from "@frontend/common/schemas/backendAdminAPI";
 
 export type ModificationAuditPreviewSchema<T> = BackendAdminAPISchemas.ModificationAuditPreviewSchema<T>;
 

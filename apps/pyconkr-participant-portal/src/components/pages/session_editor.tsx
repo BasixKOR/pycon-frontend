@@ -12,17 +12,17 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
-import { useAppContext } from "../../contexts/app_context";
-import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
-import { BlockQuote } from "../elements/blockquote";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { MultiLanguageField, MultiLanguageMarkdownField } from "../elements/multilang_field";
-import { PublicFileSelector } from "../elements/public_file_selector";
-import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
-import { SignInGuard } from "../elements/signin_guard";
-import { PrimaryTitle, SecondaryTitle } from "../elements/titles";
-import { Page } from "../page";
+import { SubmitConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/submit_confirm";
+import { BlockQuote } from "@apps/pyconkr-participant-portal/components/elements/blockquote";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { MultiLanguageField, MultiLanguageMarkdownField } from "@apps/pyconkr-participant-portal/components/elements/multilang_field";
+import { PublicFileSelector } from "@apps/pyconkr-participant-portal/components/elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "@apps/pyconkr-participant-portal/components/elements/requested_modification_audit_available_header";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { PrimaryTitle, SecondaryTitle } from "@apps/pyconkr-participant-portal/components/elements/titles";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type SessionUpdateSchema = {
   id: string;

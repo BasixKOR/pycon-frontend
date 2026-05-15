@@ -26,15 +26,16 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
 import { buildDefaultFormValues, ProductFormValues, toPayload } from "./form";
 import { BasicInfoTab } from "./tabs/basic_info_tab";
 import { OptionGroupsTab } from "./tabs/option_groups_tab";
 import { PriceOptionsTab } from "./tabs/price_options_tab";
 import { TimeSettingsTab } from "./tabs/time_settings_tab";
 import { CategoryGroupAdminWithCategories, ProductAdmin, TagAdmin } from "./types";
-import { addErrorSnackbar, addSnackbar } from "../../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
 
 const formatLeftover = (v: number | null | undefined): React.ReactNode =>
   v === undefined ? (

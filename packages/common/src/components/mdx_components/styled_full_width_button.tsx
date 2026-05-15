@@ -2,7 +2,7 @@ import { Button, ButtonProps, Typography } from "@mui/material";
 import * as React from "react";
 import * as R from "remeda";
 
-import { LinkHandler } from "../link_handler";
+import { LinkHandler } from "@frontend/common/components/link_handler";
 
 type StyledFullWidthButtonPropType = ButtonProps & {
   link?: string;

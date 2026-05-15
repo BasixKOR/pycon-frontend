@@ -4,7 +4,7 @@ import { Button, Stack } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useNavigate } from "react-router-dom";
 
-import { useAppContext } from "../../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
 
 type InnerSignInButtonImplPropType = {
   loading?: boolean;

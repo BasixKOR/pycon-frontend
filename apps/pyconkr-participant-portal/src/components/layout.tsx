@@ -5,8 +5,8 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
-import { LOCAL_STORAGE_LANGUAGE_KEY } from "../consts/local_stroage";
-import { useAppContext } from "../contexts/app_context";
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "@apps/pyconkr-participant-portal/consts/local_stroage";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 const FullPage = styled(Stack)({
   minHeight: "100vh",

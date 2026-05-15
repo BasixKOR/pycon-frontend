@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import * as React from "react";
 
-import * as BackendAPIs from "../apis";
-import { BackendAPIClient } from "../apis/client";
-import { context as backendContext } from "../contexts";
-import * as BackendAPISchemas from "../schemas/backendAPI";
+import * as BackendAPIs from "@frontend/common/apis";
+import { BackendAPIClient } from "@frontend/common/apis/client";
+import { context as backendContext } from "@frontend/common/contexts";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
 
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],

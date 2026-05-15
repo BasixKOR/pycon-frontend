@@ -3,8 +3,8 @@ import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogT
 import { Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import { useShopClient, useShopContext, useUserStatus } from "../../hooks";
-import type { CustomerInfo } from "../../schemas";
+import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
+import type { CustomerInfo } from "@frontend/shop/schemas";
 
 type CustomerInfoFormDialogPropsType = {
   open: boolean;

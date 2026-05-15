@@ -6,7 +6,7 @@ import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
 import * as R from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type SetUploadedFileAsValueConfirmDialogProps = {
   language: "ko" | "en";

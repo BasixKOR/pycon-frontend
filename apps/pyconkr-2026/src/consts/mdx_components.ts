@@ -1,4 +1,9 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
+import PyCon2025HostLogoBig from "@frontend/common/assets/pyconkr2025_hostlogo_big.png";
+import PyCon2025HostLogoSmall from "@frontend/common/assets/pyconkr2025_hostlogo_small.png";
+import PyCon2025Logo from "@frontend/common/assets/pyconkr2025_logo.png";
+import PyCon2025MobileLogoImage from "@frontend/common/assets/pyconkr2025_main_cover_image.png";
+import PyCon2025MobileLogoTitle from "@frontend/common/assets/pyconkr2025_main_cover_title.png";
 import { LottiePlayer, NetworkLottiePlayer } from "@frontend/common/components";
 import {
   Confetti,
@@ -18,12 +23,6 @@ import { CartStatus, OrderList, PatronList, ProductImageCardList, ProductList, U
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
 import * as React from "react";
-
-import PyCon2025HostLogoBig from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_big.png";
-import PyCon2025HostLogoSmall from "../../../../packages/common/src/assets/pyconkr2025_hostlogo_small.png";
-import PyCon2025Logo from "../../../../packages/common/src/assets/pyconkr2025_logo.png";
-import PyCon2025MobileLogoImage from "../../../../packages/common/src/assets/pyconkr2025_main_cover_image.png";
-import PyCon2025MobileLogoTitle from "../../../../packages/common/src/assets/pyconkr2025_main_cover_title.png";
 
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: mui.Accordion,
