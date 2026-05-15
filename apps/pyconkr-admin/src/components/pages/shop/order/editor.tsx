@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useRetrieveQuery, useUpdateMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useRetrieveQuery, useUpdateMutation } from "@frontend/common/hooks/useAdminAPI";
 import { CurrencyExchange, NotificationsActive, Save } from "@mui/icons-material";
 import {
   Alert,

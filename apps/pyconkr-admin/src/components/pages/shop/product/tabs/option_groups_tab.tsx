@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useCreateMutation, useUpdateMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useCreateMutation, useUpdateMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit, ExpandMore } from "@mui/icons-material";
 import {
   Accordion,

@@ -4,7 +4,7 @@ import {
   useRetrieveQuery,
   useRetryHistoryMutation,
   useRetrySentToMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, ExpandLess, ExpandMore, Replay } from "@mui/icons-material";
 import {
   alpha,

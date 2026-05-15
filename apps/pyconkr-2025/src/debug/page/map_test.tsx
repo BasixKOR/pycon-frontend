@@ -1,14 +1,14 @@
-import { Components } from "@frontend/common";
-import { getFormValue, isFormValid } from "@frontend/common/src/utils";
+import { Map as MDXMap, MapPropType } from "@frontend/common/components/mdx_components";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Box, Button, FormControlLabel, Stack, Switch, TextField } from "@mui/material";
 import * as React from "react";
 
 type MapTestPageStateType = {
   checked: boolean;
-  mapProps: Components.MDX.MapPropType;
+  mapProps: MapPropType;
 };
 
-const INITIAL_DATA: Components.MDX.MapPropType = {
+const INITIAL_DATA: MapPropType = {
   geo: { lat: 37.5580918, lng: 126.9982178 },
   placeName: {
     ko: "동국대학교 신공학관",
@@ -90,7 +90,7 @@ export const MapTestPage: React.FC = () => {
         <Button onClick={onApply}>적용</Button>
       </Stack>
       <Box sx={{ width: "50%", maxWidth: "50%" }}>
-        <Components.MDX.Map {...state.mapProps} />
+        <MDXMap {...state.mapProps} />
       </Box>
     </Stack>
   );

@@ -1,4 +1,4 @@
-import { Components } from "@frontend/common";
+import { PythonKorea } from "@frontend/common/components";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
         <NavSideElementContainer>
           <Link to="/" onClick={resetDepths} style={{ marginRight: "auto" }}>
             <Stack justifyContent="center" alignItems="center">
-              <Components.PythonKorea style={{ width: 40, height: 40 }} />
+              <PythonKorea style={{ width: 40, height: 40 }} />
             </Stack>
           </Link>
         </NavSideElementContainer>

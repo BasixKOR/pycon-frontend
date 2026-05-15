@@ -1,6 +1,20 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
-import { Components, Schemas } from "@frontend/common";
-import * as Shop from "@frontend/shop";
+import { LottiePlayer, NetworkLottiePlayer } from "@frontend/common/components";
+import {
+  Confetti,
+  FAQAccordion,
+  Map as MDXMap,
+  MobileAccordion,
+  MobileCover,
+  PrimaryStyledDetails,
+  SecondaryStyledDetails,
+  SessionList,
+  SessionTimeTable,
+  StyledFullWidthButton,
+} from "@frontend/common/components/mdx_components";
+import type { SessionSchema } from "@frontend/common/schemas/backendAPI";
+import { PriceDisplay, ShopContextProvider, SignInGuard, UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
+import { CartStatus, OrderList, PatronList, ProductImageCardList, ProductList, UserInfo } from "@frontend/shop/components/features";
 import * as mui from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
 import * as React from "react";
@@ -137,7 +151,7 @@ const MUIMDXComponents: MDXComponents = {
   Mui__material__Zoom: mui.Zoom,
 };
 
-const getPyConKR2025SessionUrl = (session: Schemas.BackendAPI.SessionSchema): string => {
+const getPyConKR2025SessionUrl = (session: SessionSchema): string => {
   const urlSafeTitle = session.title
     .replace(/ /g, "-")
     .replace(/([.])/g, "_")
@@ -151,21 +165,21 @@ const PyConKR2025FallbackImage = React.createElement("img", {
   style: { width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" },
 });
 
-const PyConKR2025SessionList: React.FC<React.ComponentProps<typeof Components.MDX.SessionList>> = (props) =>
-  React.createElement(Components.MDX.SessionList, {
+const PyConKR2025SessionList: React.FC<React.ComponentProps<typeof SessionList>> = (props) =>
+  React.createElement(SessionList, {
     ...props,
     fallbackImage: PyConKR2025FallbackImage,
     getSessionUrl: getPyConKR2025SessionUrl,
   });
 
-const PyConKR2025SessionTimeTable: React.FC<React.ComponentProps<typeof Components.MDX.SessionTimeTable>> = (props) =>
-  React.createElement(Components.MDX.SessionTimeTable, {
+const PyConKR2025SessionTimeTable: React.FC<React.ComponentProps<typeof SessionTimeTable>> = (props) =>
+  React.createElement(SessionTimeTable, {
     ...props,
     getSessionUrl: getPyConKR2025SessionUrl,
   });
 
 const PyConKR2025MobileAccordion: React.FC<object> = () =>
-  React.createElement(Components.MDX.MobileAccordion, {
+  React.createElement(MobileAccordion, {
     marqueeText: "AUG 15 - 17",
     marqueeLogoSrc: PyCon2025HostLogoSmall,
     hostLogoBigSrc: PyCon2025HostLogoBig,
@@ -174,20 +188,20 @@ const PyConKR2025MobileAccordion: React.FC<object> = () =>
   });
 
 const PyConKR2025MobileCover: React.FC<object> = () =>
-  React.createElement(Components.MDX.MobileCover, {
+  React.createElement(MobileCover, {
     coverImageSrc: PyCon2025MobileLogoImage,
     coverTitleSrc: PyCon2025MobileLogoTitle,
   });
 
 const PyConKRCommonMDXComponents: MDXComponents = {
-  Common__Components__Lottie: Components.LottiePlayer,
-  Common__Components__NetworkLottie: Components.NetworkLottiePlayer,
-  Common__Components__MDX__Confetti: Components.MDX.Confetti,
-  Common__Components__MDX__PrimaryStyledDetails: Components.MDX.PrimaryStyledDetails,
-  Common__Components__MDX__SecondaryStyledDetails: Components.MDX.SecondaryStyledDetails,
-  Common__Components__MDX__Map: Components.MDX.Map,
-  Common__Components__MDX__FAQAccordion: Components.MDX.FAQAccordion,
-  Common__Components__MDX__FullWidthStyledButton: Components.MDX.StyledFullWidthButton,
+  Common__Components__Lottie: LottiePlayer,
+  Common__Components__NetworkLottie: NetworkLottiePlayer,
+  Common__Components__MDX__Confetti: Confetti,
+  Common__Components__MDX__PrimaryStyledDetails: PrimaryStyledDetails,
+  Common__Components__MDX__SecondaryStyledDetails: SecondaryStyledDetails,
+  Common__Components__MDX__Map: MDXMap,
+  Common__Components__MDX__FAQAccordion: FAQAccordion,
+  Common__Components__MDX__FullWidthStyledButton: StyledFullWidthButton,
   Common__Components__Session__List: PyConKR2025SessionList,
   Common__Components__Session__TimeTable: PyConKR2025SessionTimeTable,
   Common__Components__MDX__MobileAccordion: PyConKR2025MobileAccordion,
@@ -195,17 +209,17 @@ const PyConKRCommonMDXComponents: MDXComponents = {
 };
 
 const PythonKRShopMDXComponents: MDXComponents = {
-  Shop__Common__PriceDisplay: Shop.Components.Common.PriceDisplay,
-  Shop__Common__SignInGuard: Shop.Components.Common.SignInGuard,
-  Shop__Common__ContextProvider: Shop.Components.Common.ShopContextProvider,
-  Shop__Common__UserSignInMethod: Shop.Components.Common.UserSignInMethod,
-  Shop__Common__UserSignInAccount: Shop.Components.Common.UserSignInAccount,
-  Shop__Feature__CartStatus: Shop.Components.Features.CartStatus,
-  Shop__Feature__ProductList: Shop.Components.Features.ProductList,
-  Shop__Feature__ProductImageCardList: Shop.Components.Features.ProductImageCardList,
-  Shop__Feature__OrderList: Shop.Components.Features.OrderList,
-  Shop__Feature__UserInfo: Shop.Components.Features.UserInfo,
-  Shop__Feature__PatronList: Shop.Components.Features.PatronList,
+  Shop__Common__PriceDisplay: PriceDisplay,
+  Shop__Common__SignInGuard: SignInGuard,
+  Shop__Common__ContextProvider: ShopContextProvider,
+  Shop__Common__UserSignInMethod: UserSignInMethod,
+  Shop__Common__UserSignInAccount: UserSignInAccount,
+  Shop__Feature__CartStatus: CartStatus,
+  Shop__Feature__ProductList: ProductList,
+  Shop__Feature__ProductImageCardList: ProductImageCardList,
+  Shop__Feature__OrderList: OrderList,
+  Shop__Feature__UserInfo: UserInfo,
+  Shop__Feature__PatronList: PatronList,
 };
 
 export const PyConKRMDXComponents = {

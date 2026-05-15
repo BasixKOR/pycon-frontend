@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEmail } from "@frontend/common/src/hooks/useEmail";
+import { useEmail } from "@frontend/common/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, X, YouTube } from "@mui/icons-material";
 import * as React from "react";
 

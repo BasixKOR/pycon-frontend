@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { CenteredPage, ErrorFallback, MDXRenderer } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -12,9 +12,9 @@ import { PageLayout } from "../layout/PageLayout";
 
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 const CenteredLoadingPage: React.FC = () => (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
 const LogoImage = styled("img")(({ theme }) => ({
@@ -51,7 +51,7 @@ const DescriptionBox = styled(Box)(({ theme }) => ({
 }));
 
 export const SponsorDetailPage: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, sponsorTiers, setAppContext } = useAppContext();
@@ -90,7 +90,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
         </Typography>
         <Divider flexItem />
         <DescriptionBox>
-          <Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={sponsor.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </DescriptionBox>
       </PageLayout>
     );

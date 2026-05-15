@@ -4,8 +4,8 @@ import {
   useListQuery,
   useOpenApiSchemaQuery,
   useRemovePreparedMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
-import { extractQueryParameters } from "@frontend/common/src/utils";
+} from "@frontend/common/hooks/useAdminAPI";
+import { extractQueryParameters } from "@frontend/common/utils";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import { Box, Button, CircularProgress, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

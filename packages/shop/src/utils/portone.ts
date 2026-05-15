@@ -1,11 +1,11 @@
 import { RequestPayResponse } from "iamport-typings/src";
 import * as R from "remeda";
 
-import ShopSchemas from "../schemas";
+import type { Order } from "../schemas";
 
 export const startPortOnePurchase = (
   portOneAccountId: string,
-  order: ShopSchemas.Order,
+  order: Order,
   onSuccess?: (response: RequestPayResponse) => void,
   onFailure?: (response: RequestPayResponse) => void,
   onCleanUp?: (response: RequestPayResponse) => void

@@ -1,4 +1,4 @@
-import * as Shop from "@frontend/shop";
+import { useShopClient, useSignInWithSNSMutation, useUserStatus } from "@frontend/shop/hooks";
 import { AccountCircleOutlined, Google } from "@mui/icons-material";
 import { Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography } from "@mui/material";
 import { Suspense } from "@suspensive/react";
@@ -17,9 +17,9 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
   const { setAppContext, language } = useAppContext();
   const [state, setState] = React.useState<PageeStateType>({ openBackdrop: false });
   const navigate = useNavigate();
-  const shopAPIClient = Shop.Hooks.useShopClient();
-  const SignInMutation = Shop.Hooks.useSignInWithSNSMutation(shopAPIClient);
-  const { data } = Shop.Hooks.useUserStatus(shopAPIClient);
+  const shopAPIClient = useShopClient();
+  const SignInMutation = useSignInWithSNSMutation(shopAPIClient);
+  const { data } = useUserStatus(shopAPIClient);
 
   const shouldOpenBackdrop = SignInMutation.isPending || state.openBackdrop;
 
@@ -55,7 +55,7 @@ export const ShopSignInPage: React.FC = Suspense.with({ fallback: <CircularProgr
       shouldShowTitleBanner: true,
       shouldShowSponsorBanner: false,
     }));
-  }, [signInTitleStr]);
+  }, [data, language, navigate, setAppContext, signInTitleStr]);
 
   const commonBtnProps: ButtonProps = {
     variant: "contained",

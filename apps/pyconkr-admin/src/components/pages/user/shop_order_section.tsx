@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Alert, Chip, CircularProgress, Divider, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";

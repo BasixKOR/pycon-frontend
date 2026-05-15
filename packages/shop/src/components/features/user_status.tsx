@@ -1,16 +1,16 @@
-import * as Common from "@frontend/common";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import ShopHooks from "../../hooks";
+import { useShopClient, useSignInWithEmailMutation, useSignInWithSNSMutation, useSignOutMutation, useUserStatus } from "../../hooks";
 
 export const UserInfo: React.FC = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
-  const shopAPIClient = ShopHooks.useShopClient();
-  const signInWithEmailMutation = ShopHooks.useSignInWithEmailMutation(shopAPIClient);
-  const SignInWithSNSMutation = ShopHooks.useSignInWithSNSMutation(shopAPIClient);
-  const signOutMutation = ShopHooks.useSignOutMutation(shopAPIClient);
+  const shopAPIClient = useShopClient();
+  const signInWithEmailMutation = useSignInWithEmailMutation(shopAPIClient);
+  const SignInWithSNSMutation = useSignInWithSNSMutation(shopAPIClient);
+  const signOutMutation = useSignOutMutation(shopAPIClient);
 
   const signInWithGoogle = () =>
     SignInWithSNSMutation.mutate({
@@ -21,9 +21,9 @@ export const UserInfo: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!Common.Utils.isFormValid(formRef.current)) return;
+    if (!isFormValid(formRef.current)) return;
     signInWithEmailMutation.mutate(
-      Common.Utils.getFormValue<{ email: string; password: string }>({
+      getFormValue<{ email: string; password: string }>({
         form: formRef.current,
       })
     );
@@ -32,8 +32,8 @@ export const UserInfo: React.FC = () => {
   const disabled = SignInWithSNSMutation.isPending || signInWithEmailMutation.isPending || signOutMutation.isPending;
 
   const WrappedUserStatus: React.FC = () => {
-    const shopAPIClient = ShopHooks.useShopClient();
-    const { data } = ShopHooks.useUserStatus(shopAPIClient);
+    const shopAPIClient = useShopClient();
+    const { data } = useUserStatus(shopAPIClient);
 
     return data && data.meta.is_authenticated === true ? (
       <Stack>

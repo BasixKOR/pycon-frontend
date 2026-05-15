@@ -1,12 +1,12 @@
-import { Components } from "@frontend/common";
+import { PythonKorea } from "@frontend/common/components";
 import { Box, Stack, styled, Typography } from "@mui/material";
 import * as React from "react";
 import { Link } from "react-router-dom";
 
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileNavigation } from "./MobileNavigation";
-import LanguageSelector from "../../LanguageSelector";
 import { useAppContext } from "../../../../contexts/app_context";
+import LanguageSelector from "../../LanguageSelector";
 
 export const MobileHeader: React.FC = () => {
   const { siteMapNode } = useAppContext();
@@ -19,7 +19,7 @@ export const MobileHeader: React.FC = () => {
           <HamburgerButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
           <Link to="/" style={{ textDecoration: "none" }}>
             <Stack direction="row" alignItems="center" spacing={0.5}>
-              <Components.PythonKorea style={{ width: 28, height: 28 }} />
+              <PythonKorea style={{ width: 28, height: 28 }} />
               <Typography variant="h6" sx={{ color: "#ededde", fontSize: 17, fontWeight: 600 }}>
                 파이콘 한국 2026
               </Typography>

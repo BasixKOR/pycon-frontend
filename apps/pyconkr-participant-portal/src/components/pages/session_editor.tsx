@@ -1,6 +1,10 @@
-import { Components } from "@frontend/common";
-import { useParticipantPortalClient, useRetrievePresentationQuery, useUpdatePresentationMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { Fieldset } from "@frontend/common/components";
+import {
+  useParticipantPortalClient,
+  useRetrievePresentationQuery,
+  useUpdatePresentationMutation,
+} from "@frontend/common/hooks/useParticipantPortalAPI";
 import { SendAndArchive } from "@mui/icons-material";
 import { Box, Button, Divider, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -140,7 +144,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
           disabled={disabled}
           fullWidth
         />
-        <Components.Fieldset legend={slideShowStr}>
+        <Fieldset legend={slideShowStr}>
           <BlockQuote children={slideShowDescription} />
           <TextField
             label={slideShowStr}
@@ -150,7 +154,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
             sx={{ mt: 2 }}
             fullWidth
           />
-        </Components.Fieldset>
+        </Fieldset>
         <MultiLanguageField
           label={{ ko: "발표 요약", en: "Session Summary" }}
           description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}

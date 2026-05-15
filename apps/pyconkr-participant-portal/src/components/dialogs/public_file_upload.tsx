@@ -1,6 +1,6 @@
-import { Components } from "@frontend/common";
-import { useParticipantPortalClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { DndFileInput } from "@frontend/common/components";
+import { useParticipantPortalClient, useUploadPublicFileMutation } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -108,7 +108,7 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle children={titleStr} />
         <DialogContent>
-          <Components.DndFileInput onFileChange={setFile} language={language} />
+          <DndFileInput onFileChange={setFile} language={language} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" loading={loading} children={cancelStr} color="error" onClick={onClose} />

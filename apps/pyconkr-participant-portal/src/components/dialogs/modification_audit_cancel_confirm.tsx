@@ -1,5 +1,5 @@
-import { useCancelModificationAuditMutation, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useCancelModificationAuditMutation, useParticipantPortalClient } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";

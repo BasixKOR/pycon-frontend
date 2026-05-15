@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MDXRenderer, MarkdownEditor } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, SelectProps, Stack, styled, Tab, Tabs, TextField, TextFieldProps, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 
@@ -169,17 +169,11 @@ export const MultiLanguageMarkdownField: React.FC<MultiLanguageMarkdownFieldProp
           <Stack direction="row" spacing={2} sx={{ width: "100%", flexGrow: 1 }}>
             {!disabled && (
               <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                <Components.MarkdownEditor
-                  defaultValue={inputDefaultValue}
-                  value={inputValue}
-                  onChange={handleChange}
-                  extraCommands={[]}
-                  {...props}
-                />
+                <MarkdownEditor defaultValue={inputDefaultValue} value={inputValue} onChange={handleChange} extraCommands={[]} {...props} />
               </Box>
             )}
             <MDRendererContainer fullWidth={disabled}>
-              <Components.MDXRenderer text={inputValue || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+              <MDXRenderer text={inputValue || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
             </MDRendererContainer>
           </Stack>
         </FieldContainer>

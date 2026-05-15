@@ -5,7 +5,7 @@ import {
   useRemoveMutation,
   useRetrieveQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Box,

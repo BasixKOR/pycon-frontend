@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MarkdownEditor, MDXRenderer } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import {
   Autocomplete,
   Box,
@@ -128,15 +128,10 @@ export const BasicInfoTab: React.FC<Props> = ({ values, setField, disabled, grou
             </Typography>
             <Stack direction="row" spacing={2}>
               <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                <Components.MarkdownEditor
-                  disabled={disabled}
-                  name={descKey}
-                  value={values[descKey]}
-                  onChange={(value) => setField(descKey, value ?? "")}
-                />
+                <MarkdownEditor disabled={disabled} name={descKey} value={values[descKey]} onChange={(value) => setField(descKey, value ?? "")} />
               </Box>
               <MDXRendererContainer>
-                <Components.MDXRenderer text={values[descKey]} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+                <MDXRenderer text={values[descKey]} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
               </MDXRendererContainer>
             </Stack>
           </MUIStyledFieldset>

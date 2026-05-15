@@ -1,4 +1,4 @@
-import { useBackendAdminClient } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient } from "@frontend/common/hooks/useAdminAPI";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import * as React from "react";

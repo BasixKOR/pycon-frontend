@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Button,

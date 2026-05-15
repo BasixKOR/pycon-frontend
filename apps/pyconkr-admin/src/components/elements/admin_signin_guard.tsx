@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useSignedInUserQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useSignedInUserQuery } from "@frontend/common/hooks/useAdminAPI";
 import { CircularProgress } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";

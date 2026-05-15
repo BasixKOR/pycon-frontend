@@ -1,4 +1,4 @@
-import { useModificationAuditPreviewQuery, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useModificationAuditPreviewQuery, useParticipantPortalClient } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Card, CardContent, Palette, PaletteColor, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";

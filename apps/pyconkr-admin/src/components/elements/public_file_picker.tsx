@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useChoicesQuery, usePublicFileQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useChoicesQuery, usePublicFileQuery } from "@frontend/common/hooks/useAdminAPI";
 import { OpenInNew } from "@mui/icons-material";
 import { Autocomplete, Box, Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

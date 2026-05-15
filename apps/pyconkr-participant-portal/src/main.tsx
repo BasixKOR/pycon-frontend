@@ -1,5 +1,6 @@
-import { Components, Utils } from "@frontend/common";
-import type { ContextOptions } from "@frontend/common/src/contexts";
+import { CenteredPage, CommonContextProvider } from "@frontend/common/components";
+import type { ContextOptions } from "@frontend/common/contexts";
+import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
 import { CircularProgress, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -32,7 +33,7 @@ const queryClient = new QueryClient({
   }),
 });
 
-export const muiTheme = createTheme();
+const muiTheme = createTheme();
 
 const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
@@ -48,12 +49,12 @@ const CommonOptions: ContextOptions = {
 };
 
 const SuspenseFallback = (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
-const MainApp: React.FC = () => {
+export const MainApp: React.FC = () => {
   const [appState, setAppContext] = React.useState<Omit<AppContextType, "setAppContext">>({
     language: (localStorage.getItem(LOCAL_STORAGE_LANGUAGE_KEY) as "ko" | "en" | null) ?? "ko",
   });
@@ -65,7 +66,7 @@ const MainApp: React.FC = () => {
         <SnackbarProvider>
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
                 <ErrorBoundary fallback={ErrorPage}>
                   <Suspense fallback={SuspenseFallback}>
                     <ThemeProvider theme={muiTheme}>
@@ -74,7 +75,7 @@ const MainApp: React.FC = () => {
                     </ThemeProvider>
                   </Suspense>
                 </ErrorBoundary>
-              </Components.CommonContextProvider>
+              </CommonContextProvider>
             </AppContext.Provider>
           </BrowserRouter>
         </SnackbarProvider>
@@ -83,6 +84,6 @@ const MainApp: React.FC = () => {
   );
 };
 
-Utils.registerChunkLoadErrorReloadHandler();
+registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);

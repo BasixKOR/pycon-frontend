@@ -116,11 +116,8 @@ const SessionColumn: React.FC<{
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       {clickable ? (
-        <Link to={sessionUrl!} style={{ textDecoration: 'none', display: 'block' }}>
-          <SessionBox
-            className="clickable"
-            sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}
-          >
+        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }}>
+          <SessionBox className="clickable" sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
             <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
             <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
               {session.speakers.map((speaker) => (
@@ -130,9 +127,7 @@ const SessionColumn: React.FC<{
           </SessionBox>
         </Link>
       ) : (
-        <SessionBox
-          sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}
-        >
+        <SessionBox sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
           <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
           <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
             {session.speakers.map((speaker) => (
@@ -273,7 +268,12 @@ export const SessionTimeTable: React.FC<SessionTimeTablePropType> = ErrorBoundar
                   return (
                     <SessionTableRow>
                       <SessionTableCell align="center" children={time} />
-                      <SessionColumn rowSpan={firstSessionInfo.rowSpan} colSpan={roomCount} session={firstSessionInfo.session} getSessionUrl={getSessionUrl} />
+                      <SessionColumn
+                        rowSpan={firstSessionInfo.rowSpan}
+                        colSpan={roomCount}
+                        session={firstSessionInfo.session}
+                        getSessionUrl={getSessionUrl}
+                      />
                     </SessionTableRow>
                   );
                 }

@@ -1,6 +1,6 @@
-import { Components } from "@frontend/common";
-import { useBackendClient, useSessionQuery } from "@frontend/common/src/hooks/useAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { CenteredPage, ErrorFallback, FallbackImage, LinkHandler, MDXRenderer } from "@frontend/common/components";
+import { useBackendClient, useSessionQuery } from "@frontend/common/hooks/useAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
@@ -22,12 +22,12 @@ type SimplifiedSpeakerSchema = {
 };
 
 const CenteredLoadingPage: React.FC = () => (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
-const StyledPresentationImage = styled(Components.FallbackImage)(({ theme }) => ({
+const StyledPresentationImage = styled(FallbackImage)(({ theme }) => ({
   maxWidth: "75%",
   maxHeight: "480px",
   aspectRatio: "1",
@@ -92,7 +92,7 @@ const ProfileImageStyle: React.CSSProperties = {
   objectFit: "cover",
 };
 
-const ProfileImage = styled(Components.FallbackImage)(ProfileImageStyle);
+const ProfileImage = styled(FallbackImage)(ProfileImageStyle);
 
 const ProfileImageErrorFallback: React.FC = () => (
   <Stack alignItems="center" justifyContent="center" sx={{ ...ProfileImageStyle }}>
@@ -111,9 +111,7 @@ const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = 
         <Stack alignItems="flex-start" justifyContent="center" sx={{ flexGrow: 1 }}>
           <Typography variant="h4" fontWeight="700" fontSize="2rem" children={speaker.nickname} />
           {speaker.biography ? (
-            <BiographyBox
-              children={<Components.MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />}
-            />
+            <BiographyBox children={<MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />} />
           ) : (
             <>
               <br />
@@ -147,7 +145,7 @@ const PresentationImageFallback: React.FC<{ language: "ko" | "en" }> = ({ langua
 };
 
 export const PresentationDetailPage: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, setAppContext } = useAppContext();
@@ -250,7 +248,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
               <TableRow>
                 <HeaderTableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
                 <TableCell sx={(theme) => ({ color: theme.palette.primary.main, textDecoration: "underline" })}>
-                  <Components.LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />
+                  <LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />
                 </TableCell>
               </TableRow>
             ) : null}
@@ -264,12 +262,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
           />
         )}
         <DescriptionBox>
-          <Components.MDXRenderer
-            text={presentation.description || descriptionFallback}
-            format="md"
-            baseUrl={baseUrl}
-            mdxComponents={mdxComponents}
-          />
+          <MDXRenderer text={presentation.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </DescriptionBox>
         <Divider flexItem />
         {presentation.speakers && (

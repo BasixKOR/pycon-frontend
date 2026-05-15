@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useBackendAdminClient, useCreateMutation, useListQuery, useRenderTemplateMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { Fieldset } from "@frontend/common/components";
+import { useBackendAdminClient, useCreateMutation, useListQuery, useRenderTemplateMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, Delete, Send, Visibility } from "@mui/icons-material";
 import {
   Box,
@@ -161,7 +161,7 @@ const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames
             fullWidth
           />
           {perRecipientVarNames.length > 0 && (
-            <Components.Fieldset legend="템플릿 변수">
+            <Fieldset legend="템플릿 변수">
               <Stack spacing={1}>
                 {perRecipientVarNames.map((varName) => (
                   <TemplateVariableField
@@ -172,7 +172,7 @@ const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames
                   />
                 ))}
               </Stack>
-            </Components.Fieldset>
+            </Fieldset>
           )}
           <Stack direction="row" justifyContent="flex-end" spacing={1}>
             {onPreview && (
@@ -353,7 +353,7 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
                       helperText={selectedTemplate ? "선택된 템플릿의 sent_from 값을 사용합니다." : sentFromError || undefined}
                       fullWidth
                     />
-                    <Components.Fieldset legend="템플릿 변수">
+                    <Fieldset legend="템플릿 변수">
                       {templateVariables.map((varName) => {
                         const isAllRecipientsForbidden = NotAppliableToAllRecipientsFieldList.includes(varName);
                         const globalChecked = isGlobalVar(varName);
@@ -378,7 +378,7 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
                           </React.Fragment>
                         );
                       })}
-                    </Components.Fieldset>
+                    </Fieldset>
                   </>
                 )}
               </Stack>

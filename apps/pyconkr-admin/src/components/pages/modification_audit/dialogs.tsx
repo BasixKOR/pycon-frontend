@@ -1,6 +1,6 @@
-import { Components } from "@frontend/common";
-import { useApproveModificationAuditMutation, useBackendAdminClient, useRejectModificationAuditMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { Fieldset } from "@frontend/common/components";
+import { useApproveModificationAuditMutation, useBackendAdminClient, useRejectModificationAuditMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -85,9 +85,9 @@ export const RejectSubmitConfirmDialog: React.FC<SubmitConfirmDialogProps> = ({ 
           <br />
           반려 후에는 다시 승인할 수 없습니다!
         </Typography>
-        <Components.Fieldset legend="반려 사유 (선택)">
+        <Fieldset legend="반려 사유 (선택)">
           <TextField fullWidth multiline minRows={4} inputRef={inputRef} label="반려 사유" />
-        </Components.Fieldset>
+        </Fieldset>
       </DialogContent>
       <DialogActions>
         <Button loading={rejectModificationAuditMutation.isPending} onClick={onClose} color="error" children="취소" />

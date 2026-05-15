@@ -1,4 +1,4 @@
-import * as Common from "@frontend/common";
+import { OneDetailsOpener, PrimaryStyledDetails } from "@frontend/common/components/mdx_components";
 import { AccordionProps, Backdrop, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,15 +9,15 @@ import { useNavigate } from "react-router-dom";
 import * as R from "remeda";
 
 import { ShopAPIClientError } from "../../apis/client";
-import ShopHooks from "../../hooks";
-import ShopSchemas from "../../schemas";
-import ShopUtils from "../../utils";
-import CommonComponents from "../common";
+import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "../../hooks";
+import type { CustomerInfo, Order, OrderProductItem } from "../../schemas";
+import { startPortOnePurchase } from "../../utils";
+import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "../common";
 
 const CartItem: React.FC<
   Omit<AccordionProps, "children"> & {
     language: "ko" | "en";
-    cartProdRel: ShopSchemas.OrderProductItem;
+    cartProdRel: OrderProductItem;
     removeItemFromCartFunc: (cartProductId: string) => void;
     disabled?: boolean;
   }
@@ -31,7 +31,7 @@ const CartItem: React.FC<
   const removeFromCartStr = language === "ko" ? "장바구니에서 상품 삭제" : "Remove from Cart";
 
   return (
-    <Common.Components.MDX.PrimaryStyledDetails
+    <PrimaryStyledDetails
       {...props}
       summary={cartProdRel.product.name}
       actions={[
@@ -46,7 +46,7 @@ const CartItem: React.FC<
     >
       <Stack spacing={2} sx={{ width: "100%" }}>
         {cartProdRel.options.map((optionRel) => (
-          <CommonComponents.OrderProductRelationOptionInput
+          <OrderProductRelationOptionInput
             key={optionRel.product_option_group.id + (optionRel.product_option?.id || "")}
             optionRel={optionRel}
             disabled
@@ -59,9 +59,9 @@ const CartItem: React.FC<
       <Divider />
       <br />
       <Typography variant="h6" sx={{ textAlign: "end" }}>
-        {productPriceStr}: <CommonComponents.PriceDisplay price={cartProdRel.price + cartProdRel.donation_price} />
+        {productPriceStr}: <PriceDisplay price={cartProdRel.price + cartProdRel.donation_price} />
       </Typography>
-    </Common.Components.MDX.PrimaryStyledDetails>
+    </PrimaryStyledDetails>
   );
 };
 
@@ -73,10 +73,10 @@ type CartStatusStateType = {
 export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { language, shopImpAccountId } = ShopHooks.useShopContext();
-  const shopAPIClient = ShopHooks.useShopClient();
-  const cartOrderStartMutation = ShopHooks.usePrepareCartOrderMutation(shopAPIClient);
-  const removeItemFromCartMutation = ShopHooks.useRemoveItemFromCartMutation(shopAPIClient);
+  const { language, shopImpAccountId } = useShopContext();
+  const shopAPIClient = useShopClient();
+  const cartOrderStartMutation = usePrepareCartOrderMutation(shopAPIClient);
+  const removeItemFromCartMutation = useRemoveItemFromCartMutation(shopAPIClient);
   const [state, setState] = React.useState<CartStatusStateType>({
     openDialog: false,
     openBackdrop: false,
@@ -114,12 +114,12 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
   const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
   const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
 
-  const onFormSubmit = (formData: ShopSchemas.CustomerInfo) => {
+  const onFormSubmit = (formData: CustomerInfo) => {
     closeDialog();
     openBackdrop();
     cartOrderStartMutation.mutate(formData, {
-      onSuccess: (order: ShopSchemas.Order) => {
-        ShopUtils.startPortOnePurchase(
+      onSuccess: (order: Order) => {
+        startPortOnePurchase(
           shopImpAccountId,
           order,
           () => {
@@ -142,7 +142,7 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
   const disabled = removeItemFromCartMutation.isPending || cartOrderStartMutation.isPending;
 
   const WrappedShopCartList: React.FC = () => {
-    const { data } = ShopHooks.useCart(shopAPIClient);
+    const { data } = useCart(shopAPIClient);
 
     return !R.isArray(data.products) || data.products.length === 0 ? (
       <Typography variant="body1" color="error">
@@ -151,23 +151,18 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
     ) : (
       <>
         <Backdrop sx={(theme) => ({ zIndex: theme.zIndex.drawer + 1 })} open={state.openBackdrop} onClick={() => {}} />
-        <CommonComponents.CustomerInfoFormDialog
-          open={state.openDialog}
-          closeFunc={closeDialog}
-          onSubmit={onFormSubmit}
-          defaultValue={data.customer_info}
-        />
+        <CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} defaultValue={data.customer_info} />
         <Stack spacing={2}>
-          <Common.Components.MDX.OneDetailsOpener>
+          <OneDetailsOpener>
             {data.products.map((prodRel) => (
               <CartItem language={language} key={prodRel.id} cartProdRel={prodRel} disabled={disabled} removeItemFromCartFunc={removeItemFromCart} />
             ))}
-          </Common.Components.MDX.OneDetailsOpener>
+          </OneDetailsOpener>
         </Stack>
         <br />
         <Divider />
         <Typography variant="h6" sx={{ textAlign: "end" }}>
-          {totalPriceStr}: <CommonComponents.PriceDisplay price={data.first_paid_price} />
+          {totalPriceStr}: <PriceDisplay price={data.first_paid_price} />
         </Typography>
         <Button variant="contained" color="secondary" onClick={openDialog} disabled={disabled}>
           {orderCartStr}
@@ -177,12 +172,12 @@ export const CartStatus: React.FC = Suspense.with({ fallback: <CircularProgress 
   };
 
   return (
-    <CommonComponents.SignInGuard>
+    <SignInGuard>
       <ErrorBoundary fallback={errorWhileLoadingCartStr}>
         <Suspense fallback={<CircularProgress />}>
           <WrappedShopCartList />
         </Suspense>
       </ErrorBoundary>
-    </CommonComponents.SignInGuard>
+    </SignInGuard>
   );
 });

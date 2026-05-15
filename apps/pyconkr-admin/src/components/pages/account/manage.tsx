@@ -1,6 +1,6 @@
-import { me } from "@frontend/common/src/apis/admin_api";
-import { useBackendAdminClient, useChangePasswordMutation, useSignOutMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { getFormValue, isFormValid } from "@frontend/common/src/utils";
+import { me } from "@frontend/common/apis/admin_api";
+import { useBackendAdminClient, useChangePasswordMutation, useSignOutMutation } from "@frontend/common/hooks/useAdminAPI";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Logout } from "@mui/icons-material";
 import { Button, Stack, Tab, Tabs, TextField, Typography } from "@mui/material";
 import * as React from "react";

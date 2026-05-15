@@ -1,6 +1,6 @@
-import { useChangePasswordMutation, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { getFormValue, isFormValid } from "@frontend/common/src/utils";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useChangePasswordMutation, useParticipantPortalClient } from "@frontend/common/hooks/useParticipantPortalAPI";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";

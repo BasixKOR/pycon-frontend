@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
+import { PythonKorea } from "@frontend/common/components";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Box, Button, Chip, Drawer, IconButton, Stack, styled } from "@mui/material";
 import * as React from "react";
@@ -150,7 +150,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <HamburgerButton isOpen={true} onClick={handleClose} />
           <Link to="/" onClick={handleClose} style={{ textDecoration: "none" }}>
             <Stack direction="row" alignItems="center" spacing={0.5}>
-              <Components.PythonKorea style={{ width: 28, height: 28 }} />
+              <PythonKorea style={{ width: 28, height: 28 }} />
               <HeaderTitle>파이콘 한국 2026</HeaderTitle>
             </Stack>
           </Link>

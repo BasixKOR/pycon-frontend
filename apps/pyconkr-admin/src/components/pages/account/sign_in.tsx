@@ -1,6 +1,6 @@
-import { useBackendAdminClient, useSignInMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { getFormValue } from "@frontend/common/src/utils";
-import { me } from "@frontend/common/src/apis/admin_api";
+import { me } from "@frontend/common/apis/admin_api";
+import { useBackendAdminClient, useSignInMutation } from "@frontend/common/hooks/useAdminAPI";
+import { getFormValue } from "@frontend/common/utils";
 import { Login } from "@mui/icons-material";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import * as React from "react";

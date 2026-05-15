@@ -4,8 +4,8 @@ import {
   useListQuery,
   useRemovePreparedMutation,
   useUpdatePreparedMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
-import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/src/utils";
+} from "@frontend/common/hooks/useAdminAPI";
+import { buildFlatSiteMap, buildNestedSiteMap } from "@frontend/common/utils";
 import { Add, Delete, Edit, Save } from "@mui/icons-material";
 import {
   Box,

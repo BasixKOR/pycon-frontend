@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useResetUserPasswordMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useResetUserPasswordMutation } from "@frontend/common/hooks/useAdminAPI";
 import { KeyOff } from "@mui/icons-material";
 import { Button, ButtonProps, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

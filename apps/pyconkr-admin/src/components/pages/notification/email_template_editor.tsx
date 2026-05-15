@@ -4,7 +4,7 @@ import {
   useRenderTemplateMutation,
   useRetrieveQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, Save, Visibility } from "@mui/icons-material";
 import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

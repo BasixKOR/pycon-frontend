@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useParticipantPortalClient, usePublicFilesQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { ErrorFallback, FallbackImage } from "@frontend/common/components";
+import { useParticipantPortalClient, usePublicFilesQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { PermMedia } from "@mui/icons-material";
 import { Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectProps, Stack, styled, useMediaQuery } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -20,14 +20,14 @@ type PublicFileSelectorState = {
   openUploadDialog?: boolean;
 };
 
-const ScaledFallbackImage = styled(Components.FallbackImage)({
+const ScaledFallbackImage = styled(FallbackImage)({
   width: "100%",
   maxWidth: "20rem",
   objectFit: "contain",
 });
 
 export const PublicFileSelector: React.FC<PublicFileSelectorProps> = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ value, onChange, disabled, ...props }) => {
     const selectInputRef = React.useRef<HTMLSelectElement | null>(null);
     const [selectorState, setSelectorState] = React.useState<PublicFileSelectorState>({ value });

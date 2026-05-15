@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useRenderTemplateMutation, useRetrieveQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useRenderTemplateMutation, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Close, Visibility } from "@mui/icons-material";
 import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

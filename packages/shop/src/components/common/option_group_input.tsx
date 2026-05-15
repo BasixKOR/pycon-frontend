@@ -5,9 +5,9 @@ import { Control, Controller, FieldValues } from "react-hook-form";
 import * as R from "remeda";
 
 import { PriceDisplay } from "./price_display";
-import ShopHooks from "../../hooks";
-import ShopSchemas from "../../schemas";
-import ShopAPIUtil from "../../utils";
+import { useShopContext } from "../../hooks";
+import type { Option, OrderProductItem } from "../../schemas";
+import { getCustomResponsePattern, isOrderProductOptionModifiable } from "../../utils";
 
 type CommonOptionGroupType = {
   id: string;
@@ -23,7 +23,7 @@ type CustomResponseOptionGroupType = CommonOptionGroupType & {
 };
 type OptionGroupType = SelectableOptionGroupType | CustomResponseOptionGroupType;
 
-type SimplifiedOption = Pick<ShopSchemas.Option, "id" | "name" | "additional_price" | "leftover_stock">;
+type SimplifiedOption = Pick<Option, "id" | "name" | "additional_price" | "leftover_stock">;
 
 const isFilledString = (str: unknown): str is string => R.isString(str) && !R.isEmpty(str);
 
@@ -81,7 +81,7 @@ const CustomResponseOptionGroupInput: React.FC<{
     <Controller
       control={control}
       name={optionGroup.id}
-      rules={{ pattern: ShopAPIUtil.getCustomResponsePattern(optionGroup), required: true }}
+      rules={{ pattern: getCustomResponsePattern(optionGroup), required: true }}
       disabled={disabled}
       defaultValue={defaultValue || ""}
       render={({ field, formState: { errors } }) => {
@@ -126,12 +126,12 @@ export const OptionGroupInput: React.FC<{
   );
 
 export const OrderProductRelationOptionInput: React.FC<{
-  optionRel: ShopSchemas.OrderProductItem["options"][number];
+  optionRel: OrderProductItem["options"][number];
   disabled?: boolean;
   disabledReason?: string;
   control: Control<FieldValues, unknown, FieldValues>;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ optionRel, disabled, disabledReason, control }) => {
-  const { language } = ShopHooks.useShopContext();
+  const { language } = useShopContext();
   let defaultValue: string | null = null;
   let guessedDisabledReason: string | undefined = undefined;
   let dummyOptions: {
@@ -164,7 +164,7 @@ export const OrderProductRelationOptionInput: React.FC<{
       optionGroup={optionRel.product_option_group}
       options={dummyOptions}
       defaultValue={defaultValue || undefined}
-      disabled={disabled || !ShopAPIUtil.isOrderProductOptionModifiable(optionRel)}
+      disabled={disabled || !isOrderProductOptionModifiable(optionRel)}
       disabledReason={disabledReason || guessedDisabledReason}
       control={control}
     />

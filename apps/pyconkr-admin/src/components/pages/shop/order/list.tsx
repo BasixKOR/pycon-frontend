@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListPaginatedQuery, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import {
   Chip,
   CircularProgress,

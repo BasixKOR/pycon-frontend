@@ -1,4 +1,4 @@
-import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { AccountCircle } from "@mui/icons-material";
 import { AppBar, ButtonBase, CircularProgress, IconButton, Menu, MenuItem, Stack, styled, Toolbar, Tooltip, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

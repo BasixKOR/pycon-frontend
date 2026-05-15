@@ -1,7 +1,7 @@
-import { useParticipantPortalClient, useSignInMutation, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { useEmail } from "@frontend/common/src/hooks/useEmail";
-import { getFormValue, isFormValid } from "@frontend/common/src/utils";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useEmail } from "@frontend/common/hooks/useEmail";
+import { useParticipantPortalClient, useSignInMutation, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, Stack, TextField, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import * as React from "react";
@@ -17,6 +17,7 @@ export const SignInPage: React.FC = () => {
   const { language } = useAppContext();
   const participantPortalClient = useParticipantPortalClient();
   const { data } = useSignedInUserQuery(participantPortalClient);
+  const signInMutation = useSignInMutation(participantPortalClient);
   if (data) return <Navigate to="/" replace />;
 
   const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
@@ -47,7 +48,6 @@ export const SignInPage: React.FC = () => {
       </>
     );
 
-  const signInMutation = useSignInMutation(participantPortalClient);
   const signIn = () => {
     if (!isFormValid(formRef.current)) return;
 

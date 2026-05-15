@@ -1,6 +1,6 @@
-import { Components } from "@frontend/common";
-import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MDXEditor, MDXRenderer } from "@frontend/common/components";
+import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
 import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -46,14 +46,14 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
   return (
     <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <Stack sx={{ flexGrow: 1, width: "50%" }}>
-        <Components.MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
+        <MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
         <Button size="small" onClick={onInsertNewSection} startIcon={<Add />}>
           여기에 섹션 추가
         </Button>
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
         <ThemeProvider theme={muiTheme}>
-          <Components.MDXRenderer text={defaultValue || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={defaultValue || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </ThemeProvider>
       </Box>
     </Stack>

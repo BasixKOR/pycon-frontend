@@ -1,10 +1,10 @@
-import { useBackendClient, useFlattenSiteMapQuery, useSponsorQuery } from "@frontend/common/src/hooks/useAPI";
-import { buildNestedSiteMap } from "@frontend/common/src/utils";
+import { useBackendClient, useFlattenSiteMapQuery, useSponsorQuery } from "@frontend/common/hooks/useAPI";
+import * as BackendAPISchemas from "@frontend/common/schemas/backendAPI";
+import { buildNestedSiteMap } from "@frontend/common/utils";
 import * as React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import * as R from "remeda";
 
-import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
 import MainLayout from "./components/layout/index.tsx";
 import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
 import { PresentationDetailPage } from "./components/pages/presentation_detail.tsx";

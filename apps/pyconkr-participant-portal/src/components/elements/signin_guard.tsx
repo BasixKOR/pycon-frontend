@@ -1,4 +1,4 @@
-import { useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 import { Navigate } from "react-router-dom";

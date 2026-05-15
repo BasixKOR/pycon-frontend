@@ -1,4 +1,4 @@
-import { Components } from "@frontend/common";
+import { PrimaryStyledDetails, SecondaryStyledDetails } from "@frontend/common/components/mdx_components";
 import { Chip, Stack, Table, TableBody, TableCell, TableRow } from "@mui/material";
 import * as React from "react";
 
@@ -17,7 +17,7 @@ const HighlightedChip: React.FC<{ label: string }> = ({ label }) => (
 export const ComponentTestPage: React.FC = () => {
   return (
     <Stack direction="column" spacing={2} sx={{ p: 2 }}>
-      <Components.MDX.PrimaryStyledDetails summary="자가용 이용시">
+      <PrimaryStyledDetails summary="자가용 이용시">
         모든 자동차의 출입은 동국대 정문으로만 가능
         <Table>
           <TableBody>
@@ -47,9 +47,9 @@ export const ComponentTestPage: React.FC = () => {
             </TableRow>
           </TableBody>
         </Table>
-      </Components.MDX.PrimaryStyledDetails>
+      </PrimaryStyledDetails>
 
-      <Components.MDX.SecondaryStyledDetails summary="자가용 이용시">
+      <SecondaryStyledDetails summary="자가용 이용시">
         모든 자동차의 출입은 동국대 정문으로만 가능
         <Table>
           <TableBody>
@@ -79,7 +79,7 @@ export const ComponentTestPage: React.FC = () => {
             </TableRow>
           </TableBody>
         </Table>
-      </Components.MDX.SecondaryStyledDetails>
+      </SecondaryStyledDetails>
     </Stack>
   );
 };

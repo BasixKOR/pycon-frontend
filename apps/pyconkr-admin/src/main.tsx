@@ -1,6 +1,8 @@
-import { Components, Utils } from "@frontend/common";
-import type { ContextOptions } from "@frontend/common/src/contexts";
-import * as Shop from "@frontend/shop";
+import { CenteredPage, CommonContextProvider } from "@frontend/common/components";
+import type { ContextOptions } from "@frontend/common/contexts";
+import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
+import { ShopContextProvider } from "@frontend/shop/components/common";
+import { ContextOptions as ShopContextOptions } from "@frontend/shop/contexts";
 import { CircularProgress } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -49,7 +51,7 @@ const CommonOptions: ContextOptions = {
   mdxComponents: PyConKRMDXComponents,
 };
 
-const ShopOptions: Shop.Contexts.ContextOptions = {
+const ShopOptions: ShopContextOptions = {
   language: "ko",
   shopApiDomain: import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN,
   shopApiCSRFCookieName: import.meta.env.VITE_PYCONKR_SHOP_CSRF_COOKIE_NAME,
@@ -57,22 +59,22 @@ const ShopOptions: Shop.Contexts.ContextOptions = {
   shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
 
-Utils.registerChunkLoadErrorReloadHandler();
+registerChunkLoadErrorReloadHandler();
 
 ReactDom.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary fallback={<Components.CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</Components.CenteredPage>}>
+    <ErrorBoundary fallback={<CenteredPage>문제가 발생했습니다, 새로고침을 해주세요.</CenteredPage>}>
       <Suspense
         fallback={
-          <Components.CenteredPage>
+          <CenteredPage>
             <CircularProgress />
-          </Components.CenteredPage>
+          </CenteredPage>
         }
       >
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools buttonPosition="top-right" position="right" />
-          <Components.CommonContextProvider options={CommonOptions}>
-            <Shop.Components.Common.ShopContextProvider options={ShopOptions}>
+          <CommonContextProvider options={CommonOptions}>
+            <ShopContextProvider options={ShopOptions}>
               <SnackbarProvider>
                 <BrowserRouter>
                   <Routes>
@@ -86,8 +88,8 @@ ReactDom.createRoot(document.getElementById("root")!).render(
                   </Routes>
                 </BrowserRouter>
               </SnackbarProvider>
-            </Shop.Components.Common.ShopContextProvider>
-          </Components.CommonContextProvider>
+            </ShopContextProvider>
+          </CommonContextProvider>
         </QueryClientProvider>
       </Suspense>
     </ErrorBoundary>

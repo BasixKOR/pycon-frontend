@@ -1,5 +1,5 @@
-import { useParticipantPortalClient, useSignedInUserQuery, useUpdateMeMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useParticipantPortalClient, useSignedInUserQuery, useUpdateMeMutation } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Key, SendAndArchive } from "@mui/icons-material";
 import { Button, SelectChangeEvent, Stack } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";

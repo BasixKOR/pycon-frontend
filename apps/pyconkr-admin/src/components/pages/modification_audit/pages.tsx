@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useModificationAuditPreviewQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useModificationAuditPreviewQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Box, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
@@ -7,8 +7,8 @@ import { Navigate, useParams } from "react-router-dom";
 import { ModificationAuditProperties } from "./components";
 import { ApproveSubmitConfirmDialog, RejectSubmitConfirmDialog } from "./dialogs";
 import { SubModificationAuditPage } from "./sub_pages";
-import { ErrorFallback } from "../../elements/error_fallback";
 import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
+import { ErrorFallback } from "../../elements/error_fallback";
 
 type EditorStateType = { actionStatus?: "approve" | "reject" };
 

@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { retrieve } from "@frontend/common/src/apis/admin_api";
+import { retrieve } from "@frontend/common/apis/admin_api";
+import { LottieDebugPanel, MDXRenderer, MarkdownEditor } from "@frontend/common/components";
 import {
   useBackendAdminClient,
   useChoicesQuery,
@@ -7,13 +7,13 @@ import {
   useRemoveMutation,
   useSchemaQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+} from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import {
   filterPropertiesByLanguageInJsonSchema,
   filterReadOnlyPropertiesInJsonSchema,
   filterWritablePropertiesInJsonSchema,
-} from "@frontend/common/src/utils";
+} from "@frontend/common/utils";
 import { Add, Close, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
@@ -195,10 +195,10 @@ const MDEditorField: Field = ErrorBoundary.with({ fallback: ErrorFallback }, ({ 
       <Typography variant="subtitle2" component="legend" children={name} />
       <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
         <Box sx={{ width: "50%", maxWidth: "50%" }}>
-          <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
+          <MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
         </Box>
         <MDRendererContainer>
-          <Components.MDXRenderer text={valueState || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={valueState || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </MDRendererContainer>
       </Stack>
     </MUIStyledFieldset>
@@ -248,7 +248,7 @@ const ReadOnlyValueField: React.FC<{
         )}
         {fieldState.blob.type.startsWith("application/json") && fieldState.blobText && (
           <Box sx={{ maxWidth: "600px", overflow: "auto" }}>
-            <Components.LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
+            <LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
           </Box>
         )}
         <a href={value as string}>링크</a>

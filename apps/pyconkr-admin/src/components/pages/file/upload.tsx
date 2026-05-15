@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useUploadPublicFileMutation } from "@frontend/common/hooks/useAdminAPI";
 import { CloudUpload, PermMedia } from "@mui/icons-material";
 import { Box, Button, Input, Stack, Typography } from "@mui/material";
 import * as React from "react";

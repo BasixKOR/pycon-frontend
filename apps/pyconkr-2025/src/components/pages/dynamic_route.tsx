@@ -1,8 +1,8 @@
-import { Components } from "@frontend/common";
-import { useBackendClient, usePageQuery } from "@frontend/common/src/hooks/useAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
-import { parseCss } from "@frontend/common/src/utils";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { CenteredPage, ErrorFallback, MDXRenderer } from "@frontend/common/components";
+import { useBackendClient, usePageQuery } from "@frontend/common/hooks/useAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { parseCss } from "@frontend/common/utils";
 import { CircularProgress, Stack, Theme } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -62,9 +62,9 @@ const LoginRequired: React.FC = () => <>401 Login Required</>;
 const PermissionDenied: React.FC = () => <>403 Permission Denied</>;
 const PageNotFound: React.FC = () => <>404 Not Found</>;
 const CenteredLoadingPage: React.FC = () => (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
 const throwPageNotFound: (message: string) => never = (message) => {
@@ -85,10 +85,10 @@ const RouteErrorFallback: React.FC<{ error: Error; reset: () => void }> = ({ err
       case 404:
         return <PageNotFound />;
       default:
-        return <Components.ErrorFallback error={error} reset={reset} />;
+        return <ErrorFallback error={error} reset={reset} />;
     }
   }
-  return <Components.ErrorFallback error={error} reset={reset} />;
+  return <ErrorFallback error={error} reset={reset} />;
 };
 
 const WaitedCenteredLoadingPage: React.FC = Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
@@ -122,7 +122,7 @@ const InnerPageRenderer: React.FC<{ id: string }> = Suspense.with({ fallback: <C
     <Stack sx={initialPageStyle(parseCss(data.css))}>
       {data.sections.map((s) => (
         <Stack sx={initialSectionStyle(parseCss(s.css))} key={s.id}>
-          <Components.MDXRenderer text={s.body} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={s.body} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </Stack>
       ))}
     </Stack>

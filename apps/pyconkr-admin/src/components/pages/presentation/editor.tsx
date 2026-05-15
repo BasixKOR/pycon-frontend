@@ -1,4 +1,4 @@
-import { Components } from "@frontend/common";
+import { Fieldset, MDXRenderer, MarkdownEditor } from "@frontend/common/components";
 import {
   useBackendAdminClient,
   useChoicesQuery,
@@ -7,8 +7,8 @@ import {
   useRemovePreparedMutation,
   useSchemaQuery,
   useUpdatePreparedMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+} from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Autocomplete, Box, Button, Card, CardContent, CircularProgress, Stack, styled, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
@@ -155,10 +155,10 @@ const PresentationSpeakerForm: React.FC<PresentationSpeakerFormPropType> = ({ di
                 <Typography variant="subtitle2" component="legend" children="발표자 소개" />
                 <Stack direction="row" spacing={2}>
                   <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                    <Components.MarkdownEditor disabled={disabled} value={speaker[bioField]} name={bioField} onChange={onSpeakerBioChange} />
+                    <MarkdownEditor disabled={disabled} value={speaker[bioField]} name={bioField} onChange={onSpeakerBioChange} />
                   </Box>
                   <MDXRendererContainer>
-                    <Components.MDXRenderer text={speaker[bioField]} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+                    <MDXRenderer text={speaker[bioField]} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
                   </MDXRendererContainer>
                 </Stack>
               </MUIStyledFieldset>
@@ -303,7 +303,10 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
     const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     React.useMemo(() => {
-      const mergeChoices = (schema: { schema?: { properties?: Record<string, { oneOf?: enumItemType[] }> } }, choices: Record<string, enumItemType[]>) => {
+      const mergeChoices = (
+        schema: { schema?: { properties?: Record<string, { oneOf?: enumItemType[] }> } },
+        choices: Record<string, enumItemType[]>
+      ) => {
         if (!schema?.schema?.properties || !choices) return;
         for (const [fieldName, items] of Object.entries(choices)) {
           const prop = schema.schema.properties[fieldName];
@@ -386,7 +389,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
       <AdminEditor app="event" resource="presentation" id={id} afterSubmit={onPresentationSubmit}>
         {id ? (
           <Stack sx={{ mb: 2 }} spacing={2}>
-            <Components.Fieldset legend="스케줄 정보">
+            <Fieldset legend="스케줄 정보">
               <Typography variant="h6">스케줄 정보</Typography>
               <Stack spacing={2}>
                 {editorState.schedules.map((s) => (
@@ -400,8 +403,8 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
                 ))}
                 <Button variant="outlined" onClick={onScheduleCreate} children="스케줄 추가" />
               </Stack>
-            </Components.Fieldset>
-            <Components.Fieldset legend="발표자 정보">
+            </Fieldset>
+            <Fieldset legend="발표자 정보">
               <Typography variant="h6">발표자 정보</Typography>
               <Stack spacing={2}>
                 {editorState.speakers.map((s) => (
@@ -415,7 +418,7 @@ export const AdminPresentationEditor: React.FC = ErrorBoundary.with(
                 ))}
                 <Button variant="outlined" onClick={onSpeakerCreate} children="발표자 추가" />
               </Stack>
-            </Components.Fieldset>
+            </Fieldset>
           </Stack>
         ) : (
           <Stack>

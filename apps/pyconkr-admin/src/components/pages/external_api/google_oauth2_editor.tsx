@@ -1,5 +1,5 @@
-import { useBackendAdminClient, useIssueGoogleOAuth2AccessTokenMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { GoogleOAuth2AccessTokenResponseSchema } from "@frontend/common/src/schemas/backendAdminAPI";
+import { useBackendAdminClient, useIssueGoogleOAuth2AccessTokenMutation } from "@frontend/common/hooks/useAdminAPI";
+import { GoogleOAuth2AccessTokenResponseSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { VpnKey } from "@mui/icons-material";
 import { Box, Button, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import * as React from "react";

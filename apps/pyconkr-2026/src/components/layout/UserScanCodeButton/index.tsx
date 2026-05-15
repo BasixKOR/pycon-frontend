@@ -1,4 +1,4 @@
-import * as Shop from "@frontend/shop";
+import { useShopClient, useUserInfo } from "@frontend/shop/hooks";
 import { QrCode2 } from "@mui/icons-material";
 import { Button, IconButton, IconButtonProps } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -9,8 +9,8 @@ import { useAppContext } from "../../../contexts/app_context";
 export const ScanCodeIconButton: React.FC<{ sx?: IconButtonProps["sx"] }> = Suspense.with(
   { fallback: <React.Fragment /> },
   ErrorBoundary.with({ fallback: <React.Fragment /> }, ({ sx }) => {
-    const shopAPIClient = Shop.Hooks.useShopClient();
-    const { data } = Shop.Hooks.useUserInfo(shopAPIClient);
+    const shopAPIClient = useShopClient();
+    const { data } = useUserInfo(shopAPIClient);
 
     const iconBtnStyle: IconButtonProps["sx"] = (theme) => ({
       color: theme.palette.primary.nonFocus,
@@ -31,8 +31,8 @@ export const ScanCodeButton: React.FC = Suspense.with(
   { fallback: null },
   ErrorBoundary.with({ fallback: null }, () => {
     const { language } = useAppContext();
-    const shopAPIClient = Shop.Hooks.useShopClient();
-    const { data } = Shop.Hooks.useUserInfo(shopAPIClient);
+    const shopAPIClient = useShopClient();
+    const { data } = useUserInfo(shopAPIClient);
 
     const buttonText = language === "ko" ? "등록 코드" : "Entrance QR Code";
 

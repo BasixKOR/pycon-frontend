@@ -1,12 +1,10 @@
 import * as React from "react";
 
-import ShopContext from "../../contexts";
+import { context, type ContextOptions } from "../../contexts";
 
 type ShopContextProps = {
-  options: ShopContext.ContextOptions;
+  options: ContextOptions;
   children: React.ReactNode;
 };
 
-export const ShopContextProvider: React.FC<ShopContextProps> = (props) => (
-  <ShopContext.context.Provider value={props.options}>{props.children}</ShopContext.context.Provider>
-);
+export const ShopContextProvider: React.FC<ShopContextProps> = (props) => <context.Provider value={props.options}>{props.children}</context.Provider>;

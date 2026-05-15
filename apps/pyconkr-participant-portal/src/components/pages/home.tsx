@@ -1,5 +1,10 @@
-import { Components } from "@frontend/common";
-import { useListPresentationsQuery, useModificationAuditsQuery, useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { FallbackImage } from "@frontend/common/components";
+import {
+  useListPresentationsQuery,
+  useModificationAuditsQuery,
+  useParticipantPortalClient,
+  useSignedInUserQuery,
+} from "@frontend/common/hooks/useParticipantPortalAPI";
 import {
   Button,
   FormControlLabel,
@@ -70,7 +75,7 @@ const ProfileImageStyle: React.CSSProperties = {
   textAlign: "center",
 };
 
-const ProfileImage = styled(Components.FallbackImage)(ProfileImageStyle);
+const ProfileImage = styled(FallbackImage)(ProfileImageStyle);
 
 const ProfileImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
   const noProfileImageText = language === "ko" ? "프로필 이미지가 없어요." : "No profile image.";

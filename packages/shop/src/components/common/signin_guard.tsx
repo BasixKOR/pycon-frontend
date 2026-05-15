@@ -2,7 +2,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import * as React from "react";
 
-import ShopHooks from "../../hooks";
+import { useShopClient, useShopContext, useUserStatus } from "../../hooks";
 
 type SignInGuardProps = {
   children: React.ReactNode;
@@ -10,9 +10,9 @@ type SignInGuardProps = {
 };
 
 export const SignInGuard: React.FC<SignInGuardProps> = Suspense.with({ fallback: <CircularProgress /> }, ({ children, fallback }) => {
-  const { language } = ShopHooks.useShopContext();
-  const shopAPIClient = ShopHooks.useShopClient();
-  const { data } = ShopHooks.useUserStatus(shopAPIClient);
+  const { language } = useShopContext();
+  const shopAPIClient = useShopClient();
+  const { data } = useUserStatus(shopAPIClient);
 
   const errorFallbackStr =
     language === "ko"
