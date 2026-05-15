@@ -1,0 +1,34 @@
+import * as React from "react";
+import { Link } from "react-router-dom";
+
+import { AdminList, AdminListColumn } from "../../../layouts/admin_list";
+
+const columns: AdminListColumn[] = [
+  {
+    field: "name",
+    header: "이름",
+    width: "40%",
+    render: (row) => {
+      const id = row.id as string;
+      const name = String(row.name ?? "");
+      return <Link to={`/shop/category-groups/${id}`}>{name}</Link>;
+    },
+  },
+  {
+    field: "priority",
+    header: "우선순위",
+    align: "right",
+    render: (row) => String(row.priority ?? 0),
+  },
+  {
+    field: "categories",
+    header: "하위 카테고리 수",
+    align: "right",
+    render: (row) => {
+      const cats = row.categories;
+      return Array.isArray(cats) ? cats.length.toLocaleString() : "0";
+    },
+  },
+];
+
+export const ShopCategoryGroupListPage: React.FC = () => <AdminList app="shop" resource="category-groups" columns={columns} enableRowActions />;

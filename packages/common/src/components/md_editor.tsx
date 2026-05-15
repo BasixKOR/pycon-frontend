@@ -59,7 +59,7 @@ export const MarkdownEditor: React.FC<MDEditorProps> = ({ disabled, name, defaul
         commands.divider,
         commands.help,
       ]}
-      extraCommands={extraCommands}
+      extraCommands={extraCommands ?? []}
       style={TextEditorStyle}
     />
   </Stack>
