@@ -202,7 +202,8 @@ const HeaderContainer = styled("header")(({ theme }) => ({
   zIndex: theme.zIndex.appBar,
   transition: "background-color 0.3s ease-in-out",
   "& .header-title-text": {
-    opacity: 0,
+    // TODO: FIXME: HeaderInner의 좌측 정렬 모드를 중앙 정렬("1fr auto 1fr")로 되돌릴 때 opacity를 다시 0으로 변경할 것 (hover 시에만 노출되는 원래 동작 복귀)
+    opacity: 1,
     transition: "opacity 0.2s ease",
   },
   "&:hover .header-title-text": {
@@ -212,7 +213,9 @@ const HeaderContainer = styled("header")(({ theme }) => ({
 
 const HeaderInner = styled("div")(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "1fr auto 1fr",
+  // TODO: FIXME: sitemap 항목이 충분히 등록되면 gridTemplateColumns를 "1fr auto 1fr"로 되돌려 중앙 정렬로 복귀하고, columnGap도 제거할 것
+  gridTemplateColumns: "auto auto 1fr",
+  columnGap: theme.spacing(2),
   alignItems: "center",
   width: "100%",
   height: "100%",
