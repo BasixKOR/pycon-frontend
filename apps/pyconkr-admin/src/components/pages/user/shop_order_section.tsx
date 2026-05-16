@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Alert, Chip, CircularProgress, Divider, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC } from "react";
@@ -24,8 +24,8 @@ const InnerShopOrderSection: FC<{ userId: string }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ userId }) => {
     const client = useBackendAdminClient();
-    const ordersQuery = useListQuery<OrderListRow>(client, "shop", "orders", { user_id: userId });
-    const orders = ordersQuery.data ?? [];
+    const ordersQuery = useListPaginatedQuery<OrderListRow>(client, "shop", "orders", { user_id: userId });
+    const orders = ordersQuery.data?.results ?? [];
 
     return (
       <Stack spacing={2} sx={{ mt: 4 }}>
