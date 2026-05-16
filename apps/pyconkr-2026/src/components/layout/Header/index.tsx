@@ -50,7 +50,13 @@ export default function Header() {
   const headerStyle: SxProps<Theme> = shouldShowTitleBanner ? {} : { backgroundColor: "transparent" };
 
   return (
-    <Box sx={{ position: "relative" }} onMouseLeave={resetDepths}>
+    <Box
+      sx={{
+        position: "relative",
+        "&:has(.nav-dropdown:hover) .header-title-text": { opacity: 1 },
+      }}
+      onMouseLeave={resetDepths}
+    >
       <HeaderContainer sx={headerStyle}>
         <HeaderInner>
           <NavSideElementContainer>
@@ -93,7 +99,7 @@ export default function Header() {
       </HeaderContainer>
 
       {navState.depth1 && (
-        <NavDropdownOuter>
+        <NavDropdownOuter className="nav-dropdown">
           <NavDropdownInner>
             <Typography variant="h2" sx={{ fontSize: "1.5rem", fontWeight: 700, color: "#ededde" }}>
               {navState.depth1.name}
