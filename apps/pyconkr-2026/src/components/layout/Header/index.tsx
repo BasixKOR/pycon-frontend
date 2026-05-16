@@ -211,9 +211,8 @@ const HeaderContainer = styled("header")(({ theme }) => ({
 }));
 
 const HeaderInner = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
+  display: "grid",
+  gridTemplateColumns: "1fr auto 1fr",
   alignItems: "center",
   width: "100%",
   height: "100%",
@@ -232,7 +231,10 @@ const NavButton = styled(Button)<{ isActive?: boolean }>(({ isActive }) => ({
   "&:hover": { color: "#ed5ebd", backgroundColor: "transparent" },
 }));
 
-const NavSideElementContainer = styled(Stack)();
+const NavSideElementContainer = styled(Stack)({
+  flexDirection: "row",
+  alignItems: "center",
+});
 
 const NavDropdownOuter = styled(Stack)(({ theme }) => ({
   width: "100vw",
