@@ -396,8 +396,19 @@ export const RegisteredRoutes = {
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
   "/user/userext/:id": <AdminUserExtEditor />,
   "/allauth/social-app": <AdminList app="allauth" resource="social-app" hideCreatedAt hideUpdatedAt />,
-  "/allauth/social-account": <AdminList app="allauth" resource="social-account" hideCreatedAt hideUpdatedAt hideCreateNew />,
-  "/allauth/social-account/:id": <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable />,
+  "/allauth/social-account": (
+    <AdminList
+      app="allauth"
+      resource="social-account"
+      hideCreatedAt
+      hideUpdatedAt
+      hideCreateNew
+      filterChoicesFrom={{ user: { app: "allauth", resource: "email-address" } }}
+    />
+  ),
+  "/allauth/social-account/:id": (
+    <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
+  ),
   "/allauth/email-address": <AdminList app="allauth" resource="email-address" hideCreatedAt hideUpdatedAt />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,

@@ -1,10 +1,12 @@
 import {
   useBackendAdminClient,
+  useChoicesQueries,
   useChoicesQuery,
   useListQuery,
   useOpenApiSchemaQuery,
   useRemovePreparedMutation,
 } from "@frontend/common/hooks/useAdminAPI";
+import { ChoicesResponse } from "@frontend/common/schemas/backendAdminAPI";
 import { extractQueryParameters } from "@frontend/common/utils";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import { Box, Button, CircularProgress, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
@@ -32,6 +34,13 @@ export type AdminListColumn = {
   render?: (row: Record<string, unknown>) => ReactNode;
 };
 
+export type FilterChoicesSource = {
+  app: string;
+  resource: string;
+  /** Field name in the source resource's choices response. Defaults to the local field name (the map key). */
+  field?: string;
+};
+
 type AdminListProps = {
   app: string;
   resource: string;
@@ -41,13 +50,14 @@ type AdminListProps = {
   hideCreateNew?: boolean;
   columns?: AdminListColumn[];
   enableRowActions?: boolean;
+  filterChoicesFrom?: Record<string, FilterChoicesSource>;
 };
 
 const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
-    ({ app, resource, title, hideCreatedAt, hideUpdatedAt, hideCreateNew, columns, enableRowActions }) => {
+    ({ app, resource, title, hideCreatedAt, hideUpdatedAt, hideCreateNew, columns, enableRowActions, filterChoicesFrom }) => {
       const navigate = useNavigate();
 
       const [searchParams, setSearchParams] = useSearchParams();
@@ -60,6 +70,21 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
       const queryParameters = useMemo(() => extractQueryParameters(openApiSchemaQuery.data, app, resource), [openApiSchemaQuery.data, app, resource]);
 
       const choicesQuery = useChoicesQuery(backendAdminClient, app, resource);
+
+      const overrideEntries = useMemo(() => Object.entries(filterChoicesFrom ?? {}), [filterChoicesFrom]);
+      const overrideQueries = useChoicesQueries(
+        backendAdminClient,
+        overrideEntries.map(([, src]) => ({ app: src.app, resource: src.resource }))
+      );
+      const mergedChoices = useMemo<ChoicesResponse>(() => {
+        const merged: ChoicesResponse = { ...(choicesQuery.data ?? {}) };
+        overrideEntries.forEach(([localField, src], i) => {
+          const sourceField = src.field ?? localField;
+          const sourceChoices = overrideQueries[i]?.data?.[sourceField];
+          if (sourceChoices) merged[localField] = sourceChoices;
+        });
+        return merged;
+      }, [choicesQuery.data, overrideEntries, overrideQueries]);
 
       const removeMutation = useRemovePreparedMutation(backendAdminClient, app, resource);
 
@@ -89,7 +114,7 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
         <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
           <Typography variant="h5">{title ?? `${app.toUpperCase()} > ${resource.toUpperCase()} > 목록`}</Typography>
           <br />
-          <AdminListFilter parameters={queryParameters} values={filterParams} choices={choicesQuery.data} onApply={handleFilterApply} />
+          <AdminListFilter parameters={queryParameters} values={filterParams} choices={mergedChoices} onApply={handleFilterApply} />
           <Box>
             {!hideCreateNew && (
               <Button variant="contained" onClick={() => navigate(`/${app}/${resource}/create`)} startIcon={<Add />}>

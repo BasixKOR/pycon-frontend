@@ -58,10 +58,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { addProp, isArray, isNonNullish, isObjectType, isString } from "remeda";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { AutocompleteSelectWidget } from "@apps/pyconkr-admin/components/elements/autocomplete_select_widget";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
@@ -70,6 +71,10 @@ type onSubmitType = (data: Record<string, string>, event: FormEvent<unknown>) =>
 
 type AppResourceType = { app: string; resource: string };
 type AppResourceIdType = AppResourceType & { id?: string };
+export type FieldLinkTarget = {
+  app: string;
+  resource: string;
+};
 type AdminEditorPropsType = PropsWithChildren<{
   hidingFields?: string[];
   context?: Record<string, string>;
@@ -80,6 +85,12 @@ type AdminEditorPropsType = PropsWithChildren<{
   notModifiable?: boolean;
   notDeletable?: boolean;
   extraActions?: ButtonProps[];
+  /**
+   * For each field, render an "open in new tab" link next to the value pointing at the editor route
+   * for that field's referenced object. Currently applies to the read-only field table only.
+   * The field's current value is used as the target id.
+   */
+  fieldLinks?: Record<string, FieldLinkTarget>;
 }>;
 
 const processFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -268,7 +279,18 @@ const ReadOnlyValueField: FC<{
     );
   }
 
-  return value as string;
+  if (value === null || value === undefined) return "";
+  if (typeof value === "object") {
+    return (
+      <Box
+        component="pre"
+        sx={{ m: 0, p: 1, fontSize: "0.85em", whiteSpace: "pre-wrap", wordBreak: "break-all", backgroundColor: "action.hover", borderRadius: 1 }}
+      >
+        {JSON.stringify(value, null, 2)}
+      </Box>
+    );
+  }
+  return String(value);
 });
 
 type InnerAdminEditorStateType = {
@@ -293,6 +315,7 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       extraActions,
       notModifiable,
       notDeletable,
+      fieldLinks,
       children,
     }) => {
       const navigate = useNavigate();
@@ -306,7 +329,10 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       const { data: schemaInfo } = useSchemaQuery(backendAdminClient, app, resource);
       const { data: choicesData } = useChoicesQuery(backendAdminClient, app, resource);
 
-      // Merge choices into schema for FK/M2M fields
+      // Merge choices into schema ONLY for M2M (array) fields — M2MSelect reads from schema.items.oneOf.
+      // Single-value FK choices are NOT merged here because AJV blows up when compiling a oneOf with
+      // thousands of const entries (e.g. user FK on EmailAddress). Those choices are attached to
+      // uiSchema below as enumOptions and rendered by AutocompleteSelectWidget instead.
       useMemo(() => {
         if (!choicesData || !schemaInfo.schema.properties) return;
         for (const [fieldName, items] of Object.entries(choicesData)) {
@@ -314,8 +340,6 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
           if (!prop) continue;
           if (prop.type === "array" && prop.items) {
             (prop.items as RJSFSchema).oneOf = items;
-          } else {
-            prop.oneOf = items;
           }
         }
       }, [choicesData, schemaInfo.schema]);
@@ -396,7 +420,20 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
         schemaInfo.translation_fields,
         selectedLanguage
       );
-      const uiSchema: UiSchema = schemaInfo.ui_schema;
+      const baseUiSchema: UiSchema = schemaInfo.ui_schema;
+      // Force AutocompleteSelectWidget on single-value FKs that have choices. Choices themselves are
+      // passed through formContext (see below) rather than uiSchema, because RJSF overwrites
+      // ui:options.enumOptions with [] when the schema has no enum/oneOf.
+      const uiSchema: UiSchema = useMemo(() => {
+        if (!choicesData) return baseUiSchema;
+        const enriched: UiSchema = { ...baseUiSchema };
+        for (const fieldName of Object.keys(choicesData)) {
+          const prop = (schemaInfo.schema.properties as Record<string, RJSFSchema> | undefined)?.[fieldName];
+          if (!prop || prop.type === "array") continue;
+          enriched[fieldName] = { ...(enriched[fieldName] ?? {}), "ui:widget": "autocomplete_select" };
+        }
+        return enriched;
+      }, [choicesData, schemaInfo.schema, baseUiSchema]);
       const disabled = createMutation.isPending || modifyMutation.isPending || deleteMutation.isPending;
       const title = `${app.toUpperCase()} > ${resource.toUpperCase()} > ${id ? "편집: " + id : "새 객체 추가"}`;
 
@@ -448,14 +485,18 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {Object.keys(readOnlySchema.properties || {}).map((key) => (
-                        <TableRow key={key}>
-                          <TableCell>{key}</TableCell>
-                          <TableCell>
-                            <ReadOnlyValueField name={key} value={languageFilteredFormData?.[key]} uiSchema={uiSchema} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {Object.keys(readOnlySchema.properties || {}).map((key) => {
+                        const link = fieldLinks?.[key];
+                        const value = languageFilteredFormData?.[key];
+                        const showLink = link && value !== null && value !== undefined && value !== "";
+                        const field = <ReadOnlyValueField name={key} value={value} uiSchema={uiSchema} />;
+                        return (
+                          <TableRow key={key}>
+                            <TableCell>{key}</TableCell>
+                            <TableCell>{showLink ? <Link to={`/${link.app}/${link.resource}/${value}`}>{field}</Link> : field}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                   <br />
@@ -472,12 +513,13 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
                 formData={languageFilteredFormData}
                 liveValidate
                 focusOnFirstError
-                formContext={{ readonlyAsDisabled: true }}
+                formContext={{ readonlyAsDisabled: true, choicesData }}
                 onChange={({ formData }) => appendFormDataState(formData)}
                 onSubmit={onSubmitFunc}
                 disabled={disabled}
                 showErrorList={false}
                 fields={{ file: FileField, m2m_select: M2MSelect, markdown: MDEditorField }}
+                widgets={{ SelectWidget: AutocompleteSelectWidget, autocomplete_select: AutocompleteSelectWidget }}
               />
             </Box>
           </Stack>

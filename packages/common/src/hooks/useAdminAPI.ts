@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   approveModificationAudit,
@@ -106,6 +106,14 @@ export const useChoicesQuery = (client: BackendAPIClient, app: string, resource:
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
     queryFn: choices(client, app, resource),
+  });
+
+export const useChoicesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
+  useSuspenseQueries({
+    queries: pairs.map(({ app, resource }) => ({
+      queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
+      queryFn: choices(client, app, resource),
+    })),
   });
 
 export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>

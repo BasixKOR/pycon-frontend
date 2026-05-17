@@ -1,6 +1,6 @@
 import { ChoicesResponse, OpenAPIParameterSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Clear, FilterList, RestartAlt } from "@mui/icons-material";
-import { Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
+import { Autocomplete, Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];
@@ -79,20 +79,19 @@ const FilterField: FC<FilterFieldProps> = ({ param, value, choices, onChange }) 
   if (schema?.enum) return <EnumFilterField name={name} options={schema.enum} value={value} onChange={onChange} />;
 
   if (choices && choices.length > 0) {
+    const options = choices.map((c) => ({ value: c.const ?? "", label: c.title }));
+    const currentOption = options.find((opt) => opt.value === value) ?? null;
     return (
-      <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>{name}</InputLabel>
-        <Select value={value} label={name} onChange={(e) => onChange(name, e.target.value as string)}>
-          <MenuItem value="">
-            <em>전체</em>
-          </MenuItem>
-          {choices.map((choice) => (
-            <MenuItem key={choice.const ?? "__null__"} value={choice.const ?? ""}>
-              {choice.title}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Autocomplete
+        size="small"
+        sx={{ minWidth: 200 }}
+        options={options}
+        value={currentOption}
+        onChange={(_, newOption) => onChange(name, newOption?.value ?? "")}
+        getOptionLabel={(opt) => opt.label || String(opt.value)}
+        isOptionEqualToValue={(opt, val) => opt.value === val.value}
+        renderInput={(params) => <TextField {...params} label={name} placeholder="전체" />}
+      />
     );
   }
 
