@@ -19,6 +19,7 @@ import { FC, ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { isNullish } from "remeda";
 
+import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import {
   useOneItemRefundMutation,
@@ -113,7 +114,7 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
       { order_id: order.id, order_product_relation_id: prodRel.id },
       {
         onSuccess: () => addSnackbar(succeededToRefundOrderStr, "success"),
-        onError: () => addSnackbar(failedToRefundOrderStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToRefundOrderStr), "error"),
       }
     );
   const patchOneItemOptions = () => {
@@ -139,7 +140,7 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
       },
       {
         onSuccess: () => addSnackbar(succeededToPatchOptionsStr, "success"),
-        onError: () => addSnackbar(failedToPatchOptionsStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToPatchOptionsStr), "error"),
       }
     );
   };
@@ -211,7 +212,7 @@ const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
       { order_id: order.id },
       {
         onSuccess: () => addSnackbar(succeededToRefundFullOrderStr, "success"),
-        onError: () => addSnackbar(failedToRefundFullOrderStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToRefundFullOrderStr), "error"),
       }
     );
   const openReceipt = () => window.open(`${backendApiDomain}/v1/shop/orders/${order.id}/receipt/`, "_blank");

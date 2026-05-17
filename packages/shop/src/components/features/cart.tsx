@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isArray } from "remeda";
 
-import { BackendAPIClientError } from "@frontend/shop/apis";
+import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "@frontend/shop/hooks";
 import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
@@ -105,7 +105,7 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
       { cartProductId },
       {
         onSuccess: () => addSnackbar(succeededToRemoveItemFromCartStr, "success"),
-        onError: (error) => addSnackbar(error.message || errorWhilePreparingOrderStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, errorWhilePreparingOrderStr), "error"),
       }
     );
 
@@ -131,11 +131,7 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
           closeBackdrop
         );
       },
-      onError: (error) =>
-        alert(
-          (error instanceof BackendAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
-            errorWhilePreparingOrderStr
-        ),
+      onError: (error) => alert(formatBackendErrorMessage(error, errorWhilePreparingOrderStr)),
     });
   };
 

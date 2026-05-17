@@ -59,6 +59,23 @@ export class BackendAPIClientError extends Error {
   }
 }
 
+export const formatBackendErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof BackendAPIClientError) {
+    const seen = new Set<string>();
+    const messages: string[] = [];
+    for (const detailedError of error.detail.errors) {
+      const detail = detailedError.detail;
+      if (detail && !seen.has(detail)) {
+        seen.add(detail);
+        messages.push(detail);
+      }
+    }
+    if (messages.length > 0) return messages.join("\n");
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+};
+
 type supportedLanguages = "ko" | "en";
 
 type AxiosRequestWithoutPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<Resp>;

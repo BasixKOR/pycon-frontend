@@ -16,7 +16,7 @@ import type {
   UserSignedInStatus,
 } from "@frontend/shop/schemas";
 
-export { BackendAPIClient, BackendAPIClientError } from "@frontend/common/apis/client";
+export { BackendAPIClient, BackendAPIClientError, formatBackendErrorMessage } from "@frontend/common/apis/client";
 
 /**
  * 로그인합니다.
