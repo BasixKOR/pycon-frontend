@@ -160,16 +160,27 @@ type ArrayFilterFieldProps = {
 };
 
 const ArrayFilterField: FC<ArrayFilterFieldProps> = ({ name, items, value, onChange }) => {
-  const values = value ? value.split(",") : [];
+  const [values, setValues] = useState<string[]>(value ? value.split(",") : []);
+  useEffect(() => {
+    setValues((prev) => {
+      const prevNonEmpty = prev.filter((v) => v !== "").join(",");
+      // Ignore re-emissions of our own non-empty subset; only resync on external changes (clear, etc.)
+      if (prevNonEmpty === (value ?? "")) return prev;
+      return value ? value.split(",") : [];
+    });
+  }, [value]);
 
-  const updateValues = (newValues: string[]) => onChange(name, newValues.filter((v) => v !== "").join(","));
-  const handleAdd = () => updateValues([...values, ""]);
-  const handleRemove = (index: number) => updateValues(values.filter((_, i) => i !== index));
+  const update = (newValues: string[]) => {
+    setValues(newValues);
+    onChange(name, newValues.filter((v) => v !== "").join(","));
+  };
+  const handleAdd = () => update([...values, ""]);
+  const handleRemove = (index: number) => update(values.filter((_, i) => i !== index));
 
   const handleItemChange = (index: number, newValue: string) => {
     const newValues = [...values];
     newValues[index] = newValue;
-    updateValues(newValues);
+    update(newValues);
   };
 
   const inputType = items?.type === "integer" || items?.type === "number" ? "number" : "text";
