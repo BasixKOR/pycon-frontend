@@ -1,7 +1,59 @@
 import { ChoicesResponse, OpenAPIParameterSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Clear, FilterList, RestartAlt } from "@mui/icons-material";
-import { Autocomplete, Box, Button, Chip, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Switch,
+  TextField,
+} from "@mui/material";
+import { FC, useEffect, useMemo, useState } from "react";
+
+import { AdminFilterFieldset } from "@apps/pyconkr-admin/components/elements/admin_filter_fieldset";
+
+// django-filter range/lookup suffixes — params sharing a root after stripping these belong together
+// (e.g. date_joined_after + date_joined_before → "date_joined", price_min + price_max → "price").
+const RANGE_SUFFIXES = ["_after", "_before", "_min", "_max", "_gte", "_lte"];
+const SINGLETON_GROUP_LABEL = "기타";
+
+const getGroupKey = (name: string): string => {
+  for (const suffix of RANGE_SUFFIXES) {
+    if (name.endsWith(suffix) && name.length > suffix.length) return name.slice(0, -suffix.length);
+  }
+  // Fall back to the first underscore segment — groups user/user_email/user_username under "user",
+  // category/category_group/category_id under "category", etc.
+  const firstUnderscore = name.indexOf("_");
+  return firstUnderscore === -1 ? name : name.slice(0, firstUnderscore);
+};
+
+type FilterGroup = { label: string; params: OpenAPIParameterSchema[] };
+
+const groupParameters = (parameters: OpenAPIParameterSchema[]): FilterGroup[] => {
+  const groups = new Map<string, OpenAPIParameterSchema[]>();
+  for (const param of parameters) {
+    const key = getGroupKey(param.name);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(param);
+  }
+
+  const multi: FilterGroup[] = [];
+  const singletons: OpenAPIParameterSchema[] = [];
+  for (const [key, params] of groups) {
+    if (params.length >= 2) multi.push({ label: key, params });
+    else singletons.push(...params);
+  }
+  if (singletons.length > 0) multi.push({ label: SINGLETON_GROUP_LABEL, params: singletons });
+  return multi;
+};
 type AdminListFilterProps = {
   parameters: OpenAPIParameterSchema[];
   values: Record<string, string>;
@@ -11,6 +63,7 @@ type AdminListFilterProps = {
 
 export const AdminListFilter: FC<AdminListFilterProps> = ({ parameters, values, choices, onApply }) => {
   const [localValues, setLocalValues] = useState<Record<string, string>>(values);
+  const groupedParameters = useMemo(() => groupParameters(parameters), [parameters]);
 
   useEffect(() => {
     setLocalValues(values);
@@ -39,15 +92,19 @@ export const AdminListFilter: FC<AdminListFilterProps> = ({ parameters, values, 
           <FilterList fontSize="small" />
           <span>필터</span>
         </Stack>
-        <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", alignItems: "flex-start" }}>
-          {parameters.map((param) => (
-            <FilterField
-              key={param.name}
-              param={param}
-              value={localValues[param.name] || ""}
-              choices={choices?.[param.name]}
-              onChange={handleChange}
-            />
+        <Stack direction="row" flexWrap="wrap" sx={{ gap: 2, alignItems: "flex-start" }}>
+          {groupedParameters.map((group) => (
+            <AdminFilterFieldset key={group.label} label={group.label}>
+              {group.params.map((param) => (
+                <FilterField
+                  key={param.name}
+                  param={param}
+                  value={localValues[param.name] || ""}
+                  choices={choices?.[param.name]}
+                  onChange={handleChange}
+                />
+              ))}
+            </AdminFilterFieldset>
           ))}
         </Stack>
         <Stack direction="row" spacing={1}>
@@ -77,6 +134,10 @@ const FilterField: FC<FilterFieldProps> = ({ param, value, choices, onChange }) 
 
   if (schema?.type === "array") return <ArrayFilterField name={name} items={schema.items} value={value} onChange={onChange} />;
   if (schema?.enum) return <EnumFilterField name={name} options={schema.enum} value={value} onChange={onChange} />;
+  if (schema?.type === "boolean") return <BooleanFilterField name={name} value={value} onChange={onChange} />;
+  if (schema?.type === "string" && (schema?.format === "date-time" || schema?.format === "date")) {
+    return <DateFilterField name={name} format={schema.format} value={value} onChange={onChange} />;
+  }
 
   if (choices && choices.length > 0) {
     const options = choices.map((c) => ({ value: c.const ?? "", label: c.title }));
@@ -108,6 +169,59 @@ const FilterField: FC<FilterFieldProps> = ({ param, value, choices, onChange }) 
       helperText={helperText}
       sx={{ minWidth: 200 }}
     />
+  );
+};
+
+type DateFilterFieldProps = {
+  name: string;
+  format: "date" | "date-time";
+  value: string;
+  onChange: (name: string, value: string) => void;
+};
+
+// HTML5 datetime-local / date inputs expect specific local formats. Backend values may include seconds
+// or a timezone (e.g. "2024-01-15T10:30:00Z") — trim to the first 16 chars so the input still displays.
+const normalizeDateValue = (value: string, format: "date" | "date-time"): string => {
+  if (!value) return "";
+  if (format === "date") return value.slice(0, 10);
+  const m = value.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+  return m ? m[1] : value;
+};
+
+const DateFilterField: FC<DateFilterFieldProps> = ({ name, format, value, onChange }) => (
+  <TextField
+    label={name}
+    type={format === "date" ? "date" : "datetime-local"}
+    value={normalizeDateValue(value, format)}
+    onChange={(e) => onChange(name, e.target.value)}
+    size="small"
+    slotProps={{ inputLabel: { shrink: true } }}
+    sx={{ minWidth: 200 }}
+  />
+);
+
+type BooleanFilterFieldProps = {
+  name: string;
+  value: string;
+  onChange: (name: string, value: string) => void;
+};
+
+const BooleanFilterField: FC<BooleanFilterFieldProps> = ({ name, value, onChange }) => {
+  const active = value === "true" || value === "false";
+  const isTrue = value === "true";
+  return (
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <FormControlLabel
+        control={<Checkbox size="small" checked={active} onChange={(e) => onChange(name, e.target.checked ? "true" : "")} />}
+        label={name}
+      />
+      {active && (
+        <FormControlLabel
+          control={<Switch size="small" checked={isTrue} onChange={(e) => onChange(name, e.target.checked ? "true" : "false")} />}
+          label={isTrue ? "true" : "false"}
+        />
+      )}
+    </Stack>
   );
 };
 
