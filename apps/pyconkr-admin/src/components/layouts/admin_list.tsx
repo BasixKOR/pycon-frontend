@@ -2,14 +2,31 @@ import {
   useBackendAdminClient,
   useChoicesQueries,
   useChoicesQuery,
-  useListQuery,
+  useListAutoQuery,
   useOpenApiSchemaQuery,
   useRemovePreparedMutation,
 } from "@frontend/common/hooks/useAdminAPI";
 import { ChoicesResponse } from "@frontend/common/schemas/backendAdminAPI";
 import { extractQueryParameters } from "@frontend/common/utils";
 import { Add, Delete, Edit } from "@mui/icons-material";
-import { Box, Button, CircularProgress, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Pagination,
+  Select,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, type ReactNode, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -18,6 +35,10 @@ import { AdminListFilter } from "@apps/pyconkr-admin/components/elements/admin_l
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
+const DEFAULT_PAGE_SIZE = 25;
+const PAGE_SIZE_OPTIONS = [25, 50, 100, 200];
+const PAGINATION_PARAM_KEYS = new Set(["page", "page_size"]);
 
 type ListRowType = {
   id: string;
@@ -63,11 +84,22 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
       const [searchParams, setSearchParams] = useSearchParams();
       const backendAdminClient = useBackendAdminClient();
 
-      const filterParams: Record<string, string> = Object.fromEntries(searchParams.entries());
-      const listQuery = useListQuery<ListRowType & Record<string, unknown>>(backendAdminClient, app, resource, filterParams);
+      const allParams: Record<string, string> = Object.fromEntries(searchParams.entries());
+      const page = Math.max(1, Number(allParams.page) || 1);
+      const pageSize = Math.max(1, Number(allParams.page_size) || DEFAULT_PAGE_SIZE);
+      // filterParams = user-facing filters only (page/page_size stripped); used for AdminListFilter UI state.
+      const filterParams: Record<string, string> = Object.fromEntries(Object.entries(allParams).filter(([k]) => !PAGINATION_PARAM_KEYS.has(k)));
+      // apiParams = filters + explicit pagination so non-paginated endpoints just ignore page/page_size.
+      const apiParams: Record<string, string> = { ...filterParams, page: String(page), page_size: String(pageSize) };
+      const listQuery = useListAutoQuery<ListRowType & Record<string, unknown>>(backendAdminClient, app, resource, apiParams);
+      const items = listQuery.data.items;
+      const pagination = listQuery.data.pagination;
 
       const openApiSchemaQuery = useOpenApiSchemaQuery(backendAdminClient);
-      const queryParameters = useMemo(() => extractQueryParameters(openApiSchemaQuery.data, app, resource), [openApiSchemaQuery.data, app, resource]);
+      const queryParameters = useMemo(
+        () => extractQueryParameters(openApiSchemaQuery.data, app, resource).filter((p) => !PAGINATION_PARAM_KEYS.has(p.name)),
+        [openApiSchemaQuery.data, app, resource]
+      );
 
       const choicesQuery = useChoicesQuery(backendAdminClient, app, resource);
 
@@ -88,7 +120,28 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
 
       const removeMutation = useRemovePreparedMutation(backendAdminClient, app, resource);
 
-      const handleFilterApply = (newParams: Record<string, string>) => setSearchParams(newParams, { replace: true });
+      // Filter changes reset to page 1; page_size is preserved if the user had set one explicitly.
+      const handleFilterApply = (newParams: Record<string, string>) => {
+        const merged: Record<string, string> = { ...newParams };
+        if (allParams.page_size) merged.page_size = allParams.page_size;
+        setSearchParams(merged, { replace: true });
+      };
+
+      const handlePageChange = (_: unknown, newPage: number) => {
+        const next = new URLSearchParams(searchParams);
+        next.set("page", String(newPage));
+        setSearchParams(next, { replace: true });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      const handlePageSizeChange = (newSize: number) => {
+        const next = new URLSearchParams(searchParams);
+        next.set("page_size", String(newSize));
+        next.delete("page"); // page boundaries shift, so reset to 1
+        setSearchParams(next, { replace: true });
+      };
+
+      const totalPages = pagination ? Math.max(1, Math.ceil(pagination.count / pageSize)) : 1;
 
       const detailPath = (id: string) => `/${app}/${resource}/${id}`;
       const hasCustomColumns = !!(columns && columns.length > 0);
@@ -143,7 +196,7 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
               </TableRow>
             </TableHead>
             <TableBody>
-              {listQuery.data?.map((item) => (
+              {items.map((item) => (
                 <TableRow key={item.id} hover>
                   {hasCustomColumns ? (
                     columns!.map((col, idx) => {
@@ -194,6 +247,22 @@ const InnerAdminList: FC<AdminListProps> = ErrorBoundary.with(
               ))}
             </TableBody>
           </Table>
+          {pagination && (
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
+              <Box sx={{ width: 140 }} />
+              <Pagination count={totalPages} page={page} onChange={handlePageChange} showFirstButton showLastButton />
+              <FormControl size="small" sx={{ width: 140 }}>
+                <InputLabel>페이지당</InputLabel>
+                <Select value={pageSize} label="페이지당" onChange={(e) => handlePageSizeChange(Number(e.target.value))}>
+                  {PAGE_SIZE_OPTIONS.map((n) => (
+                    <MenuItem key={n} value={n}>
+                      {n}개
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+          )}
         </Stack>
       );
     }
