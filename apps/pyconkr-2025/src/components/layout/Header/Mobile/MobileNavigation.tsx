@@ -10,7 +10,6 @@ import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton"
 
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
-// import { ScanCodeButton } from "@apps/pyconkr-2025/components/layout/UserScanCodeButton";
 
 type MenuType = NestedSiteMapSchema;
 
@@ -201,7 +200,6 @@ export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, s
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <MobileLanguageToggle isMainPath={isMainPath} />
           </Stack>
-          {/* <ScanCodeButton /> */}
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <SignInButton isMobile isMainPath={isMainPath} onClose={handleClose} />
           </Stack>

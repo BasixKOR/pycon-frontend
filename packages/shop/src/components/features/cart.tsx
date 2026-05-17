@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isArray } from "remeda";
 
-import { ShopAPIClientError } from "@frontend/shop/apis/client";
+import { BackendAPIClientError } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "@frontend/shop/hooks";
 import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
@@ -133,7 +133,7 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
       },
       onError: (error) =>
         alert(
-          (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+          (error instanceof BackendAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
             errorWhilePreparingOrderStr
         ),
     });

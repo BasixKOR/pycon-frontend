@@ -32,7 +32,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
-import { ShopAPIClientError } from "@frontend/shop/apis/client";
+import { BackendAPIClientError } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
 import type { CartItemAppendRequest, CustomerInfo, Order, Product, ProductListQueryParams } from "@frontend/shop/schemas";
@@ -248,7 +248,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
       },
       onError: (error) =>
         alert(
-          (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+          (error instanceof BackendAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
             failedToAddOneItemToCartStr
         ),
     });
@@ -487,7 +487,7 @@ export const ProductList: FC<ProductListQueryParams> = (qs) => {
           },
           onError: (error) =>
             alert(
-              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+              (error instanceof BackendAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
                 orderErrorStr
             ),
         }
@@ -586,7 +586,7 @@ export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
           },
           onError: (error) =>
             alert(
-              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
+              (error instanceof BackendAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
                 orderErrorStr
             ),
         }

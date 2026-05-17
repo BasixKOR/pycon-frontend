@@ -1,4 +1,5 @@
 import { OneDetailsOpener, PrimaryStyledDetails } from "@frontend/common/components/mdx_components";
+import { useBackendContext } from "@frontend/common/hooks/useAPI";
 import {
   AccordionProps,
   Button,
@@ -182,7 +183,8 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
 type OrderItemProps = Omit<AccordionProps, "children"> & { order: Order; disabled?: boolean };
 
 const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
-  const { language, shopApiDomain } = useShopContext();
+  const { language } = useShopContext();
+  const { backendApiDomain } = useBackendContext();
   const shopAPIClient = useShopClient();
   const orderRefundMutation = useOrderRefundMutation(shopAPIClient);
   const oneItemRefundMutation = useOneItemRefundMutation(shopAPIClient);
@@ -212,7 +214,7 @@ const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
         onError: () => addSnackbar(failedToRefundFullOrderStr, "error"),
       }
     );
-  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
+  const openReceipt = () => window.open(`${backendApiDomain}/v1/shop/orders/${order.id}/receipt/`, "_blank");
 
   const isPending = disabled || orderRefundMutation.isPending || oneItemRefundMutation.isPending || optionsOfOneItemInOrderPatchMutation.isPending;
   const refundBtnDisabled = isPending || !isNullish(order.not_fully_refundable_reason);

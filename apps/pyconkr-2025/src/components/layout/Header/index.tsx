@@ -12,7 +12,6 @@ import LanguageSelector from "@apps/pyconkr-2025/components/layout/LanguageSelec
 import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton";
 import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
 
-// import { ScanCodeIconButton } from "@apps/pyconkr-2025/components/layout/UserScanCodeButton";
 import { MobileHeader } from "./Mobile/MobileHeader";
 
 type MenuType = NestedSiteMapSchema;
@@ -150,7 +149,6 @@ const Header: FC = () => {
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
             <CartBadgeButton />
-            {/* <ScanCodeIconButton /> */}
             <SignInButton />
           </Stack>
         </NavSideElementContainer>
