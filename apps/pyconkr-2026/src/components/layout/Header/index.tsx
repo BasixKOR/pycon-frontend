@@ -23,6 +23,7 @@ type NavigationStateType = {
 
 const HeaderHeight: CSSProperties["height"] = "3.625rem";
 const BreadCrumbHeight: CSSProperties["height"] = "4.5rem";
+const MaxContentWidth: CSSProperties["maxWidth"] = "1366px";
 
 export default function Header() {
   const { title, language, siteMapNode, currentSiteMapDepth, shouldShowTitleBanner } = useAppContext();
@@ -49,48 +50,56 @@ export default function Header() {
   const headerStyle: SxProps<Theme> = shouldShowTitleBanner ? {} : { backgroundColor: "transparent" };
 
   return (
-    <Box sx={{ position: "relative" }} onMouseLeave={resetDepths}>
+    <Box
+      sx={{
+        position: "relative",
+        "&:has(.nav-dropdown:hover) .header-title-text": { opacity: 1 },
+      }}
+      onMouseLeave={resetDepths}
+    >
       <HeaderContainer sx={headerStyle}>
-        <NavSideElementContainer>
-          <Link to="/" onClick={resetDepths}>
-            <Stack direction="row" alignItems="center" spacing={0.75}>
-              <PythonKorea style={{ width: 36, height: 36 }} />
-              <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem", letterSpacing: "0.01em" }}>
-                PyCon Korea 2026
-              </Typography>
+        <HeaderInner>
+          <NavSideElementContainer>
+            <Link to="/" onClick={resetDepths}>
+              <Stack direction="row" alignItems="center" spacing={0.75}>
+                <PythonKorea style={{ width: 36, height: 36 }} />
+                <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem" }}>
+                  PyCon Korea 2026
+                </Typography>
+              </Stack>
+            </Link>
+          </NavSideElementContainer>
+
+          {siteMapNode ? (
+            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
+              {Object.values(siteMapNode.children)
+                .filter((s) => !s.hide)
+                .map((r) => (
+                  <Link
+                    key={r.id}
+                    onClick={resetDepths}
+                    target={isString(r.external_link) ? "_blank" : undefined}
+                    rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
+                    to={r.external_link || r.route_code}
+                  >
+                    <NavButton onMouseEnter={() => setDepth1(r)} isActive={navState.depth1?.id === r.id}>
+                      {r.name}
+                    </NavButton>
+                  </Link>
+                ))}
             </Stack>
-          </Link>
-        </NavSideElementContainer>
+          ) : (
+            <CircularProgress size={24} sx={{ color: "#ed5ebd" }} />
+          )}
 
-        {siteMapNode ? (
-          <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-            {Object.values(siteMapNode.children)
-              .filter((s) => !s.hide)
-              .map((r) => (
-                <Link
-                  key={r.id}
-                  onClick={resetDepths}
-                  target={isString(r.external_link) ? "_blank" : undefined}
-                  rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
-                  to={r.external_link || r.route_code}
-                >
-                  <NavButton onMouseEnter={() => setDepth1(r)} isActive={navState.depth1?.id === r.id}>
-                    {r.name}
-                  </NavButton>
-                </Link>
-              ))}
-          </Stack>
-        ) : (
-          <CircularProgress size={24} sx={{ color: "#ed5ebd" }} />
-        )}
-
-        <NavSideElementContainer sx={{ justifyContent: "flex-end" }}>
-          <LanguageSelector />
-        </NavSideElementContainer>
+          <NavSideElementContainer sx={{ justifyContent: "flex-end" }}>
+            <LanguageSelector />
+          </NavSideElementContainer>
+        </HeaderInner>
       </HeaderContainer>
 
       {navState.depth1 && (
-        <NavDropdownOuter>
+        <NavDropdownOuter className="nav-dropdown">
           <NavDropdownInner>
             <Typography variant="h2" sx={{ fontSize: "1.5rem", fontWeight: 700, color: "#ededde" }}>
               {navState.depth1.name}
@@ -147,22 +156,24 @@ export default function Header() {
       {shouldShowTitleBanner && (
         <>
           <BreadCrumbContainer>
-            <Stack direction="row" alignItems="center" spacing={0.5}>
-              {breadCrumbArray
-                .filter((routeInfo) => isNonNullish(routeInfo))
-                .map(({ route_code, name }, index) => {
-                  breadCrumbRoute += `${route_code}/`;
-                  return (
-                    <Fragment key={index}>
-                      {index > 0 && <ArrowForwardIos sx={{ fontSize: "0.75rem", color: "rgba(237,94,189,0.6)" }} />}
-                      <Link to={breadCrumbRoute} children={name} />
-                    </Fragment>
-                  );
-                })}
-            </Stack>
-            <Typography variant="h1" sx={{ fontSize: "1.625rem", fontWeight: 700, color: "#ededde" }}>
-              {title}
-            </Typography>
+            <BreadCrumbInner>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                {breadCrumbArray
+                  .filter((routeInfo) => isNonNullish(routeInfo))
+                  .map(({ route_code, name }, index) => {
+                    breadCrumbRoute += `${route_code}/`;
+                    return (
+                      <Fragment key={index}>
+                        {index > 0 && <ArrowForwardIos sx={{ fontSize: "0.75rem", color: "rgba(237,94,189,0.6)" }} />}
+                        <Link to={breadCrumbRoute} children={name} />
+                      </Fragment>
+                    );
+                  })}
+              </Stack>
+              <Typography variant="h1" sx={{ fontSize: "1.625rem", fontWeight: 700, color: "#ededde" }}>
+                {title}
+              </Typography>
+            </BreadCrumbInner>
           </BreadCrumbContainer>
           <Box sx={{ height: `calc(${HeaderHeight} + ${BreadCrumbHeight})` }} />
         </>
@@ -180,10 +191,6 @@ const ResponsivePadding = ({ theme }: MUIStyledCommonProps) => ({
 
 const HeaderContainer = styled("header")(({ theme }) => ({
   position: "fixed",
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
   width: "100%",
   height: HeaderHeight,
   backgroundColor: "rgba(18, 9, 30, 0.85)",
@@ -195,12 +202,25 @@ const HeaderContainer = styled("header")(({ theme }) => ({
   zIndex: theme.zIndex.appBar,
   transition: "background-color 0.3s ease-in-out",
   "& .header-title-text": {
-    opacity: 0,
+    // TODO: FIXME: HeaderInner의 좌측 정렬 모드를 중앙 정렬("1fr auto 1fr")로 되돌릴 때 opacity를 다시 0으로 변경할 것 (hover 시에만 노출되는 원래 동작 복귀)
+    opacity: 1,
     transition: "opacity 0.2s ease",
   },
   "&:hover .header-title-text": {
     opacity: 1,
   },
+}));
+
+const HeaderInner = styled("div")(({ theme }) => ({
+  display: "grid",
+  // TODO: FIXME: sitemap 항목이 충분히 등록되면 gridTemplateColumns를 "1fr auto 1fr"로 되돌려 중앙 정렬로 복귀하고, columnGap도 제거할 것
+  gridTemplateColumns: "auto auto 1fr",
+  columnGap: theme.spacing(2),
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+  maxWidth: MaxContentWidth,
+  marginInline: "auto",
   ...ResponsivePadding({ theme }),
 }));
 
@@ -214,7 +234,10 @@ const NavButton = styled(Button)<{ isActive?: boolean }>(({ isActive }) => ({
   "&:hover": { color: "#ed5ebd", backgroundColor: "transparent" },
 }));
 
-const NavSideElementContainer = styled(Stack)({ flexGrow: 1, flexBasis: 0 });
+const NavSideElementContainer = styled(Stack)({
+  flexDirection: "row",
+  alignItems: "center",
+});
 
 const NavDropdownOuter = styled(Stack)(({ theme }) => ({
   width: "100vw",
@@ -231,6 +254,8 @@ const NavDropdownOuter = styled(Stack)(({ theme }) => ({
 
 const NavDropdownInner = styled(Stack)(({ theme }) => ({
   width: "100%",
+  maxWidth: MaxContentWidth,
+  marginInline: "auto",
   minHeight: "10rem",
   overflowY: "auto",
   gap: "1rem",
@@ -261,7 +286,7 @@ const Depth2to3Divider = styled(Divider)({ borderColor: "rgba(237, 94, 189, 0.3)
 
 const Depth3Item = styled(Depth2Item)({ fontSize: "0.75rem" });
 
-const BreadCrumbContainer = styled(Stack)(({ theme }) => ({
+const BreadCrumbContainer = styled("div")(({ theme }) => ({
   position: "fixed",
   top: HeaderHeight,
   width: "100%",
@@ -271,10 +296,17 @@ const BreadCrumbContainer = styled(Stack)(({ theme }) => ({
   backdropFilter: "blur(10px)",
   WebkitBackdropFilter: "blur(10px)",
   borderBottom: "1px solid rgba(237, 94, 189, 0.15)",
+  zIndex: theme.zIndex.appBar - 1,
+}));
+
+const BreadCrumbInner = styled(Stack)(({ theme }) => ({
+  width: "100%",
+  height: "100%",
+  maxWidth: MaxContentWidth,
+  marginInline: "auto",
   gap: "0.25rem",
   justifyContent: "center",
   alignItems: "flex-start",
-  zIndex: theme.zIndex.appBar - 1,
   ...ResponsivePadding({ theme }),
   "& a": {
     color: "#f5c73d",
