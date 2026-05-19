@@ -1,31 +1,31 @@
-import * as Common from "@frontend/common";
+import { getFormValue, isFormValid } from "@frontend/common/utils";
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
 import { Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, MouseEventHandler, useRef } from "react";
 
-import ShopHooks from "../../hooks";
-import ShopSchemas from "../../schemas";
+import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
+import type { CustomerInfo } from "@frontend/shop/schemas";
 
 type CustomerInfoFormDialogPropsType = {
   open: boolean;
   closeFunc: () => void;
-  onSubmit?: (formData: ShopSchemas.CustomerInfo) => void;
-  defaultValue?: ShopSchemas.CustomerInfo | null;
+  onSubmit?: (formData: CustomerInfo) => void;
+  defaultValue?: CustomerInfo | null;
 };
 
-export const CustomerInfoFormDialog: React.FC<CustomerInfoFormDialogPropsType> = Suspense.with(
+export const CustomerInfoFormDialog: FC<CustomerInfoFormDialogPropsType> = Suspense.with(
   { fallback: <CircularProgress /> },
   ({ open, closeFunc, onSubmit, defaultValue }) => {
-    const formRef = React.useRef<HTMLFormElement | null>(null);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
-    const { language } = ShopHooks.useShopContext();
-    const shopAPIClient = ShopHooks.useShopClient();
-    const { data: userInfo } = ShopHooks.useUserStatus(shopAPIClient);
+    const { language } = useShopContext();
+    const shopAPIClient = useShopClient();
+    const { data: userInfo } = useUserStatus(shopAPIClient);
 
-    const onSubmitFunc: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    const onSubmitFunc: MouseEventHandler<HTMLButtonElement> = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (Common.Utils.isFormValid(formRef?.current)) onSubmit?.(Common.Utils.getFormValue<ShopSchemas.CustomerInfo>({ form: formRef.current }));
+      if (isFormValid(formRef?.current)) onSubmit?.(getFormValue<CustomerInfo>({ form: formRef.current }));
     };
 
     const titleStr = language === "ko" ? "고객 정보 입력" : "Customer Information";

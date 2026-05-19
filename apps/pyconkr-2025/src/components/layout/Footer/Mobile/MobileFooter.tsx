@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-import { useEmail } from "@frontend/common/src/hooks/useEmail";
+import { useEmail } from "@frontend/common/hooks/useEmail";
 import { Article, Email, Facebook, GitHub, Instagram, LinkedIn, X, YouTube } from "@mui/icons-material";
-import * as React from "react";
+import { FC } from "react";
 
 import FlickrIcon from "@apps/pyconkr-2025/assets/thirdparty/flickr.svg?react";
-
-import { useAppContext } from "../../../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
 
 interface IconItem {
-  icon: React.FC<{ width?: number; height?: number }>;
+  icon: FC<{ width?: number; height?: number }>;
   alt: string;
   href: string;
 }

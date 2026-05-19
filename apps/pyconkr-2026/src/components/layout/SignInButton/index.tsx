@@ -1,10 +1,10 @@
-import * as Shop from "@frontend/shop";
+import { useShopClient, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 import { Login, Logout } from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useNavigate } from "react-router-dom";
 
-import { useAppContext } from "../../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 type InnerSignInButtonImplPropType = {
   loading?: boolean;
@@ -77,29 +77,28 @@ const InnerSignInButtonImpl: React.FC<InnerSignInButtonImplPropType> = ({
   );
 };
 
-export const SignInButton: React.FC<{ isMobile?: boolean; isMainPath?: boolean; onClose?: () => void }> = ({
-  isMobile = false,
-  isMainPath = true,
-  onClose,
-}) => {
-  const SignInWithErrorBoundary = ErrorBoundary.with(
-    { fallback: <InnerSignInButtonImpl isMobile={isMobile} isMainPath={isMainPath} onClose={onClose} /> },
-    Suspense.with({ fallback: <InnerSignInButtonImpl loading isMobile={isMobile} isMainPath={isMainPath} onClose={onClose} /> }, () => {
-      const shopAPIClient = Shop.Hooks.useShopClient();
-      const signOutMutation = Shop.Hooks.useSignOutMutation(shopAPIClient);
-      const { data } = Shop.Hooks.useUserStatus(shopAPIClient);
+type SignInButtonProps = { isMobile?: boolean; isMainPath?: boolean; onClose?: () => void };
 
-      return (
-        <InnerSignInButtonImpl
-          signedIn={data !== null}
-          onSignOut={signOutMutation.mutate}
-          isMobile={isMobile}
-          isMainPath={isMainPath}
-          onClose={onClose}
-        />
-      );
-    })
+const SignInButtonContent: React.FC<SignInButtonProps> = ({ isMobile, isMainPath, onClose }) => {
+  const shopAPIClient = useShopClient();
+  const signOutMutation = useSignOutMutation(shopAPIClient);
+  const { data } = useUserStatus(shopAPIClient);
+
+  return (
+    <InnerSignInButtonImpl
+      signedIn={data !== null}
+      onSignOut={signOutMutation.mutate}
+      isMobile={isMobile}
+      isMainPath={isMainPath}
+      onClose={onClose}
+    />
   );
-
-  return <SignInWithErrorBoundary />;
 };
+
+export const SignInButton: React.FC<SignInButtonProps> = ({ isMobile = false, isMainPath = true, onClose }) => (
+  <ErrorBoundary fallback={<InnerSignInButtonImpl isMobile={isMobile} isMainPath={isMainPath} onClose={onClose} />}>
+    <Suspense fallback={<InnerSignInButtonImpl loading isMobile={isMobile} isMainPath={isMainPath} onClose={onClose} />}>
+      <SignInButtonContent isMobile={isMobile} isMainPath={isMainPath} onClose={onClose} />
+    </Suspense>
+  </ErrorBoundary>
+);

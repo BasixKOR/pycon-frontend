@@ -1,11 +1,12 @@
 import { Pause, PlayArrow, Stop } from "@mui/icons-material";
 import { Box, CircularProgress, FormControlLabel, IconButton, Stack, Switch } from "@mui/material";
 import { ErrorBoundary } from "@suspensive/react";
-import * as React from "react";
+import { CSSProperties, FC, useEffect, useState } from "react";
 import Lottie, { Options } from "react-lottie";
 
+import { isValidHttpUrl } from "@frontend/common/utils/string";
+
 import { ErrorFallback } from "./error_handler";
-import { isValidHttpUrl } from "../utils/string";
 
 type PlayState = "playing" | "paused" | "stopped";
 
@@ -14,7 +15,7 @@ type LottiePlayerProps = {
   playState?: PlayState;
   disableLoop?: boolean;
   renderSettings?: Options["rendererSettings"];
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
 type LottiePlayerStateType = {
@@ -31,8 +32,8 @@ const playStateToLottiePlayerState = (playState: PlayState): { isStopped: boolea
   return { isStopped: true, isPaused: true };
 };
 
-export const LottieDebugPanel: React.FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => {
-  const [playerState, setPlayerState] = React.useState<LottieDebugPanelStateType>({
+export const LottieDebugPanel: FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => {
+  const [playerState, setPlayerState] = useState<LottieDebugPanelStateType>({
     playState,
     loop: !disableLoop,
   });
@@ -67,7 +68,7 @@ export const LottieDebugPanel: React.FC<LottiePlayerProps> = ({ data, playState 
   );
 };
 
-export const LottiePlayer: React.FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => (
+export const LottiePlayer: FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => (
   <Lottie
     {...playStateToLottiePlayerState(playState)}
     options={{
@@ -89,10 +90,10 @@ type NetworkLottiePlayerStateType = {
   data?: unknown | null;
 };
 
-export const NetworkLottiePlayer: React.FC<NetworkLottiePlayerProps> = ErrorBoundary.with({ fallback: ErrorFallback }, (props) => {
-  const [playerState, setPlayerState] = React.useState<NetworkLottiePlayerStateType>({});
+export const NetworkLottiePlayer: FC<NetworkLottiePlayerProps> = ErrorBoundary.with({ fallback: ErrorFallback }, (props) => {
+  const [playerState, setPlayerState] = useState<NetworkLottiePlayerStateType>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       if (!isValidHttpUrl(props.url)) throw new Error("Invalid URL for NetworkLottiePlayer: " + props.url);
 

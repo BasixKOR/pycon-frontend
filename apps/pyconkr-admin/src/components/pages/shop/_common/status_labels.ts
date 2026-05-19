@@ -1,5 +1,5 @@
-import { OrderProductStatus, PaymentStatus } from "../order/types";
-import { ProductCurrentStatus } from "../product/types";
+import { OrderProductStatus, PaymentStatus } from "@apps/pyconkr-admin/components/pages/shop/order/types";
+import { ProductCurrentStatus } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 
 type ChipColor = "default" | "primary" | "success" | "warning" | "error" | "info";
 

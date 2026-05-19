@@ -1,12 +1,11 @@
 import { IconButton, styled } from "@mui/material";
-import * as React from "react";
-
+import { FC } from "react";
 interface HamburgerButtonProps {
   isOpen: boolean;
   onClick: () => void;
 }
 
-export const HamburgerButton: React.FC<HamburgerButtonProps> = ({ isOpen, onClick }) => {
+export const HamburgerButton: FC<HamburgerButtonProps> = ({ isOpen, onClick }) => {
   return (
     <StyledIconButton onClick={onClick}>
       <HamburgerIcon isOpen={isOpen}>

@@ -1,8 +1,8 @@
-import * as Common from "@frontend/common";
+import { getCookie } from "@frontend/common/utils";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import * as R from "remeda";
+import { isString } from "remeda";
 
-import ShopSchemas from "../schemas";
+import { isObjectErrorResponseSchema, type ErrorResponseSchema } from "@frontend/shop/schemas";
 
 const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {
@@ -13,12 +13,12 @@ const DEFAULT_ERROR_RESPONSE = {
 export class ShopAPIClientError extends Error {
   readonly name = "ShopAPIError";
   readonly status: number;
-  readonly detail: ShopSchemas.ErrorResponseSchema;
+  readonly detail: ErrorResponseSchema;
   readonly originalError: unknown;
 
   constructor(error?: unknown) {
     let message: string = DEFAULT_ERROR_MESSAGE;
-    let detail: ShopSchemas.ErrorResponseSchema = DEFAULT_ERROR_RESPONSE;
+    let detail: ErrorResponseSchema = DEFAULT_ERROR_RESPONSE;
     let status = -1;
 
     if (axios.isAxiosError(error)) {
@@ -26,14 +26,14 @@ export class ShopAPIClientError extends Error {
 
       if (response) {
         status = response.status;
-        detail = ShopSchemas.isObjectErrorResponseSchema(response.data)
+        detail = isObjectErrorResponseSchema(response.data)
           ? response.data
           : {
               type: "axios_error",
               errors: [
                 {
                   code: "unknown",
-                  detail: R.isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
+                  detail: isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
                   attr: null,
                 },
               ],
@@ -58,8 +58,12 @@ export class ShopAPIClientError extends Error {
   }
 }
 
-type AxiosRequestWithoutPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<R>;
-type AxiosRequestWithPayload = <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig<D>) => Promise<R>;
+type AxiosRequestWithoutPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => Promise<Resp>;
+type AxiosRequestWithPayload = <T = unknown, Resp = AxiosResponse<T>, D = unknown>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+) => Promise<Resp>;
 
 export class ShopAPIClient {
   readonly baseURL: string;
@@ -87,9 +91,9 @@ export class ShopAPIClient {
   }
 
   _safe_request_without_payload(requestFunc: AxiosRequestWithoutPayload): AxiosRequestWithoutPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, config);
+        return await requestFunc<T, Resp, D>(url, config);
       } catch (error) {
         throw new ShopAPIClientError(error);
       }
@@ -97,9 +101,9 @@ export class ShopAPIClient {
   }
 
   _safe_request_with_payload(requestFunc: AxiosRequestWithPayload): AxiosRequestWithPayload {
-    return async <T = unknown, R = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
+    return async <T = unknown, Resp = AxiosResponse<T>, D = unknown>(url: string, data: D, config?: AxiosRequestConfig<D>) => {
       try {
-        return await requestFunc<T, R, D>(url, data, config);
+        return await requestFunc<T, Resp, D>(url, data, config);
       } catch (error) {
         throw new ShopAPIClientError(error);
       }
@@ -107,7 +111,7 @@ export class ShopAPIClient {
   }
 
   getCSRFToken(): string | undefined {
-    return Common.Utils.getCookie(this.csrfCookieName);
+    return getCookie(this.csrfCookieName);
   }
 
   async get<T, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T> {

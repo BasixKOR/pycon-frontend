@@ -1,9 +1,21 @@
 import { Cancel, PermMedia } from "@mui/icons-material";
 import { Box, Button, Input, Stack, styled } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
-
-const ignoreEvent = (e: React.BaseSyntheticEvent | Event) => {
+import {
+  BaseSyntheticEvent,
+  ChangeEvent,
+  DragEvent,
+  DragEventHandler,
+  FC,
+  MouseEventHandler,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+const ignoreEvent = (e: BaseSyntheticEvent | Event) => {
   e.preventDefault();
   e.stopPropagation();
 };
@@ -32,11 +44,11 @@ type DndFileInputState = {
   openSetValueDialog?: boolean;
 };
 
-export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, language }) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const fileDragBoxRef = React.useRef<HTMLDivElement>(null);
-  const [state, setState] = React.useState<DndFileInputState>({});
-  const [, forceRender] = React.useReducer((x) => x + 1, 0);
+export const DndFileInput: FC<DndFileInputProps> = ({ onFileChange, language }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileDragBoxRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<DndFileInputState>({});
+  const [, forceRender] = useReducer((x) => x + 1, 0);
 
   const selectFileStr = language === "ko" ? "파일 선택" : "Select File";
   const resetSelectStr = language === "ko" ? "파일 선택 초기화" : "Reset File Selection";
@@ -87,14 +99,14 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
       </>
     );
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  const onDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  const onDragEnter = (e: DragEvent<HTMLDivElement>) => {
     ignoreEvent(e);
     setState((ps) => ({ ...ps, isMouseHoverOnDragBox: true }));
   };
-  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
     // onDragLeave 이벤트는 자식 요소에 마우스가 들어갈 때도 발생합니다.
     // 따라서, 드래그 박스에 마우스가 있는지 확인하기 위해 마우스 위치를 확인하여 실제 onDragLeave 이벤트가 트리거되어야 하는지 확인합니다.
     // (e.relatedTarget는 Safari에서 지원되지 않아 사용할 수 없습니다.)
@@ -108,7 +120,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     if (!fileDragBoxRef.current.contains(currentHoveredElement) || (x === 0 && y === 0)) setState((ps) => ({ ...ps, isMouseHoverOnDragBox: false }));
   };
 
-  const resetFileSelect = React.useCallback(() => {
+  const resetFileSelect = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // 파일 선택 초기화
       fileInputRef.current.files = null; // 파일 목록 초기화
@@ -116,7 +128,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     }
   }, [forceRender]);
 
-  const handleFile = React.useCallback(
+  const handleFile = useCallback(
     (file: File) => {
       if (!file || file.size === 0) {
         addSnackbar(fileIsEmptyStr, "error");
@@ -150,7 +162,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     [forceRender, onFileChange, fileIsEmptyStr, fileIsNotImageStr, fileReadErrorStr, language]
   );
 
-  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     ignoreEvent(e);
     setState((prev) => ({ ...prev, isMouseHoverOnDragBox: false }));
 
@@ -175,7 +187,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     handleFile(file);
   };
 
-  const onFileSelectButtonClick: React.MouseEventHandler = () => {
+  const onFileSelectButtonClick: MouseEventHandler = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     } else {
@@ -183,7 +195,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     }
   };
 
-  const onDrop: React.DragEventHandler<HTMLDivElement> = (event) => {
+  const onDrop: DragEventHandler<HTMLDivElement> = (event) => {
     ignoreEvent(event);
     setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
 
@@ -196,7 +208,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     handleFile(items[0]);
   };
 
-  const onClipboardPaste = React.useCallback(
+  const onClipboardPaste = useCallback(
     (event: DocumentEventMap["paste"]) => {
       ignoreEvent(event);
       setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
@@ -223,7 +235,7 @@ export const DndFileInput: React.FC<DndFileInputProps> = ({ onFileChange, langua
     [handleFile, fileNotInClipboardStr, imageFileNotInClipboardStr]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener("paste", onClipboardPaste);
     return () => document.removeEventListener("paste", onClipboardPaste);
   }, [onClipboardPaste, state.isMouseHoverOnDragBox]);

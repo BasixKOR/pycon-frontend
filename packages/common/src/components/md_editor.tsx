@@ -1,7 +1,6 @@
 import { Stack } from "@mui/material";
 import MDEditor, { ICommand, commands } from "@uiw/react-md-editor";
-import * as React from "react";
-
+import { CSSProperties, FC } from "react";
 type MDEditorProps = {
   disabled?: boolean;
   name?: string;
@@ -11,7 +10,7 @@ type MDEditorProps = {
   extraCommands?: ICommand[];
 };
 
-const TextEditorStyle: React.CSSProperties = {
+const TextEditorStyle: CSSProperties = {
   flexGrow: 1,
   width: "100%",
   maxWidth: "100%",
@@ -21,9 +20,9 @@ const TextEditorStyle: React.CSSProperties = {
   overflowWrap: "break-word",
 
   fieldSizing: "content",
-} as React.CSSProperties;
+} as CSSProperties;
 
-export const MarkdownEditor: React.FC<MDEditorProps> = ({ disabled, name, defaultValue, value, onChange, extraCommands }) => (
+export const MarkdownEditor: FC<MDEditorProps> = ({ disabled, name, defaultValue, value, onChange, extraCommands }) => (
   <Stack direction="column" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
     <MDEditor
       data-color-mode="light"

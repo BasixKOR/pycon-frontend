@@ -1,10 +1,10 @@
-import { useCancelModificationAuditMutation, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useCancelModificationAuditMutation, useParticipantPortalClient } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useRef } from "react";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type ModificationAuditCancelConfirmDialogProps = {
   modificationAuditId: string;
@@ -12,13 +12,13 @@ type ModificationAuditCancelConfirmDialogProps = {
   onClose: () => void;
 };
 
-export const ModificationAuditCancelConfirmDialog: React.FC<ModificationAuditCancelConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
-  const reasonInputRef = React.useRef<HTMLInputElement>(null);
+export const ModificationAuditCancelConfirmDialog: FC<ModificationAuditCancelConfirmDialogProps> = ({ open, onClose, modificationAuditId }) => {
+  const reasonInputRef = useRef<HTMLInputElement>(null);
   const { language } = useAppContext();
   const participantPortalClient = useParticipantPortalClient();
   const cancelModificationAuditMutation = useCancelModificationAuditMutation(participantPortalClient);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const titleStr = language === "ko" ? "수정 요청 철회 확인" : "Confirm Withdrawal of Modification Request";

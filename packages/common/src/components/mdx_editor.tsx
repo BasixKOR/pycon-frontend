@@ -4,12 +4,11 @@ import { Grid } from "@mui/system";
 import { Suspense } from "@suspensive/react";
 import MDEditor, { GroupOptions, ICommand, commands } from "@uiw/react-md-editor";
 import type { MDXComponents } from "mdx/types";
-import * as React from "react";
-import * as R from "remeda";
+import { CSSProperties, FC, SyntheticEvent, useRef, useState } from "react";
+import { isString } from "remeda";
 // import * as CryptoJS from "crypto-js";
 
-import * as Hooks from "../hooks";
-
+import { BackendAdminAPI, Common } from "@frontend/common/hooks";
 type CustomComponentInfoType = {
   k: string; // key
   n: string; // name
@@ -23,7 +22,7 @@ type MDXEditorProps = {
   extraCommands?: ICommand[];
 };
 
-const TextEditorStyle: React.CSSProperties = {
+const TextEditorStyle: CSSProperties = {
   flexGrow: 1,
   width: "100%",
   maxWidth: "100%",
@@ -33,11 +32,11 @@ const TextEditorStyle: React.CSSProperties = {
   overflowWrap: "break-word",
 
   fieldSizing: "content",
-} as React.CSSProperties;
+} as CSSProperties;
 
 // const calculateMD5FromFileBase64 = (fileBase64: string): string => CryptoJS.MD5(CryptoJS.enc.Base64.parse(fileBase64)).toString();
 
-// const onFileInEvent: React.DragEventHandler<HTMLDivElement> = (event) => {
+// const onFileInEvent: DragEventHandler<HTMLDivElement> = (event) => {
 //   event.preventDefault();
 //   event.stopPropagation();
 
@@ -95,11 +94,11 @@ type PublicFileType = {
 };
 
 const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <CircularProgress /> }, ({ close, getState, textApi }) => {
-  const urlInputRef = React.useRef<HTMLInputElement>(null);
-  const backendAdminAPIClient = Hooks.BackendAdminAPI.useBackendAdminClient();
-  const { data } = Hooks.BackendAdminAPI.useListQuery<PublicFileType>(backendAdminAPIClient, "file", "publicfile");
-  const [widgetState, setWidgetState] = React.useState<ImageSelectorWidgetStateType>({ tab: 0 });
-  const setTab = (_: React.SyntheticEvent, tab: number) => setWidgetState((ps) => ({ ...ps, tab }));
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const backendAdminAPIClient = BackendAdminAPI.useBackendAdminClient();
+  const { data } = BackendAdminAPI.useListQuery<PublicFileType>(backendAdminAPIClient, "file", "publicfile");
+  const [widgetState, setWidgetState] = useState<ImageSelectorWidgetStateType>({ tab: 0 });
+  const setTab = (_: SyntheticEvent, tab: number) => setWidgetState((ps) => ({ ...ps, tab }));
   const setImageUrl = (selectedImageUrl?: string) => setWidgetState((ps) => ({ ...ps, selectedImageUrl }));
 
   const insertImage = (inputStr: string) => {
@@ -110,7 +109,7 @@ const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <Circu
     close();
   };
   const getSelectedUrl = (): string | undefined => {
-    if (widgetState.tab === 0 && R.isString(widgetState.selectedImageUrl) && widgetState.selectedImageUrl.trim() !== "") {
+    if (widgetState.tab === 0 && isString(widgetState.selectedImageUrl) && widgetState.selectedImageUrl.trim() !== "") {
       return widgetState.selectedImageUrl.trim();
     } else if (widgetState.tab === 1 && urlInputRef.current && urlInputRef.current.checkValidity() && urlInputRef.current.value.trim() !== "") {
       return urlInputRef.current.value.trim();
@@ -123,11 +122,11 @@ const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <Circu
   };
   const onHTMLInsertBtnClick = () => {
     const url = getSelectedUrl();
-    if (R.isString(url)) insertImage(`<img src="${url}" alt="이미지 설명" />`);
+    if (isString(url)) insertImage(`<img src="${url}" alt="이미지 설명" />`);
   };
   const onMarkdownInsertBtnClick = () => {
     const url = getSelectedUrl();
-    if (R.isString(url)) insertImage(`![이미지 설명](${url})`);
+    if (isString(url)) insertImage(`![이미지 설명](${url})`);
   };
 
   return (
@@ -188,7 +187,7 @@ const ImageSelector: GroupOptions["children"] = Suspense.with({ fallback: <Circu
 const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoType[]) => GroupOptions["children"] =
   (registeredComponentList) =>
   ({ close, getState, textApi }) => {
-    const componentSelectorRef = React.useRef<HTMLSelectElement>(null);
+    const componentSelectorRef = useRef<HTMLSelectElement>(null);
 
     const onInsertBtnClick = () => {
       if (!textApi || !getState || !registeredComponentList?.length || !componentSelectorRef.current) return undefined;
@@ -222,8 +221,8 @@ const getCustomComponentSelector: (registeredComponentList: CustomComponentInfoT
     );
   };
 
-export const MDXEditor: React.FC<MDXEditorProps> = ({ disabled, defaultValue, onChange, extraCommands }) => {
-  const { mdxComponents } = Hooks.Common.useCommonContext();
+export const MDXEditor: FC<MDXEditorProps> = ({ disabled, defaultValue, onChange, extraCommands }) => {
+  const { mdxComponents } = Common.useCommonContext();
 
   const registeredComponentList: CustomComponentInfoType[] = [
     { k: "", n: "", v: undefined },

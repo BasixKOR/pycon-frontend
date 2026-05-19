@@ -1,6 +1,5 @@
 import { Stack, styled } from "@mui/material";
-import * as React from "react";
-
+import { FC, ReactNode } from "react";
 const StyledFieldset = styled("fieldset")(({ theme }) => ({
   margin: 0,
   padding: theme.spacing(1, 2, 2),
@@ -19,10 +18,10 @@ const StyledLegend = styled("legend")(({ theme }) => ({
 
 type Props = {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
-export const AdminFilterFieldset: React.FC<Props> = ({ label, children }) => (
+export const AdminFilterFieldset: FC<Props> = ({ label, children }) => (
   <StyledFieldset>
     <StyledLegend>{label}</StyledLegend>
     <Stack direction="row" spacing={2} flexWrap="wrap" alignItems="center" sx={{ rowGap: 2 }}>

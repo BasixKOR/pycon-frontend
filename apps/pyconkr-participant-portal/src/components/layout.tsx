@@ -1,12 +1,12 @@
-import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { AccountCircle } from "@mui/icons-material";
 import { AppBar, ButtonBase, CircularProgress, IconButton, Menu, MenuItem, Stack, styled, Toolbar, Tooltip, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, MouseEventHandler, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
-import { LOCAL_STORAGE_LANGUAGE_KEY } from "../consts/local_stroage";
-import { useAppContext } from "../contexts/app_context";
+import { LOCAL_STORAGE_LANGUAGE_KEY } from "@apps/pyconkr-participant-portal/consts/local_stroage";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 const FullPage = styled(Stack)({
   minHeight: "100vh",
@@ -58,11 +58,11 @@ type ProfileMenuButtonState = {
   anchorEl?: HTMLElement | null;
 };
 
-const InnerProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ loading, signedIn }) => {
+const InnerProfileMenuButton: FC<ProfileMenuButtonProps> = ({ loading, signedIn }) => {
   const navigate = useNavigate();
   const participantPortalClient = useParticipantPortalClient();
-  const [btnState, setBtnState] = React.useState<ProfileMenuButtonState>({});
-  const openMenu: React.MouseEventHandler<HTMLButtonElement> = (evt) => setBtnState((ps) => ({ ...ps, anchorEl: evt.currentTarget }));
+  const [btnState, setBtnState] = useState<ProfileMenuButtonState>({});
+  const openMenu: MouseEventHandler<HTMLButtonElement> = (evt) => setBtnState((ps) => ({ ...ps, anchorEl: evt.currentTarget }));
   const closeMenu = () => setBtnState((ps) => ({ ...ps, anchorEl: undefined }));
   const { language } = useAppContext();
   const accountStr = language === "ko" ? "계정" : "Account";
@@ -96,7 +96,7 @@ const InnerProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ loading, sig
   );
 };
 
-const ProfileMenuButton: React.FC = ErrorBoundary.with(
+const ProfileMenuButton: FC = ErrorBoundary.with(
   { fallback: <InnerProfileMenuButton /> },
   Suspense.with({ fallback: <InnerProfileMenuButton loading /> }, () => {
     const participantPortalClient = useParticipantPortalClient();
@@ -106,7 +106,7 @@ const ProfileMenuButton: React.FC = ErrorBoundary.with(
   })
 );
 
-export const Layout: React.FC = () => {
+export const Layout: FC = () => {
   const { language, setAppContext } = useAppContext();
   const toggleLanguage = () =>
     setAppContext((ps) => {

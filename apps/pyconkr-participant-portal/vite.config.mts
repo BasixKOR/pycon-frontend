@@ -20,9 +20,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), mdx(), ...(isLocalHttpBackend ? [] : [mkcert({ hosts: [host] })]), svgr()],
     resolve: {
       alias: {
-        "@frontend/common/src": path.resolve(__dirname, "../../packages/common/src"),
-        "@frontend/common": path.resolve(__dirname, "../../packages/common/src/index.ts"),
-        "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src/index.ts"),
+        "@frontend/common": path.resolve(__dirname, "../../packages/common/src"),
+        "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src"),
         "@apps/pyconkr-participant-portal": path.resolve(__dirname, "./src"),
       },
     },

@@ -1,11 +1,11 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import { CircularProgress, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
 
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 
 type ListRowType = {
   id: string;
@@ -15,7 +15,7 @@ type ListRowType = {
   updated_at: string;
 };
 
-const InnerAdminModificationAuditList: React.FC = ErrorBoundary.with(
+const InnerAdminModificationAuditList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const backendAdminClient = useBackendAdminClient();
@@ -58,7 +58,7 @@ const InnerAdminModificationAuditList: React.FC = ErrorBoundary.with(
   })
 );
 
-export const AdminModificationAuditList: React.FC = () => (
+export const AdminModificationAuditList: FC = () => (
   <BackendAdminSignInGuard>
     <InnerAdminModificationAuditList />
   </BackendAdminSignInGuard>

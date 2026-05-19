@@ -1,5 +1,4 @@
-import * as R from "remeda";
-
+import { isArray, isPlainObject, isString } from "remeda";
 export type EmptyObject = Record<string, never>;
 
 export type DetailedErrorSchema = {
@@ -102,11 +101,11 @@ export type SessionSchema = {
 
 export const isObjectErrorResponseSchema = (obj?: unknown): obj is ErrorResponseSchema => {
   return (
-    R.isPlainObject(obj) &&
-    R.isString(obj.type) &&
-    R.isArray(obj.errors) &&
+    isPlainObject(obj) &&
+    isString(obj.type) &&
+    isArray(obj.errors) &&
     obj.errors.every((error) => {
-      return R.isPlainObject(error) && R.isString(error.code) && R.isString(error.detail) && (error.attr === null || R.isString(error.attr));
+      return isPlainObject(error) && isString(error.code) && isString(error.detail) && (error.attr === null || isString(error.attr));
     })
   );
 };

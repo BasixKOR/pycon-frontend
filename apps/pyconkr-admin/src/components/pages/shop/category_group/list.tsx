@@ -1,7 +1,7 @@
-import * as React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
 
-import { AdminList, AdminListColumn } from "../../../layouts/admin_list";
+import { AdminList, AdminListColumn } from "@apps/pyconkr-admin/components/layouts/admin_list";
 
 const columns: AdminListColumn[] = [
   {
@@ -31,4 +31,4 @@ const columns: AdminListColumn[] = [
   },
 ];
 
-export const ShopCategoryGroupListPage: React.FC = () => <AdminList app="shop" resource="category-groups" columns={columns} enableRowActions />;
+export const ShopCategoryGroupListPage: FC = () => <AdminList app="shop" resource="category-groups" columns={columns} enableRowActions />;

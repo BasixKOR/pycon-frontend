@@ -1,23 +1,21 @@
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { Stack, styled } from "@mui/material";
-import * as React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
-
-import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
-
+import { isNonNullish } from "remeda";
 type BreadCrumbPropType = {
   title: string;
   parentSiteMaps: (NestedSiteMapSchema | undefined)[];
 };
 
-export const BreadCrumb: React.FC<BreadCrumbPropType> = ({ title, parentSiteMaps }) => {
+export const BreadCrumb: FC<BreadCrumbPropType> = ({ title, parentSiteMaps }) => {
   let route = "/";
   return (
     <BreadCrumbContainer>
       <BreadcrumbPathContainer direction="row" alignItems="center">
         {parentSiteMaps
           .slice(1, -1)
-          .filter((routeInfo) => R.isNonNullish(routeInfo))
+          .filter((routeInfo) => isNonNullish(routeInfo))
           .map(({ route_code, name }, index) => {
             route += `${route_code}/`;
             return (

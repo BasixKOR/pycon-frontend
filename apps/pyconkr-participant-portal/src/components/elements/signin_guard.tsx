@@ -1,12 +1,12 @@
-import { useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useParticipantPortalClient, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, PropsWithChildren } from "react";
 import { Navigate } from "react-router-dom";
 
 import { ErrorPage } from "./error_page";
 import { LoadingPage } from "./loading_page";
 
-export const SignInGuard: React.FC<React.PropsWithChildren> = ErrorBoundary.with(
+export const SignInGuard: FC<PropsWithChildren> = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, ({ children }) => {
     const participantPortalClient = useParticipantPortalClient();

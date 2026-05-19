@@ -1,6 +1,5 @@
-import * as React from "react";
-
-export const LandingPage: React.FC = () => (
+import { FC } from "react";
+export const LandingPage: FC = () => (
   <div>
     <h1>PyCon Korea Admin</h1>
     <p>

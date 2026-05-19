@@ -1,7 +1,6 @@
 import { Stack } from "@mui/material";
-import * as React from "react";
-
-export const CenteredPage: React.FC<React.PropsWithChildren> = ({ children }) => (
+import { FC, PropsWithChildren } from "react";
+export const CenteredPage: FC<PropsWithChildren> = ({ children }) => (
   <Stack justifyContent="center" alignItems="center" sx={{ minHeight: "80vh", maxHeight: "100%" }}>
     {children}
   </Stack>

@@ -1,5 +1,4 @@
-import * as R from "remeda";
-
+import { isEmpty, isString } from "remeda";
 type GFlatSiteMap = {
   id: string;
   route_code: string;
@@ -49,7 +48,7 @@ export const buildFlatSiteMap = <T extends GNestedSiteMap>(nested: GNestedSiteMa
 
 export const parseCss = (t: unknown): React.CSSProperties => {
   try {
-    if (R.isString(t) && !R.isEmpty(t)) return JSON.parse(t);
+    if (isString(t) && !isEmpty(t)) return JSON.parse(t);
   } catch (e) {
     console.warn("Failed to parse CSS string:", t, e);
   }

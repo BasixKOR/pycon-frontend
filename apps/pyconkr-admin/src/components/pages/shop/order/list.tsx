@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListPaginatedQuery, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import {
   Chip,
   CircularProgress,
@@ -14,16 +14,17 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import { AdminFilterFieldset } from "@apps/pyconkr-admin/components/elements/admin_filter_fieldset";
+import { AdminPagination } from "@apps/pyconkr-admin/components/elements/admin_pagination";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+
 import { OrderAdmin, PaymentStatus } from "./types";
-import { AdminFilterFieldset } from "../../../elements/admin_filter_fieldset";
-import { AdminPagination } from "../../../elements/admin_pagination";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
-import { PAYMENT_STATUS_LABEL } from "../_common/status_labels";
-import { CategoryGroupAdminWithCategories } from "../product/types";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
@@ -31,7 +32,7 @@ const DEFAULT_PAGE_SIZE = 50;
 
 type StatusFilter = "all" | PaymentStatus;
 
-const InnerOrderList: React.FC = ErrorBoundary.with(
+const InnerOrderList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const client = useBackendAdminClient();
@@ -65,7 +66,7 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
     const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "orders", apiParams);
     const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "category-groups", {});
     const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
-    const groups = React.useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
+    const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
 
     const updateFilterParam = (key: string, value: string) => {
       const next = new URLSearchParams(searchParams);
@@ -261,7 +262,7 @@ const InnerOrderList: React.FC = ErrorBoundary.with(
   })
 );
 
-export const ShopOrderListPage: React.FC = () => (
+export const ShopOrderListPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerOrderList />
   </BackendAdminSignInGuard>

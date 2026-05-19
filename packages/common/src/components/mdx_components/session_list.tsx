@@ -1,27 +1,28 @@
 import { Box, Button, Chip, CircularProgress, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, ReactNode, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
+import { isArray, isEmpty, isString } from "remeda";
 
-import * as Hooks from "../../hooks";
-import * as BackendAPISchemas from "../../schemas/backendAPI";
-import { ErrorFallback } from "../error_handler";
-import { FallbackImage } from "../fallback_image";
+import { ErrorFallback } from "@frontend/common/components/error_handler";
+import { FallbackImage } from "@frontend/common/components/fallback_image";
+import { BackendAPI, Common } from "@frontend/common/hooks";
+import { SessionSchema } from "@frontend/common/schemas/backendAPI";
+
 import { StyledDivider } from "./styled_divider";
 
 const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];
 
-const SessionItem: React.FC<{
-  session: BackendAPISchemas.SessionSchema;
+const SessionItem: FC<{
+  session: SessionSchema;
   enableLink?: boolean;
-  fallbackImage?: React.ReactNode;
-  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
+  fallbackImage?: ReactNode;
+  getSessionUrl?: (session: SessionSchema) => string;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, fallbackImage, getSessionUrl }) => {
   const sessionTitle = session.title.replace("\\n", "\n");
 
   let speakerImgSrc = session.image || "";
-  if (!speakerImgSrc && R.isArray(session.speakers) && !R.isEmpty(session.speakers)) {
+  if (!speakerImgSrc && isArray(session.speakers) && !isEmpty(session.speakers)) {
     for (const speaker of session.speakers) {
       if (speaker.image) {
         speakerImgSrc = speaker.image;
@@ -71,26 +72,26 @@ type SessionListPropType = {
   event?: string;
   types?: string | string[];
   enableLink?: boolean;
-  fallbackImage?: React.ReactNode;
-  getSessionUrl?: (session: BackendAPISchemas.SessionSchema) => string;
+  fallbackImage?: ReactNode;
+  getSessionUrl?: (session: SessionSchema) => string;
 };
 
-export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
+export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink, fallbackImage, getSessionUrl }) => {
-    const { language } = Hooks.Common.useCommonContext();
-    const backendAPIClient = Hooks.BackendAPI.useBackendClient();
-    const params = { ...(event && { event }), ...(types && { types: R.isString(types) ? types : types.join(",") }) };
-    const { data: sessions } = Hooks.BackendAPI.useSessionsQuery(backendAPIClient, params);
+    const { language } = Common.useCommonContext();
+    const backendAPIClient = BackendAPI.useBackendClient();
+    const params = { ...(event && { event }), ...(types && { types: isString(types) ? types : types.join(",") }) };
+    const { data: sessions } = BackendAPI.useSessionsQuery(backendAPIClient, params);
 
     const warningMessage =
       language === "ko"
         ? "* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."
         : "* The list of sessions may change due to the speaker's circumstances.";
 
-    const [selectedCategoryIds, setSelectedCategories] = React.useState<string[]>([]);
+    const [selectedCategoryIds, setSelectedCategories] = useState<string[]>([]);
     const toggleCategory = (catId: string) => setSelectedCategories((ps) => (ps.includes(catId) ? ps.filter((id) => id !== catId) : [...ps, catId]));
-    const categories = React.useMemo(
+    const categories = useMemo(
       () =>
         sessions
           .map((s) => s.categories)
@@ -99,7 +100,7 @@ export const SessionList: React.FC<SessionListPropType> = ErrorBoundary.with(
           .filter((cat) => !EXCLUDE_CATEGORIES.includes(cat.name)),
       [sessions]
     );
-    const filteredSessions = React.useMemo(() => {
+    const filteredSessions = useMemo(() => {
       return sessions.filter((session) => {
         const sessionCategoryIds: string[] = session.categories.map((category) => category.id);
         return selectedCategoryIds.length === 0 || selectedCategoryIds.some((cat) => sessionCategoryIds.includes(cat));
@@ -200,7 +201,7 @@ const SessionImageErrorFallbackBox = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const SessionImageErrorFallback: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+const SessionImageErrorFallback: FC<{ children?: ReactNode }> = ({ children }) => (
   <SessionImageErrorFallbackBox>{children}</SessionImageErrorFallbackBox>
 );
 

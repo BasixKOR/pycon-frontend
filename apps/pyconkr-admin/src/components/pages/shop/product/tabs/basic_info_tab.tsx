@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MarkdownEditor, MDXRenderer } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import {
   Autocomplete,
   Box,
@@ -15,12 +15,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 
-import { IMAGE_FILE_EXTENSIONS } from "../../../../../consts/file_extensions";
-import { PublicFilePicker } from "../../../../elements/public_file_picker";
-import { ProductFormValues, SetField } from "../form";
-import { CategoryGroupAdminWithCategories, TagAdmin } from "../types";
+import { PublicFilePicker } from "@apps/pyconkr-admin/components/elements/public_file_picker";
+import { ProductFormValues, SetField } from "@apps/pyconkr-admin/components/pages/shop/product/form";
+import { CategoryGroupAdminWithCategories, TagAdmin } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+import { IMAGE_FILE_EXTENSIONS } from "@apps/pyconkr-admin/consts/file_extensions";
 
 const MUIStyledFieldset = styled("fieldset")(({ theme }) => ({
   color: theme.palette.text.secondary,
@@ -47,8 +47,8 @@ type Props = {
   tags: TagAdmin[];
 };
 
-export const BasicInfoTab: React.FC<Props> = ({ values, setField, disabled, groups, tags }) => {
-  const [langTab, setLangTab] = React.useState<"ko" | "en">("ko");
+export const BasicInfoTab: FC<Props> = ({ values, setField, disabled, groups, tags }) => {
+  const [langTab, setLangTab] = useState<"ko" | "en">("ko");
   const { baseUrl, mdxComponents } = useCommonContext();
   const selectedTags = tags.filter((t) => values.tag_set.includes(t.id));
   const isKo = langTab === "ko";
@@ -128,15 +128,10 @@ export const BasicInfoTab: React.FC<Props> = ({ values, setField, disabled, grou
             </Typography>
             <Stack direction="row" spacing={2}>
               <Box sx={{ width: "50%", maxWidth: "50%" }}>
-                <Components.MarkdownEditor
-                  disabled={disabled}
-                  name={descKey}
-                  value={values[descKey]}
-                  onChange={(value) => setField(descKey, value ?? "")}
-                />
+                <MarkdownEditor disabled={disabled} name={descKey} value={values[descKey]} onChange={(value) => setField(descKey, value ?? "")} />
               </Box>
               <MDXRendererContainer>
-                <Components.MDXRenderer text={values[descKey]} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+                <MDXRenderer text={values[descKey]} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
               </MDXRendererContainer>
             </Stack>
           </MUIStyledFieldset>

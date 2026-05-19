@@ -5,7 +5,7 @@ import {
   useRemoveMutation,
   useRetrieveQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
@@ -23,8 +23,12 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 import { buildDefaultFormValues, ProductFormValues, toPayload } from "./form";
 import { BasicInfoTab } from "./tabs/basic_info_tab";
@@ -32,11 +36,8 @@ import { OptionGroupsTab } from "./tabs/option_groups_tab";
 import { PriceOptionsTab } from "./tabs/price_options_tab";
 import { TimeSettingsTab } from "./tabs/time_settings_tab";
 import { CategoryGroupAdminWithCategories, ProductAdmin, TagAdmin } from "./types";
-import { addErrorSnackbar, addSnackbar } from "../../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../../elements/error_fallback";
 
-const formatLeftover = (v: number | null | undefined): React.ReactNode =>
+const formatLeftover = (v: number | null | undefined): ReactNode =>
   v === undefined ? (
     <Typography component="span" variant="body2" color="text.disabled">
       —
@@ -47,7 +48,7 @@ const formatLeftover = (v: number | null | undefined): React.ReactNode =>
     v.toLocaleString()
   );
 
-const InnerProductEditor: React.FC = ErrorBoundary.with(
+const InnerProductEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
@@ -63,10 +64,10 @@ const InnerProductEditor: React.FC = ErrorBoundary.with(
     const groups = groupsQuery.data ?? [];
     const tags = tagsQuery.data ?? [];
 
-    const [tab, setTab] = React.useState(0);
-    const [values, setValues] = React.useState<ProductFormValues>(() => buildDefaultFormValues(existing));
+    const [tab, setTab] = useState(0);
+    const [values, setValues] = useState<ProductFormValues>(() => buildDefaultFormValues(existing));
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (existing) setValues(buildDefaultFormValues(existing));
     }, [existing]);
 
@@ -249,7 +250,7 @@ const InnerProductEditor: React.FC = ErrorBoundary.with(
   })
 );
 
-export const ShopProductEditorPage: React.FC = () => (
+export const ShopProductEditorPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerProductEditor />
   </BackendAdminSignInGuard>

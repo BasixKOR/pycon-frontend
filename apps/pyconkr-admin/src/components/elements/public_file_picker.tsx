@@ -1,8 +1,8 @@
-import { useBackendAdminClient, useChoicesQuery, usePublicFileQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useChoicesQuery, usePublicFileQuery } from "@frontend/common/hooks/useAdminAPI";
 import { OpenInNew } from "@mui/icons-material";
 import { Autocomplete, Box, Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 type Option = { value: string; label: string };
@@ -35,7 +35,7 @@ const previewBoxSx = {
   overflow: "hidden",
 };
 
-const ImagePreview: React.FC<{ id: string }> = ErrorBoundary.with(
+const ImagePreview: FC<{ id: string }> = ErrorBoundary.with(
   { fallback: () => <Box sx={previewBoxSx} /> },
   Suspense.with(
     {
@@ -72,18 +72,10 @@ const ImagePreview: React.FC<{ id: string }> = ErrorBoundary.with(
   )
 );
 
-export const PublicFilePicker: React.FC<Props> = ({
-  label = "이미지",
-  value,
-  onChange,
-  choicesApp,
-  choicesResource,
-  choicesField,
-  acceptExtensions,
-}) => {
+export const PublicFilePicker: FC<Props> = ({ label = "이미지", value, onChange, choicesApp, choicesResource, choicesField, acceptExtensions }) => {
   const client = useBackendAdminClient();
   const choicesQuery = useChoicesQuery(client, choicesApp, choicesResource);
-  const options: Option[] = React.useMemo(() => {
+  const options: Option[] = useMemo(() => {
     const all = (choicesQuery.data?.[choicesField] ?? []).map((item) => ({ value: item.const ?? "", label: item.title }));
     if (!acceptExtensions || acceptExtensions.length === 0) return all;
     const allowed = acceptExtensions.map((e) => e.toLowerCase());

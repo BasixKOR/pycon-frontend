@@ -1,34 +1,34 @@
-import { useBackendAdminClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useUploadPublicFileMutation } from "@frontend/common/hooks/useAdminAPI";
 import { CloudUpload, PermMedia } from "@mui/icons-material";
 import { Box, Button, Input, Stack, Typography } from "@mui/material";
-import * as React from "react";
+import { BaseSyntheticEvent, ChangeEvent, DragEvent, DragEventHandler, FC, MouseEventHandler, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type PublicFileUploadPageStateType = {
   isMouseOnDragBox: boolean;
   _forceRerender: number;
 };
 
-const ignoreEvent = (e: React.BaseSyntheticEvent | Event) => {
+const ignoreEvent = (e: BaseSyntheticEvent | Event) => {
   e.preventDefault();
   e.stopPropagation();
 };
 
-const InnerPublicFileUploadPage: React.FC = () => {
+const InnerPublicFileUploadPage: FC = () => {
   const navigate = useNavigate();
-  const [state, setState] = React.useState<PublicFileUploadPageStateType>({
+  const [state, setState] = useState<PublicFileUploadPageStateType>({
     isMouseOnDragBox: false,
     _forceRerender: 0, // 강제 리렌더링을 위한 상태
   });
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const fileDragBoxRef = React.useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileDragBoxRef = useRef<HTMLDivElement>(null);
   const backendAdminClient = useBackendAdminClient();
   const uploadPublicFileMutation = useUploadPublicFileMutation(backendAdminClient);
 
-  const forceRerender = React.useCallback(
+  const forceRerender = useCallback(
     () =>
       setState((prev) => {
         let newValue = Math.random();
@@ -41,7 +41,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     []
   );
 
-  const onFileSelectButtonClick: React.MouseEventHandler = () => {
+  const onFileSelectButtonClick: MouseEventHandler = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     } else {
@@ -49,11 +49,11 @@ const InnerPublicFileUploadPage: React.FC = () => {
     }
   };
 
-  const onDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  const onDragEnter = (e: DragEvent<HTMLDivElement>) => {
     ignoreEvent(e);
     setState((prev) => ({ ...prev, isMouseOnDragBox: true }));
   };
-  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
     // onDragLeave 이벤트는 자식 요소에 마우스가 들어갈 때도 발생합니다.
     // 따라서, 드래그 박스에 마우스가 있는지 확인하기 위해 마우스 위치를 확인하여 실제 onDragLeave 이벤트가 트리거되어야 하는지 확인합니다.
     // (e.relatedTarget는 Safari에서 지원되지 않아 사용할 수 없습니다.)
@@ -66,7 +66,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     if (!fileDragBoxRef.current.contains(currentHoveredElement) || (x === 0 && y === 0)) setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
   };
 
-  const handleFile = React.useCallback(
+  const handleFile = useCallback(
     (file: File) => {
       if (!file || file.size === 0) {
         addSnackbar("파일을 찾을 수 없거나, 파일 크기가 0입니다.", "error");
@@ -99,7 +99,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     [forceRerender]
   );
 
-  const resetFileSelect = React.useCallback(() => {
+  const resetFileSelect = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // 파일 선택 초기화
       fileInputRef.current.files = null; // 파일 목록 초기화
@@ -107,7 +107,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     }
   }, [forceRerender]);
 
-  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     ignoreEvent(e);
     setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
 
@@ -132,7 +132,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     handleFile(file);
   };
 
-  const onClipboardPaste = React.useCallback(
+  const onClipboardPaste = useCallback(
     (event: DocumentEventMap["paste"]) => {
       ignoreEvent(event);
       setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
@@ -159,7 +159,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     [handleFile]
   );
 
-  const onDrop: React.DragEventHandler<HTMLDivElement> = (event) => {
+  const onDrop: DragEventHandler<HTMLDivElement> = (event) => {
     ignoreEvent(event);
     setState((prev) => ({ ...prev, isMouseOnDragBox: false }));
 
@@ -187,7 +187,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener("paste", onClipboardPaste);
     return () => document.removeEventListener("paste", onClipboardPaste);
   }, [onClipboardPaste, state.isMouseOnDragBox]);
@@ -240,7 +240,7 @@ const InnerPublicFileUploadPage: React.FC = () => {
   );
 };
 
-export const PublicFileUploadPage: React.FC = () => (
+export const PublicFileUploadPage: FC = () => (
   <BackendAdminSignInGuard>
     <InnerPublicFileUploadPage />
   </BackendAdminSignInGuard>

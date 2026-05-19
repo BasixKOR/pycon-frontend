@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MDXEditor, MDXRenderer } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, Stack } from "@mui/material";
 import React from "react";
 
@@ -27,10 +27,10 @@ export const MdiTestPage: React.FC = () => {
       }}
     >
       <Box sx={HalfWidthStyle}>
-        <Components.MDXEditor defaultValue={state.text} onChange={setMDXInput} />
+        <MDXEditor defaultValue={state.text} onChange={setMDXInput} />
       </Box>
       <Box sx={HalfWidthStyle}>
-        <Components.MDXRenderer {...state} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+        <MDXRenderer {...state} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
       </Box>
     </Stack>
   );

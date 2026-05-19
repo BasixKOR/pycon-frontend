@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import * as React from "react";
+import { CSSProperties, FC, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import { MiniVariantAppBar, MiniVariantDrawer } from "./sidebar";
@@ -76,12 +76,12 @@ const PageInnerContainer = styled(Box)(({ theme }) => ({
   flexGrow: 1,
 }));
 
-export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
+export const Layout: FC<{ routes: RouteDef[] }> = ({ routes }) => {
   const navigate = useNavigate();
-  const [state, dispatch] = React.useState<LayoutState>({ showDrawer: false });
+  const [state, dispatch] = useState<LayoutState>({ showDrawer: false });
   const toggleDrawer = () => dispatch((ps) => ({ ...ps, showDrawer: !ps.showDrawer }));
 
-  const SidebarItem: React.FC<{ routeInfo: RouteDef }> = ({ routeInfo }) => {
+  const SidebarItem: FC<{ routeInfo: RouteDef }> = ({ routeInfo }) => {
     switch (routeInfo.type) {
       case "separator":
         return (
@@ -133,7 +133,7 @@ export const Layout: React.FC<{ routes: RouteDef[] }> = ({ routes }) => {
     }
   };
 
-  const menuButtonStyle: (t: Theme) => React.CSSProperties = (t) => ({
+  const menuButtonStyle: (t: Theme) => CSSProperties = (t) => ({
     width: `calc(${t.spacing(7)} + 1px)`,
     [t.breakpoints.up("sm")]: {
       width: `calc(${t.spacing(8)} + 1px)`,

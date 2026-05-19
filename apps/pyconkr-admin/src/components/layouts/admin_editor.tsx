@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { retrieve } from "@frontend/common/src/apis/admin_api";
+import { retrieve } from "@frontend/common/apis/admin_api";
+import { LottieDebugPanel, MDXRenderer, MarkdownEditor } from "@frontend/common/components";
 import {
   useBackendAdminClient,
   useChoicesQuery,
@@ -7,13 +7,13 @@ import {
   useRemoveMutation,
   useSchemaQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+} from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import {
   filterPropertiesByLanguageInJsonSchema,
   filterReadOnlyPropertiesInJsonSchema,
   filterWritablePropertiesInJsonSchema,
-} from "@frontend/common/src/utils";
+} from "@frontend/common/utils";
 import { Add, Close, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
@@ -45,20 +45,32 @@ import { customizeValidator } from "@rjsf/validator-ajv8";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import AjvDraft04 from "ajv-draft-04";
 import { JSONSchema7 } from "json-schema";
-import * as React from "react";
+import {
+  ChangeEvent,
+  FC,
+  FocusEvent,
+  FormEvent,
+  MouseEventHandler,
+  PropsWithChildren,
+  SyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import * as R from "remeda";
+import { addProp, isArray, isNonNullish, isObjectType, isString } from "remeda";
 
-import { addErrorSnackbar, addSnackbar } from "../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../elements/admin_signin_guard";
-import { ErrorFallback } from "../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
-type onSubmitType = (data: Record<string, string>, event: React.FormEvent<unknown>) => void;
+type onSubmitType = (data: Record<string, string>, event: FormEvent<unknown>) => void;
 
 type AppResourceType = { app: string; resource: string };
 type AppResourceIdType = AppResourceType & { id?: string };
-type AdminEditorPropsType = React.PropsWithChildren<{
+type AdminEditorPropsType = PropsWithChildren<{
   hidingFields?: string[];
   context?: Record<string, string>;
   onCreated?: (data: Record<string, string>) => void;
@@ -70,7 +82,7 @@ type AdminEditorPropsType = React.PropsWithChildren<{
   extraActions?: ButtonProps[];
 }>;
 
-const processFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+const processFile = (event: ChangeEvent<HTMLInputElement>) => {
   if (!event.target.files || event.target.files.length === 0) return Promise.resolve("");
 
   const f = event.target.files[0];
@@ -94,7 +106,7 @@ const FileField: Field = (p) => (
 type DescriptedEnum = { const: string; title: string };
 type DescriptedEnumObject = Record<string, DescriptedEnum>;
 
-const SelectdChipRenderer: React.FC<{ selectable: DescriptedEnumObject; selected: string[] }> = ({ selectable, selected }) => {
+const SelectdChipRenderer: FC<{ selectable: DescriptedEnumObject; selected: string[] }> = ({ selectable, selected }) => {
   const children = selected.map((v) => <Chip key={v} label={selectable[v].title || ""} />);
   return <Stack sx={{ flexWrap: "wrap" }} direction="row" spacing={0.5} children={children} />;
 };
@@ -139,12 +151,12 @@ const fieldPropsToSelectedProps = (props: FieldProps): OutlinedSelectProps & { d
     idPrefix,
     idSeparator,
   };
-  const onFocus = (event: React.FocusEvent<HTMLInputElement>) => rawOnFocus(event.currentTarget.name, event.currentTarget.value);
-  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => rawOnBlur(event.currentTarget.name, event.currentTarget.value);
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => rawOnChange(event.target.value, undefined, event.target.name);
+  const onFocus = (event: FocusEvent<HTMLInputElement>) => rawOnFocus(event.currentTarget.name, event.currentTarget.value);
+  const onBlur = (event: FocusEvent<HTMLInputElement>) => rawOnBlur(event.currentTarget.name, event.currentTarget.value);
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => rawOnChange(event.target.value, undefined, event.target.name);
   const sx: OutlinedSelectProps["sx"] = color ? { color, borderColor: color } : {};
-  const defaultValue = (formData ? (R.isArray(formData) ? formData : [formData.toString()]) : []) as string[];
-  return R.addProp({ ...rest, name, label: name, defaultValue, autoFocus, readOnly, onFocus, onBlur, onChange, sx }, "data-rjsf", data);
+  const defaultValue = (formData ? (isArray(formData) ? formData : [formData.toString()]) : []) as string[];
+  return addProp({ ...rest, name, label: name, defaultValue, autoFocus, readOnly, onFocus, onBlur, onChange, sx }, "data-rjsf", data);
 };
 
 const M2MSelect: Field = ErrorBoundary.with(
@@ -185,7 +197,7 @@ const MDRendererContainer = styled(Box)(({ theme }) => ({
 
 const MDEditorField: Field = ErrorBoundary.with({ fallback: ErrorFallback }, ({ disabled, formData, name, onChange: rawOnChange }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
-  const [valueState, setValueState] = React.useState<string | undefined>(formData?.toString() || "");
+  const [valueState, setValueState] = useState<string | undefined>(formData?.toString() || "");
   const onChange = (value?: string) => {
     setValueState(value);
     rawOnChange(value, undefined, name);
@@ -195,10 +207,10 @@ const MDEditorField: Field = ErrorBoundary.with({ fallback: ErrorFallback }, ({ 
       <Typography variant="subtitle2" component="legend" children={name} />
       <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", minHeight: "100%", maxHeight: "100%", flexGrow: 1, py: 2 }}>
         <Box sx={{ width: "50%", maxWidth: "50%" }}>
-          <Components.MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
+          <MarkdownEditor disabled={disabled} name={name} value={valueState} onChange={onChange} extraCommands={[]} />
         </Box>
         <MDRendererContainer>
-          <Components.MDXRenderer text={valueState || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={valueState || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </MDRendererContainer>
       </Stack>
     </MUIStyledFieldset>
@@ -212,21 +224,21 @@ type ReadOnlyValueFieldStateType = {
   objectUrl: string | null;
 };
 
-const ReadOnlyValueField: React.FC<{
+const ReadOnlyValueField: FC<{
   name: string;
   value: unknown;
   uiSchema: UiSchema;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ name, value, uiSchema }) => {
-  const [fieldState, setFieldState] = React.useState<ReadOnlyValueFieldStateType>({
+  const [fieldState, setFieldState] = useState<ReadOnlyValueFieldStateType>({
     loading: true,
     blob: null,
     blobText: null,
     objectUrl: null,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
-      if (!(R.isString(value) && value.startsWith("http") && uiSchema?.[name]["ui:field"] === "file")) {
+      if (!(isString(value) && value.startsWith("http") && uiSchema?.[name]["ui:field"] === "file")) {
         setFieldState((ps) => ({ ...ps, loading: false }));
         return;
       }
@@ -248,7 +260,7 @@ const ReadOnlyValueField: React.FC<{
         )}
         {fieldState.blob.type.startsWith("application/json") && fieldState.blobText && (
           <Box sx={{ maxWidth: "600px", overflow: "auto" }}>
-            <Components.LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
+            <LottieDebugPanel data={JSON.parse(fieldState.blobText)} />
           </Box>
         )}
         <a href={value as string}>링크</a>
@@ -264,7 +276,7 @@ type InnerAdminEditorStateType = {
   formData: Record<string, string> | undefined;
 };
 
-const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoundary.with(
+const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with(
     { fallback: <CircularProgress /> },
@@ -284,8 +296,8 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       children,
     }) => {
       const navigate = useNavigate();
-      const formRef = React.useRef<Form<Record<string, string>, RJSFSchema, { [k in string]: unknown }> | null>(null);
-      const [editorState, setEditorState] = React.useState<InnerAdminEditorStateType>({
+      const formRef = useRef<Form<Record<string, string>, RJSFSchema, { [k in string]: unknown }> | null>(null);
+      const [editorState, setEditorState] = useState<InnerAdminEditorStateType>({
         tab: 0,
         formData: undefined,
       });
@@ -295,7 +307,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const { data: choicesData } = useChoicesQuery(backendAdminClient, app, resource);
 
       // Merge choices into schema for FK/M2M fields
-      React.useMemo(() => {
+      useMemo(() => {
         if (!choicesData || !schemaInfo.schema.properties) return;
         for (const [fieldName, items] of Object.entries(choicesData)) {
           const prop = (schemaInfo.schema.properties as Record<string, RJSFSchema>)[fieldName];
@@ -308,7 +320,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         }
       }, [choicesData, schemaInfo.schema]);
 
-      const setTab = (_: React.SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
+      const setTab = (_: SyntheticEvent, tab: number) => setEditorState((ps) => ({ ...ps, tab }));
       const setFormData = (formData?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData }));
       const appendFormDataState = (data?: Record<string, string>) => setEditorState((ps) => ({ ...ps, formData: { ...ps.formData, ...data } }));
       const selectedLanguage = editorState.tab === 0 ? "ko" : "en";
@@ -319,7 +331,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
       const deleteMutation = useRemoveMutation(backendAdminClient, app, resource, id || "undefined");
       const submitMutation = id ? modifyMutation : createMutation;
 
-      React.useEffect(() => {
+      useEffect(() => {
         (async () => {
           if (!id) {
             setFormData(context || {});
@@ -332,9 +344,9 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [app, resource, id, context]);
 
-      const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => formRef.current && formRef.current.submit();
+      const onSubmitButtonClick: MouseEventHandler<HTMLButtonElement> = () => formRef.current && formRef.current.submit();
 
-      const onSubmitFunc = (data: EditorFormDataEventType, event: React.FormEvent) => {
+      const onSubmitFunc = (data: EditorFormDataEventType, event: FormEvent) => {
         // react-jsonschema-form에서 주는 formData에는 translation_fields로 필터링된 필드가 빠져있어,
         // 사용자가 특정 탭에서 수정한 후 다른 탭으로 이동해서 수정하게 되면 이전 탭의 수정 내용이 사라지는 문제가 발생함.
         // 따라서, onChange로 항상 값이 추적되는 editorState.formData를 가장 우선적으로 사용함.
@@ -368,7 +380,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
 
       const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
 
-      if (R.isNonNullish(hidingFields) && R.isObjectType(schemaInfo.schema.properties)) {
+      if (isNonNullish(hidingFields) && isObjectType(schemaInfo.schema.properties)) {
         schemaInfo.schema.properties = Object.entries(schemaInfo.schema.properties || {})
           .filter(([key]) => !hidingFields.includes(key))
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {} as RJSFSchema);
@@ -404,7 +416,7 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
         }
       };
 
-      React.useEffect(() => {
+      useEffect(() => {
         document.addEventListener("keydown", handleCtrlSAction);
         return () => {
           console.log("Removing event listener for Ctrl+S action");
@@ -502,18 +514,15 @@ const InnerAdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = Err
   )
 );
 
-export const AdminEditor: React.FC<AppResourceIdType & AdminEditorPropsType> = (props) => (
+export const AdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = (props) => (
   <BackendAdminSignInGuard>
     <InnerAdminEditor {...props} />
   </BackendAdminSignInGuard>
 );
 
-export const AdminEditorCreateRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = (props) => <AdminEditor {...props} />;
+export const AdminEditorCreateRoutePage: FC<AppResourceType & AdminEditorPropsType> = (props) => <AdminEditor {...props} />;
 
-export const AdminEditorModifyRoutePage: React.FC<AppResourceType & AdminEditorPropsType> = Suspense.with(
-  { fallback: <CircularProgress /> },
-  (props) => {
-    const { id } = useParams<{ id?: string }>();
-    return <AdminEditor {...props} id={id} />;
-  }
-);
+export const AdminEditorModifyRoutePage: FC<AppResourceType & AdminEditorPropsType> = Suspense.with({ fallback: <CircularProgress /> }, (props) => {
+  const { id } = useParams<{ id?: string }>();
+  return <AdminEditor {...props} id={id} />;
+});

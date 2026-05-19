@@ -1,18 +1,18 @@
-import { Components } from "@frontend/common";
-import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { MDXEditor, MDXRenderer } from "@frontend/common/components";
+import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSectionsQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { PageSectionSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
 import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { commands } from "@uiw/react-md-editor";
-import * as React from "react";
+import { FC, SyntheticEvent, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { PageSectionSchema } from "../../../../../../packages/common/src/schemas/backendAdminAPI";
-import { muiTheme } from "../../../styles/globalStyles";
-import { addErrorSnackbar } from "../../../utils/snackbar";
-import { ErrorFallback } from "../../elements/error_fallback";
-import { AdminEditor } from "../../layouts/admin_editor";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
+import { muiTheme } from "@apps/pyconkr-admin/styles/globalStyles";
+import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type SectionType = PageSectionSchema;
 
@@ -33,7 +33,7 @@ type SectionEditorPropType = CommonSectionEditorPropType & {
   onChange: (value: SectionType) => void;
 };
 
-const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+const SectionTextEditor: FC<SectionTextEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   const deleteActionButton = commands.group([], {
     name: "delete",
@@ -46,21 +46,21 @@ const SectionTextEditor: React.FC<SectionTextEditorPropType> = ({ disabled, defa
   return (
     <Stack direction="row" spacing={2} sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
       <Stack sx={{ flexGrow: 1, width: "50%" }}>
-        <Components.MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
+        <MDXEditor disabled={disabled} defaultValue={defaultValue} onChange={onChange} extraCommands={[deleteActionButton]} />
         <Button size="small" onClick={onInsertNewSection} startIcon={<Add />}>
           여기에 섹션 추가
         </Button>
       </Stack>
       <Box sx={{ flexGrow: 1, width: "50%", backgroundColor: "#fff" }}>
         <ThemeProvider theme={muiTheme}>
-          <Components.MDXRenderer text={defaultValue || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={defaultValue || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </ThemeProvider>
       </Box>
     </Stack>
   );
 };
 
-const SectionEditorField: React.FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+const SectionEditorField: FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
   const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
 
   return (
@@ -81,20 +81,20 @@ type AdminCMSPageEditorStateType = {
   sections?: SectionType[];
 };
 
-export const AdminCMSPageEditor: React.FC = ErrorBoundary.with(
+export const AdminCMSPageEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const { id } = useParams<{ id?: string }>();
     const { frontendDomain } = useCommonContext();
     const backendAdminClient = useBackendAdminClient();
     const { data: initialSections } = useListPageSectionsQuery(backendAdminClient, id || "");
-    const [editorState, setEditorState] = React.useState<AdminCMSPageEditorStateType>({
+    const [editorState, setEditorState] = useState<AdminCMSPageEditorStateType>({
       sections: initialSections,
       tab: 0,
     });
     const bulkUpdateSectionsMutation = useBulkUpdatePageSectionsMutation(backendAdminClient, id || "");
 
-    const setTab = (_: React.SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
+    const setTab = (_: SyntheticEvent, selectedTab: number) => setEditorState((ps) => ({ ...ps, tab: selectedTab }));
 
     const openOnSiteButton: ButtonProps = {
       variant: "outlined",

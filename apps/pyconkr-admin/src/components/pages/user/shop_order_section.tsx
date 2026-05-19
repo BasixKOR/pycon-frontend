@@ -1,12 +1,12 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Alert, Chip, CircularProgress, Divider, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
 
-import { ErrorFallback } from "../../elements/error_fallback";
-import { PAYMENT_STATUS_LABEL } from "../shop/_common/status_labels";
-import { PaymentStatus } from "../shop/order/types";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
+import { PaymentStatus } from "@apps/pyconkr-admin/components/pages/shop/order/types";
 
 type OrderListRow = {
   id: string;
@@ -20,7 +20,7 @@ type OrderListRow = {
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
-const InnerShopOrderSection: React.FC<{ userId: string }> = ErrorBoundary.with(
+const InnerShopOrderSection: FC<{ userId: string }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ userId }) => {
     const client = useBackendAdminClient();
@@ -81,4 +81,4 @@ const InnerShopOrderSection: React.FC<{ userId: string }> = ErrorBoundary.with(
   })
 );
 
-export const ShopOrderSection: React.FC<{ userId: string }> = (props) => <InnerShopOrderSection {...props} />;
+export const ShopOrderSection: FC<{ userId: string }> = (props) => <InnerShopOrderSection {...props} />;

@@ -4,16 +4,16 @@ import {
   useRenderTemplateMutation,
   useRetrieveQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, Save, Visibility } from "@mui/icons-material";
 import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 const APP = "notification/email";
 const RESOURCE = "template";
@@ -48,7 +48,7 @@ const isValidJson = (s: string): boolean => {
   }
 };
 
-const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
+const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const navigate = useNavigate();
@@ -56,14 +56,14 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
     const backendAdminClient = useBackendAdminClient();
     const { data: retrievedData } = useRetrieveQuery<EmailTemplateSchema>(backendAdminClient, APP, RESOURCE, id || "");
 
-    const [formData, setFormData] = React.useState<EmailTemplateFormData>(() => ({
+    const [formData, setFormData] = useState<EmailTemplateFormData>(() => ({
       code: retrievedData?.code ?? "",
       title: retrievedData?.title ?? "",
       description: retrievedData?.description ?? "",
       data: retrievedData?.data ?? "",
       sent_from: retrievedData?.sent_from ?? "",
     }));
-    const [contextJson, setContextJson] = React.useState("{}");
+    const [contextJson, setContextJson] = useState("{}");
 
     const createMutation = useCreateMutation<EmailTemplateFormData>(backendAdminClient, APP, RESOURCE);
     const updateMutation = useUpdateMutation<EmailTemplateFormData>(backendAdminClient, APP, RESOURCE, id || "");
@@ -197,7 +197,7 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
   })
 );
 
-export const AdminEmailTemplateEditor: React.FC = () => (
+export const AdminEmailTemplateEditor: FC = () => (
   <BackendAdminSignInGuard>
     <InnerAdminEmailTemplateEditor />
   </BackendAdminSignInGuard>

@@ -1,12 +1,13 @@
-import { Components, Utils } from "@frontend/common";
-import type { ContextOptions } from "@frontend/common/src/contexts";
+import { CenteredPage, CommonContextProvider } from "@frontend/common/components";
+import type { ContextOptions } from "@frontend/common/contexts";
+import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
 import { CircularProgress, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
-import * as React from "react";
-import * as ReactDom from "react-dom/client";
+import { FC, StrictMode, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./App.tsx";
@@ -32,7 +33,7 @@ const queryClient = new QueryClient({
   }),
 });
 
-export const muiTheme = createTheme();
+const muiTheme = createTheme();
 
 const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
@@ -48,24 +49,24 @@ const CommonOptions: ContextOptions = {
 };
 
 const SuspenseFallback = (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
-const MainApp: React.FC = () => {
-  const [appState, setAppContext] = React.useState<Omit<AppContextType, "setAppContext">>({
+export const MainApp: FC = () => {
+  const [appState, setAppContext] = useState<Omit<AppContextType, "setAppContext">>({
     language: (localStorage.getItem(LOCAL_STORAGE_LANGUAGE_KEY) as "ko" | "en" | null) ?? "ko",
   });
 
   return (
-    <React.StrictMode>
+    <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <SnackbarProvider>
           <BrowserRouter>
             <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
                 <ErrorBoundary fallback={ErrorPage}>
                   <Suspense fallback={SuspenseFallback}>
                     <ThemeProvider theme={muiTheme}>
@@ -74,15 +75,15 @@ const MainApp: React.FC = () => {
                     </ThemeProvider>
                   </Suspense>
                 </ErrorBoundary>
-              </Components.CommonContextProvider>
+              </CommonContextProvider>
             </AppContext.Provider>
           </BrowserRouter>
         </SnackbarProvider>
       </QueryClientProvider>
-    </React.StrictMode>
+    </StrictMode>
   );
 };
 
-Utils.registerChunkLoadErrorReloadHandler();
+registerChunkLoadErrorReloadHandler();
 
-ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);
+createRoot(document.getElementById("root")!).render(<MainApp />);

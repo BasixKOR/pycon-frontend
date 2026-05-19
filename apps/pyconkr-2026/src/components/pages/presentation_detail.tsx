@@ -1,16 +1,16 @@
-import { Components } from "@frontend/common";
-import { useBackendClient, useSessionQuery } from "@frontend/common/src/hooks/useAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import PyCon2025Logo from "@frontend/common/assets/pyconkr2025_logo.png";
+import { CenteredPage, ErrorFallback, FallbackImage, LinkHandler, MDXRenderer } from "@frontend/common/components";
+import { useBackendClient, useSessionQuery } from "@frontend/common/hooks/useAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
-import * as React from "react";
+import { CSSProperties, FC, useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isString } from "remeda";
 
-import PyCon2025Logo from "../../../../../packages/common/src/assets/pyconkr2025_logo.png";
-import { useAppContext } from "../../contexts/app_context";
-import { PageLayout } from "../layout/PageLayout";
+import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 const PROFILE_IMAGE_SIZE = "7rem";
 
@@ -21,13 +21,13 @@ type SimplifiedSpeakerSchema = {
   biography: string;
 };
 
-const CenteredLoadingPage: React.FC = () => (
-  <Components.CenteredPage>
+const CenteredLoadingPage: FC = () => (
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
-const StyledPresentationImage = styled(Components.FallbackImage)(({ theme }) => ({
+const StyledPresentationImage = styled(FallbackImage)(({ theme }) => ({
   maxWidth: "75%",
   maxHeight: "480px",
   aspectRatio: "1",
@@ -86,21 +86,21 @@ const ProfileImageContainer = styled(Stack)({
   border: `1px solid rgba(0, 0, 0, 0.12)`,
 });
 
-const ProfileImageStyle: React.CSSProperties = {
+const ProfileImageStyle: CSSProperties = {
   width: "100%",
   height: "100%",
   objectFit: "cover",
 };
 
-const ProfileImage = styled(Components.FallbackImage)(ProfileImageStyle);
+const ProfileImage = styled(FallbackImage)(ProfileImageStyle);
 
-const ProfileImageErrorFallback: React.FC = () => (
+const ProfileImageErrorFallback: FC = () => (
   <Stack alignItems="center" justifyContent="center" sx={{ ...ProfileImageStyle }}>
     <img src={PyCon2025Logo} alt="PyCon 2025 Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
   </Stack>
 );
 
-const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = ({ speaker }) => {
+const PresentationSpeakerItem: FC<{ speaker: SimplifiedSpeakerSchema }> = ({ speaker }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   return (
     <>
@@ -111,9 +111,7 @@ const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = 
         <Stack alignItems="flex-start" justifyContent="center" sx={{ flexGrow: 1 }}>
           <Typography variant="h4" fontWeight="700" fontSize="2rem" children={speaker.nickname} />
           {speaker.biography ? (
-            <BiographyBox
-              children={<Components.MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />}
-            />
+            <BiographyBox children={<MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />} />
           ) : (
             <>
               <br />
@@ -127,7 +125,7 @@ const PresentationSpeakerItem: React.FC<{ speaker: SimplifiedSpeakerSchema }> = 
   );
 };
 
-const PresentationImageFallback: React.FC<{ language: "ko" | "en" }> = ({ language }) => {
+const PresentationImageFallback: FC<{ language: "ko" | "en" }> = ({ language }) => {
   const message =
     language === "ko" ? (
       <>
@@ -146,8 +144,8 @@ const PresentationImageFallback: React.FC<{ language: "ko" | "en" }> = ({ langua
   return <Typography variant="caption" color="textSecondary" children={message} />;
 };
 
-export const PresentationDetailPage: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+export const PresentationDetailPage: FC = ErrorBoundary.with(
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, setAppContext } = useAppContext();
@@ -188,7 +186,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
       {} as Record<string, string[]>
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
       setAppContext((prev) => ({
         ...prev,
         title: language === "ko" ? "발표 상세" : "Presentation Detail",
@@ -246,11 +244,11 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
                 </TableCell>
               </TableRow>
             ) : null}
-            {R.isString(presentation.public_slideshow_file) ? (
+            {isString(presentation.public_slideshow_file) ? (
               <TableRow>
                 <HeaderTableCell children={<Typography variant="subtitle1" fontWeight="bold" children={slideShowStr} />} />
                 <TableCell sx={(theme) => ({ color: theme.palette.primary.main, textDecoration: "underline" })}>
-                  <Components.LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />
+                  <LinkHandler href={presentation.public_slideshow_file} children={slideShowLinkStr} />
                 </TableCell>
               </TableRow>
             ) : null}
@@ -264,12 +262,7 @@ export const PresentationDetailPage: React.FC = ErrorBoundary.with(
           />
         )}
         <DescriptionBox>
-          <Components.MDXRenderer
-            text={presentation.description || descriptionFallback}
-            format="md"
-            baseUrl={baseUrl}
-            mdxComponents={mdxComponents}
-          />
+          <MDXRenderer text={presentation.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </DescriptionBox>
         <Divider flexItem />
         {presentation.speakers && (
