@@ -10,7 +10,6 @@ import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton"
 
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
-// import { ScanCodeButton } from "@apps/pyconkr-2025/components/layout/UserScanCodeButton";
 
 type MenuType = NestedSiteMapSchema;
 
