@@ -200,7 +200,6 @@ export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, s
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <MobileLanguageToggle isMainPath={isMainPath} />
           </Stack>
-          {/* <ScanCodeButton /> */}
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <SignInButton isMobile isMainPath={isMainPath} onClose={handleClose} />
           </Stack>

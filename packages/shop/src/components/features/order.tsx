@@ -1,4 +1,5 @@
 import { OneDetailsOpener, PrimaryStyledDetails } from "@frontend/common/components/mdx_components";
+import { useBackendContext } from "@frontend/common/hooks/useAPI";
 import {
   AccordionProps,
   Button,
@@ -18,6 +19,7 @@ import { FC, ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { isNullish } from "remeda";
 
+import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import {
   useOneItemRefundMutation,
@@ -112,7 +114,7 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
       { order_id: order.id, order_product_relation_id: prodRel.id },
       {
         onSuccess: () => addSnackbar(succeededToRefundOrderStr, "success"),
-        onError: () => addSnackbar(failedToRefundOrderStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToRefundOrderStr), "error"),
       }
     );
   const patchOneItemOptions = () => {
@@ -138,7 +140,7 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
       },
       {
         onSuccess: () => addSnackbar(succeededToPatchOptionsStr, "success"),
-        onError: () => addSnackbar(failedToPatchOptionsStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToPatchOptionsStr), "error"),
       }
     );
   };
@@ -182,7 +184,8 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
 type OrderItemProps = Omit<AccordionProps, "children"> & { order: Order; disabled?: boolean };
 
 const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
-  const { language, shopApiDomain } = useShopContext();
+  const { language } = useShopContext();
+  const { backendApiDomain } = useBackendContext();
   const shopAPIClient = useShopClient();
   const orderRefundMutation = useOrderRefundMutation(shopAPIClient);
   const oneItemRefundMutation = useOneItemRefundMutation(shopAPIClient);
@@ -209,10 +212,10 @@ const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
       { order_id: order.id },
       {
         onSuccess: () => addSnackbar(succeededToRefundFullOrderStr, "success"),
-        onError: () => addSnackbar(failedToRefundFullOrderStr, "error"),
+        onError: (error) => addSnackbar(formatBackendErrorMessage(error, failedToRefundFullOrderStr), "error"),
       }
     );
-  const openReceipt = () => window.open(`${shopApiDomain}/v1/orders/${order.id}/receipt/`, "_blank");
+  const openReceipt = () => window.open(`${backendApiDomain}/v1/shop/orders/${order.id}/receipt/`, "_blank");
 
   const isPending = disabled || orderRefundMutation.isPending || oneItemRefundMutation.isPending || optionsOfOneItemInOrderPatchMutation.isPending;
   const refundBtnDisabled = isPending || !isNullish(order.not_fully_refundable_reason);

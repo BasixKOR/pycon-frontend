@@ -149,7 +149,6 @@ const Header: FC = () => {
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
             <CartBadgeButton />
-            {/* <ScanCodeIconButton /> */}
             <SignInButton />
           </Stack>
         </NavSideElementContainer>
