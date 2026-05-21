@@ -12,7 +12,12 @@ export default defineConfig(({ mode }) => {
   const backendApiDomain = env.VITE_PYCONKR_BACKEND_API_DOMAIN ?? "";
 
   // 백엔드 응답 쿠키의 Domain 속성(예: pycon.kr) 제거 — localhost origin에서 브라우저가 저장 가능하도록.
-  const proxyOptions = { target: backendApiDomain, changeOrigin: true, cookieDomainRewrite: "" };
+  const proxyOptions = {
+    target: backendApiDomain,
+    changeOrigin: true,
+    cookieDomainRewrite: "",
+    headers: { "X-Frontend-Domain": "2026.pycon.kr" },
+  };
 
   return {
     base: "/",
