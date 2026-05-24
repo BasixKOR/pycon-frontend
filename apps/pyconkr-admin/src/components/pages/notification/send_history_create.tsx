@@ -90,10 +90,11 @@ const NotAppliableToAllRecipientsFieldList = [
 const URL_REGEX = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INTERNATIONAL_PHONE_REGEX = /^\+\d{1,4}[-\s]?\d+(?:[-\s]?\d+)*$/;
+const KOREAN_PHONE_REGEX = /^01[016-9][-\s]?\d{3,4}[-\s]?\d{4}$/;
 
 const isValidEmail = (value: string) => EMAIL_REGEX.test(value);
 const isValidUrl = (value: string) => URL_REGEX.test(value);
-const isValidPhone = (value: string) => URL_REGEX.test(value) || INTERNATIONAL_PHONE_REGEX.test(value);
+const isValidPhone = (value: string) => KOREAN_PHONE_REGEX.test(value) || INTERNATIONAL_PHONE_REGEX.test(value);
 
 const validateRecipientForApp = (app: NotificationChannelApp, value: string): string | null => {
   const trimmed = value.trim();
