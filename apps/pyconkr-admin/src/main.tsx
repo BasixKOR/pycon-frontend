@@ -37,8 +37,8 @@ const queryClient = new QueryClient({
   }),
 });
 
-const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
-const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
+// dev 서버에서는 vite proxy(/v1, /api)로 백엔드 호출 → relative URL 사용 (same-origin이라 CORS/쿠키 문제 회피)
+const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
   debug: true,
