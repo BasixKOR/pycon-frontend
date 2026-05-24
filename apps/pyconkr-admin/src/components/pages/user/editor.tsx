@@ -9,8 +9,10 @@ import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fal
 import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
 import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
+import { EmailAddressSection } from "./email_address_section";
 import { PasswordResultDialog } from "./password_result_dialog";
 import { ShopOrderSection } from "./shop_order_section";
+import { SocialAccountSection } from "./social_account_section";
 
 type PageStateType = {
   isConfirmDialogOpen: boolean;
@@ -75,6 +77,11 @@ export const AdminUserExtEditor: FC = ErrorBoundary.with(
       onClick: () => id && openConfirmDialog(),
     };
 
+    const stripNestedFromSubmit = (data: Record<string, string>) => {
+      delete data.email_addresses;
+      delete data.social_accounts;
+    };
+
     return (
       <>
         <Dialog open={pageState.isConfirmDialogOpen}>
@@ -92,8 +99,22 @@ export const AdminUserExtEditor: FC = ErrorBoundary.with(
 
         <PasswordResultDialog open={pageState.isResultDialogOpen} password={pageState.newPassword} onClose={closeResultDialog} />
 
-        <AdminEditor app="user" resource="userext" id={id} extraActions={[resetUserPasswordButton]} onCreated={onCreated}>
-          {id && <ShopOrderSection userId={id} />}
+        <AdminEditor
+          app="user"
+          resource="userext"
+          id={id}
+          hidingFields={["email_addresses", "social_accounts"]}
+          extraActions={[resetUserPasswordButton]}
+          onCreated={onCreated}
+          beforeSubmit={stripNestedFromSubmit}
+        >
+          {id && (
+            <>
+              <EmailAddressSection userId={id} />
+              <SocialAccountSection userId={id} />
+              <ShopOrderSection userId={id} />
+            </>
+          )}
           <br />
         </AdminEditor>
       </>

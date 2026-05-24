@@ -1,6 +1,7 @@
 import {
   AccountCircle,
   AccountTree,
+  AlternateEmail,
   Apartment,
   Article,
   AutoFixHigh,
@@ -13,11 +14,13 @@ import {
   FolderSpecial,
   Forum,
   Handshake,
+  Login,
   LocalOffer,
   ManageAccounts,
   MarkEmailRead,
   MeetingRoom,
   NoteAlt,
+  Person,
   Public,
   ReceiptLong,
   Send,
@@ -317,6 +320,34 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "oauth2",
   },
   {
+    type: "separator",
+    key: "allauth-separator",
+    title: "소셜 계정 관리",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "allauth-social-app",
+    icon: Login,
+    title: "소셜 앱",
+    app: "allauth",
+    resource: "social-app",
+  },
+  {
+    type: "routeDefinition",
+    key: "allauth-social-account",
+    icon: Person,
+    title: "소셜 계정",
+    route: "/allauth/social-account",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "allauth-email-address",
+    icon: AlternateEmail,
+    title: "이메일 주소",
+    app: "allauth",
+    resource: "email-address",
+  },
+  {
     type: "routeDefinition",
     key: "user-account",
     icon: AccountCircle,
@@ -364,6 +395,21 @@ export const RegisteredRoutes = {
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
   "/user/userext/:id": <AdminUserExtEditor />,
+  "/allauth/social-app": <AdminList app="allauth" resource="social-app" hideCreatedAt hideUpdatedAt />,
+  "/allauth/social-account": (
+    <AdminList
+      app="allauth"
+      resource="social-account"
+      hideCreatedAt
+      hideUpdatedAt
+      hideCreateNew
+      filterChoicesFrom={{ user: { app: "allauth", resource: "email-address" } }}
+    />
+  ),
+  "/allauth/social-account/:id": (
+    <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
+  ),
+  "/allauth/email-address": <AdminList app="allauth" resource="email-address" hideCreatedAt hideUpdatedAt />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/manage": <AccountManagementPage />,

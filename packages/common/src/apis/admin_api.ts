@@ -47,6 +47,21 @@ export const listPaginated =
   () =>
     client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
 
+export type ListAutoResult<T> = {
+  items: T[];
+  pagination: { count: number; next: string | null; previous: string | null } | null;
+};
+
+// Probes the list endpoint and normalizes whether the viewset uses DRF pagination:
+// paginated responses become {items, pagination}, flat array responses become {items, pagination: null}.
+export const listAuto =
+  <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  async (): Promise<ListAutoResult<T>> => {
+    const data = await client.get<T[] | PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
+    if (Array.isArray(data)) return { items: data, pagination: null };
+    return { items: data.results, pagination: { count: data.count, next: data.next, previous: data.previous } };
+  };
+
 export const retrieve =
   <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
   () => {

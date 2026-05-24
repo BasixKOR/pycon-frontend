@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   approveModificationAudit,
@@ -8,6 +8,7 @@ import {
   create,
   issueGoogleOAuth2AccessToken,
   list,
+  listAuto,
   listPaginated,
   listSections,
   me,
@@ -108,6 +109,14 @@ export const useChoicesQuery = (client: BackendAPIClient, app: string, resource:
     queryFn: choices(client, app, resource),
   });
 
+export const useChoicesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
+  useSuspenseQueries({
+    queries: pairs.map(({ app, resource }) => ({
+      queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
+      queryFn: choices(client, app, resource),
+    })),
+  });
+
 export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
     queryKey: QUERY_KEYS.ADMIN_OPENAPI_SCHEMA,
@@ -125,6 +134,12 @@ export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, 
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "paginated", JSON.stringify(params)],
     queryFn: listPaginated<T>(client, app, resource, params),
+  });
+
+export const useListAutoQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  useSuspenseQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "auto", JSON.stringify(params)],
+    queryFn: listAuto<T>(client, app, resource, params),
   });
 
 export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
