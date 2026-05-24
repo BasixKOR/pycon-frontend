@@ -18,7 +18,6 @@ export const ORDER_PRODUCT_STATUS_LABEL: Record<OrderProductStatus, { label: str
 };
 
 export const PRODUCT_STATUS_LABEL: Record<ProductCurrentStatus, { label: string; color: ChipColor }> = {
-  hidden: { label: "비공개", color: "default" },
   out_of_visible_period: { label: "노출 기간 아님", color: "default" },
   out_of_orderable_period: { label: "판매 기간 아님", color: "warning" },
   active: { label: "노출 중", color: "success" },

@@ -176,6 +176,11 @@ type OptionGroupFormValues = {
   name_en: string;
   min_quantity_per_product: string;
   max_quantity_per_product: string;
+  max_quantity_per_user: string;
+  visible_starts_at: string;
+  visible_ends_at: string;
+  orderable_starts_at: string;
+  orderable_ends_at: string;
   is_custom_response: boolean;
   custom_response_pattern: string;
   priority: string;
@@ -200,6 +205,11 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
     name_en: "",
     min_quantity_per_product: "0",
     max_quantity_per_product: "1",
+    max_quantity_per_user: "0",
+    visible_starts_at: "",
+    visible_ends_at: "",
+    orderable_starts_at: "",
+    orderable_ends_at: "",
     is_custom_response: false,
     custom_response_pattern: "",
     priority: "0",
@@ -213,6 +223,11 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
         name_en: group?.name_en ?? "",
         min_quantity_per_product: group ? String(group.min_quantity_per_product) : "0",
         max_quantity_per_product: group ? String(group.max_quantity_per_product) : "1",
+        max_quantity_per_user: group ? String(group.max_quantity_per_user) : "0",
+        visible_starts_at: group?.visible_starts_at ?? "",
+        visible_ends_at: group?.visible_ends_at ?? "",
+        orderable_starts_at: group?.orderable_starts_at ?? "",
+        orderable_ends_at: group?.orderable_ends_at ?? "",
         is_custom_response: group?.is_custom_response ?? false,
         custom_response_pattern: group?.custom_response_pattern ?? "",
         priority: group ? String(group.priority) : String(existingGroupCount * 10),
@@ -238,6 +253,11 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
       name_en: values.name_en,
       min_quantity_per_product: Number(values.min_quantity_per_product) || 0,
       max_quantity_per_product: Number(values.max_quantity_per_product) || 1,
+      max_quantity_per_user: Number(values.max_quantity_per_user) || 0,
+      visible_starts_at: values.visible_starts_at || null,
+      visible_ends_at: values.visible_ends_at || null,
+      orderable_starts_at: values.orderable_starts_at || null,
+      orderable_ends_at: values.orderable_ends_at || null,
       is_custom_response: values.is_custom_response,
       custom_response_pattern: values.is_custom_response ? values.custom_response_pattern : "",
       response_modifiable_ends_at: values.response_modifiable_ends_at || null,
@@ -259,7 +279,7 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
   const pending = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <Dialog open={open} onClose={pending ? undefined : onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={pending ? undefined : onClose} fullWidth maxWidth="md">
       <DialogTitle>{group ? `옵션 그룹 수정: ${group.name_ko}` : "새 옵션 그룹 추가"}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -296,11 +316,58 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
               fullWidth
             />
             <TextField
+              label="사용자당 최대 (0 = 제한 없음)"
+              type="number"
+              value={values.max_quantity_per_user}
+              onChange={(e) => setValues((p) => ({ ...p, max_quantity_per_user: e.target.value }))}
+              fullWidth
+            />
+            <TextField
               label="우선순위"
               type="number"
               value={values.priority}
               onChange={(e) => setValues((p) => ({ ...p, priority: e.target.value }))}
               fullWidth
+            />
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <TextField
+              label="노출 시작 (그룹별)"
+              type="datetime-local"
+              value={values.visible_starts_at?.slice(0, 16) ?? ""}
+              onChange={(e) => setValues((p) => ({ ...p, visible_starts_at: e.target.value }))}
+              fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+              helperText="비워두면 상품의 노출 기간을 따름"
+            />
+            <TextField
+              label="노출 종료 (그룹별)"
+              type="datetime-local"
+              value={values.visible_ends_at?.slice(0, 16) ?? ""}
+              onChange={(e) => setValues((p) => ({ ...p, visible_ends_at: e.target.value }))}
+              fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+              helperText="비워두면 상품의 노출 기간을 따름"
+            />
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <TextField
+              label="판매 시작 (그룹별)"
+              type="datetime-local"
+              value={values.orderable_starts_at?.slice(0, 16) ?? ""}
+              onChange={(e) => setValues((p) => ({ ...p, orderable_starts_at: e.target.value }))}
+              fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+              helperText="비워두면 상품의 판매 기간을 따름"
+            />
+            <TextField
+              label="판매 종료 (그룹별)"
+              type="datetime-local"
+              value={values.orderable_ends_at?.slice(0, 16) ?? ""}
+              onChange={(e) => setValues((p) => ({ ...p, orderable_ends_at: e.target.value }))}
+              fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+              helperText="비워두면 상품의 판매 기간을 따름"
             />
           </Stack>
           <FormControlLabel

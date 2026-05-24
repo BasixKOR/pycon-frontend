@@ -8,7 +8,6 @@ export type ProductFormValues = {
   image: string;
   price: string;
   stock: string;
-  hidden: boolean;
   max_quantity_per_user: string;
   category: string;
   priority: string;
@@ -33,7 +32,6 @@ export const buildDefaultFormValues = (existing?: ProductAdmin): ProductFormValu
   image: existing?.image ?? "",
   price: existing ? String(existing.price) : "0",
   stock: existing ? String(existing.stock) : "0",
-  hidden: existing?.hidden ?? false,
   max_quantity_per_user: existing ? String(existing.max_quantity_per_user) : "0",
   category: existing?.category ?? "",
   priority: existing ? String(existing.priority) : "0",
@@ -56,7 +54,6 @@ export const toPayload = (v: ProductFormValues) => ({
   image: v.image,
   price: Number(v.price) || 0,
   stock: Number(v.stock) || 0,
-  hidden: v.hidden,
   max_quantity_per_user: Number(v.max_quantity_per_user) || 0,
   category: v.category,
   priority: Number(v.priority) || 0,

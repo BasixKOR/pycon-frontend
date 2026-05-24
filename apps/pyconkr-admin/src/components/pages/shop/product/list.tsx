@@ -141,7 +141,6 @@ const InnerProductList: FC = ErrorBoundary.with(
           >
             <MenuItem value="all">전체 상태</MenuItem>
             <MenuItem value="active">노출 중</MenuItem>
-            <MenuItem value="hidden">비공개</MenuItem>
             <MenuItem value="out_of_visible_period">노출 기간 아님</MenuItem>
             <MenuItem value="out_of_orderable_period">판매 기간 아님</MenuItem>
           </Select>

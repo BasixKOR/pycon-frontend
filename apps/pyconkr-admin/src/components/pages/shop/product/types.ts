@@ -23,6 +23,11 @@ export type OptionGroupAdmin = {
   name_en: string;
   min_quantity_per_product: number;
   max_quantity_per_product: number;
+  max_quantity_per_user: number;
+  visible_starts_at: string | null;
+  visible_ends_at: string | null;
+  orderable_starts_at: string | null;
+  orderable_ends_at: string | null;
   is_custom_response: boolean;
   custom_response_pattern: string;
   response_modifiable_ends_at: string | null;
@@ -41,7 +46,6 @@ export type ProductAdmin = {
   image: string;
   price: number;
   stock: number;
-  hidden: boolean;
   max_quantity_per_user: number;
   visible_starts_at: string;
   visible_ends_at: string;
@@ -59,7 +63,7 @@ export type ProductAdmin = {
   current_status: ProductCurrentStatus;
 };
 
-export type ProductCurrentStatus = "hidden" | "out_of_visible_period" | "out_of_orderable_period" | "active";
+export type ProductCurrentStatus = "out_of_visible_period" | "out_of_orderable_period" | "active";
 
 export type TagAdmin = {
   id: string;

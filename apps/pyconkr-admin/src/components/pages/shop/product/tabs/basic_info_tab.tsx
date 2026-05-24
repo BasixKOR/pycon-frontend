@@ -1,20 +1,6 @@
 import { MarkdownEditor, MDXRenderer } from "@frontend/common/components";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
-import {
-  Autocomplete,
-  Box,
-  Checkbox,
-  Chip,
-  Divider,
-  FormControlLabel,
-  MenuItem,
-  Stack,
-  styled,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Autocomplete, Box, Chip, Divider, MenuItem, Stack, styled, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { FC, useState } from "react";
 
 import { PublicFilePicker } from "@apps/pyconkr-admin/components/elements/public_file_picker";
@@ -100,11 +86,6 @@ export const BasicInfoTab: FC<Props> = ({ values, setField, disabled, groups, ta
         renderInput={(params) => (
           <TextField {...params} label="태그" placeholder="태그를 선택하세요" helperText="태그는 별도 페이지에서 생성/수정할 수 있습니다." />
         )}
-      />
-
-      <FormControlLabel
-        control={<Checkbox checked={values.hidden} onChange={(e) => setField("hidden", e.target.checked)} />}
-        label="비공개 (사용자에게 노출되지 않음)"
       />
 
       <Divider />
