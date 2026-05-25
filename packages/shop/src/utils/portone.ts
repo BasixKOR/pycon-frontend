@@ -26,7 +26,7 @@ export const startPortOnePurchase = (
     {
       pg: "kcp",
       pay_method: "card",
-      merchant_uid: order.id,
+      merchant_uid: order.merchant_uid,
       name: "상품 구매",
       amount: order.first_paid_price,
       buyer_tel: "",

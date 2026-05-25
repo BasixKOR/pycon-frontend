@@ -216,6 +216,7 @@ export type CustomerInfo = {
 export type Order = {
   id: string;
   name: string;
+  merchant_uid: string;
   first_paid_price: number;
   current_paid_price: number;
   current_status: PaymentHistoryStatus;
