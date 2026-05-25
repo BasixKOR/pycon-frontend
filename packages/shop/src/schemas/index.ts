@@ -72,12 +72,28 @@ export type UserNotSignedInStatus = {
   };
 };
 
+export type OptionLeftoverStockInfo = {
+  product_max_quantity_per_user: number | null;
+  product_leftover_stock: number | null;
+  option_group_max_quantity_per_user: number | null;
+  option_max_quantity_per_user: number | null;
+  option_leftover_stock: number | null;
+};
+
+export type OptionGroupLeftoverStockInfo = {
+  product_max_quantity_per_user: number | null;
+  product_leftover_stock: number | null;
+  option_group_max_quantity_per_user: number | null;
+};
+
 export type Option = {
   id: string;
   name: string;
   additional_price: number;
   max_quantity_per_user: number;
   leftover_stock: number | null;
+  leftover_stock_per_user: number | null;
+  leftover_stock_info: OptionLeftoverStockInfo;
 };
 
 export type OptionGroup = {
@@ -86,6 +102,17 @@ export type OptionGroup = {
 
   min_quantity_per_product: number;
   max_quantity_per_product: number;
+  max_quantity_per_user: number;
+
+  // null이면 Product의 동일 필드를 따름.
+  visible_starts_at: string | null;
+  visible_ends_at: string | null;
+  orderable_starts_at: string | null;
+  orderable_ends_at: string | null;
+
+  leftover_stock_per_user: number | null;
+  leftover_stock_info: OptionGroupLeftoverStockInfo;
+
   options: Option[];
 } & (
   | {

@@ -1,7 +1,7 @@
 import { FallbackImage, MDXRenderer } from "@frontend/common/components";
 import { OneDetailsOpener, PrimaryStyledDetails } from "@frontend/common/components/mdx_components";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
-import { Close } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 import {
   AccordionProps,
   Box,
@@ -22,12 +22,13 @@ import {
   Stack,
   styled,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useReducer, useState } from "react";
+import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isEmpty, isNullish, isNumber, isString } from "remeda";
@@ -36,21 +37,27 @@ import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
 import type { CartItemAppendRequest, CustomerInfo, Order, Product, ProductListQueryParams } from "@frontend/shop/schemas";
-import { startPortOnePurchase } from "@frontend/shop/utils";
+import { getCannotAddMoreOptionGroupReason, getOptionGroupNotOrderableReason, startPortOnePurchase } from "@frontend/shop/utils";
 
-const getCartAppendRequestPayload = (product: Product, formValue: { [key: string]: string }): CartItemAppendRequest => {
+const getCartAppendRequestPayload = (
+  product: Product,
+  formValue: { [key: string]: string },
+  instanceToGroup: Map<string, string>
+): CartItemAppendRequest => {
   let donation_price = formValue.donation_price ? parseInt(formValue.donation_price) : 0;
   if (isNaN(donation_price)) donation_price = 0;
 
   const options = Object.entries(formValue)
-    .filter(([product_option_group]) => product_option_group !== "donation_price")
-    .map(([product_option_group, value]) => {
-      const optionGroup = product.option_groups.find((group) => group.id === product_option_group);
-      if (!optionGroup) throw new Error(`Option group ${product_option_group} not found`);
+    .filter(([key]) => key !== "donation_price")
+    .map(([key, value]) => {
+      // 필수 그룹은 key=groupId, 선택 그룹 인스턴스는 key=instanceId → groupId 룩업
+      const groupId = instanceToGroup.get(key) ?? key;
+      const optionGroup = product.option_groups.find((group) => group.id === groupId);
+      if (!optionGroup) throw new Error(`Option group ${groupId} not found`);
 
       const product_option = optionGroup.is_custom_response ? null : value;
       const custom_response = optionGroup.is_custom_response ? value : null;
-      return { product_option_group, product_option, custom_response };
+      return { product_option_group: groupId, product_option, custom_response };
     });
 
   return { product: product.id, options, ...(product.donation_allowed ? { donation_price } : {}) };
@@ -110,7 +117,11 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
   const [, forceRender] = useReducer((x) => x + 1, 0);
   const [helperText, setHelperText] = useState<string | undefined>(undefined);
   const { baseUrl, mdxComponents } = useCommonContext();
-  const { handleSubmit, subscribe, control, getValues, register, formState } = useForm<Record<string, string>>({ mode: "all" });
+  const { handleSubmit, subscribe, control, getValues, register, unregister, formState } = useForm<Record<string, string>>({ mode: "all" });
+  // 선택(min=0) 그룹의 동적 인스턴스. 각 인스턴스 id가 form field name으로 쓰임 — `${groupId}__${counter}` 형태.
+  const [optionalInstances, setOptionalInstances] = useState<{ id: string; groupId: string }[]>([]);
+  const instanceCounterRef = useRef(0);
+  const instanceToGroup = useMemo(() => new Map(optionalInstances.map((i) => [i.id, i.groupId])), [optionalInstances]);
   const shopAPIClient = useShopClient();
   const addItemToCartMutation = useAddItemToCartMutation(shopAPIClient);
   const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
@@ -127,6 +138,8 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
 
   const requiresSignInStr =
     language === "ko" ? "로그인 후 장바구니에 담거나 구매할 수 있어요." : "You need to sign in to add items to the cart or make a purchase.";
+  const addOptionGroupLabel = (name: string) => (language === "ko" ? `${name} 추가` : `Add ${name}`);
+  const removeOptionGroupAriaLabel = language === "ko" ? "옵션 제거" : "Remove option";
   const addToCartStr = language === "ko" ? "장바구니에 담기" : "Add to Cart";
   const orderOneItemStr = language === "ko" ? "즉시 구매" : "Buy Now";
   const orderPriceStr = language === "ko" ? "결제 금액" : "Price";
@@ -176,10 +189,27 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
   const disabled = rootDisabled || addItemToCartMutation.isPending;
 
   const notPurchasableReason = getProductNotPurchasableReason(language, product);
+  const groupNotOrderableReasons = product.option_groups.map((group) => ({
+    group,
+    reason: getOptionGroupNotOrderableReason(language, product, group),
+  }));
+  const requiredGroupsData = groupNotOrderableReasons.filter(({ group }) => group.min_quantity_per_product >= 1);
+  const optionalGroupsData = groupNotOrderableReasons.filter(({ group }) => group.min_quantity_per_product === 0);
+  // 필수 그룹(min_quantity_per_product > 0)이 비-orderable이면 주문 자체 불가 — 백엔드도 거절.
+  const disabledRequiredGroupReason = requiredGroupsData.find((g) => g.reason)?.reason ?? null;
+
+  const addInstance = (groupId: string) => {
+    const id = `${groupId}__${instanceCounterRef.current++}`;
+    setOptionalInstances((prev) => [...prev, { id, groupId }]);
+  };
+  const removeInstance = (id: string) => {
+    unregister(id);
+    setOptionalInstances((prev) => prev.filter((i) => i.id !== id));
+  };
   const actionButtonProps: ButtonProps = {
     variant: "contained",
     color: "secondary",
-    disabled: disabled || isString(helperText) || !formState.isValid,
+    disabled: disabled || isString(helperText) || !formState.isValid || !!disabledRequiredGroupReason,
   };
 
   const validateDonationPrice: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
@@ -200,12 +230,15 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
   const getTotalProductPrice = (formData: Record<string, unknown>): number => {
     let totalPrice = product.price;
 
-    totalPrice += product.option_groups
-      .filter((optionRel) => !optionRel.is_custom_response)
-      .reduce((sum, group) => {
-        const selectedOption = group.options.find((o) => o.id === formData[group.id]);
-        return sum + (selectedOption?.additional_price || 0);
-      }, 0);
+    // 필수 그룹: key = groupId / 선택 그룹 인스턴스: key = instanceId → groupId 룩업
+    for (const [key, value] of Object.entries(formData)) {
+      if (key === "donation_price") continue;
+      const groupId = instanceToGroup.get(key) ?? key;
+      const group = product.option_groups.find((g) => g.id === groupId);
+      if (!group || group.is_custom_response) continue;
+      const selectedOption = group.options.find((o) => o.id === value);
+      if (selectedOption) totalPrice += selectedOption.additional_price || 0;
+    }
 
     if (product.donation_allowed) {
       const donation_price = parseInt(formData.donation_price as string) || 0;
@@ -222,7 +255,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
   });
 
   const addItemToCart = () => {
-    const formData = getCartAppendRequestPayload(product, getValues());
+    const formData = getCartAppendRequestPayload(product, getValues(), instanceToGroup);
     if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotAddToCartZeroPriceProductStr);
       return;
@@ -250,7 +283,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
     });
   };
   const onOrderOneItemButtonClick = () => {
-    const formData = getCartAppendRequestPayload(product, getValues());
+    const formData = getCartAppendRequestPayload(product, getValues(), instanceToGroup);
     if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotPurchaseZeroPriceProductStr);
       return;
@@ -269,16 +302,64 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
           <br />
           <form onSubmit={handleSubmit(() => {})}>
             <Stack spacing={2}>
-              {product.option_groups.map((group) => (
+              {requiredGroupsData.map(({ group, reason }) => (
                 <OptionGroupInput
                   key={group.id}
                   optionGroup={group}
                   options={group.options}
-                  defaultValue={group.options[0]?.id || ""}
-                  disabled={disabled}
+                  defaultValue={reason ? "" : group.options[0]?.id || ""}
+                  disabled={disabled || !!reason}
+                  disabledReason={reason ?? undefined}
                   control={control}
                 />
               ))}
+              {requiredGroupsData.length > 0 && optionalGroupsData.length > 0 && <Divider />}
+              {optionalGroupsData.map(({ group, reason }) => {
+                const groupInstances = optionalInstances.filter((i) => i.groupId === group.id);
+                const cannotAddReason = getCannotAddMoreOptionGroupReason(language, group, groupInstances.length);
+                const addDisabled = disabled || !!reason || !!cannotAddReason;
+                // orderable 사유는 Tooltip으로, 한도 사유는 캡션으로 노출 (한도는 항상 보여야 함).
+                return (
+                  <Stack key={group.id} spacing={1}>
+                    {groupInstances.map((instance) => (
+                      <Stack key={instance.id} direction="row" spacing={1} alignItems="center">
+                        <Box sx={{ flexGrow: 1 }}>
+                          <OptionGroupInput
+                            optionGroup={{ ...group, id: instance.id }}
+                            options={group.options}
+                            defaultValue={reason ? "" : group.options[0]?.id || ""}
+                            disabled={disabled || !!reason}
+                            disabledReason={reason ?? undefined}
+                            control={control}
+                          />
+                        </Box>
+                        <IconButton onClick={() => removeInstance(instance.id)} disabled={disabled} aria-label={removeOptionGroupAriaLabel}>
+                          <Close />
+                        </IconButton>
+                      </Stack>
+                    ))}
+                    <Tooltip title={reason ?? ""}>
+                      <span>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          startIcon={<Add />}
+                          onClick={() => addInstance(group.id)}
+                          disabled={addDisabled}
+                          fullWidth
+                        >
+                          {addOptionGroupLabel(group.name)}
+                        </Button>
+                      </span>
+                    </Tooltip>
+                    {cannotAddReason && !reason && (
+                      <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+                        {cannotAddReason}
+                      </Typography>
+                    )}
+                  </Stack>
+                );
+              })}
               {product.donation_allowed && (
                 <>
                   {product.option_groups.length > 0 && (
@@ -319,6 +400,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
       )}
       {isNullish(notPurchasableReason) && (
         <SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+          {disabledRequiredGroupReason && <NotPurchasable>{disabledRequiredGroupReason}</NotPurchasable>}
           <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", mt: 2 }}>
             <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
             <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
