@@ -11,9 +11,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
 import { FC, StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 
-import { App } from "./App.tsx";
+import { router } from "./router.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { LOCAL_STORAGE_LANGUAGE_KEY } from "./consts/local_stroage.ts";
 import { PyConKRMDXComponents } from "./consts/mdx_components.ts";
@@ -84,23 +84,21 @@ export const MainApp: FC = () => {
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <SnackbarProvider>
-          <BrowserRouter>
-            <AppContext.Provider value={{ ...appState, setAppContext }}>
-              <CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
-                <ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
-                  <ErrorBoundary fallback={ErrorFallback}>
-                    <Suspense fallback={SuspenseFallback}>
-                      <ThemeProvider theme={muiTheme}>
-                        <CssBaseline />
-                        <Global styles={globalStyles} />
-                        <App />
-                      </ThemeProvider>
-                    </Suspense>
-                  </ErrorBoundary>
-                </ShopContextProvider>
-              </CommonContextProvider>
-            </AppContext.Provider>
-          </BrowserRouter>
+          <AppContext.Provider value={{ ...appState, setAppContext }}>
+            <CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
+                <ErrorBoundary fallback={ErrorFallback}>
+                  <Suspense fallback={SuspenseFallback}>
+                    <ThemeProvider theme={muiTheme}>
+                      <CssBaseline />
+                      <Global styles={globalStyles} />
+                      <RouterProvider router={router} />
+                    </ThemeProvider>
+                  </Suspense>
+                </ErrorBoundary>
+              </ShopContextProvider>
+            </CommonContextProvider>
+          </AppContext.Provider>
         </SnackbarProvider>
       </QueryClientProvider>
     </StrictMode>

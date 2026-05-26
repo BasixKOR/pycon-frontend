@@ -2,14 +2,9 @@ import { useBackendClient, useFlattenSiteMapQuery, useSponsorQuery } from "@fron
 import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { buildNestedSiteMap } from "@frontend/common/utils";
 import { FC, useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { isEmpty, isNullish } from "remeda";
 
-import MainLayout from "./components/layout/index.tsx";
-import { PageIdParamRenderer, RouteRenderer } from "./components/pages/dynamic_route.tsx";
-import { PresentationDetailPage } from "./components/pages/presentation_detail.tsx";
-import { ShopSignInPage } from "./components/pages/sign_in.tsx";
-import { SponsorDetailPage } from "./components/pages/sponsor_detail.tsx";
 import { useAppContext } from "./contexts/app_context";
 
 export const App: FC = () => {
@@ -43,14 +38,9 @@ export const App: FC = () => {
   }, [location, language, flatSiteMap, sponsorTiers]);
 
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/account/sign-in" element={<ShopSignInPage />} />
-        <Route path="/sponsors/:id" element={<SponsorDetailPage />} />
-        <Route path="/presentations/:id" element={<PresentationDetailPage />} />
-        <Route path="/pages/:id" element={<PageIdParamRenderer />} />
-        <Route path="*" element={<RouteRenderer />} />
-      </Route>
-    </Routes>
+    <>
+      <ScrollRestoration />
+      <Outlet />
+    </>
   );
 };
