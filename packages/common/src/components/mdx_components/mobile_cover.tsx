@@ -1,31 +1,34 @@
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { ButtonBase, Stack, Typography } from "@mui/material";
-import * as React from "react";
+import { CSSProperties, FC } from "react";
 
-import * as Hooks from "../../hooks";
-
+import { Common } from "@frontend/common/hooks";
 type MobileCoverProps = {
   coverImageSrc: string;
   coverTitleSrc: string;
-  coverImageObjectFit?: React.CSSProperties["objectFit"];
+  coverImageObjectFit?: CSSProperties["objectFit"];
   buttonTextKo?: string;
   buttonTextEn?: string;
 };
 
-export const MobileCover: React.FC<MobileCoverProps> = ({
+export const MobileCover: FC<MobileCoverProps> = ({
   coverImageSrc,
   coverTitleSrc,
   coverImageObjectFit = "cover",
   buttonTextKo = "티켓 구매하기",
   buttonTextEn = "Buy Ticket",
 }) => {
-  const { language } = Hooks.Common.useCommonContext();
+  const { language } = Common.useCommonContext();
   const buttonTitle = language === "ko" ? buttonTextKo : buttonTextEn;
 
   return (
     <Stack sx={{ display: "flex", flexDirection: "column", position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <Stack sx={{ zIndex: 1, position: "absolute", top: 0, left: 0, flex: 1, display: "flex", width: "100%", height: "100%" }}>
-        <img src={coverImageSrc} alt="Mobile Cover Image" style={{ flex: 1, width: "100%", height: "100%", objectFit: coverImageObjectFit, objectPosition: "center center" }} />
+        <img
+          src={coverImageSrc}
+          alt="Mobile Cover Image"
+          style={{ flex: 1, width: "100%", height: "100%", objectFit: coverImageObjectFit, objectPosition: "center center" }}
+        />
       </Stack>
       <Stack sx={{ zIndex: 2, position: "absolute", top: 96, left: 46 }}>
         <img src={coverTitleSrc} alt="Mobile Cover Title" style={{ objectFit: "contain" }} />

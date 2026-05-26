@@ -1,6 +1,6 @@
-import { Components } from "@frontend/common";
-import { useBackendAdminClient, usePublicFileQuery } from "@frontend/common/src/hooks/useAdminAPI";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { FallbackImage, Fieldset, MDXRenderer } from "@frontend/common/components";
+import { useBackendAdminClient, usePublicFileQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import {
   Accordion,
   AccordionDetails,
@@ -17,9 +17,8 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
-import * as React from "react";
-import * as R from "remeda";
-
+import { FC, ReactNode } from "react";
+import { isArray, isEmpty } from "remeda";
 type SharedPreviewFieldProps = {
   originalDataset: Record<string, unknown>;
   previewDataset: Record<string, unknown>;
@@ -39,7 +38,7 @@ const MarkdownContainerBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset, previewDataset, name, ...props }) => {
+export const PreviewTextField: FC<PreviewFieldProps> = ({ originalDataset, previewDataset, name, ...props }) => {
   const textFieldSx: TextFieldProps["sx"] = {
     "& .MuiInputBase-input, & .Mui-disabled": {
       color: "black",
@@ -78,61 +77,51 @@ export const PreviewTextField: React.FC<PreviewFieldProps> = ({ originalDataset,
   );
 };
 
-export const PreviewMarkdownField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
+export const PreviewMarkdownField: FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   const { baseUrl, mdxComponents } = useCommonContext();
   return originalDataset[name] === previewDataset[name] ? (
-    <Components.Fieldset legend={label} style={{ width: "100%" }}>
+    <Fieldset legend={label} style={{ width: "100%" }}>
       <MarkdownContainerBox>
-        <Components.MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} baseUrl={baseUrl} mdxComponents={mdxComponents} />
+        <MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} baseUrl={baseUrl} mdxComponents={mdxComponents} />
       </MarkdownContainerBox>
-    </Components.Fieldset>
+    </Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
       <Accordion>
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
-            <Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
+            <Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
               <MarkdownContainerBox>
-                <Components.MDXRenderer
-                  format="md"
-                  text={(previewDataset[name] as string) || "(값 없음)"}
-                  baseUrl={baseUrl}
-                  mdxComponents={mdxComponents}
-                />
+                <MDXRenderer format="md" text={(previewDataset[name] as string) || "(값 없음)"} baseUrl={baseUrl} mdxComponents={mdxComponents} />
               </MarkdownContainerBox>
-            </Components.Fieldset>
+            </Fieldset>
             <Typography variant="caption">기존 값을 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
+          <Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
             <MarkdownContainerBox>
-              <Components.MDXRenderer
-                format="md"
-                text={(originalDataset[name] as string) || "(값 없음)"}
-                baseUrl={baseUrl}
-                mdxComponents={mdxComponents}
-              />
+              <MDXRenderer format="md" text={(originalDataset[name] as string) || "(값 없음)"} baseUrl={baseUrl} mdxComponents={mdxComponents} />
             </MarkdownContainerBox>
-          </Components.Fieldset>
+          </Fieldset>
         </AccordionDetails>
       </Accordion>
     </Box>
   );
 };
 
-const ImageFallback: React.FC = () => (
+const ImageFallback: FC = () => (
   <Stack sx={{ width: "100%", height: "100%", alignItems: "center", justifyContent: "center" }}>
     <Typography variant="caption" color="textSecondary" children="이미지를 불러오는 중 문제가 발생했습니다." />
   </Stack>
 );
 
-const WidthSpecifiedFallbackImage = styled(Components.FallbackImage)({
+const WidthSpecifiedFallbackImage = styled(FallbackImage)({
   maxWidth: "20rem",
   objectFit: "cover",
 });
 
-export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
+export const PreviewImageField: FC<SharedPreviewFieldProps> = ({ originalDataset, previewDataset, name, label }) => {
   const backendAdminClient = useBackendAdminClient();
   const oldImgId = (originalDataset[name] as string) || "";
   const newImgId = (previewDataset[name] as string) || "";
@@ -141,7 +130,7 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
   const { data: previewImage } = usePublicFileQuery(backendAdminClient, newImgId);
 
   return originalImage?.id === previewImage?.id ? (
-    <Components.Fieldset legend={label} style={{ width: "100%" }}>
+    <Fieldset legend={label} style={{ width: "100%" }}>
       <Stack alignItems="center" justifyContent="center">
         {previewImage?.file ? (
           <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -149,13 +138,13 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
           <Typography variant="caption" children="이미지를 지정하지 않았습니다." />
         )}
       </Stack>
-    </Components.Fieldset>
+    </Fieldset>
   ) : (
     <Box sx={{ my: 1 }}>
       <Accordion>
         <AccordionSummary>
           <Stack sx={{ width: "100%" }} direction="column" alignItems="flex-start" justifyContent="space-between">
-            <Components.Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
+            <Fieldset legend={label} style={{ width: "100%", backgroundColor: "rgba(255, 255, 0, 0.1)" }}>
               <Stack alignItems="center" justifyContent="center">
                 {previewImage?.file ? (
                   <WidthSpecifiedFallbackImage src={previewImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -163,12 +152,12 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
                   <Typography variant="caption" children="새 이미지를 지정하지 않았습니다." />
                 )}
               </Stack>
-            </Components.Fieldset>
+            </Fieldset>
             <Typography variant="caption">기존 이미지를 보려면 여기를 클릭해주세요.</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Components.Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
+          <Fieldset legend={label} style={{ backgroundColor: "rgba(0, 64, 64, 0.1)" }}>
             <Stack alignItems="center" justifyContent="center">
               {originalImage?.file ? (
                 <WidthSpecifiedFallbackImage src={originalImage?.file || ""} alt={label} errorFallback={<ImageFallback />} />
@@ -176,7 +165,7 @@ export const PreviewImageField: React.FC<SharedPreviewFieldProps> = ({ originalD
                 <Typography variant="caption" children="기존 이미지를 지정하지 않았습니다." />
               )}
             </Stack>
-          </Components.Fieldset>
+          </Fieldset>
         </AccordionDetails>
       </Accordion>
     </Box>
@@ -194,9 +183,9 @@ type SimplifiedModificationAudit = {
   }[];
 };
 
-export const ModificationAuditProperties: React.FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => {
-  let rejectReason: React.ReactNode = null;
-  if (R.isArray(audit.comments) && !R.isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
+export const ModificationAuditProperties: FC<{ audit: SimplifiedModificationAudit }> = ({ audit }) => {
+  let rejectReason: ReactNode = null;
+  if (isArray(audit.comments) && !isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
     const comment = audit.comments.filter((c) => c.created_by.is_superuser)[0];
     rejectReason = (
       <>

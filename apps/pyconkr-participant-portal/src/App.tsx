@@ -1,4 +1,4 @@
-import * as React from "react";
+import { FC } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/layout.tsx";
@@ -9,7 +9,7 @@ import { SessionEditor } from "./components/pages/session_editor";
 import { SignInPage } from "./components/pages/signin.tsx";
 import { SponsorEditor } from "./components/pages/sponsor_editor";
 
-export const App: React.FC = () => (
+export const App: FC = () => (
   <Routes>
     <Route element={<Layout />}>
       <Route path="/" element={<LandingPage />} />

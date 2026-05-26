@@ -1,10 +1,10 @@
 import { Button, Stack } from "@mui/material";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 
-import { ComponentTestPage } from "../../debug/page/component_test";
-import { MapTestPage } from "../../debug/page/map_test";
-import { MdiTestPage } from "../../debug/page/mdi_test";
-import { ShopTestPage } from "../../debug/page/shop_test";
+import { ComponentTestPage } from "@apps/pyconkr-2025/debug/page/component_test";
+import { MapTestPage } from "@apps/pyconkr-2025/debug/page/map_test";
+import { MdiTestPage } from "@apps/pyconkr-2025/debug/page/mdi_test";
+import { ShopTestPage } from "@apps/pyconkr-2025/debug/page/shop_test";
 
 const LOCAL_STORAGE_KEY = "selectedTab";
 type SelectedTabType = "shop" | "mdi" | "map" | "component";
@@ -16,17 +16,17 @@ const setTabToLocalStorage = (tab: SelectedTabType) => {
   return tab;
 };
 
-const TabList: { [key in SelectedTabType]: React.ReactNode } = {
+const TabList: { [key in SelectedTabType]: ReactNode } = {
   shop: <ShopTestPage />,
   mdi: <MdiTestPage />,
   map: <MapTestPage />,
   component: <ComponentTestPage />,
 };
 
-export const Test: React.FC = () => {
-  const [selectedTab, setSelectedTab] = React.useState<SelectedTabType>(getTabFromLocalStorage());
+export const Test: FC = () => {
+  const [selectedTab, setSelectedTab] = useState<SelectedTabType>(getTabFromLocalStorage());
   const selectTab = (tab: SelectedTabType) => setSelectedTab(setTabToLocalStorage(tab));
-  const TabButton: React.FC<{ tab: SelectedTabType }> = ({ tab }) => (
+  const TabButton: FC<{ tab: SelectedTabType }> = ({ tab }) => (
     <Button variant={selectedTab === tab ? "contained" : "outlined"} onClick={() => selectTab(tab)}>
       {tab} Test
     </Button>

@@ -1,17 +1,17 @@
-import { Components } from "@frontend/common";
-import * as BackendAPISchemas from "@frontend/common/src/schemas/backendAPI";
+import { PythonKorea } from "@frontend/common/components";
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Box, Button, Chip, Drawer, IconButton, Stack, styled, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty } from "remeda";
+
+import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton";
 
 import { HamburgerButton } from "./HamburgerButton";
 import { MobileLanguageToggle } from "./MobileLanguageToggle";
-import { SignInButton } from "../../SignInButton";
-// import { ScanCodeButton } from "../../UserScanCodeButton";
 
-type MenuType = BackendAPISchemas.NestedSiteMapSchema;
+type MenuType = NestedSiteMapSchema;
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -28,9 +28,9 @@ interface NavigationState {
   breadcrumbs: { name: string; level: NavigationLevel }[];
 }
 
-export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose, siteMapNode }) => {
+export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, siteMapNode }) => {
   const location = useLocation();
-  const [navState, setNavState] = React.useState<NavigationState>({
+  const [navState, setNavState] = useState<NavigationState>({
     level: "depth1",
     breadcrumbs: [],
   });
@@ -88,7 +88,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           .filter((s) => !s.hide)
           .map((menu) => (
             <MenuItem isMainPath={isMainPath} key={menu.id}>
-              {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) ? (
+              {!isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) ? (
                 <MenuButton isMainPath={isMainPath} onClick={() => navigateToDepth2(menu)}>
                   {menu.name}
                 </MenuButton>
@@ -97,7 +97,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
                   {menu.name}
                 </MenuLink>
               )}
-              {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
+              {!isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                 <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth2(menu)}>
                   <ArrowForward fontSize="small" />
                 </MenuArrowButton>
@@ -130,7 +130,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
                 <Link to={`${navState.depth1!.route_code}/${menu.route_code}`} onClick={handleClose} style={{ textDecoration: "none" }}>
                   <MenuChip isMainPath={isMainPath} label={menu.name} clickable />
                 </Link>
-                {!R.isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
+                {!isEmpty(menu.children) && Object.values(menu.children).some((child) => !child.hide) && (
                   <MenuArrowButton isMainPath={isMainPath} onClick={() => navigateToDepth3(menu)}>
                     <ArrowForward fontSize="small" />
                   </MenuArrowButton>
@@ -183,7 +183,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <LogoAndTextContainer>
             <Link to="/" onClick={handleClose} style={{ textDecoration: "none" }}>
               <Stack direction="row" alignItems="center" spacing={0.375}>
-                <Components.PythonKorea style={{ width: 29, height: 29 }} />
+                <PythonKorea style={{ width: 29, height: 29 }} />
                 <HeaderTitle isMainPath={isMainPath}>파이콘 한국 2025</HeaderTitle>
               </Stack>
             </Link>
@@ -200,7 +200,6 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <MobileLanguageToggle isMainPath={isMainPath} />
           </Stack>
-          {/* <ScanCodeButton /> */}
           <Stack alignItems="center" justifyContent="center" sx={{ flex: 1 }}>
             <SignInButton isMobile isMainPath={isMainPath} onClose={handleClose} />
           </Stack>

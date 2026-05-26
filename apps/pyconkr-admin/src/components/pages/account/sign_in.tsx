@@ -1,27 +1,27 @@
-import { useBackendAdminClient, useSignInMutation } from "@frontend/common/src/hooks/useAdminAPI";
-import { getFormValue } from "@frontend/common/src/utils";
-import { me } from "@frontend/common/src/apis/admin_api";
+import { me } from "@frontend/common/apis/admin_api";
+import { useBackendAdminClient, useSignInMutation } from "@frontend/common/hooks/useAdminAPI";
+import { getFormValue } from "@frontend/common/utils";
 import { Login } from "@mui/icons-material";
 import { Button, Stack, TextField, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type PageStateType = {
   userJustSignedIn: boolean;
 };
 
-export const SignInPage: React.FC = () => {
+export const SignInPage: FC = () => {
   const navigate = useNavigate();
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const [pageState, setPageState] = React.useState<PageStateType>({ userJustSignedIn: false });
+  const formRef = useRef<HTMLFormElement>(null);
+  const [pageState, setPageState] = useState<PageStateType>({ userJustSignedIn: false });
   const setUserJustSignedIn = () => setPageState((ps) => ({ ...ps, userJustSignedIn: true }));
 
   const backendAdminAPIClient = useBackendAdminClient();
   const signInMutation = useSignInMutation(backendAdminAPIClient);
 
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formRef.current) return;
 
@@ -39,7 +39,7 @@ export const SignInPage: React.FC = () => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       if (pageState.userJustSignedIn) return;
 

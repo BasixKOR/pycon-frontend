@@ -10,31 +10,32 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, "../../dotenv"), "");
   const backendApiDomain = env.VITE_PYCONKR_BACKEND_API_DOMAIN ?? "";
-  // 로컬 HTTP 백엔드면 http://localhost 로 서빙 + /v1, /api 를 proxy (mixed-content 회피 & CSRF 쿠키 동일 origin)
-  const isLocalHttpBackend = backendApiDomain.startsWith("http://");
-  const host = isLocalHttpBackend ? "localhost" : "local.dev.pycon.kr";
+
+  // 백엔드 응답 쿠키의 Domain 속성(예: pycon.kr) 제거 — localhost origin에서 브라우저가 저장 가능하도록.
+  const proxyOptions = {
+    target: backendApiDomain,
+    changeOrigin: true,
+    cookieDomainRewrite: "",
+    headers: { "X-Frontend-Domain": "2026.pycon.kr" },
+  };
 
   return {
     base: "/",
     envDir: "../../dotenv",
-    plugins: [react(), mdx(), ...(isLocalHttpBackend ? [] : [mkcert({ hosts: [host] })]), svgr()],
+    plugins: [react(), mdx(), mkcert({ hosts: ["localhost"] }), svgr()],
     resolve: {
       alias: {
-        "@frontend/common/src": path.resolve(__dirname, "../../packages/common/src"),
-        "@frontend/common": path.resolve(__dirname, "../../packages/common/src/index.ts"),
-        "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src/index.ts"),
+        "@frontend/common": path.resolve(__dirname, "../../packages/common/src"),
+        "@frontend/shop": path.resolve(__dirname, "../../packages/shop/src"),
         "@apps/pyconkr-2026": path.resolve(__dirname, "./src"),
       },
     },
     server: {
-      host,
-      allowedHosts: [host],
-      proxy: isLocalHttpBackend
-        ? {
-            "/v1": { target: backendApiDomain, changeOrigin: true },
-            "/api": { target: backendApiDomain, changeOrigin: true },
-          }
-        : undefined,
+      host: "localhost",
+      proxy: {
+        "/v1": proxyOptions,
+        "/api": proxyOptions,
+      },
     },
   };
 });

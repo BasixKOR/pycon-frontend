@@ -1,22 +1,21 @@
 import { AccordionProps } from "@mui/material";
-import * as React from "react";
-
+import { Children, FC, ReactElement, SyntheticEvent, cloneElement, useEffect, useState } from "react";
 type PHOpenOneFoldMgrPropType = {
-  children: React.ReactElement<AccordionProps>[];
+  children: ReactElement<AccordionProps>[];
   resetKey?: string;
 };
 
-export const OneDetailsOpener: React.FC<PHOpenOneFoldMgrPropType> = (props) => {
-  const childrenCount = React.Children.count(props.children);
+export const OneDetailsOpener: FC<PHOpenOneFoldMgrPropType> = (props) => {
+  const childrenCount = Children.count(props.children);
   const initialFoldState = new Array(childrenCount).fill(false);
-  const [oneFoldOpener, setOneFoldOpener] = React.useState(initialFoldState);
+  const [oneFoldOpener, setOneFoldOpener] = useState(initialFoldState);
   const foldAll = () => setOneFoldOpener([...initialFoldState]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(foldAll, [props.resetKey]);
+  useEffect(foldAll, [props.resetKey]);
 
   const foldStateSwitcher =
-    (index: number): ((event: React.SyntheticEvent<Element, Event>, expanded: boolean) => void) =>
+    (index: number): ((event: SyntheticEvent<Element, Event>, expanded: boolean) => void) =>
     (event, expanded) => {
       event.preventDefault();
       event.stopPropagation();
@@ -28,10 +27,6 @@ export const OneDetailsOpener: React.FC<PHOpenOneFoldMgrPropType> = (props) => {
     };
 
   return (
-    <>
-      {React.Children.map(props.children, (child, index) =>
-        React.cloneElement(child, { expanded: oneFoldOpener[index], onChange: foldStateSwitcher(index) })
-      )}
-    </>
+    <>{Children.map(props.children, (child, index) => cloneElement(child, { expanded: oneFoldOpener[index], onChange: foldStateSwitcher(index) }))}</>
   );
 };

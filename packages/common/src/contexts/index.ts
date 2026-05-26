@@ -1,6 +1,5 @@
 import { MDXComponents } from "mdx/types";
-import * as React from "react";
-
+import { createContext } from "react";
 export type ContextOptions = {
   language: "ko" | "en";
   frontendDomain?: string;
@@ -12,7 +11,7 @@ export type ContextOptions = {
   mdxComponents?: MDXComponents;
 };
 
-export const context = React.createContext<ContextOptions>({
+export const context = createContext<ContextOptions>({
   language: "ko",
   frontendDomain: "",
   baseUrl: "",

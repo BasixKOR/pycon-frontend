@@ -1,15 +1,16 @@
-import { useModificationAuditPreviewQuery, useParticipantPortalClient } from "@frontend/common/src/hooks/useParticipantPortalAPI";
+import { useModificationAuditPreviewQuery, useParticipantPortalClient } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Card, CardContent, Palette, PaletteColor, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, ReactNode } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isArray, isEmpty } from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { SignInGuard } from "../elements/signin_guard";
-import { Page } from "../page";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
+
 import { ProfileEditorForm, ProfileSchema } from "./profile_editor";
 import { SessionEditorForm, SessionSchema } from "./session_editor";
 
@@ -24,7 +25,7 @@ const StyledAlertCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StyledNoticeHeader: React.FC<{ pName: keyof Palette; text: React.ReactNode }> = ({ pName, text }) => (
+const StyledNoticeHeader: FC<{ pName: keyof Palette; text: ReactNode }> = ({ pName, text }) => (
   <StyledAlertCard sx={(t) => ({ backgroundColor: (t.palette[pName] as PaletteColor).main, color: (t.palette[pName] as PaletteColor).contrastText })}>
     <CardContent>
       <Typography variant="body1" sx={{ fontWeight: 700 }} children={text} />
@@ -45,12 +46,12 @@ type AuditNoticeHeaderProps = {
   };
 };
 
-const ApprovedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language }) => {
+const ApprovedAuditNoticeHeader: FC<AuditNoticeHeaderProps> = ({ language }) => {
   const text = language === "ko" ? "승인되어 반영된 수정 요청입니다." : "This is a modification request that has been approved and applied.";
   return <StyledNoticeHeader pName="success" text={text} />;
 };
 
-const RequestedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language }) => {
+const RequestedAuditNoticeHeader: FC<AuditNoticeHeaderProps> = ({ language }) => {
   const text =
     language === "ko"
       ? "현재 파이콘 준비 위원회가 수정 요청을 확인 중입니다."
@@ -58,12 +59,12 @@ const RequestedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language
   return <StyledNoticeHeader pName="info" text={text} />;
 };
 
-const RejectedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language, audit }) => {
+const RejectedAuditNoticeHeader: FC<AuditNoticeHeaderProps> = ({ language, audit }) => {
   const auditRejectedText = language === "ko" ? "수정 요청이 반려되었습니다. " : "Your modification request has been rejected. ";
   const rejectReasonIsText = language === "ko" ? "반려 사유는 다음과 같습니다: " : "The reason for rejection is as follows: ";
 
-  let body: React.ReactNode = auditRejectedText;
-  if (R.isArray(audit.comments) && !R.isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
+  let body: ReactNode = auditRejectedText;
+  if (isArray(audit.comments) && !isEmpty(audit.comments.filter((c) => c.created_by.is_superuser))) {
     // 운영자가 쓴 가장 첫번째 코멘트를 반려 사유로 사용
     const rejectedReason = audit.comments.filter((c) => c.created_by.is_superuser)[0].content;
     body = (
@@ -77,12 +78,12 @@ const RejectedAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language,
   return <StyledNoticeHeader pName="error" text={body} />;
 };
 
-const CancelledAuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language }) => {
+const CancelledAuditNoticeHeader: FC<AuditNoticeHeaderProps> = ({ language }) => {
   const text = language === "ko" ? "취소한 수정 요청입니다." : "This is a modification request that you have cancelled.";
   return <StyledNoticeHeader pName="warning" text={text} />;
 };
 
-const AuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language, audit }) => {
+const AuditNoticeHeader: FC<AuditNoticeHeaderProps> = ({ language, audit }) => {
   switch (audit.status) {
     case "approved":
       return <ApprovedAuditNoticeHeader language={language} audit={audit} />;
@@ -97,7 +98,7 @@ const AuditNoticeHeader: React.FC<AuditNoticeHeaderProps> = ({ language, audit }
   }
 };
 
-export const InnerModificationAuditPreview: React.FC = () => {
+export const InnerModificationAuditPreview: FC = () => {
   const { language } = useAppContext();
   const { auditId } = useParams<{ auditId?: string }>();
   const participantPortalClient = useParticipantPortalClient();
@@ -118,7 +119,7 @@ export const InnerModificationAuditPreview: React.FC = () => {
   );
 };
 
-export const ModificationAuditPreview: React.FC = ErrorBoundary.with(
+export const ModificationAuditPreview: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerModificationAuditPreview />} />)
 );

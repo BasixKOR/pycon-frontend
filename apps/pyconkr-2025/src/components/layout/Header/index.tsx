@@ -1,17 +1,17 @@
-import { Components } from "@frontend/common";
+import { PythonKorea } from "@frontend/common/components";
+import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowForwardIos } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
-import * as React from "react";
+import { CSSProperties, FC, Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty, isNonNullish, isString } from "remeda";
 
-import { NestedSiteMapSchema } from "../../../../../../packages/common/src/schemas/backendAPI";
-import { useAppContext } from "../../../contexts/app_context";
-import { CartBadgeButton } from "../CartBadgeButton";
-import LanguageSelector from "../LanguageSelector";
-import { SignInButton } from "../SignInButton";
-// import { ScanCodeIconButton } from "../UserScanCodeButton";
+import { CartBadgeButton } from "@apps/pyconkr-2025/components/layout/CartBadgeButton";
+import LanguageSelector from "@apps/pyconkr-2025/components/layout/LanguageSelector";
+import { SignInButton } from "@apps/pyconkr-2025/components/layout/SignInButton";
+import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
+
 import { MobileHeader } from "./Mobile/MobileHeader";
 
 type MenuType = NestedSiteMapSchema;
@@ -23,14 +23,14 @@ type NavigationStateType = {
   depth3?: MenuType;
 };
 
-const HeaderHeight: React.CSSProperties["height"] = "3.625rem";
-const BreadCrumbHeight: React.CSSProperties["height"] = "4.5rem";
+const HeaderHeight: CSSProperties["height"] = "3.625rem";
+const BreadCrumbHeight: CSSProperties["height"] = "4.5rem";
 
-const Header: React.FC = () => {
+const Header: FC = () => {
   const { title, language, siteMapNode, currentSiteMapDepth, shouldShowTitleBanner } = useAppContext();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [navState, setNavState] = React.useState<NavigationStateType>({});
+  const [navState, setNavState] = useState<NavigationStateType>({});
 
   const resetDepths = () => setNavState({});
   const setDepth1 = (depth1: MenuOrUndefinedType) => setNavState({ depth1 });
@@ -40,7 +40,7 @@ const Header: React.FC = () => {
   const getDepth2Route = (nextRoute?: string) => (navState.depth1?.route_code || "") + `/${nextRoute || ""}`;
   const getDepth3Route = (nextRoute?: string) => getDepth2Route(navState.depth2?.route_code) + `/${nextRoute || ""}`;
 
-  React.useEffect(resetDepths, [language]);
+  useEffect(resetDepths, [language]);
 
   if (isMobile) {
     return <MobileHeader />;
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
 
   let breadCrumbRoute = "";
   let breadCrumbArray = currentSiteMapDepth.slice(1, -1);
-  if (R.isEmpty(breadCrumbArray)) breadCrumbArray = currentSiteMapDepth.slice(0, -1);
+  if (isEmpty(breadCrumbArray)) breadCrumbArray = currentSiteMapDepth.slice(0, -1);
 
   const headerContainerStyle: SxProps<Theme> = shouldShowTitleBanner
     ? {}
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
         <NavSideElementContainer>
           <Link to="/" onClick={resetDepths} style={{ marginRight: "auto" }}>
             <Stack justifyContent="center" alignItems="center">
-              <Components.PythonKorea style={{ width: 40, height: 40 }} />
+              <PythonKorea style={{ width: 40, height: 40 }} />
             </Stack>
           </Link>
         </NavSideElementContainer>
@@ -76,8 +76,8 @@ const Header: React.FC = () => {
                   <Link
                     key={r.id}
                     onClick={resetDepths}
-                    target={R.isString(r.external_link) ? "_blank" : undefined}
-                    rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                    target={isString(r.external_link) ? "_blank" : undefined}
+                    rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                     to={r.external_link || r.route_code}
                   >
                     <Button key={r.id} onMouseEnter={() => setDepth1(r)} sx={{ minWidth: 0, textTransform: "none" }}>
@@ -106,17 +106,17 @@ const Header: React.FC = () => {
                             onClick={resetDepths}
                             onMouseEnter={() => setDepth2(r)}
                             // 하위 depth가 있는 경우, 하위 depth를 선택할 수 있도록 유지하기 위해 depth2도 유지합니다.
-                            onMouseLeave={() => R.isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
-                            target={R.isString(r.external_link) ? "_blank" : undefined}
-                            rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                            onMouseLeave={() => isEmpty(navState.depth2?.children ?? {}) && setDepth2(undefined)}
+                            target={isString(r.external_link) ? "_blank" : undefined}
+                            rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                             to={r.external_link || getDepth2Route(r.route_code)}
                           />
                         ))}
                     </Stack>
 
-                    {navState.depth2 && !R.isEmpty(navState.depth2.children) && (
+                    {navState.depth2 && !isEmpty(navState.depth2.children) && (
                       <>
-                        {!R.isEmpty(navState.depth2.children) && <Depth2to3Divider orientation="vertical" flexItem />}
+                        {!isEmpty(navState.depth2.children) && <Depth2to3Divider orientation="vertical" flexItem />}
 
                         <Stack spacing={1.5}>
                           {Object.values(navState.depth2.children)
@@ -129,8 +129,8 @@ const Header: React.FC = () => {
                                 onClick={resetDepths}
                                 onMouseEnter={() => setDepth3(r)}
                                 onMouseLeave={() => setDepth3(undefined)}
-                                target={R.isString(r.external_link) ? "_blank" : undefined}
-                                rel={R.isString(r.external_link) ? "noopener noreferrer" : undefined}
+                                target={isString(r.external_link) ? "_blank" : undefined}
+                                rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                                 to={r.external_link || getDepth3Route(r?.route_code)}
                               />
                             ))}
@@ -149,7 +149,6 @@ const Header: React.FC = () => {
           <Stack direction="row" alignItems="center" gap={1} sx={{ marginLeft: "auto" }}>
             <LanguageSelector />
             <CartBadgeButton />
-            {/* <ScanCodeIconButton /> */}
             <SignInButton />
           </Stack>
         </NavSideElementContainer>
@@ -159,14 +158,14 @@ const Header: React.FC = () => {
           <BreadCrumbContainer>
             <Stack direction="row" alignItems="center" spacing={0.5}>
               {breadCrumbArray
-                .filter((routeInfo) => R.isNonNullish(routeInfo))
+                .filter((routeInfo) => isNonNullish(routeInfo))
                 .map(({ route_code, name }, index) => {
                   breadCrumbRoute += `${route_code}/`;
                   return (
-                    <React.Fragment key={index}>
+                    <Fragment key={index}>
                       {index > 0 && <ArrowForwardIos sx={{ fontSize: "0.75rem" }} />}
                       <Link to={breadCrumbRoute} children={name} />
-                    </React.Fragment>
+                    </Fragment>
                   );
                 })}
             </Stack>

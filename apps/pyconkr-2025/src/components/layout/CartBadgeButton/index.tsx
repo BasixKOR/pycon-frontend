@@ -1,8 +1,8 @@
-import * as Shop from "@frontend/shop";
+import { useCart, useShopClient } from "@frontend/shop/hooks";
 import { ShoppingCart } from "@mui/icons-material";
 import { Badge, badgeClasses, IconButton, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
 type InnerCartBadgeButtonPropType = {
@@ -19,7 +19,7 @@ const ColoredIconButton = styled(IconButton)(({ theme }) => ({
 
 const InnerCartBadge = styled(Badge)({ [`& .${badgeClasses.badge}`]: { top: "-12px", right: "-3px" } });
 
-const InnerCartBadgeButton: React.FC<InnerCartBadgeButtonPropType> = ({ loading, count }) => {
+const InnerCartBadgeButton: FC<InnerCartBadgeButtonPropType> = ({ loading, count }) => {
   const navigate = useNavigate();
 
   return (
@@ -30,11 +30,11 @@ const InnerCartBadgeButton: React.FC<InnerCartBadgeButtonPropType> = ({ loading,
   );
 };
 
-export const CartBadgeButton: React.FC = Suspense.with(
+export const CartBadgeButton: FC = Suspense.with(
   { fallback: <InnerCartBadgeButton loading /> },
   ErrorBoundary.with({ fallback: <InnerCartBadgeButton /> }, () => {
-    const shopAPIClient = Shop.Hooks.useShopClient();
-    const { data: cart } = Shop.Hooks.useCart(shopAPIClient);
+    const shopAPIClient = useShopClient();
+    const { data: cart } = useCart(shopAPIClient);
     return <InnerCartBadgeButton count={cart?.products.length} loading={false} />;
   })
 );

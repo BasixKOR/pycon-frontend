@@ -4,14 +4,15 @@ import { CircularProgress, Table, TableBody, TableCell, TableContainer, TableFoo
 import { ErrorBoundary } from "@suspensive/react";
 import type { MDXComponents } from "mdx/types";
 import muiComponents from "mui-mdx-components";
-import * as React from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
-import * as R from "remeda";
+import { isEmpty } from "remeda";
+
+import { rtrim } from "@frontend/common/utils/string";
 
 import { ErrorFallback } from "./error_handler";
 import { LinkHandler } from "./link_handler";
-import { rtrim } from "../utils/string";
 import { StyledDivider } from "./mdx_components/styled_divider";
 import { SubContentContainer } from "./mdx_components/sub_content_container";
 
@@ -67,7 +68,7 @@ const CustomMDXComponents: MDXComponents = {
 };
 
 const lineFormatterForMDX = (line: string) => {
-  if (R.isEmpty(line.trim())) return "\n";
+  if (isEmpty(line.trim())) return "\n";
 
   const trimmedLine = rtrim(line);
 
@@ -91,19 +92,19 @@ type MDXRendererPropType = {
   mdxComponents?: MDXComponents;
 };
 
-export const MDXRenderer: React.FC<MDXRendererPropType> = ({ text, resetKey, format, baseUrl, mdxComponents }) => {
-  const [state, setState] = React.useState<{
-    component: React.ReactNode;
+export const MDXRenderer: FC<MDXRendererPropType> = ({ text, resetKey, format, baseUrl, mdxComponents }) => {
+  const [state, setState] = useState<{
+    component: ReactNode;
     resetKey: number;
   }>({
     component: <CircularProgress />,
     resetKey: Math.random(),
   });
 
-  const setRenderResult = (component: React.ReactNode) => setState((prev) => ({ ...prev, component: component }));
+  const setRenderResult = (component: ReactNode) => setState((prev) => ({ ...prev, component: component }));
   const setRandomResetKey = () => setState((prev) => ({ ...prev, resetKey: Math.random() }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         // 원래 MDX는 각 줄의 마지막에 공백 2개가 있어야 줄바꿈이 되고, 또 연속 줄바꿈은 무시되지만,

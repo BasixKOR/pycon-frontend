@@ -1,8 +1,8 @@
 import { Button, ButtonProps, Typography } from "@mui/material";
-import * as React from "react";
-import * as R from "remeda";
+import { FC, isValidElement } from "react";
+import { isString } from "remeda";
 
-import { LinkHandler } from "../link_handler";
+import { LinkHandler } from "@frontend/common/components/link_handler";
 
 type StyledFullWidthButtonPropType = ButtonProps & {
   link?: string;
@@ -10,9 +10,9 @@ type StyledFullWidthButtonPropType = ButtonProps & {
   transparency: number;
 };
 
-export const StyledFullWidthButton: React.FC<StyledFullWidthButtonPropType> = ({ link, setBackgroundColor, transparency, ...props }) => {
+export const StyledFullWidthButton: FC<StyledFullWidthButtonPropType> = ({ link, setBackgroundColor, transparency, ...props }) => {
   let children = props.children;
-  if (React.isValidElement(children) && R.isString((children.props as { children: unknown }).children))
+  if (isValidElement(children) && isString((children.props as { children: unknown }).children))
     children = (children.props as { children: unknown }).children as string;
   if (children) children = <Typography variant="h5" fontSize="1.5rem" children={children} />;
 

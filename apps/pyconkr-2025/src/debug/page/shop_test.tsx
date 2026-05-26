@@ -1,4 +1,4 @@
-import * as Shop from "@frontend/shop";
+import { CartStatus, OrderList, ProductImageCardList, ProductList, UserInfo } from "@frontend/shop/components/features";
 import { Divider, Stack, Typography } from "@mui/material";
 import React from "react";
 
@@ -11,26 +11,26 @@ export const ShopTestPage: React.FC = () => (
       <Typography variant="h5" gutterBottom>
         계정 상태
       </Typography>
-      <Shop.Components.Features.UserInfo />
+      <UserInfo />
       <Divider />
       <Typography variant="h5" gutterBottom>
         상품 목록
       </Typography>
-      <Shop.Components.Features.ProductList category_group="2025" category="티켓" />
+      <ProductList category_group="2025" category="티켓" />
       <Typography variant="h5" gutterBottom>
         상품 목록 (이미지 카드)
       </Typography>
-      <Shop.Components.Features.ProductImageCardList category_group="2025" category="티셔츠" />
+      <ProductImageCardList category_group="2025" category="티셔츠" />
       <Divider />
       <Typography variant="h5" gutterBottom>
         장바구니
       </Typography>
-      <Shop.Components.Features.CartStatus />
+      <CartStatus />
       <Divider />
       <Typography variant="h5" gutterBottom>
         주문 내역
       </Typography>
-      <Shop.Components.Features.OrderList />
+      <OrderList />
     </Stack>
   </Stack>
 );

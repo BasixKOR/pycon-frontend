@@ -1,20 +1,20 @@
-import { Components } from "@frontend/common";
-import { useCommonContext } from "@frontend/common/src/hooks/useCommonContext";
+import { CenteredPage, ErrorFallback, MDXRenderer } from "@frontend/common/components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { SponsorTierSchema } from "@frontend/common/schemas/backendAPI";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import * as R from "remeda";
+import { isNonNullish } from "remeda";
 
-import { SponsorTierSchema } from "../../../../../packages/common/src/schemas/backendAPI";
-import { useAppContext } from "../../contexts/app_context";
-import { PageLayout } from "../layout/PageLayout";
+import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
-const PageNotFound: React.FC = () => <>404 Not Found</>;
-const CenteredLoadingPage: React.FC = () => (
-  <Components.CenteredPage>
+const PageNotFound: FC = () => <>404 Not Found</>;
+const CenteredLoadingPage: FC = () => (
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
 const LogoImage = styled("img")(({ theme }) => ({
@@ -50,8 +50,8 @@ const DescriptionBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const SponsorDetailPage: React.FC = ErrorBoundary.with(
-  { fallback: Components.ErrorFallback },
+export const SponsorDetailPage: FC = ErrorBoundary.with(
+  { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
     const { id } = useParams();
     const { language, sponsorTiers, setAppContext } = useAppContext();
@@ -62,12 +62,12 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
     const title = language === "ko" ? "후원사" : "Sponsor";
     const descriptionFallback = language === "ko" ? "해당 후원사의 설명은 준비 중이에요!" : "This sponsor's description is under preparation!";
 
-    React.useEffect(() => {
+    useEffect(() => {
       setAppContext((prev) => ({
         ...prev,
         title: `${title} - ${sponsor?.name || "Detail"}`,
         shouldShowTitleBanner: true,
-        shouldShowSponsorBanner: !R.isNonNullish(sponsor),
+        shouldShowSponsorBanner: !isNonNullish(sponsor),
       }));
     }, [sponsor, title, setAppContext]);
 
@@ -90,7 +90,7 @@ export const SponsorDetailPage: React.FC = ErrorBoundary.with(
         </Typography>
         <Divider flexItem />
         <DescriptionBox>
-          <Components.MDXRenderer text={sponsor.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+          <MDXRenderer text={sponsor.description || descriptionFallback} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />
         </DescriptionBox>
       </PageLayout>
     );

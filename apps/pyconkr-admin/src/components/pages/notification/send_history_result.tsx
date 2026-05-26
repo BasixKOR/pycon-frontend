@@ -4,7 +4,7 @@ import {
   useRetrieveQuery,
   useRetryHistoryMutation,
   useRetrySentToMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, ExpandLess, ExpandMore, Replay } from "@mui/icons-material";
 import {
   alpha,
@@ -30,12 +30,12 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, MouseEvent, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type NotificationChannelApp = "notification/email" | "notification/kakao-alimtalk" | "notification/sms";
 
@@ -102,8 +102,8 @@ type SentToListItemProps = {
   onSelect: (sentToId: string) => void;
 };
 
-const SentToListItem: React.FC<SentToListItemProps> = ({ item, app, historyId, selected, onSelect }) => {
-  const [open, setOpen] = React.useState(false);
+const SentToListItem: FC<SentToListItemProps> = ({ item, app, historyId, selected, onSelect }) => {
+  const [open, setOpen] = useState(false);
   const backendAdminClient = useBackendAdminClient();
   const retryMutation = useRetrySentToMutation(backendAdminClient, app, RESOURCE, historyId, item.id);
 
@@ -112,7 +112,7 @@ const SentToListItem: React.FC<SentToListItemProps> = ({ item, app, historyId, s
     onSelect(item.id);
   };
 
-  const handleRetry = (e: React.MouseEvent) => {
+  const handleRetry = (e: MouseEvent) => {
     e.stopPropagation();
     if (retryMutation.isPending) return;
     if (!window.confirm("재시도하시겠습니까?")) return;
@@ -161,7 +161,7 @@ const SentToListItem: React.FC<SentToListItemProps> = ({ item, app, historyId, s
   );
 };
 
-const InnerAdminNotificationHistoryEditor: React.FC<AdminNotificationHistoryEditorProps> = ErrorBoundary.with(
+const InnerAdminNotificationHistoryEditor: FC<AdminNotificationHistoryEditorProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ app }) => {
     const navigate = useNavigate();
@@ -169,14 +169,14 @@ const InnerAdminNotificationHistoryEditor: React.FC<AdminNotificationHistoryEdit
 
     const backendAdminClient = useBackendAdminClient();
     const { data: retrievedData } = useRetrieveQuery<NotificationHistorySchema>(backendAdminClient, app, RESOURCE, id || "");
-    const [statusFilter, setStatusFilter] = React.useState<Record<NotificationStatus, boolean>>({
+    const [statusFilter, setStatusFilter] = useState<Record<NotificationStatus, boolean>>({
       CREATED: true,
       SENDING: true,
       SENT: true,
       FAILED: true,
     });
-    const [selectedSentToId, setSelectedSentToId] = React.useState<string | null>(null);
-    const [renderTab, setRenderTab] = React.useState<0 | 1>(0);
+    const [selectedSentToId, setSelectedSentToId] = useState<string | null>(null);
+    const [renderTab, setRenderTab] = useState<0 | 1>(0);
     const renderQuery = useRenderSentToQuery(backendAdminClient, app, RESOURCE, id ?? "", selectedSentToId);
     const retryHistoryMutation = useRetryHistoryMutation(backendAdminClient, app, RESOURCE, id ?? "");
 
@@ -352,7 +352,7 @@ const InnerAdminNotificationHistoryEditor: React.FC<AdminNotificationHistoryEdit
   })
 );
 
-export const AdminNotificationHistoryEditor: React.FC<AdminNotificationHistoryEditorProps> = (props) => (
+export const AdminNotificationHistoryEditor: FC<AdminNotificationHistoryEditorProps> = (props) => (
   <BackendAdminSignInGuard>
     <InnerAdminNotificationHistoryEditor {...props} />
   </BackendAdminSignInGuard>

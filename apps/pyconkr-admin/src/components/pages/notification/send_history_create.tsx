@@ -1,5 +1,5 @@
-import { Components } from "@frontend/common";
-import { useBackendAdminClient, useCreateMutation, useListQuery, useRenderTemplateMutation } from "@frontend/common/src/hooks/useAdminAPI";
+import { Fieldset } from "@frontend/common/components";
+import { useBackendAdminClient, useCreateMutation, useListQuery, useRenderTemplateMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Close, Delete, Send, Visibility } from "@mui/icons-material";
 import {
   Box,
@@ -21,12 +21,12 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, Fragment, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type NotificationChannelApp = "notification/email" | "notification/kakao-alimtalk" | "notification/sms";
 
@@ -90,10 +90,11 @@ const NotAppliableToAllRecipientsFieldList = [
 const URL_REGEX = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INTERNATIONAL_PHONE_REGEX = /^\+\d{1,4}[-\s]?\d+(?:[-\s]?\d+)*$/;
+const KOREAN_PHONE_REGEX = /^01[016-9][-\s]?\d{3,4}[-\s]?\d{4}$/;
 
 const isValidEmail = (value: string) => EMAIL_REGEX.test(value);
 const isValidUrl = (value: string) => URL_REGEX.test(value);
-const isValidPhone = (value: string) => URL_REGEX.test(value) || INTERNATIONAL_PHONE_REGEX.test(value);
+const isValidPhone = (value: string) => KOREAN_PHONE_REGEX.test(value) || INTERNATIONAL_PHONE_REGEX.test(value);
 
 const validateRecipientForApp = (app: NotificationChannelApp, value: string): string | null => {
   const trimmed = value.trim();
@@ -121,7 +122,7 @@ type TemplateVariableFieldProps = {
   disabled?: boolean;
 };
 
-const TemplateVariableField: React.FC<TemplateVariableFieldProps> = ({ name, value, onChange, disabled }) => {
+const TemplateVariableField: FC<TemplateVariableFieldProps> = ({ name, value, onChange, disabled }) => {
   const error = validateTemplateVariable(name, value);
   return (
     <TextField
@@ -145,7 +146,7 @@ type SentToFormProps = {
   onPreview?: (item: OnMemorySentTo) => void;
 };
 
-const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames, onChange, onRemove, onPreview }) => {
+const SentToForm: FC<SentToFormProps> = ({ item, app, perRecipientVarNames, onChange, onRemove, onPreview }) => {
   const setContextField = (varName: string, value: string) => onChange({ ...item, context: { ...item.context, [varName]: value } });
   const recipientError = validateRecipientForApp(app, item.recipient);
   return (
@@ -161,7 +162,7 @@ const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames
             fullWidth
           />
           {perRecipientVarNames.length > 0 && (
-            <Components.Fieldset legend="템플릿 변수">
+            <Fieldset legend="템플릿 변수">
               <Stack spacing={1}>
                 {perRecipientVarNames.map((varName) => (
                   <TemplateVariableField
@@ -172,7 +173,7 @@ const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames
                   />
                 ))}
               </Stack>
-            </Components.Fieldset>
+            </Fieldset>
           )}
           <Stack direction="row" justifyContent="flex-end" spacing={1}>
             {onPreview && (
@@ -190,14 +191,14 @@ const SentToForm: React.FC<SentToFormProps> = ({ item, app, perRecipientVarNames
   );
 };
 
-const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCreateProps> = ErrorBoundary.with(
+const InnerAdminNotificationHistoryCreate: FC<AdminNotificationHistoryCreateProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ app }) => {
     const navigate = useNavigate();
     const backendAdminClient = useBackendAdminClient();
     const createMutation = useCreateMutation<NotificationHistoryCreateRequest>(backendAdminClient, app, RESOURCE);
 
-    const [formData, setFormData] = React.useState<{
+    const [formData, setFormData] = useState<{
       template: string | null;
       template_data: string;
       sent_from: string;
@@ -206,9 +207,9 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
       template_data: "",
       sent_from: "",
     });
-    const [sentToList, setSentToList] = React.useState<OnMemorySentTo[]>([]);
-    const [templateContext, setTemplateContext] = React.useState<Record<string, string>>({});
-    const [globalVarFlags, setGlobalVarFlags] = React.useState<Record<string, boolean>>({});
+    const [sentToList, setSentToList] = useState<OnMemorySentTo[]>([]);
+    const [templateContext, setTemplateContext] = useState<Record<string, string>>({});
+    const [globalVarFlags, setGlobalVarFlags] = useState<Record<string, boolean>>({});
 
     const templateListQuery = useListQuery<NotificationTemplateSchema>(backendAdminClient, app, TEMPLATE_RESOURCE);
     const renderTemplateMutation = useRenderTemplateMutation(backendAdminClient, app, TEMPLATE_RESOURCE);
@@ -353,12 +354,12 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
                       helperText={selectedTemplate ? "선택된 템플릿의 sent_from 값을 사용합니다." : sentFromError || undefined}
                       fullWidth
                     />
-                    <Components.Fieldset legend="템플릿 변수">
+                    <Fieldset legend="템플릿 변수">
                       {templateVariables.map((varName) => {
                         const isAllRecipientsForbidden = NotAppliableToAllRecipientsFieldList.includes(varName);
                         const globalChecked = isGlobalVar(varName);
                         return (
-                          <React.Fragment key={varName}>
+                          <Fragment key={varName}>
                             <TemplateVariableField
                               name={varName}
                               value={templateContext[varName] ?? ""}
@@ -375,10 +376,10 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
                               }
                               label="모든 수신자에게 적용"
                             />
-                          </React.Fragment>
+                          </Fragment>
                         );
                       })}
-                    </Components.Fieldset>
+                    </Fieldset>
                   </>
                 )}
               </Stack>
@@ -451,7 +452,7 @@ const InnerAdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCrea
   })
 );
 
-export const AdminNotificationHistoryCreate: React.FC<AdminNotificationHistoryCreateProps> = (props) => (
+export const AdminNotificationHistoryCreate: FC<AdminNotificationHistoryCreateProps> = (props) => (
   <BackendAdminSignInGuard>
     <InnerAdminNotificationHistoryCreate {...props} />
   </BackendAdminSignInGuard>

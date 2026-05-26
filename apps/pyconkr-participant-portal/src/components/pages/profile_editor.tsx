@@ -1,22 +1,22 @@
-import { useParticipantPortalClient, useSignedInUserQuery, useUpdateMeMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { useParticipantPortalClient, useSignedInUserQuery, useUpdateMeMutation } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Key, SendAndArchive } from "@mui/icons-material";
 import { Button, SelectChangeEvent, Stack } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 
-import { useAppContext } from "../../contexts/app_context";
-import { ChangePasswordDialog } from "../dialogs/change_password";
-import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { MultiLanguageField } from "../elements/multilang_field";
-import { PublicFileSelector } from "../elements/public_file_selector";
-import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
-import { SignInGuard } from "../elements/signin_guard";
-import { PrimaryTitle } from "../elements/titles";
-import { Page } from "../page";
+import { ChangePasswordDialog } from "@apps/pyconkr-participant-portal/components/dialogs/change_password";
+import { SubmitConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/submit_confirm";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { MultiLanguageField } from "@apps/pyconkr-participant-portal/components/elements/multilang_field";
+import { PublicFileSelector } from "@apps/pyconkr-participant-portal/components/elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "@apps/pyconkr-participant-portal/components/elements/requested_modification_audit_available_header";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { PrimaryTitle } from "@apps/pyconkr-participant-portal/components/elements/titles";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 export type ProfileSchema = {
   email: string;
@@ -37,12 +37,12 @@ const DummyProfile: ProfileSchema = {
   image: null,
 };
 
-const InnerProfileEditor: React.FC = () => {
+const InnerProfileEditor: FC = () => {
   const { language } = useAppContext();
   const participantPortalClient = useParticipantPortalClient();
   const { data: profile } = useSignedInUserQuery(participantPortalClient);
   const updateMeMutation = useUpdateMeMutation(participantPortalClient);
-  const [editorState, setEditorState] = React.useState<ProfileEditorState>({
+  const [editorState, setEditorState] = useState<ProfileEditorState>({
     openChangePasswordDialog: false,
     openSubmitConfirmDialog: false,
     ...(profile || DummyProfile),
@@ -63,7 +63,7 @@ const InnerProfileEditor: React.FC = () => {
   const openChangePasswordDialog = () => setEditorState((ps) => ({ ...ps, openChangePasswordDialog: true }));
   const closeChangePasswordDialog = () => setEditorState((ps) => ({ ...ps, openChangePasswordDialog: false }));
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const setImageId = (image: string | null) => setEditorState((ps) => ({ ...ps, image }));
@@ -152,7 +152,7 @@ const InnerProfileEditor: React.FC = () => {
   );
 };
 
-export const ProfileEditor: React.FC = ErrorBoundary.with(
+export const ProfileEditor: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerProfileEditor />} />)
 );
@@ -166,8 +166,8 @@ type ProfileEditorFormProps = {
 };
 
 // TODO: FIXME: 언젠간 위의 ProfileEditor를 아래 ProfileEditorForm에 마이그레이션해야 함
-export const ProfileEditorForm: React.FC<ProfileEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
-  const [formState, setFormState] = React.useState<ProfileSchema>(defaultValue);
+export const ProfileEditorForm: FC<ProfileEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
+  const [formState, setFormState] = useState<ProfileSchema>(defaultValue);
   const setImageId = (image: string | null) => setFormState((ps) => ({ ...ps, image }));
   const onImageSelectChange = (e: SelectChangeEvent<string | null>) => setImageId(e.target.value);
   const setNickname = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`nickname_${lang}`]: value }));

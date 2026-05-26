@@ -1,6 +1,7 @@
 import {
   AccountCircle,
   AccountTree,
+  AlternateEmail,
   Apartment,
   Article,
   AutoFixHigh,
@@ -10,14 +11,20 @@ import {
   Email,
   Event,
   FilePresent,
+  FolderSpecial,
   Forum,
   Handshake,
+  Login,
+  LocalOffer,
   ManageAccounts,
   MarkEmailRead,
   MeetingRoom,
   NoteAlt,
+  Person,
   Public,
+  ReceiptLong,
   Send,
+  ShoppingBag,
   Sms,
   StickyNote2,
   Tag,
@@ -41,6 +48,13 @@ import { AdminNotificationHistoryEditor } from "./components/pages/notification/
 import { AdminSMSTemplateEditor } from "./components/pages/notification/sms_template_editor";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 import { AdminPresentationEditor } from "./components/pages/presentation/editor";
+import { ShopCategoryGroupEditorPage } from "./components/pages/shop/category_group/editor";
+import { ShopCategoryGroupListPage } from "./components/pages/shop/category_group/list";
+import { ShopOrderEditorPage } from "./components/pages/shop/order/editor";
+import { ShopOrderListPage } from "./components/pages/shop/order/list";
+import { ShopProductEditorPage } from "./components/pages/shop/product/editor";
+import { ShopProductListPage } from "./components/pages/shop/product/list";
+import { ShopTagListPage } from "./components/pages/shop/tag/list";
 import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
 
@@ -180,6 +194,41 @@ export const RouteDefinitions: RouteDef[] = [
   },
   {
     type: "separator",
+    key: "shop-separator",
+    title: "스토어",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "shop-category-groups",
+    icon: FolderSpecial,
+    title: "카테고리 그룹",
+    app: "shop",
+    resource: "category-groups",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "shop-tags",
+    icon: LocalOffer,
+    title: "태그",
+    app: "shop",
+    resource: "tags",
+  },
+  {
+    type: "routeDefinition",
+    key: "shop-product",
+    icon: ShoppingBag,
+    title: "상품",
+    route: "/shop/products",
+  },
+  {
+    type: "routeDefinition",
+    key: "shop-order",
+    icon: ReceiptLong,
+    title: "주문",
+    route: "/shop/orders",
+  },
+  {
+    type: "separator",
     key: "user-separator",
     title: "사용자",
   },
@@ -271,6 +320,34 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "oauth2",
   },
   {
+    type: "separator",
+    key: "allauth-separator",
+    title: "소셜 계정 관리",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "allauth-social-app",
+    icon: Login,
+    title: "소셜 앱",
+    app: "allauth",
+    resource: "social-app",
+  },
+  {
+    type: "routeDefinition",
+    key: "allauth-social-account",
+    icon: Person,
+    title: "소셜 계정",
+    route: "/allauth/social-account",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "allauth-email-address",
+    icon: AlternateEmail,
+    title: "이메일 주소",
+    app: "allauth",
+    resource: "email-address",
+  },
+  {
     type: "routeDefinition",
     key: "user-account",
     icon: AccountCircle,
@@ -318,6 +395,21 @@ export const RegisteredRoutes = {
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
   "/user/userext/:id": <AdminUserExtEditor />,
+  "/allauth/social-app": <AdminList app="allauth" resource="social-app" hideCreatedAt hideUpdatedAt />,
+  "/allauth/social-account": (
+    <AdminList
+      app="allauth"
+      resource="social-account"
+      hideCreatedAt
+      hideUpdatedAt
+      hideCreateNew
+      filterChoicesFrom={{ user: { app: "allauth", resource: "email-address" } }}
+    />
+  ),
+  "/allauth/social-account/:id": (
+    <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
+  ),
+  "/allauth/email-address": <AdminList app="allauth" resource="email-address" hideCreatedAt hideUpdatedAt />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/manage": <AccountManagementPage />,
@@ -328,4 +420,13 @@ export const RegisteredRoutes = {
   "/event/presentation/:id": <AdminPresentationEditor />,
   "/modification-audit": <AdminModificationAuditList />,
   "/modification-audit/modification-audit/:id": <AdminModificationAuditEditor />,
+  "/shop/category-groups": <ShopCategoryGroupListPage />,
+  "/shop/category-groups/create": <ShopCategoryGroupEditorPage />,
+  "/shop/category-groups/:id": <ShopCategoryGroupEditorPage />,
+  "/shop/tags": <ShopTagListPage />,
+  "/shop/products": <ShopProductListPage />,
+  "/shop/products/create": <ShopProductEditorPage />,
+  "/shop/products/:id": <ShopProductEditorPage />,
+  "/shop/orders": <ShopOrderListPage />,
+  "/shop/orders/:id": <ShopOrderEditorPage />,
 };

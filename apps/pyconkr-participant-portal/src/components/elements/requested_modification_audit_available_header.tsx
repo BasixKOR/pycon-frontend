@@ -1,7 +1,7 @@
 import { Button, Card, CardContent, Stack, styled, Typography } from "@mui/material";
-import * as React from "react";
+import { FC, useState } from "react";
 
-import { ModificationAuditCancelConfirmDialog } from "../dialogs/modification_audit_cancel_confirm";
+import { ModificationAuditCancelConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/modification_audit_cancel_confirm";
 
 const StyledAlertCard = styled(Card)(({ theme }) => ({
   width: "100%",
@@ -11,8 +11,8 @@ const StyledAlertCard = styled(Card)(({ theme }) => ({
   fontWeight: 500,
 }));
 
-export const CurrentlyModAuditInProgress: React.FC<{ language: "ko" | "en"; modificationAuditId: string }> = ({ language, modificationAuditId }) => {
-  const [cardState, setCardState] = React.useState<{ openCancelConfirmDialog: boolean }>({ openCancelConfirmDialog: false });
+export const CurrentlyModAuditInProgress: FC<{ language: "ko" | "en"; modificationAuditId: string }> = ({ language, modificationAuditId }) => {
+  const [cardState, setCardState] = useState<{ openCancelConfirmDialog: boolean }>({ openCancelConfirmDialog: false });
   const openCancelConfirmDialog = () => setCardState((ps) => ({ ...ps, openCancelConfirmDialog: true }));
   const closeCancelConfirmDialog = () => setCardState((ps) => ({ ...ps, openCancelConfirmDialog: false }));
 

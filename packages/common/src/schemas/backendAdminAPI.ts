@@ -19,6 +19,13 @@ export type AdminSchemaDefinition = {
 
 export type ChoicesResponse = Record<string, { const: string | null; title: string }[]>;
 
+export type PaginatedListResponse<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
 export type UserSchema = {
   id: number;
   username: string;

@@ -1,12 +1,12 @@
-import { useBackendAdminClient, useRenderTemplateMutation, useRetrieveQuery } from "@frontend/common/src/hooks/useAdminAPI";
+import { useBackendAdminClient, useRenderTemplateMutation, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Close, Visibility } from "@mui/icons-material";
 import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 
 const APP = "notification/kakao-alimtalk";
 const RESOURCE = "template";
@@ -38,7 +38,7 @@ const isValidJson = (s: string): boolean => {
   }
 };
 
-const InnerAdminKakaoAlimTalkTemplateEditor: React.FC = ErrorBoundary.with(
+const InnerAdminKakaoAlimTalkTemplateEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const navigate = useNavigate();
@@ -46,7 +46,7 @@ const InnerAdminKakaoAlimTalkTemplateEditor: React.FC = ErrorBoundary.with(
     const backendAdminClient = useBackendAdminClient();
     const { data: retrievedData } = useRetrieveQuery<KakaoAlimTalkTemplateSchema>(backendAdminClient, APP, RESOURCE, id || "");
 
-    const [contextJson, setContextJson] = React.useState("{}");
+    const [contextJson, setContextJson] = useState("{}");
     const renderMutation = useRenderTemplateMutation(backendAdminClient, APP, RESOURCE);
 
     const onClose = () => navigate(`/${APP}/${RESOURCE}`);
@@ -131,7 +131,7 @@ const InnerAdminKakaoAlimTalkTemplateEditor: React.FC = ErrorBoundary.with(
   })
 );
 
-export const AdminKakaoAlimTalkTemplateEditor: React.FC = () => (
+export const AdminKakaoAlimTalkTemplateEditor: FC = () => (
   <BackendAdminSignInGuard>
     <InnerAdminKakaoAlimTalkTemplateEditor />
   </BackendAdminSignInGuard>

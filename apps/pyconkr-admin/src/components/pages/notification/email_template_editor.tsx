@@ -4,29 +4,35 @@ import {
   useRenderTemplateMutation,
   useRetrieveQuery,
   useUpdateMutation,
-} from "@frontend/common/src/hooks/useAdminAPI";
+} from "@frontend/common/hooks/useAdminAPI";
+import { type EmailDocument, MailEditor, type MailEditorHandle, parseEmailDocument } from "@mu-software/mail-editor";
 import { Add, Close, Save, Visibility } from "@mui/icons-material";
 import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import * as React from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { addErrorSnackbar, addSnackbar } from "../../../utils/snackbar";
-import { BackendAdminSignInGuard } from "../../elements/admin_signin_guard";
-import { ErrorFallback } from "../../elements/error_fallback";
+import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
+import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { DEFAULT_INITIAL_DOCUMENT } from "@apps/pyconkr-admin/components/pages/notification/email_template_default_document";
+import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 const APP = "notification/email";
 const RESOURCE = "template";
 
-type EmailTemplateFormData = {
+type EmailTemplateMetaFormData = {
   code: string;
   title: string;
   description: string;
-  data: string;
   sent_from: string;
 };
 
-type EmailTemplateSchema = EmailTemplateFormData & {
+type EmailTemplatePayload = EmailTemplateMetaFormData & {
+  data: string;
+  editor_source: EmailDocument;
+};
+
+type EmailTemplateSchema = EmailTemplatePayload & {
   id: string;
   created_at: string;
   created_by: string | null;
@@ -48,7 +54,16 @@ const isValidJson = (s: string): boolean => {
   }
 };
 
-const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
+const toInitialDocument = (source: EmailTemplateSchema["editor_source"] | undefined): EmailDocument => {
+  if (!source) return DEFAULT_INITIAL_DOCUMENT;
+  try {
+    return typeof source === "string" ? parseEmailDocument(source) : source;
+  } catch {
+    return DEFAULT_INITIAL_DOCUMENT;
+  }
+};
+
+const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const navigate = useNavigate();
@@ -56,37 +71,47 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
     const backendAdminClient = useBackendAdminClient();
     const { data: retrievedData } = useRetrieveQuery<EmailTemplateSchema>(backendAdminClient, APP, RESOURCE, id || "");
 
-    const [formData, setFormData] = React.useState<EmailTemplateFormData>(() => ({
+    const [meta, setMeta] = useState<EmailTemplateMetaFormData>(() => ({
       code: retrievedData?.code ?? "",
       title: retrievedData?.title ?? "",
       description: retrievedData?.description ?? "",
-      data: retrievedData?.data ?? "",
       sent_from: retrievedData?.sent_from ?? "",
     }));
-    const [contextJson, setContextJson] = React.useState("{}");
+    const [contextJson, setContextJson] = useState("{}");
 
-    const createMutation = useCreateMutation<EmailTemplateFormData>(backendAdminClient, APP, RESOURCE);
-    const updateMutation = useUpdateMutation<EmailTemplateFormData>(backendAdminClient, APP, RESOURCE, id || "");
+    const editorRef = useRef<MailEditorHandle>(null);
+    const initialDocument = useMemo(() => toInitialDocument(retrievedData?.editor_source), [retrievedData?.editor_source]);
+
+    const createMutation = useCreateMutation<EmailTemplatePayload>(backendAdminClient, APP, RESOURCE);
+    const updateMutation = useUpdateMutation<EmailTemplatePayload>(backendAdminClient, APP, RESOURCE, id || "");
     const renderMutation = useRenderTemplateMutation(backendAdminClient, APP, RESOURCE);
 
-    const setField = <K extends keyof EmailTemplateFormData>(key: K, value: EmailTemplateFormData[K]) => setFormData((p) => ({ ...p, [key]: value }));
+    const setField = <K extends keyof EmailTemplateMetaFormData>(key: K, value: EmailTemplateMetaFormData[K]) =>
+      setMeta((p) => ({ ...p, [key]: value }));
     const onClose = () => navigate(`/${APP}/${RESOURCE}`);
 
     const isPending = createMutation.isPending || updateMutation.isPending;
     const jsonValid = isValidJson(contextJson);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (isPending) return;
+      if (!editorRef.current) {
+        addSnackbar("에디터가 아직 준비되지 않았습니다.", "error");
+        return;
+      }
+      const editor_source = editorRef.current.exportEmailDocument();
+      const data = await editorRef.current.exportHTML();
+      const payload: EmailTemplatePayload = { ...meta, data, editor_source };
       if (id) {
-        updateMutation.mutate(formData, {
+        updateMutation.mutate(payload, {
           onSuccess: () => addSnackbar("수정했습니다.", "success"),
           onError: addErrorSnackbar,
         });
       } else {
-        createMutation.mutate(formData, {
-          onSuccess: (data) => {
+        createMutation.mutate(payload, {
+          onSuccess: (created) => {
             addSnackbar("생성했습니다.", "success");
-            const newId = (data as EmailTemplateFormData & { id?: string }).id;
+            const newId = (created as EmailTemplatePayload & { id?: string }).id;
             if (newId) navigate(`/${APP}/${RESOURCE}/${newId}`);
           },
           onError: addErrorSnackbar,
@@ -109,11 +134,11 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
           <IconButton onClick={onClose} children={<Close />} />
         </Stack>
         <Stack spacing={2} sx={{ my: 2 }}>
-          <TextField label="code" value={formData.code} onChange={(e) => setField("code", e.target.value)} fullWidth />
-          <TextField label="title" value={formData.title} onChange={(e) => setField("title", e.target.value)} fullWidth />
+          <TextField label="code" value={meta.code} onChange={(e) => setField("code", e.target.value)} fullWidth />
+          <TextField label="title" value={meta.title} onChange={(e) => setField("title", e.target.value)} fullWidth />
           <TextField
             label="description"
-            value={formData.description}
+            value={meta.description}
             onChange={(e) => setField("description", e.target.value)}
             multiline
             minRows={2}
@@ -121,20 +146,23 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
           />
           <TextField
             label="sent_from"
-            value={formData.sent_from}
+            value={meta.sent_from}
             onChange={(e) => setField("sent_from", e.target.value)}
             helperText="발신 이메일 주소"
             fullWidth
           />
-          <TextField
-            label="data"
-            value={formData.data}
-            onChange={(e) => setField("data", e.target.value)}
-            helperText="이메일 본문 (HTML/MJML). 변수는 {{ name }} 형식으로 사용."
-            multiline
-            minRows={8}
-            fullWidth
-          />
+
+          <Box>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              본문 에디터
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+              변수는 {"{{ name }}"} 형식으로 사용합니다. 저장 시 EmailDocument JSON은 editor_source에, 렌더된 HTML은 data 필드에 기록됩니다.
+            </Typography>
+            <Box sx={{ height: 800, border: "1px solid", borderColor: "divider", borderRadius: 1, overflow: "hidden" }}>
+              <MailEditor ref={editorRef} initialDocument={initialDocument} />
+            </Box>
+          </Box>
 
           {retrievedData && retrievedData.template_variables.length > 0 && (
             <Box>
@@ -180,7 +208,7 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
                   />
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    미리보기 갱신 버튼을 눌러주세요.
+                    미리보기 갱신 버튼을 눌러주세요. 최신 본문을 미리보려면 먼저 저장해주세요.
                   </Typography>
                 )}
               </Stack>
@@ -197,7 +225,7 @@ const InnerAdminEmailTemplateEditor: React.FC = ErrorBoundary.with(
   })
 );
 
-export const AdminEmailTemplateEditor: React.FC = () => (
+export const AdminEmailTemplateEditor: FC = () => (
   <BackendAdminSignInGuard>
     <InnerAdminEmailTemplateEditor />
   </BackendAdminSignInGuard>

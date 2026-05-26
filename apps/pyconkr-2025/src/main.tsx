@@ -1,14 +1,16 @@
 import { Global } from "@emotion/react";
-import { Components, Utils } from "@frontend/common";
-import type { ContextOptions } from "@frontend/common/src/contexts";
-import * as Shop from "@frontend/shop";
+import { CenteredPage, CommonContextProvider, ErrorFallback } from "@frontend/common/components";
+import type { ContextOptions } from "@frontend/common/contexts";
+import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
+import { ShopContextProvider } from "@frontend/shop/components/common";
+import { ContextOptions as ShopContextOptions } from "@frontend/shop/contexts";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { matchQuery, MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SnackbarProvider } from "notistack";
-import * as React from "react";
-import * as ReactDom from "react-dom/client";
+import { FC, StrictMode, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
 import { router } from "./router.tsx";
@@ -43,8 +45,8 @@ const queryClient = new QueryClient({
   }),
 });
 
-const backendApiDomainEnv: string = import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
-const backendApiDomain = backendApiDomainEnv.startsWith("http://") ? "" : backendApiDomainEnv;
+// dev 서버에서는 vite proxy(/v1, /api)로 백엔드 호출 → relative URL 사용 (same-origin이라 CORS/쿠키 문제 회피)
+const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
   language: "ko",
@@ -55,22 +57,19 @@ const CommonOptions: ContextOptions = {
   mdxComponents: PyConKRMDXComponents,
 };
 
-const ShopOptions: Shop.Contexts.ContextOptions = {
+const ShopOptions: ShopContextOptions = {
   language: "ko",
-  shopApiDomain: import.meta.env.VITE_PYCONKR_SHOP_API_DOMAIN,
-  shopApiCSRFCookieName: import.meta.env.VITE_PYCONKR_SHOP_CSRF_COOKIE_NAME,
-  shopApiTimeout: 10000,
   shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
 
 const SuspenseFallback = (
-  <Components.CenteredPage>
+  <CenteredPage>
     <CircularProgress />
-  </Components.CenteredPage>
+  </CenteredPage>
 );
 
-const MainApp: React.FC = () => {
-  const [appState, setAppContext] = React.useState<Omit<AppContextType, "setAppContext">>({
+export const MainApp: FC = () => {
+  const [appState, setAppContext] = useState<Omit<AppContextType, "setAppContext">>({
     language: (localStorage.getItem(LOCAL_STORAGE_LANGUAGE_KEY) as "ko" | "en" | null) ?? "ko",
     shouldShowTitleBanner: true,
     shouldShowSponsorBanner: false,
@@ -81,14 +80,14 @@ const MainApp: React.FC = () => {
   });
 
   return (
-    <React.StrictMode>
+    <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
         <SnackbarProvider>
           <AppContext.Provider value={{ ...appState, setAppContext }}>
-            <Components.CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
-              <Shop.Components.Common.ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
-                <ErrorBoundary fallback={Components.ErrorFallback}>
+            <CommonContextProvider options={{ ...CommonOptions, language: appState.language }}>
+              <ShopContextProvider options={{ ...ShopOptions, language: appState.language }}>
+                <ErrorBoundary fallback={ErrorFallback}>
                   <Suspense fallback={SuspenseFallback}>
                     <ThemeProvider theme={muiTheme}>
                       <CssBaseline />
@@ -97,15 +96,15 @@ const MainApp: React.FC = () => {
                     </ThemeProvider>
                   </Suspense>
                 </ErrorBoundary>
-              </Shop.Components.Common.ShopContextProvider>
-            </Components.CommonContextProvider>
+              </ShopContextProvider>
+            </CommonContextProvider>
           </AppContext.Provider>
         </SnackbarProvider>
       </QueryClientProvider>
-    </React.StrictMode>
+    </StrictMode>
   );
 };
 
-Utils.registerChunkLoadErrorReloadHandler();
+registerChunkLoadErrorReloadHandler();
 
-ReactDom.createRoot(document.getElementById("root")!).render(<MainApp />);
+createRoot(document.getElementById("root")!).render(<MainApp />);

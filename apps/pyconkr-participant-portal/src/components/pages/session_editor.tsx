@@ -1,24 +1,28 @@
-import { Components } from "@frontend/common";
-import { useParticipantPortalClient, useRetrievePresentationQuery, useUpdatePresentationMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { Fieldset } from "@frontend/common/components";
+import {
+  useParticipantPortalClient,
+  useRetrievePresentationQuery,
+  useUpdatePresentationMutation,
+} from "@frontend/common/hooks/useParticipantPortalAPI";
 import { SendAndArchive } from "@mui/icons-material";
 import { Box, Button, Divider, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, ReactNode, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
-import { useAppContext } from "../../contexts/app_context";
-import { SubmitConfirmDialog } from "../dialogs/submit_confirm";
-import { BlockQuote } from "../elements/blockquote";
-import { ErrorPage } from "../elements/error_page";
-import { LoadingPage } from "../elements/loading_page";
-import { MultiLanguageField, MultiLanguageMarkdownField } from "../elements/multilang_field";
-import { PublicFileSelector } from "../elements/public_file_selector";
-import { CurrentlyModAuditInProgress } from "../elements/requested_modification_audit_available_header";
-import { SignInGuard } from "../elements/signin_guard";
-import { PrimaryTitle, SecondaryTitle } from "../elements/titles";
-import { Page } from "../page";
+import { SubmitConfirmDialog } from "@apps/pyconkr-participant-portal/components/dialogs/submit_confirm";
+import { BlockQuote } from "@apps/pyconkr-participant-portal/components/elements/blockquote";
+import { ErrorPage } from "@apps/pyconkr-participant-portal/components/elements/error_page";
+import { LoadingPage } from "@apps/pyconkr-participant-portal/components/elements/loading_page";
+import { MultiLanguageField, MultiLanguageMarkdownField } from "@apps/pyconkr-participant-portal/components/elements/multilang_field";
+import { PublicFileSelector } from "@apps/pyconkr-participant-portal/components/elements/public_file_selector";
+import { CurrentlyModAuditInProgress } from "@apps/pyconkr-participant-portal/components/elements/requested_modification_audit_available_header";
+import { SignInGuard } from "@apps/pyconkr-participant-portal/components/elements/signin_guard";
+import { PrimaryTitle, SecondaryTitle } from "@apps/pyconkr-participant-portal/components/elements/titles";
+import { Page } from "@apps/pyconkr-participant-portal/components/page";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type SessionUpdateSchema = {
   id: string;
@@ -60,8 +64,8 @@ type SessionEditorFormProps = {
 
 type SessionEditorFormState = SessionSchema;
 
-export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
-  const [formState, setFormState] = React.useState<SessionEditorFormState>(defaultValue);
+export const SessionEditorForm: FC<SessionEditorFormProps> = ({ disabled, language, defaultValue, showSubmitButton, onSubmit }) => {
+  const [formState, setFormState] = useState<SessionEditorFormState>(defaultValue);
 
   const setTitle = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`title_${lang}`]: value }));
   const setSummary = (value: string | undefined, lang: "ko" | "en") => setFormState((ps) => ({ ...ps, [`summary_${lang}`]: value }));
@@ -140,7 +144,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
           disabled={disabled}
           fullWidth
         />
-        <Components.Fieldset legend={slideShowStr}>
+        <Fieldset legend={slideShowStr}>
           <BlockQuote children={slideShowDescription} />
           <TextField
             label={slideShowStr}
@@ -150,7 +154,7 @@ export const SessionEditorForm: React.FC<SessionEditorFormProps> = ({ disabled, 
             sx={{ mt: 2 }}
             fullWidth
           />
-        </Components.Fieldset>
+        </Fieldset>
         <MultiLanguageField
           label={{ ko: "발표 요약", en: "Session Summary" }}
           description={{ ko: "발표를 짧게 요약해주세요.", en: "Please enter the short session summary." }}
@@ -220,10 +224,10 @@ type SessionEditorState = {
   formData?: SessionUpdateSchema;
 };
 
-const InnerSessionEditor: React.FC = () => {
+const InnerSessionEditor: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const { language } = useAppContext();
-  const [editorState, setEditorState] = React.useState<SessionEditorState>({ openSubmitConfirmDialog: false });
+  const [editorState, setEditorState] = useState<SessionEditorState>({ openSubmitConfirmDialog: false });
   const participantPortalClient = useParticipantPortalClient();
   const updateSessionMutation = useUpdatePresentationMutation(participantPortalClient);
   const { data: session } = useRetrievePresentationQuery(participantPortalClient, sessionId || "");
@@ -235,7 +239,7 @@ const InnerSessionEditor: React.FC = () => {
       ? "발표 정보 수정을 요청했어요. 검토 후 반영될 예정이에요."
       : "Presentation information update requested. It will be applied after review.";
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const openSubmitConfirmDialog = (formData: SessionUpdateSchema) => setEditorState((ps) => ({ ...ps, openSubmitConfirmDialog: true, formData }));
@@ -279,7 +283,7 @@ const InnerSessionEditor: React.FC = () => {
   );
 };
 
-export const SessionEditor: React.FC = ErrorBoundary.with(
+export const SessionEditor: FC = ErrorBoundary.with(
   { fallback: ErrorPage },
   Suspense.with({ fallback: <LoadingPage /> }, () => <SignInGuard children={<InnerSessionEditor />} />)
 );

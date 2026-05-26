@@ -2,7 +2,7 @@ import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, Typograph
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
-import { useAppContext } from "../../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 const LogoHeight: React.CSSProperties["height"] = "8rem";
 const LogoWidth: React.CSSProperties["width"] = "15rem";

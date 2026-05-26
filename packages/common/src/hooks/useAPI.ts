@@ -1,11 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import * as React from "react";
+import { useContext } from "react";
 
-import * as BackendAPIs from "../apis";
-import { BackendAPIClient } from "../apis/client";
-import { context as backendContext } from "../contexts";
-import * as BackendAPISchemas from "../schemas/backendAPI";
-
+import { listSessions, listSiteMaps, listSponsors, retrievePage, retrieveSession } from "@frontend/common/apis";
+import { BackendAPIClient } from "@frontend/common/apis/client";
+import { context as backendContext } from "@frontend/common/contexts";
+import { SessionQueryParameterSchema } from "@frontend/common/schemas/backendAPI";
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
@@ -14,7 +13,7 @@ const QUERY_KEYS = {
 };
 
 export const useBackendContext = () => {
-  const ctx = React.useContext(backendContext);
+  const ctx = useContext(backendContext);
   if (!ctx) throw new Error("useBackendContext must be used within a CommonProvider");
   return ctx;
 };
@@ -27,29 +26,29 @@ export const useBackendClient = () => {
 export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.SITEMAP_LIST, client.language],
-    queryFn: BackendAPIs.listSiteMaps(client),
+    queryFn: listSiteMaps(client),
   });
 
 export const usePageQuery = (client: BackendAPIClient, id: string) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.PAGE, id, client.language],
-    queryFn: () => BackendAPIs.retrievePage(client)(id),
+    queryFn: () => retrievePage(client)(id),
   });
 
 export const useSponsorQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language],
-    queryFn: BackendAPIs.listSponsors(client),
+    queryFn: listSponsors(client),
   });
 
-export const useSessionsQuery = (client: BackendAPIClient, params?: BackendAPISchemas.SessionQueryParameterSchema) =>
+export const useSessionsQuery = (client: BackendAPIClient, params?: SessionQueryParameterSchema) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.SESSION_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
-    queryFn: BackendAPIs.listSessions(client, params),
+    queryFn: listSessions(client, params),
   });
 
 export const useSessionQuery = (client: BackendAPIClient, id: string) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.SESSION_LIST, id, client.language],
-    queryFn: () => BackendAPIs.retrieveSession(client)(id),
+    queryFn: () => retrieveSession(client)(id),
   });

@@ -1,5 +1,7 @@
-import * as Common from "@frontend/common";
-import { Close } from "@mui/icons-material";
+import { FallbackImage, MDXRenderer } from "@frontend/common/components";
+import { OneDetailsOpener, PrimaryStyledDetails } from "@frontend/common/components/mdx_components";
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { Add, Close } from "@mui/icons-material";
 import {
   AccordionProps,
   Box,
@@ -20,41 +22,48 @@ import {
   Stack,
   styled,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
+import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import * as R from "remeda";
+import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
-import { ShopAPIClientError } from "../../apis/client";
-import ShopHooks from "../../hooks";
-import ShopSchemas from "../../schemas";
-import ShopUtils from "../../utils";
-import CommonComponents from "../common";
+import { formatBackendErrorMessage } from "@frontend/shop/apis";
+import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
+import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
+import type { CartItemAppendRequest, CustomerInfo, Order, Product, ProductListQueryParams } from "@frontend/shop/schemas";
+import { getCannotAddMoreOptionGroupReason, getOptionGroupNotOrderableReason, startPortOnePurchase } from "@frontend/shop/utils";
 
-const getCartAppendRequestPayload = (product: ShopSchemas.Product, formValue: { [key: string]: string }): ShopSchemas.CartItemAppendRequest => {
+const getCartAppendRequestPayload = (
+  product: Product,
+  formValue: { [key: string]: string },
+  instanceToGroup: Map<string, string>
+): CartItemAppendRequest => {
   let donation_price = formValue.donation_price ? parseInt(formValue.donation_price) : 0;
   if (isNaN(donation_price)) donation_price = 0;
 
   const options = Object.entries(formValue)
-    .filter(([product_option_group]) => product_option_group !== "donation_price")
-    .map(([product_option_group, value]) => {
-      const optionGroup = product.option_groups.find((group) => group.id === product_option_group);
-      if (!optionGroup) throw new Error(`Option group ${product_option_group} not found`);
+    .filter(([key]) => key !== "donation_price")
+    .map(([key, value]) => {
+      // 필수 그룹은 key=groupId, 선택 그룹 인스턴스는 key=instanceId → groupId 룩업
+      const groupId = instanceToGroup.get(key) ?? key;
+      const optionGroup = product.option_groups.find((group) => group.id === groupId);
+      if (!optionGroup) throw new Error(`Option group ${groupId} not found`);
 
       const product_option = optionGroup.is_custom_response ? null : value;
       const custom_response = optionGroup.is_custom_response ? value : null;
-      return { product_option_group, product_option, custom_response };
+      return { product_option_group: groupId, product_option, custom_response };
     });
 
   return { product: product.id, options, ...(product.donation_allowed ? { donation_price } : {}) };
 };
 
-const getProductNotPurchasableReason = (language: "ko" | "en", product: ShopSchemas.Product): string | null => {
+const getProductNotPurchasableReason = (language: "ko" | "en", product: Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
   const now = new Date();
   const orderableStartsAt = new Date(product.orderable_starts_at);
@@ -68,9 +77,9 @@ const getProductNotPurchasableReason = (language: "ko" | "en", product: ShopSche
   }
   if (orderableEndsAt < now) return language === "ko" ? "판매가 종료됐어요!" : "This product is no longer available for purchase!";
 
-  if (R.isNumber(product.leftover_stock) && product.leftover_stock <= 0)
+  if (isNumber(product.leftover_stock) && product.leftover_stock <= 0)
     return language === "ko" ? "상품이 매진되었어요!" : "This product is out of stock!";
-  if (product.option_groups.some((og) => !R.isEmpty(og.options) && og.options.every((o) => R.isNumber(o.leftover_stock) && o.leftover_stock <= 0)))
+  if (product.option_groups.some((og) => !isEmpty(og.options) && og.options.every((o) => isNumber(o.leftover_stock) && o.leftover_stock <= 0)))
     return language === "ko"
       ? "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!"
       : "All selectable options for this product are out of stock!";
@@ -78,7 +87,7 @@ const getProductNotPurchasableReason = (language: "ko" | "en", product: ShopSche
   return null;
 };
 
-const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
+const NotPurchasable: FC<PropsWithChildren> = ({ children }) => {
   return (
     <Typography variant="body1" color="error" sx={{ width: "100%", textAlign: "center", mt: "2rem", mb: "1rem" }}>
       {children}
@@ -89,9 +98,9 @@ const NotPurchasable: React.FC<React.PropsWithChildren> = ({ children }) => {
 type ProductItemPropType = {
   disabled?: boolean;
   language: "ko" | "en";
-  product: ShopSchemas.Product;
+  product: Product;
   onAddToCartSuccess?: () => void;
-  startPurchaseProcess: (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => void;
+  startPurchaseProcess: (oneItemOrderData: CartItemAppendRequest) => void;
 };
 
 /**
@@ -99,22 +108,26 @@ type ProductItemPropType = {
  * @param p 상품 객체
  * @returns 상품의 가격이 0 이하인 경우 true, 그렇지 않으면 false
  */
-const isZeroPriceProduct = (p: ShopSchemas.Product): boolean => {
+const isZeroPriceProduct = (p: Product): boolean => {
   return p.price + p.option_groups.reduce((sum, group) => sum + group.options.reduce((s, o) => s + (o.additional_price || 0), 0), 0) === 0;
 };
 
-const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
+const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language, product, startPurchaseProcess, onAddToCartSuccess }) => {
   const navigate = useNavigate();
-  const [, forceRender] = React.useReducer((x) => x + 1, 0);
-  const [helperText, setHelperText] = React.useState<string | undefined>(undefined);
-  const { baseUrl, mdxComponents } = Common.Hooks.Common.useCommonContext();
-  const { handleSubmit, subscribe, control, getValues, register, formState } = useForm<Record<string, string>>({ mode: "all" });
-  const shopAPIClient = ShopHooks.useShopClient();
-  const addItemToCartMutation = ShopHooks.useAddItemToCartMutation(shopAPIClient);
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const [, forceRender] = useReducer((x) => x + 1, 0);
+  const [helperText, setHelperText] = useState<string | undefined>(undefined);
+  const { baseUrl, mdxComponents } = useCommonContext();
+  const { handleSubmit, subscribe, control, getValues, register, unregister, formState } = useForm<Record<string, string>>({ mode: "all" });
+  // 선택(min=0) 그룹의 동적 인스턴스. 각 인스턴스 id가 form field name으로 쓰임 — `${groupId}__${counter}` 형태.
+  const [optionalInstances, setOptionalInstances] = useState<{ id: string; groupId: string }[]>([]);
+  const instanceCounterRef = useRef(0);
+  const instanceToGroup = useMemo(() => new Map(optionalInstances.map((i) => [i.id, i.groupId])), [optionalInstances]);
+  const shopAPIClient = useShopClient();
+  const addItemToCartMutation = useAddItemToCartMutation(shopAPIClient);
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const callback = subscribe({
       formState: { values: true },
       callback: forceRender,
@@ -125,6 +138,8 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
   const requiresSignInStr =
     language === "ko" ? "로그인 후 장바구니에 담거나 구매할 수 있어요." : "You need to sign in to add items to the cart or make a purchase.";
+  const addOptionGroupLabel = (name: string) => (language === "ko" ? `${name} 추가` : `Add ${name}`);
+  const removeOptionGroupAriaLabel = language === "ko" ? "옵션 제거" : "Remove option";
   const addToCartStr = language === "ko" ? "장바구니에 담기" : "Add to Cart";
   const orderOneItemStr = language === "ko" ? "즉시 구매" : "Buy Now";
   const orderPriceStr = language === "ko" ? "결제 금액" : "Price";
@@ -160,27 +175,44 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   const possibleDonationAmountStr =
     language === "ko" ? (
       <>
-        최소 <CommonComponents.PriceDisplay price={product.donation_min_price || 0} />
-        , 최대 <CommonComponents.PriceDisplay price={product.donation_max_price || 0} />
+        최소 <PriceDisplay price={product.donation_min_price || 0} />
+        , 최대 <PriceDisplay price={product.donation_max_price || 0} />
         까지 입력할 수 있습니다.
       </>
     ) : (
       <>
-        You can enter a minimum of <CommonComponents.PriceDisplay price={product.donation_min_price || 0} />
-        &nbsp;and a maximum of <CommonComponents.PriceDisplay price={product.donation_max_price || 0} />.
+        You can enter a minimum of <PriceDisplay price={product.donation_min_price || 0} />
+        &nbsp;and a maximum of <PriceDisplay price={product.donation_max_price || 0} />.
       </>
     );
 
   const disabled = rootDisabled || addItemToCartMutation.isPending;
 
   const notPurchasableReason = getProductNotPurchasableReason(language, product);
+  const groupNotOrderableReasons = product.option_groups.map((group) => ({
+    group,
+    reason: getOptionGroupNotOrderableReason(language, product, group),
+  }));
+  const requiredGroupsData = groupNotOrderableReasons.filter(({ group }) => group.min_quantity_per_product >= 1);
+  const optionalGroupsData = groupNotOrderableReasons.filter(({ group }) => group.min_quantity_per_product === 0);
+  // 필수 그룹(min_quantity_per_product > 0)이 비-orderable이면 주문 자체 불가 — 백엔드도 거절.
+  const disabledRequiredGroupReason = requiredGroupsData.find((g) => g.reason)?.reason ?? null;
+
+  const addInstance = (groupId: string) => {
+    const id = `${groupId}__${instanceCounterRef.current++}`;
+    setOptionalInstances((prev) => [...prev, { id, groupId }]);
+  };
+  const removeInstance = (id: string) => {
+    unregister(id);
+    setOptionalInstances((prev) => prev.filter((i) => i.id !== id));
+  };
   const actionButtonProps: ButtonProps = {
     variant: "contained",
     color: "secondary",
-    disabled: disabled || R.isString(helperText) || !formState.isValid,
+    disabled: disabled || isString(helperText) || !formState.isValid || !!disabledRequiredGroupReason,
   };
 
-  const validateDonationPrice: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+  const validateDonationPrice: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     const value = e.target.value || "0";
 
     if (!/^[0-9]*$/.test(value)) {
@@ -198,12 +230,15 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   const getTotalProductPrice = (formData: Record<string, unknown>): number => {
     let totalPrice = product.price;
 
-    totalPrice += product.option_groups
-      .filter((optionRel) => !optionRel.is_custom_response)
-      .reduce((sum, group) => {
-        const selectedOption = group.options.find((o) => o.id === formData[group.id]);
-        return sum + (selectedOption?.additional_price || 0);
-      }, 0);
+    // 필수 그룹: key = groupId / 선택 그룹 인스턴스: key = instanceId → groupId 룩업
+    for (const [key, value] of Object.entries(formData)) {
+      if (key === "donation_price") continue;
+      const groupId = instanceToGroup.get(key) ?? key;
+      const group = product.option_groups.find((g) => g.id === groupId);
+      if (!group || group.is_custom_response) continue;
+      const selectedOption = group.options.find((o) => o.id === value);
+      if (selectedOption) totalPrice += selectedOption.additional_price || 0;
+    }
 
     if (product.donation_allowed) {
       const donation_price = parseInt(formData.donation_price as string) || 0;
@@ -220,7 +255,7 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
   });
 
   const addItemToCart = () => {
-    const formData = getCartAppendRequestPayload(product, getValues());
+    const formData = getCartAppendRequestPayload(product, getValues(), instanceToGroup);
     if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotAddToCartZeroPriceProductStr);
       return;
@@ -244,15 +279,11 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
         );
         onAddToCartSuccess?.();
       },
-      onError: (error) =>
-        alert(
-          (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
-            failedToAddOneItemToCartStr
-        ),
+      onError: (error) => alert(formatBackendErrorMessage(error, failedToAddOneItemToCartStr)),
     });
   };
   const onOrderOneItemButtonClick = () => {
-    const formData = getCartAppendRequestPayload(product, getValues());
+    const formData = getCartAppendRequestPayload(product, getValues(), instanceToGroup);
     if (!isZeroPriceProduct(product) && getTotalProductPrice(getValues()) <= 0) {
       alert(cannotPurchaseZeroPriceProductStr);
       return;
@@ -263,24 +294,72 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
   return (
     <>
-      <Common.Components.MDXRenderer text={product.description || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
+      <MDXRenderer text={product.description || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
       <br />
       <Divider />
-      {R.isNullish(notPurchasableReason) ? (
+      {isNullish(notPurchasableReason) ? (
         <>
           <br />
           <form onSubmit={handleSubmit(() => {})}>
             <Stack spacing={2}>
-              {product.option_groups.map((group) => (
-                <CommonComponents.OptionGroupInput
+              {requiredGroupsData.map(({ group, reason }) => (
+                <OptionGroupInput
                   key={group.id}
                   optionGroup={group}
                   options={group.options}
-                  defaultValue={group.options[0]?.id || ""}
-                  disabled={disabled}
+                  defaultValue={reason ? "" : group.options[0]?.id || ""}
+                  disabled={disabled || !!reason}
+                  disabledReason={reason ?? undefined}
                   control={control}
                 />
               ))}
+              {requiredGroupsData.length > 0 && optionalGroupsData.length > 0 && <Divider />}
+              {optionalGroupsData.map(({ group, reason }) => {
+                const groupInstances = optionalInstances.filter((i) => i.groupId === group.id);
+                const cannotAddReason = getCannotAddMoreOptionGroupReason(language, group, groupInstances.length);
+                const addDisabled = disabled || !!reason || !!cannotAddReason;
+                // orderable 사유는 Tooltip으로, 한도 사유는 캡션으로 노출 (한도는 항상 보여야 함).
+                return (
+                  <Stack key={group.id} spacing={1}>
+                    {groupInstances.map((instance) => (
+                      <Stack key={instance.id} direction="row" spacing={1} alignItems="center">
+                        <Box sx={{ flexGrow: 1 }}>
+                          <OptionGroupInput
+                            optionGroup={{ ...group, id: instance.id }}
+                            options={group.options}
+                            defaultValue={reason ? "" : group.options[0]?.id || ""}
+                            disabled={disabled || !!reason}
+                            disabledReason={reason ?? undefined}
+                            control={control}
+                          />
+                        </Box>
+                        <IconButton onClick={() => removeInstance(instance.id)} disabled={disabled} aria-label={removeOptionGroupAriaLabel}>
+                          <Close />
+                        </IconButton>
+                      </Stack>
+                    ))}
+                    <Tooltip title={reason ?? ""}>
+                      <span>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          startIcon={<Add />}
+                          onClick={() => addInstance(group.id)}
+                          disabled={addDisabled}
+                          fullWidth
+                        >
+                          {addOptionGroupLabel(group.name)}
+                        </Button>
+                      </span>
+                    </Tooltip>
+                    {cannotAddReason && !reason && (
+                      <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+                        {cannotAddReason}
+                      </Typography>
+                    )}
+                  </Stack>
+                );
+              })}
               {product.donation_allowed && (
                 <>
                   {product.option_groups.length > 0 && (
@@ -313,19 +392,20 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
           </form>
           <br />
           <Typography variant="h6" sx={{ textAlign: "right" }}>
-            {orderPriceStr}: <CommonComponents.PriceDisplay price={getTotalProductPrice(getValues())} />
+            {orderPriceStr}: <PriceDisplay price={getTotalProductPrice(getValues())} />
           </Typography>
         </>
       ) : (
         <NotPurchasable>{notPurchasableReason}</NotPurchasable>
       )}
-      {R.isNullish(notPurchasableReason) && (
-        <CommonComponents.SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+      {isNullish(notPurchasableReason) && (
+        <SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
+          {disabledRequiredGroupReason && <NotPurchasable>{disabledRequiredGroupReason}</NotPurchasable>}
           <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", mt: 2 }}>
             <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
             <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
           </Stack>
-        </CommonComponents.SignInGuard>
+        </SignInGuard>
       )}
     </>
   );
@@ -333,11 +413,11 @@ const ProductItem: React.FC<ProductItemPropType> = ({ disabled: rootDisabled, la
 
 type FoldableProductItemPropType = Omit<AccordionProps, "children"> & ProductItemPropType;
 
-const FoldableProductItem: React.FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+const FoldableProductItem: FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
   return (
-    <Common.Components.MDX.PrimaryStyledDetails {...props} summary={product.name}>
+    <PrimaryStyledDetails {...props} summary={product.name}>
       <ProductItem disabled={disabled} language={language} product={product} startPurchaseProcess={startPurchaseProcess} />
-    </Common.Components.MDX.PrimaryStyledDetails>
+    </PrimaryStyledDetails>
   );
 };
 
@@ -350,10 +430,10 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
 
 type DialogedProductItemPropType = Omit<DialogProps, "children"> &
   Omit<ProductItemPropType, "product"> & {
-    product?: ShopSchemas.Product;
+    product?: Product;
   };
 
-const DialogedProductItem: React.FC<DialogedProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+const DialogedProductItem: FC<DialogedProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
   const dialogTitle = language === "ko" ? "상품 상세 정보" : "Product Details";
   const onCloseClick = (props.onClose as () => void) || (() => {});
   return (
@@ -377,9 +457,9 @@ const DialogedProductItem: React.FC<DialogedProductItemPropType> = ({ disabled, 
 
 type ProductImageCardPropType = {
   language: "ko" | "en";
-  product: ShopSchemas.Product;
+  product: Product;
   disabled?: boolean;
-  showDetail: (product: ShopSchemas.Product) => void;
+  showDetail: (product: Product) => void;
 };
 
 const StyledProductImageCard = styled(Card)(({ theme }) => ({
@@ -395,12 +475,12 @@ const StyledProductImageCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
+const ProductImageCard: FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
   const showDetailStr = language === "ko" ? "상품 상세 정보 보기" : "View Product Details";
   return (
     <StyledProductImageCard onClick={() => showDetail(product)} elevation={0}>
       <CardMedia sx={{ height: "200px", objectFit: "contain", borderRadius: "0 0 0.5rem 0.5rem" }}>
-        <Common.Components.FallbackImage
+        <FallbackImage
           src={product.image || ""}
           alt="Product Image"
           loading="lazy"
@@ -411,7 +491,7 @@ const ProductImageCard: React.FC<ProductImageCardPropType> = ({ language, produc
       <CardContent sx={{ py: 1 }}>
         <Stack spacing={1}>
           <Typography variant="h6" sx={{ textAlign: "center" }} children={product.name} />
-          <Typography variant="body1" sx={{ textAlign: "right" }} children={<CommonComponents.PriceDisplay price={product.price} />} />
+          <Typography variant="body1" sx={{ textAlign: "right" }} children={<PriceDisplay price={product.price} />} />
         </Stack>
       </CardContent>
       <CardActions>
@@ -425,20 +505,20 @@ type ProductListStateType = {
   openDialog: boolean;
   openBackdrop: boolean;
   resetKey: string;
-  product?: ShopSchemas.Product;
-  oneItemOrderData?: ShopSchemas.CartItemAppendRequest;
+  product?: Product;
+  oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
-  const WrappedProductList: React.FC = () => {
+export const ProductList: FC<ProductListQueryParams> = (qs) => {
+  const WrappedProductList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { language, shopImpAccountId } = ShopHooks.useShopContext();
-    const shopAPIClient = ShopHooks.useShopClient();
-    const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
-    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
+    const { language, shopImpAccountId } = useShopContext();
+    const shopAPIClient = useShopClient();
+    const oneItemOrderStartMutation = usePrepareOneItemOrderMutation(shopAPIClient);
+    const { data } = useProducts(shopAPIClient, qs);
 
-    const [state, setState] = React.useState<ProductListStateType>({
+    const [state, setState] = useState<ProductListStateType>({
       openDialog: false,
       openBackdrop: false,
       resetKey: Math.random().toString(36).substring(2),
@@ -449,7 +529,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
     const closeDialog = () => setState((ps) => ({ ...ps, openDialog: false }));
     const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
     const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
-    const setProductDataAndOpenDialog = (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => {
+    const setProductDataAndOpenDialog = (oneItemOrderData: CartItemAppendRequest) => {
       // 부모 리렌더링에 따른 form 상태 초기화를 숨기기 위해 accordion을 닫습니다.
       // TODO: FIXME: form 상태가 애초에 초기화되면 안됩니다. form 내부 값을 초기화되지 않도록 막고, 접히지 않도록 하세요.
       foldAll();
@@ -462,7 +542,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
     const orderErrorStr =
       language === "ko" ? `결제 준비 중 문제가 발생했습니다,${pleaseRetryStr}` : `An error occurred while preparing the payment,${pleaseRetryStr}`;
 
-    const onFormSubmit = (customer_info: ShopSchemas.CustomerInfo) => {
+    const onFormSubmit = (customer_info: CustomerInfo) => {
       if (!state.oneItemOrderData) return;
 
       closeDialog();
@@ -470,8 +550,8 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
       oneItemOrderStartMutation.mutate(
         { ...state.oneItemOrderData, customer_info: customer_info },
         {
-          onSuccess: (order: ShopSchemas.Order) => {
-            ShopUtils.startPortOnePurchase(
+          onSuccess: (order: Order) => {
+            startPortOnePurchase(
               shopImpAccountId,
               order,
               () => {
@@ -483,19 +563,15 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
               closeBackdrop
             );
           },
-          onError: (error) =>
-            alert(
-              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
-                orderErrorStr
-            ),
+          onError: (error) => alert(formatBackendErrorMessage(error, orderErrorStr)),
         }
       );
     };
 
     return (
       <>
-        <CommonComponents.CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
-        <Common.Components.MDX.OneDetailsOpener resetKey={state.resetKey}>
+        <CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
+        <OneDetailsOpener resetKey={state.resetKey}>
           {data.map((p) => (
             <FoldableProductItem
               disabled={oneItemOrderStartMutation.isPending}
@@ -505,7 +581,7 @@ export const ProductList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) =>
               startPurchaseProcess={setProductDataAndOpenDialog}
             />
           ))}
-        </Common.Components.MDX.OneDetailsOpener>
+        </OneDetailsOpener>
       </>
     );
   };
@@ -525,32 +601,32 @@ type ProductImageCardListStateType = {
   openProductDialog: boolean;
   openCustomerInfoDialog: boolean;
   openBackdrop: boolean;
-  product?: ShopSchemas.Product;
-  oneItemOrderData?: ShopSchemas.CartItemAppendRequest;
+  product?: Product;
+  oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> = (qs) => {
-  const WrappedProductImageCardList: React.FC = () => {
+export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
+  const WrappedProductImageCardList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { language, shopImpAccountId } = ShopHooks.useShopContext();
-    const shopAPIClient = ShopHooks.useShopClient();
-    const oneItemOrderStartMutation = ShopHooks.usePrepareOneItemOrderMutation(shopAPIClient);
-    const { data } = ShopHooks.useProducts(shopAPIClient, qs);
+    const { language, shopImpAccountId } = useShopContext();
+    const shopAPIClient = useShopClient();
+    const oneItemOrderStartMutation = usePrepareOneItemOrderMutation(shopAPIClient);
+    const { data } = useProducts(shopAPIClient, qs);
 
-    const [state, setState] = React.useState<ProductImageCardListStateType>({
+    const [state, setState] = useState<ProductImageCardListStateType>({
       openProductDialog: false,
       openCustomerInfoDialog: false,
       openBackdrop: false,
     });
 
-    const openProductDialog = (product: ShopSchemas.Product) => setState((ps) => ({ ...ps, product, openProductDialog: true }));
+    const openProductDialog = (product: Product) => setState((ps) => ({ ...ps, product, openProductDialog: true }));
     const closeProductDialog = () => setState((ps) => ({ ...ps, openProductDialog: false }));
     const openCustomerInfoDialog = () => setState((ps) => ({ ...ps, openCustomerInfoDialog: true }));
     const closeCustomerInfoDialog = () => setState((ps) => ({ ...ps, openCustomerInfoDialog: false }));
     const openBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: true }));
     const closeBackdrop = () => setState((ps) => ({ ...ps, openBackdrop: false }));
-    const setProductDataAndOpenDialog = (oneItemOrderData: ShopSchemas.CartItemAppendRequest) => {
+    const setProductDataAndOpenDialog = (oneItemOrderData: CartItemAppendRequest) => {
       closeProductDialog();
       setState((ps) => ({ ...ps, oneItemOrderData }));
       openCustomerInfoDialog();
@@ -561,7 +637,7 @@ export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> 
     const orderErrorStr =
       language === "ko" ? `결제 준비 중 문제가 발생했습니다,${pleaseRetryStr}` : `An error occurred while preparing the payment,${pleaseRetryStr}`;
 
-    const onFormSubmit = (customer_info: ShopSchemas.CustomerInfo) => {
+    const onFormSubmit = (customer_info: CustomerInfo) => {
       if (!state.oneItemOrderData) return;
 
       closeCustomerInfoDialog();
@@ -569,8 +645,8 @@ export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> 
       oneItemOrderStartMutation.mutate(
         { ...state.oneItemOrderData, customer_info: customer_info },
         {
-          onSuccess: (order: ShopSchemas.Order) => {
-            ShopUtils.startPortOnePurchase(
+          onSuccess: (order: Order) => {
+            startPortOnePurchase(
               shopImpAccountId,
               order,
               () => {
@@ -582,18 +658,14 @@ export const ProductImageCardList: React.FC<ShopSchemas.ProductListQueryParams> 
               closeBackdrop
             );
           },
-          onError: (error) =>
-            alert(
-              (error instanceof ShopAPIClientError ? error.detail.errors.map((errDetail) => errDetail.detail).join("\n") : error.message) ||
-                orderErrorStr
-            ),
+          onError: (error) => alert(formatBackendErrorMessage(error, orderErrorStr)),
         }
       );
     };
 
     return (
       <>
-        <CommonComponents.CustomerInfoFormDialog open={state.openCustomerInfoDialog} closeFunc={closeCustomerInfoDialog} onSubmit={onFormSubmit} />
+        <CustomerInfoFormDialog open={state.openCustomerInfoDialog} closeFunc={closeCustomerInfoDialog} onSubmit={onFormSubmit} />
         <DialogedProductItem
           open={state.openProductDialog}
           onClose={closeProductDialog}

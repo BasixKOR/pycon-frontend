@@ -1,12 +1,12 @@
-import { Components } from "@frontend/common";
-import { useParticipantPortalClient, useUploadPublicFileMutation } from "@frontend/common/src/hooks/useParticipantPortalAPI";
-import { BackendAPIClientError } from "@frontend/common/src/apis";
+import { BackendAPIClientError } from "@frontend/common/apis";
+import { DndFileInput } from "@frontend/common/components";
+import { useParticipantPortalClient, useUploadPublicFileMutation } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { enqueueSnackbar, OptionsObject } from "notistack";
-import * as React from "react";
-import * as R from "remeda";
+import { FC, ReactNode, useState } from "react";
+import { isEmpty, isString } from "remeda";
 
-import { useAppContext } from "../../contexts/app_context";
+import { useAppContext } from "@apps/pyconkr-participant-portal/contexts/app_context";
 
 type SetUploadedFileAsValueConfirmDialogProps = {
   language: "ko" | "en";
@@ -15,12 +15,7 @@ type SetUploadedFileAsValueConfirmDialogProps = {
   setValueAndCloseAll: () => void;
 };
 
-const SetUploadedFileAsValueConfirmDialog: React.FC<SetUploadedFileAsValueConfirmDialogProps> = ({
-  language,
-  open,
-  closeAll,
-  setValueAndCloseAll,
-}) => {
+const SetUploadedFileAsValueConfirmDialog: FC<SetUploadedFileAsValueConfirmDialogProps> = ({ language, open, closeAll, setValueAndCloseAll }) => {
   const titleStr = language === "ko" ? "파일 업로드 완료" : "File Upload Completed";
   const confirmStr =
     language === "ko" ? "업로드한 파일을 현재 값으로 설정하시겠습니까?" : "Do you want to set the uploaded file as the current value?";
@@ -50,13 +45,13 @@ type PublicFileUploadDialogState = {
   uploadedFileId: string | null;
 };
 
-export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ open, onClose, setFileIdAsValue }) => {
+export const PublicFileUploadDialog: FC<PublicFileUploadDialogProps> = ({ open, onClose, setFileIdAsValue }) => {
   const { language } = useAppContext();
-  const [dialogState, setDialogState] = React.useState<PublicFileUploadDialogState>({ selectedFile: null, uploadedFileId: null });
+  const [dialogState, setDialogState] = useState<PublicFileUploadDialogState>({ selectedFile: null, uploadedFileId: null });
   const participantPortalClient = useParticipantPortalClient();
   const uploadPublicFileMutation = useUploadPublicFileMutation(participantPortalClient);
 
-  const addSnackbar = (c: string | React.ReactNode, variant: OptionsObject["variant"]) =>
+  const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const titleStr = language === "ko" ? "파일 업로드" : "Upload File";
@@ -101,14 +96,14 @@ export const PublicFileUploadDialog: React.FC<PublicFileUploadDialogProps> = ({ 
     <>
       <SetUploadedFileAsValueConfirmDialog
         language={language}
-        open={R.isString(dialogState.uploadedFileId) && !R.isEmpty(dialogState.uploadedFileId)}
+        open={isString(dialogState.uploadedFileId) && !isEmpty(dialogState.uploadedFileId)}
         closeAll={closeAllDialogs}
         setValueAndCloseAll={setValueAndCloseAllDialogs}
       />
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle children={titleStr} />
         <DialogContent>
-          <Components.DndFileInput onFileChange={setFile} language={language} />
+          <DndFileInput onFileChange={setFile} language={language} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" loading={loading} children={cancelStr} color="error" onClick={onClose} />
