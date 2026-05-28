@@ -563,7 +563,10 @@ export const ProductList: FC<ProductListQueryParams> = (qs) => {
               closeBackdrop
             );
           },
-          onError: (error) => alert(formatBackendErrorMessage(error, orderErrorStr)),
+          onError: (error) => {
+            alert(formatBackendErrorMessage(error, orderErrorStr));
+            closeBackdrop();
+          },
         }
       );
     };
@@ -658,7 +661,10 @@ export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
               closeBackdrop
             );
           },
-          onError: (error) => alert(formatBackendErrorMessage(error, orderErrorStr)),
+          onError: (error) => {
+            alert(formatBackendErrorMessage(error, orderErrorStr));
+            closeBackdrop();
+          },
         }
       );
     };

@@ -131,7 +131,10 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
           closeBackdrop
         );
       },
-      onError: (error) => alert(formatBackendErrorMessage(error, errorWhilePreparingOrderStr)),
+      onError: (error) => {
+        alert(formatBackendErrorMessage(error, errorWhilePreparingOrderStr));
+        closeBackdrop();
+      },
     });
   };
 
