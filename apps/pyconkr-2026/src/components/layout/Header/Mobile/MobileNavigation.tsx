@@ -6,7 +6,9 @@ import { FC, useState } from "react";
 import { Link } from "react-router-dom";
 import { isEmpty } from "remeda";
 
+import { CartBadgeButton } from "@apps/pyconkr-2026/components/layout/CartBadgeButton";
 import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
+import { UserMenuButton } from "@apps/pyconkr-2026/components/layout/UserMenuButton";
 
 import { HamburgerButton } from "./HamburgerButton";
 
@@ -163,9 +165,13 @@ export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, s
           {navState.level === "depth3" && renderDepth3Menu()}
         </NavigationContent>
 
-        <Box sx={{ px: 2, py: 3, flexGrow: 0 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 3, flexGrow: 0 }}>
           <LanguageSelector />
-        </Box>
+          <Stack direction="row" alignItems="center">
+            <CartBadgeButton onClose={handleClose} />
+            <UserMenuButton onClose={handleClose} />
+          </Stack>
+        </Stack>
       </DrawerContent>
     </StyledDrawer>
   );

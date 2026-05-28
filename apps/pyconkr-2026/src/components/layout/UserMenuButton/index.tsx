@@ -15,32 +15,36 @@ const ColoredIconButton = styled(IconButton)(({ theme }) => ({
   transition: "color 0.4s ease, background-color 0.4s ease",
 }));
 
-type InnerUserMenuButtonPropType = {
+type UserMenuButtonProps = { onClose?: () => void };
+
+type InnerUserMenuButtonPropType = UserMenuButtonProps & {
   loading?: boolean;
   user?: UserSignedInStatus["data"]["user"];
   onSignOut?: () => void;
 };
 
-const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut }) => {
+const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut, onClose }) => {
   const navigate = useNavigate();
   const { language } = useAppContext();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
 
   const handleOpen = (event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  const handleMenuClose = () => setAnchorEl(null);
 
   const signInLabel = language === "ko" ? "로그인" : "Sign In";
   const orderHistoryLabel = language === "ko" ? "결제 내역" : "Order History";
   const signOutLabel = language === "ko" ? "로그아웃" : "Sign Out";
 
   const goTo = (path: string) => {
-    handleClose();
+    handleMenuClose();
+    onClose?.();
     navigate(path);
   };
 
   const handleSignOut = () => {
-    handleClose();
+    handleMenuClose();
+    onClose?.();
     onSignOut?.();
   };
 
@@ -59,7 +63,7 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
         id="user-menu"
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
+        onClose={handleMenuClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         slotProps={{ paper: { sx: { minWidth: 180, mt: 0.5 } } }}
@@ -98,18 +102,18 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
   );
 };
 
-const UserMenuButtonContent: FC = () => {
+const UserMenuButtonContent: FC<UserMenuButtonProps> = ({ onClose }) => {
   const shopAPIClient = useShopClient();
   const signOutMutation = useSignOutMutation(shopAPIClient);
   const { data } = useUserStatus(shopAPIClient);
 
-  return <InnerUserMenuButton user={data?.data.user} onSignOut={signOutMutation.mutate} />;
+  return <InnerUserMenuButton user={data?.data.user} onSignOut={signOutMutation.mutate} onClose={onClose} />;
 };
 
-export const UserMenuButton: FC = () => (
-  <ErrorBoundary fallback={<InnerUserMenuButton />}>
-    <Suspense fallback={<InnerUserMenuButton loading />}>
-      <UserMenuButtonContent />
+export const UserMenuButton: FC<UserMenuButtonProps> = ({ onClose }) => (
+  <ErrorBoundary fallback={<InnerUserMenuButton onClose={onClose} />}>
+    <Suspense fallback={<InnerUserMenuButton loading onClose={onClose} />}>
+      <UserMenuButtonContent onClose={onClose} />
     </Suspense>
   </ErrorBoundary>
 );

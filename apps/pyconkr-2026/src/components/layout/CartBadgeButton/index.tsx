@@ -5,7 +5,9 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
-type InnerCartBadgeButtonPropType = {
+type CartBadgeButtonProps = { onClose?: () => void };
+
+type InnerCartBadgeButtonPropType = CartBadgeButtonProps & {
   loading?: boolean;
   count?: number;
 };
@@ -19,24 +21,34 @@ const ColoredIconButton = styled(IconButton)(({ theme }) => ({
 
 const InnerCartBadge = styled(Badge)({ [`& .${badgeClasses.badge}`]: { top: "-12px", right: "-3px" } });
 
-const InnerCartBadgeButton: FC<InnerCartBadgeButtonPropType> = ({ loading, count }) => {
+const InnerCartBadgeButton: FC<InnerCartBadgeButtonPropType> = ({ loading, count, onClose }) => {
   const navigate = useNavigate();
 
   if (!loading && (count === undefined || count <= 0)) return null;
 
+  const handleClick = () => {
+    onClose?.();
+    navigate("/store/cart");
+  };
+
   return (
-    <ColoredIconButton loading={loading} onClick={() => navigate("/store/cart")}>
+    <ColoredIconButton loading={loading} onClick={handleClick}>
       <ShoppingCart />
       {count !== undefined && count > 0 && <InnerCartBadge badgeContent={count} color="primary" overlap="circular" />}
     </ColoredIconButton>
   );
 };
 
-export const CartBadgeButton: FC = Suspense.with(
-  { fallback: <InnerCartBadgeButton loading /> },
-  ErrorBoundary.with({ fallback: <InnerCartBadgeButton /> }, () => {
-    const shopAPIClient = useShopClient();
-    const { data: cart } = useCart(shopAPIClient);
-    return <InnerCartBadgeButton count={cart?.products.length} loading={false} />;
-  })
+const CartBadgeButtonContent: FC<CartBadgeButtonProps> = ({ onClose }) => {
+  const shopAPIClient = useShopClient();
+  const { data: cart } = useCart(shopAPIClient);
+  return <InnerCartBadgeButton count={cart?.products.length} loading={false} onClose={onClose} />;
+};
+
+export const CartBadgeButton: FC<CartBadgeButtonProps> = ({ onClose }) => (
+  <ErrorBoundary fallback={<InnerCartBadgeButton onClose={onClose} />}>
+    <Suspense fallback={<InnerCartBadgeButton loading onClose={onClose} />}>
+      <CartBadgeButtonContent onClose={onClose} />
+    </Suspense>
+  </ErrorBoundary>
 );
