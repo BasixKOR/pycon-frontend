@@ -414,8 +414,21 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
 type FoldableProductItemPropType = Omit<AccordionProps, "children"> & ProductItemPropType;
 
 const FoldableProductItem: FC<FoldableProductItemPropType> = ({ disabled, language, product, startPurchaseProcess, ...props }) => {
+  const notPurchasableReason = getProductNotPurchasableReason(language, product);
+  const summary = notPurchasableReason ? (
+    <Stack>
+      <Typography variant="h5" sx={{ textDecoration: "line-through", color: "text.disabled" }}>
+        {product.name}
+      </Typography>
+      <Typography variant="caption" color="error" sx={{ whiteSpace: "pre-line" }}>
+        {notPurchasableReason}
+      </Typography>
+    </Stack>
+  ) : (
+    product.name
+  );
   return (
-    <PrimaryStyledDetails {...props} summary={product.name}>
+    <PrimaryStyledDetails {...props} summary={summary}>
       <ProductItem disabled={disabled} language={language} product={product} startPurchaseProcess={startPurchaseProcess} />
     </PrimaryStyledDetails>
   );
@@ -477,6 +490,7 @@ const StyledProductImageCard = styled(Card)(({ theme }) => ({
 
 const ProductImageCard: FC<ProductImageCardPropType> = ({ language, product, disabled, showDetail }) => {
   const showDetailStr = language === "ko" ? "상품 상세 정보 보기" : "View Product Details";
+  const notPurchasableReason = getProductNotPurchasableReason(language, product);
   return (
     <StyledProductImageCard onClick={() => showDetail(product)} elevation={0}>
       <CardMedia sx={{ height: "200px", objectFit: "contain", borderRadius: "0 0 0.5rem 0.5rem" }}>
@@ -490,7 +504,18 @@ const ProductImageCard: FC<ProductImageCardPropType> = ({ language, product, dis
       </CardMedia>
       <CardContent sx={{ py: 1 }}>
         <Stack spacing={1}>
-          <Typography variant="h6" sx={{ textAlign: "center" }} children={product.name} />
+          <Stack spacing={0.5} alignItems="center">
+            <Typography
+              variant="h6"
+              sx={{ textAlign: "center", ...(notPurchasableReason && { textDecoration: "line-through", color: "text.disabled" }) }}
+              children={product.name}
+            />
+            {notPurchasableReason && (
+              <Typography variant="caption" color="error" sx={{ textAlign: "center", whiteSpace: "pre-line" }}>
+                {notPurchasableReason}
+              </Typography>
+            )}
+          </Stack>
           <Typography variant="body1" sx={{ textAlign: "right" }} children={<PriceDisplay price={product.price} />} />
         </Stack>
       </CardContent>
