@@ -76,7 +76,7 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
               </Typography>
             </UserNameItem>,
             <Divider key="divider" sx={{ my: 0.5 }} />,
-            <MenuItem key="orders" onClick={() => goTo("/store/orders")}>
+            <MenuItem key="orders" onClick={() => goTo("/store/order-histories")}>
               <ListItemIcon>
                 <Receipt fontSize="small" />
               </ListItemIcon>
