@@ -1,3 +1,5 @@
+import { DevSetCookieButton } from "@frontend/common/components";
+import { useBackendContext } from "@frontend/common/hooks/useAPI";
 import { useShopClient, useSignInWithSNSMutation, useUserStatus } from "@frontend/shop/hooks";
 import { AccountCircleOutlined, Google } from "@mui/icons-material";
 import { Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography } from "@mui/material";
@@ -15,6 +17,7 @@ type PageeStateType = {
 
 export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const { setAppContext, language } = useAppContext();
+  const { backendApiAbsoluteDomain, backendApiSessionCookieName } = useBackendContext();
   const [state, setState] = useState<PageeStateType>({ openBackdrop: false });
   const navigate = useNavigate();
   const shopAPIClient = useShopClient();
@@ -92,6 +95,15 @@ export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress />
       <PageLayout spacing={6}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bolder" }} children={signInTitleStr} />
         <Stack spacing={1} sx={{ width: "100%", maxWidth: "400px" }}>
+          {import.meta.env.DEV && (
+            <DevSetCookieButton
+              backendDomain={backendApiAbsoluteDomain ?? ""}
+              cookieName={backendApiSessionCookieName ?? ""}
+              cookieValue={shopAPIClient.getSessionId() ?? ""}
+            >
+              [localhost] 세션 쿠키 동기화 (로그인 전 클릭)
+            </DevSetCookieButton>
+          )}
           {btnProps.map((props, index) => (
             <Button key={index} {...commonBtnProps} {...props} />
           ))}

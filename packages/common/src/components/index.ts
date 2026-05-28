@@ -1,6 +1,7 @@
 export { AutoTextLinking } from "./auto_text_linking";
 export { CenteredPage } from "./centered_page";
 export { CommonContextProvider } from "./common_context";
+export { DevSetCookieButton } from "./dev_set_cookie_button";
 export { DndFileInput } from "./dnd_file_input";
 export { ErrorFallback } from "./error_handler";
 export { FallbackImage } from "./fallback_image";

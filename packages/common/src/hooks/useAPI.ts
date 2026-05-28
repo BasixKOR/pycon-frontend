@@ -20,7 +20,7 @@ export const useBackendContext = () => {
 
 export const useBackendClient = () => {
   const { language, backendApiDomain, backendApiTimeout } = useBackendContext();
-  return new BackendAPIClient(backendApiDomain, backendApiTimeout, "", false, language);
+  return new BackendAPIClient(backendApiDomain, backendApiTimeout, "", "", false, language);
 };
 
 export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>

@@ -63,8 +63,8 @@ const MUTATION_KEYS = {
 };
 
 export const useBackendAdminClient = () => {
-  const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName } = useBackendContext();
-  return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, true);
+  const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName } = useBackendContext();
+  return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName, true);
 };
 
 export const useSignedInUserQuery = (client: BackendAPIClient) =>

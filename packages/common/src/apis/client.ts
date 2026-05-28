@@ -89,12 +89,14 @@ export class BackendAPIClient {
   readonly language: supportedLanguages;
   readonly baseURL: string;
   protected readonly csrfCookieName: string;
+  protected readonly sessionCookieName: string;
   private readonly backendAPI: AxiosInstance;
 
   constructor(
     baseURL: string,
     timeout: number,
     csrfCookieName: string = "csrftoken",
+    sessionCookieName: string = "sessionid",
     withCredentials: boolean = false,
     language: supportedLanguages = "ko"
   ) {
@@ -105,6 +107,7 @@ export class BackendAPIClient {
     this.language = language;
     this.baseURL = baseURL;
     this.csrfCookieName = csrfCookieName;
+    this.sessionCookieName = sessionCookieName;
     this.backendAPI = axios.create({
       baseURL,
       timeout,
@@ -125,6 +128,10 @@ export class BackendAPIClient {
 
   getCSRFToken(): string | undefined {
     return getCookie(this.csrfCookieName);
+  }
+
+  getSessionId(): string | undefined {
+    return getCookie(this.sessionCookieName);
   }
 
   _safe_request_without_payload(requestFunc: AxiosRequestWithoutPayload): AxiosRequestWithoutPayload {

@@ -42,8 +42,8 @@ const MUTATION_KEYS = {
 };
 
 export const useParticipantPortalClient = () => {
-  const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, language } = useBackendContext();
-  return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, true, language);
+  const { backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName, language } = useBackendContext();
+  return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName, true, language);
 };
 
 export const useSignedInUserQuery = (client: BackendAPIClient) =>

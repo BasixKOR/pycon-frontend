@@ -6,8 +6,10 @@ export type ContextOptions = {
   baseUrl: string;
   debug?: boolean;
   backendApiDomain: string;
+  backendApiAbsoluteDomain?: string;
   backendApiTimeout: number;
   backendApiCSRFCookieName?: string;
+  backendApiSessionCookieName?: string;
   mdxComponents?: MDXComponents;
 };
 
@@ -17,6 +19,8 @@ export const context = createContext<ContextOptions>({
   baseUrl: "",
   debug: false,
   backendApiDomain: "",
+  backendApiAbsoluteDomain: "",
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: "",
+  backendApiSessionCookieName: "",
 });
