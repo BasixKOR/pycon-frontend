@@ -2,7 +2,7 @@ import { DevSetCookieButton } from "@frontend/common/components";
 import { useBackendContext } from "@frontend/common/hooks/useAPI";
 import { useShopClient, useSignInWithSNSMutation, useUserStatus } from "@frontend/shop/hooks";
 import { AccountCircleOutlined, Google } from "@mui/icons-material";
-import { Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography } from "@mui/material";
+import { Alert, Backdrop, Button, ButtonProps, CircularProgress, Stack, Typography, alpha } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import { FC, ReactNode, useEffect, useState } from "react";
@@ -15,10 +15,16 @@ type PageeStateType = {
   openBackdrop: boolean;
 };
 
+type OAuthErrorType = {
+  error: string;
+  errorProcess: string | null;
+};
+
 export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const { setAppContext, language } = useAppContext();
   const { backendApiAbsoluteDomain, backendApiSessionCookieName } = useBackendContext();
   const [state, setState] = useState<PageeStateType>({ openBackdrop: false });
+  const [oauthError, setOauthError] = useState<OAuthErrorType | null>(null);
   const navigate = useNavigate();
   const shopAPIClient = useShopClient();
   const SignInMutation = useSignInWithSNSMutation(shopAPIClient);
@@ -30,6 +36,7 @@ export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress />
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
   const triggerSignIn = (provider: "google" | "kakao" | "naver") => {
+    setOauthError(null);
     setState((ps) => ({ ...ps, openBackdrop: true }));
     SignInMutation.mutate({ provider, callback_url: window.location.origin });
   };
@@ -41,6 +48,17 @@ export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress />
   const signInWithGoogleStr = language === "ko" ? "구글로 로그인" : "Sign In with Google";
   const signInWithKakaoStr = language === "ko" ? "카카오로 로그인" : "Sign In with Kakao";
   const signInWithNaverStr = language === "ko" ? "네이버로 로그인" : "Sign In with Naver";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (!error) return;
+    setOauthError({ error, errorProcess: params.get("error_process") });
+    params.delete("error");
+    params.delete("error_process");
+    const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+    window.history.replaceState({}, "", clean);
+  }, []);
 
   useEffect(() => {
     if (data && data.meta.is_authenticated) {
@@ -95,6 +113,18 @@ export const ShopSignInPage: FC = Suspense.with({ fallback: <CircularProgress />
       <PageLayout spacing={6}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bolder" }} children={signInTitleStr} />
         <Stack spacing={1} sx={{ width: "100%", maxWidth: "400px" }}>
+          {oauthError && (
+            <Alert
+              severity="error"
+              variant="outlined"
+              onClose={() => setOauthError(null)}
+              sx={{ backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08) }}
+            >
+              {language === "ko"
+                ? `소셜 로그인이 실패했습니다: ${oauthError.error}${oauthError.errorProcess ? ` (${oauthError.errorProcess})` : ""}`
+                : `Social login failed: ${oauthError.error}${oauthError.errorProcess ? ` (${oauthError.errorProcess})` : ""}`}
+            </Alert>
+          )}
           {import.meta.env.DEV && (
             <DevSetCookieButton
               backendDomain={backendApiAbsoluteDomain ?? ""}
