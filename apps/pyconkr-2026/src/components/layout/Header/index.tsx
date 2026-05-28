@@ -7,7 +7,9 @@ import { CSSProperties, Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { isEmpty, isNonNullish, isString } from "remeda";
 
+import { CartBadgeButton } from "@apps/pyconkr-2026/components/layout/CartBadgeButton";
 import LanguageSelector from "@apps/pyconkr-2026/components/layout/LanguageSelector";
+import { UserMenuButton } from "@apps/pyconkr-2026/components/layout/UserMenuButton";
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 import { MobileHeader } from "./Mobile/MobileHeader";
@@ -92,8 +94,10 @@ export default function Header() {
             <CircularProgress size={24} sx={{ color: "#ed5ebd" }} />
           )}
 
-          <NavSideElementContainer sx={{ justifyContent: "flex-end" }}>
+          <NavSideElementContainer sx={{ justifyContent: "flex-end", gap: 0.5 }}>
             <LanguageSelector />
+            <CartBadgeButton />
+            <UserMenuButton />
           </NavSideElementContainer>
         </HeaderInner>
       </HeaderContainer>

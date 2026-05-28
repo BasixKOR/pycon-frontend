@@ -22,6 +22,8 @@ const InnerCartBadge = styled(Badge)({ [`& .${badgeClasses.badge}`]: { top: "-12
 const InnerCartBadgeButton: FC<InnerCartBadgeButtonPropType> = ({ loading, count }) => {
   const navigate = useNavigate();
 
+  if (!loading && (count === undefined || count <= 0)) return null;
+
   return (
     <ColoredIconButton loading={loading} onClick={() => navigate("/store/cart")}>
       <ShoppingCart />
