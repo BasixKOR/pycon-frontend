@@ -1,6 +1,6 @@
 export { buildFlatSiteMap, buildNestedSiteMap, parseCss } from "./api";
 export { isChunkLoadError, registerChunkLoadErrorReloadHandler, reloadForChunkLoadError } from "./chunk_load_error";
-export { getCookie } from "./cookie";
+export { captureSessionTokenFromURL, getCookie } from "./cookie";
 export { getFormValue, isFormValid } from "./form";
 export { filterPropertiesByLanguageInJsonSchema, filterReadOnlyPropertiesInJsonSchema, filterWritablePropertiesInJsonSchema } from "./json_schema";
 export { extractQueryParameters } from "./openapi";

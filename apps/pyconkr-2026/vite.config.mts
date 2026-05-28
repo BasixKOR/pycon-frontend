@@ -35,6 +35,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         "/v1": proxyOptions,
         "/api": proxyOptions,
+        "/authn": proxyOptions,
       },
     },
   };

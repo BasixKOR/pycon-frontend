@@ -1,7 +1,7 @@
 import { Global } from "@emotion/react";
 import { CenteredPage, CommonContextProvider, ErrorFallback } from "@frontend/common/components";
 import type { ContextOptions } from "@frontend/common/contexts";
-import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
+import { captureSessionTokenFromURL, registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
 import { ShopContextProvider } from "@frontend/shop/components/common";
 import { ContextOptions as ShopContextOptions } from "@frontend/shop/contexts";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
@@ -107,5 +107,6 @@ export const MainApp: FC = () => {
 };
 
 registerChunkLoadErrorReloadHandler();
+captureSessionTokenFromURL(import.meta.env.VITE_PYCONKR_BACKEND_SESSION_COOKIE_NAME);
 
 createRoot(document.getElementById("root")!).render(<MainApp />);

@@ -1,7 +1,7 @@
 import { Global } from "@emotion/react";
 import { CenteredPage, CommonContextProvider, ErrorFallback } from "@frontend/common/components";
 import type { ContextOptions } from "@frontend/common/contexts";
-import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
+import { captureSessionTokenFromURL, registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
 import { ShopContextProvider } from "@frontend/shop/components/common";
 import { ContextOptions as ShopContextOptions } from "@frontend/shop/contexts";
 import { CircularProgress, CssBaseline, ThemeProvider } from "@mui/material";
@@ -13,11 +13,11 @@ import { FC, StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
-import { router } from "./router.tsx";
 import { IS_DEBUG_ENV } from "./consts";
 import { LOCAL_STORAGE_LANGUAGE_KEY } from "./consts/local_stroage.ts";
 import { PyConKRMDXComponents } from "./consts/mdx_components.ts";
 import { AppContext, AppContextType } from "./contexts/app_context.tsx";
+import { router } from "./router.tsx";
 import { globalStyles, muiTheme } from "./styles/globalStyles.ts";
 
 const queryClient = new QueryClient({
@@ -106,5 +106,6 @@ export const MainApp: FC = () => {
 };
 
 registerChunkLoadErrorReloadHandler();
+captureSessionTokenFromURL(import.meta.env.VITE_PYCONKR_BACKEND_SESSION_COOKIE_NAME);
 
 createRoot(document.getElementById("root")!).render(<MainApp />);
