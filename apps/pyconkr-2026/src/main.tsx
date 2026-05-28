@@ -54,6 +54,7 @@ const CommonOptions: ContextOptions = {
   baseUrl: ".",
   backendApiDomain,
   backendApiTimeout: 10000,
+  backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
   mdxComponents: PyConKRMDXComponents,
 };
 
