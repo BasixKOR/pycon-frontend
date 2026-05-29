@@ -169,7 +169,7 @@ export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, s
           <LanguageSelector />
           <Stack direction="row" alignItems="center">
             <CartBadgeButton onClose={handleClose} />
-            <UserMenuButton onClose={handleClose} />
+            <UserMenuButton onClose={handleClose} showLabel />
           </Stack>
         </Stack>
       </DrawerContent>

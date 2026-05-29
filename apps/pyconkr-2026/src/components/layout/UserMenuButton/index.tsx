@@ -2,7 +2,7 @@ import { UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/c
 import { useShopClient, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 import { UserSignedInStatus } from "@frontend/shop/schemas";
 import { AccountCircle, Login, Logout, Receipt } from "@mui/icons-material";
-import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
+import { Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,24 @@ const ColoredIconButton = styled(IconButton)(({ theme }) => ({
   transition: "color 0.4s ease, background-color 0.4s ease",
 }));
 
-type UserMenuButtonProps = { onClose?: () => void };
+const ColoredTextButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.primary.nonFocus,
+  textTransform: "none",
+  fontWeight: 500,
+  maxWidth: "12rem",
+  "& .MuiButton-startIcon": { marginRight: theme.spacing(0.75) },
+  "&:hover": { color: theme.palette.primary.dark, backgroundColor: "transparent" },
+  "&:active": { color: theme.palette.primary.main },
+  transition: "color 0.4s ease, background-color 0.4s ease",
+}));
+
+const LabelText = styled("span")({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+});
+
+type UserMenuButtonProps = { onClose?: () => void; showLabel?: boolean };
 
 type InnerUserMenuButtonPropType = UserMenuButtonProps & {
   loading?: boolean;
@@ -24,7 +41,7 @@ type InnerUserMenuButtonPropType = UserMenuButtonProps & {
   onSignOut?: () => void;
 };
 
-const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut, onClose }) => {
+const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut, onClose, showLabel }) => {
   const navigate = useNavigate();
   const { language } = useAppContext();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -49,17 +66,25 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
     onSignOut?.();
   };
 
+  const triggerIcon = user ? <AccountCircle /> : <Login />;
+  const triggerLabel = user ? user.display || user.email : signInLabel;
+  const ariaProps = {
+    "aria-controls": open ? "user-menu" : undefined,
+    "aria-haspopup": "true" as const,
+    "aria-expanded": open ? ("true" as const) : undefined,
+  };
+
   return (
     <>
-      <ColoredIconButton
-        loading={loading}
-        onClick={handleOpen}
-        aria-controls={open ? "user-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-      >
-        <AccountCircle />
-      </ColoredIconButton>
+      {showLabel ? (
+        <ColoredTextButton loading={loading} onClick={handleOpen} startIcon={triggerIcon} {...ariaProps}>
+          <LabelText>{triggerLabel}</LabelText>
+        </ColoredTextButton>
+      ) : (
+        <ColoredIconButton loading={loading} onClick={handleOpen} {...ariaProps}>
+          {triggerIcon}
+        </ColoredIconButton>
+      )}
       <Menu
         id="user-menu"
         anchorEl={anchorEl}
@@ -103,18 +128,18 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
   );
 };
 
-const UserMenuButtonContent: FC<UserMenuButtonProps> = ({ onClose }) => {
+const UserMenuButtonContent: FC<UserMenuButtonProps> = ({ onClose, showLabel }) => {
   const shopAPIClient = useShopClient();
   const signOutMutation = useSignOutMutation(shopAPIClient);
   const { data } = useUserStatus(shopAPIClient);
 
-  return <InnerUserMenuButton user={data?.data.user} onSignOut={signOutMutation.mutate} onClose={onClose} />;
+  return <InnerUserMenuButton user={data?.data.user} onSignOut={signOutMutation.mutate} onClose={onClose} showLabel={showLabel} />;
 };
 
-export const UserMenuButton: FC<UserMenuButtonProps> = ({ onClose }) => (
-  <ErrorBoundary fallback={<InnerUserMenuButton onClose={onClose} />}>
-    <Suspense fallback={<InnerUserMenuButton loading onClose={onClose} />}>
-      <UserMenuButtonContent onClose={onClose} />
+export const UserMenuButton: FC<UserMenuButtonProps> = ({ onClose, showLabel }) => (
+  <ErrorBoundary fallback={<InnerUserMenuButton onClose={onClose} showLabel={showLabel} />}>
+    <Suspense fallback={<InnerUserMenuButton loading onClose={onClose} showLabel={showLabel} />}>
+      <UserMenuButtonContent onClose={onClose} showLabel={showLabel} />
     </Suspense>
   </ErrorBoundary>
 );
