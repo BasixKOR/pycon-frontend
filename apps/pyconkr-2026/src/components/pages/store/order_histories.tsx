@@ -1,6 +1,6 @@
 import { UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { OrderList } from "@frontend/shop/components/features";
-import { Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { FC, useEffect } from "react";
 
 import { PageLayout } from "@apps/pyconkr-2026/components/layout/PageLayout";
@@ -8,6 +8,8 @@ import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 export const StoreOrderHistoriesPage: FC = () => {
   const { setAppContext, language } = useAppContext();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const title = language === "ko" ? "주문 내역" : "Order History";
   const noticeText =
     language === "ko"
@@ -26,10 +28,14 @@ export const StoreOrderHistoriesPage: FC = () => {
 
   return (
     <PageLayout spacing={3}>
-      <Typography variant="h4" sx={{ alignSelf: "flex-start", fontWeight: 700 }}>
-        {title}
-      </Typography>
-      <Divider flexItem />
+      {isMobile && (
+        <>
+          <Typography variant="h4" sx={{ alignSelf: "flex-start", fontWeight: 700 }}>
+            {title}
+          </Typography>
+          <Divider flexItem />
+        </>
+      )}
       <Stack component="ul" sx={{ alignSelf: "flex-start", pl: 3, m: 0, gap: 0.5 }}>
         <li>
           <Typography variant="body2">{noticeText}</Typography>
@@ -40,7 +46,9 @@ export const StoreOrderHistoriesPage: FC = () => {
           </Typography>
         </li>
       </Stack>
-      <OrderList />
+      <Box sx={{ width: "100%" }}>
+        <OrderList />
+      </Box>
     </PageLayout>
   );
 };
