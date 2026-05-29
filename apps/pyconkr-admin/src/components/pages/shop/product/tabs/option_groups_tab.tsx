@@ -392,7 +392,7 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
             onChange={(e) => setValues((p) => ({ ...p, response_modifiable_ends_at: e.target.value }))}
             fullWidth
             slotProps={{ inputLabel: { shrink: true } }}
-            helperText="비워두면 제한 없음"
+            helperText="비워두면 결제 후 수정 불가"
           />
         </Stack>
       </DialogContent>
