@@ -11,11 +11,8 @@ export const getCustomResponsePattern = (optionGroup: Pick<OptionGroup, "custom_
 
 export const isOrderProductOptionModifiable = (optionRel: OrderProductItem["options"][number]): boolean => {
   if (!optionRel.product_option_group.is_custom_response) return false;
-
-  if (isNullish(optionRel.product_option_group.response_modifiable_ends_at)) return true;
-  else if (new Date() <= new Date(optionRel.product_option_group.response_modifiable_ends_at)) return true;
-
-  return false;
+  if (isNullish(optionRel.product_option_group.response_modifiable_ends_at)) return false;
+  return new Date() <= new Date(optionRel.product_option_group.response_modifiable_ends_at);
 };
 
 // 옵션 그룹에 인스턴스를 더 추가할 수 없는 사유 (한도/재고). orderable 기간 만료는 별도 헬퍼.
