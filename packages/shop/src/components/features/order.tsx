@@ -68,22 +68,27 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
   optionsOfOneItemInOrderPatchMutation,
   ...props
 }) => {
-  const { control, handleSubmit, getValues } = useForm<Record<string, string>>();
-  const currentCustomOptionValues: { [k: string]: string } = prodRel.options
-    .filter((optionRel) => isOrderProductOptionModifiable(optionRel))
-    .reduce(
-      (acc, optionRel) => ({
-        ...acc,
-        [optionRel.id]: optionRel.custom_response,
-      }),
-      {}
-    );
+  const { control, handleSubmit, getValues, watch } = useForm<Record<string, string>>();
+  const modifiableOptionRels = prodRel.options.filter((optionRel) => isOrderProductOptionModifiable(optionRel));
+  const currentCustomOptionValues: { [k: string]: string } = modifiableOptionRels.reduce(
+    (acc, optionRel) => ({
+      ...acc,
+      [optionRel.id]: optionRel.custom_response,
+    }),
+    {}
+  );
+
+  const watchedValues = watch();
+  const hasModifiedOption = modifiableOptionRels.some((optionRel) => {
+    const watchedValue = watchedValues[optionRel.product_option_group.id];
+    return watchedValue !== undefined && watchedValue !== optionRel.custom_response;
+  });
 
   const addSnackbar = (c: string | ReactNode, variant: OptionsObject["variant"]) =>
     enqueueSnackbar(c, { variant, anchorOrigin: { vertical: "bottom", horizontal: "center" } });
 
-  const hasPatchableOption = Object.entries(currentCustomOptionValues).length > 0;
-  const patchOptionBtnDisabled = isPending || !hasPatchableOption || order.current_status === "refunded";
+  const hasPatchableOption = modifiableOptionRels.length > 0;
+  const patchOptionBtnDisabled = isPending || !hasPatchableOption || !hasModifiedOption || order.current_status === "refunded";
 
   const refundOneProductStr = language === "ko" ? "단일 상품 환불" : "Refund one item";
   const refundedStr = language === "ko" ? "환불됨" : "Refunded";
@@ -126,7 +131,7 @@ const OrderProductRelationItem: FC<OrderProductRelationItemProps> = ({
         if (!optionRel) throw new Error(`Option relation for group ${key} not found in product relation ${prodRel.id}`);
         return [optionRel.id, value];
       })
-      .filter(([key, value]) => currentCustomOptionValues[key] !== value)
+      .filter(([key, value]) => key in currentCustomOptionValues && currentCustomOptionValues[key] !== value)
       .map(([key, value]) => ({
         order_product_option_relation: key,
         custom_response: value,

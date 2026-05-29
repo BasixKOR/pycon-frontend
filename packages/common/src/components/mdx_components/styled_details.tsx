@@ -6,8 +6,8 @@ import {
   AccordionProps,
   AccordionSummary,
   PaletteColor,
-  styled,
   SxProps,
+  Theme,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -26,39 +26,34 @@ type BaseStyledDetailsProps = StyledDetailsProps & {
 };
 
 const BaseStyledDetails: FC<BaseStyledDetailsProps> = ({ expandIcon, summary, children, actions, paletteColor, transparencyOnExpand, ...props }) => {
-  const StyledAccordion = styled(Accordion)(({ theme }) => ({
+  const rootSx: SxProps<Theme> = (theme) => ({
     width: "100%",
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1),
     border: `1px solid ${paletteColor.dark}`,
     borderRadius: "0.5rem",
     fontWeight: 500,
-  }));
-
-  const StyledAccordionSummary = styled(AccordionSummary)(() => ({
-    color: paletteColor.dark,
-  }));
-
-  const rootSx: SxProps = {
     transition: "background-color 0.3s ease",
     "&.Mui-expanded": {
       backgroundColor: `color-mix(in srgb, ${paletteColor.light} ${transparencyOnExpand || 10}%, transparent)`,
     },
-  };
+  });
 
-  const DefaultExpandIcon = styled(ExpandMore)(({ theme }) => ({
+  const summarySx: SxProps<Theme> = { color: paletteColor.dark };
+
+  const expandIconSx: SxProps<Theme> = (theme) => ({
     color: paletteColor.dark,
     fontSize: theme.typography.h4.fontSize,
-  }));
+  });
 
   return (
-    <StyledAccordion {...props} disableGutters square elevation={0} slotProps={{ root: { sx: rootSx } }}>
-      <StyledAccordionSummary expandIcon={expandIcon || <DefaultExpandIcon />}>
+    <Accordion {...props} disableGutters square elevation={0} sx={rootSx}>
+      <AccordionSummary expandIcon={expandIcon || <ExpandMore sx={expandIconSx} />} sx={summarySx}>
         {typeof summary === "string" ? <Typography variant="h5">{summary}</Typography> : summary}
-      </StyledAccordionSummary>
+      </AccordionSummary>
       <AccordionDetails sx={{ pt: "0", pb: "1rem", px: "2rem" }}>{children}</AccordionDetails>
       {actions && <AccordionActions sx={{ pt: "0", pb: "1rem", px: "2rem" }}>{actions}</AccordionActions>}
-    </StyledAccordion>
+    </Accordion>
   );
 };
 
