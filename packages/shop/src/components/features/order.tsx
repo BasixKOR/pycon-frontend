@@ -314,17 +314,47 @@ const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
   );
 };
 
-export const OrderList: FC = () => {
+type OrderListProps = { groupByYear?: boolean };
+
+export const OrderList: FC<OrderListProps> = ({ groupByYear = false }) => {
   const WrappedOrderList: FC = () => {
     const shopAPIClient = useShopClient();
     const { data } = useOrders(shopAPIClient);
 
+    if (!groupByYear) {
+      return (
+        <OneDetailsOpener>
+          {data.map((item) => (
+            <OrderItem key={item.id} order={item} />
+          ))}
+        </OneDetailsOpener>
+      );
+    }
+
+    const ordersByYear = new Map<number, Order[]>();
+    for (const order of data) {
+      const year = new Date(order.created_at).getFullYear();
+      if (!ordersByYear.has(year)) ordersByYear.set(year, []);
+      ordersByYear.get(year)!.push(order);
+    }
+    const sortedYears = [...ordersByYear.keys()].sort((a, b) => b - a);
+
     return (
-      <OneDetailsOpener>
-        {data.map((item) => (
-          <OrderItem key={item.id} order={item} />
+      <Stack spacing={4}>
+        {sortedYears.map((year) => (
+          <Stack key={year} spacing={1}>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {year}
+            </Typography>
+            <Divider />
+            <OneDetailsOpener>
+              {ordersByYear.get(year)!.map((item) => (
+                <OrderItem key={item.id} order={item} />
+              ))}
+            </OneDetailsOpener>
+          </Stack>
         ))}
-      </OneDetailsOpener>
+      </Stack>
     );
   };
 

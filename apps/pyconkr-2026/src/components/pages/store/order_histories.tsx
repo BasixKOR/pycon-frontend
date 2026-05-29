@@ -47,7 +47,7 @@ export const StoreOrderHistoriesPage: FC = () => {
         </li>
       </Stack>
       <Box sx={{ width: "100%" }}>
-        <OrderList />
+        <OrderList groupByYear />
       </Box>
     </PageLayout>
   );
