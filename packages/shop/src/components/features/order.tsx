@@ -244,8 +244,15 @@ const OrderItem: FC<OrderItemProps> = ({ order, disabled, ...props }) => {
     </>
   );
 
+  const isFullyRefunded = order.current_status === "refunded";
+  const summaryNode = (
+    <Typography variant="h5" sx={isFullyRefunded ? { textDecoration: "line-through", color: "text.disabled" } : undefined}>
+      {order.name}
+    </Typography>
+  );
+
   return (
-    <PrimaryStyledDetails {...props} summary={order.name} actions={actionButtons}>
+    <PrimaryStyledDetails {...props} summary={summaryNode} actions={actionButtons}>
       <Table>
         <TableHead>
           <TableRow>
