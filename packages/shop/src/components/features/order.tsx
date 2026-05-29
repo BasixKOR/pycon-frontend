@@ -17,7 +17,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import { FC, ReactNode } from "react";
 import { useForm } from "react-hook-form";
-import { isNullish } from "remeda";
+import { isEmpty, isNullish } from "remeda";
 
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
@@ -325,8 +325,19 @@ type OrderListProps = { groupByYear?: boolean };
 
 export const OrderList: FC<OrderListProps> = ({ groupByYear = false }) => {
   const WrappedOrderList: FC = () => {
+    const { language } = useShopContext();
     const shopAPIClient = useShopClient();
     const { data } = useOrders(shopAPIClient);
+
+    const noOrdersStr = language === "ko" ? "주문 내역이 없어요!" : "No orders yet.";
+
+    if (isEmpty(data)) {
+      return (
+        <Typography variant="body1" color="error">
+          {noOrdersStr}
+        </Typography>
+      );
+    }
 
     if (!groupByYear) {
       return (
