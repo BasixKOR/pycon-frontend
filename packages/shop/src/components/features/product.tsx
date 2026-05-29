@@ -596,6 +596,16 @@ export const ProductList: FC<ProductListQueryParams> = (qs) => {
       );
     };
 
+    const noProductsStr = language === "ko" ? "상품이 없어요!" : "No products available.";
+
+    if (isEmpty(data)) {
+      return (
+        <Typography variant="body1" color="error">
+          {noProductsStr}
+        </Typography>
+      );
+    }
+
     return (
       <>
         <CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
@@ -693,6 +703,16 @@ export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
         }
       );
     };
+
+    const noProductsStr = language === "ko" ? "상품이 없어요!" : "No products available.";
+
+    if (isEmpty(data)) {
+      return (
+        <Typography variant="body1" color="error">
+          {noProductsStr}
+        </Typography>
+      );
+    }
 
     return (
       <>
