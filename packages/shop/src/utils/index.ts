@@ -15,6 +15,26 @@ export const isOrderProductOptionModifiable = (optionRel: OrderProductItem["opti
   return new Date() <= new Date(optionRel.product_option_group.response_modifiable_ends_at);
 };
 
+export const getOrderProductOptionNotModifiableReason = (
+  language: "ko" | "en",
+  optionRel: OrderProductItem["options"][number]
+): string | null => {
+  if (!optionRel.product_option_group.is_custom_response) {
+    return language === "ko"
+      ? "추가 비용이 발생하는 옵션은 수정할 수 없어요."
+      : "You cannot modify options that incur additional costs.";
+  }
+  if (isNullish(optionRel.product_option_group.response_modifiable_ends_at)) {
+    return language === "ko" ? "이 옵션은 수정할 수 없어요." : "This option cannot be modified.";
+  }
+  if (new Date() > new Date(optionRel.product_option_group.response_modifiable_ends_at)) {
+    return language === "ko"
+      ? "옵션 수정 가능 기간이 종료되었어요."
+      : "The modification period for this option has ended.";
+  }
+  return null;
+};
+
 // 옵션 그룹에 인스턴스를 더 추가할 수 없는 사유 (한도/재고). orderable 기간 만료는 별도 헬퍼.
 // null = 추가 가능.
 export const getCannotAddMoreOptionGroupReason = (

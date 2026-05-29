@@ -1,4 +1,4 @@
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { Suspense } from "@suspensive/react";
 import { FC } from "react";
 import { Control, Controller, FieldValues } from "react-hook-form";
@@ -6,7 +6,7 @@ import { isEmpty, isNonNull, isNumber, isString } from "remeda";
 
 import { useShopContext } from "@frontend/shop/hooks";
 import type { Option, OrderProductItem } from "@frontend/shop/schemas";
-import { getCustomResponsePattern, isOrderProductOptionModifiable } from "@frontend/shop/utils";
+import { getCustomResponsePattern, getOrderProductOptionNotModifiableReason, isOrderProductOptionModifiable } from "@frontend/shop/utils";
 
 import { PriceDisplay } from "./price_display";
 
@@ -54,7 +54,7 @@ const SelectableOptionGroupInput: FC<{
     );
   });
 
-  const selectElement = (
+  return (
     <FormControl fullWidth>
       <InputLabel id={`${optionGroup.id}label`}>{optionGroup.name}</InputLabel>
       <Controller
@@ -65,10 +65,9 @@ const SelectableOptionGroupInput: FC<{
         defaultValue={defaultValue || ""}
         render={({ field }) => <Select label={`${optionGroup.id}label`} {...field} children={optionElements} />}
       />
+      {isFilledString(disabledReason) && <FormHelperText>{disabledReason}</FormHelperText>}
     </FormControl>
   );
-
-  return isFilledString(disabledReason) ? <Tooltip title={disabledReason}>{selectElement}</Tooltip> : selectElement;
 };
 
 const CustomResponseOptionGroupInput: FC<{
@@ -78,7 +77,7 @@ const CustomResponseOptionGroupInput: FC<{
   disabledReason?: string;
   control: Control<FieldValues, unknown, FieldValues>;
 }> = ({ optionGroup, defaultValue, disabled, disabledReason, control }) => {
-  const textFieldElement = (
+  return (
     <Controller
       control={control}
       name={optionGroup.id}
@@ -87,12 +86,11 @@ const CustomResponseOptionGroupInput: FC<{
       defaultValue={defaultValue || ""}
       render={({ field, formState: { errors } }) => {
         const errorMessage: string | undefined = errors?.[optionGroup.id]?.message?.toString();
-        return <TextField label={optionGroup.name} {...field} error={!!errors[optionGroup.id]} helperText={errorMessage} />;
+        const helperText = errorMessage ?? (isFilledString(disabledReason) ? disabledReason : undefined);
+        return <TextField label={optionGroup.name} {...field} error={!!errors[optionGroup.id]} helperText={helperText} />;
       }}
     />
   );
-
-  return isFilledString(disabledReason) ? <Tooltip title={disabledReason}>{textFieldElement}</Tooltip> : textFieldElement;
 };
 
 export const OptionGroupInput: FC<{
@@ -133,8 +131,8 @@ export const OrderProductRelationOptionInput: FC<{
   control: Control<FieldValues, unknown, FieldValues>;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ optionRel, disabled, disabledReason, control }) => {
   const { language } = useShopContext();
+  const guessedDisabledReason = getOrderProductOptionNotModifiableReason(language, optionRel) ?? undefined;
   let defaultValue: string | null = null;
-  let guessedDisabledReason: string | undefined = undefined;
   let dummyOptions: {
     id: string;
     name: string;
@@ -145,8 +143,6 @@ export const OrderProductRelationOptionInput: FC<{
   // type hinting을 위해 if문을 사용함
   if (optionRel.product_option_group.is_custom_response === false && isNonNull(optionRel.product_option)) {
     defaultValue = optionRel.product_option.id;
-    guessedDisabledReason =
-      language === "ko" ? "추가 비용이 발생하는 옵션은 수정할 수 없어요." : "You cannot modify options that incur additional costs.";
     dummyOptions = [
       {
         id: optionRel.product_option.id,
