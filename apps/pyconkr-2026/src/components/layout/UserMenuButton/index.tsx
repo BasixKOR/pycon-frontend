@@ -1,3 +1,4 @@
+import { UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { useShopClient, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 import { UserSignedInStatus } from "@frontend/shop/schemas";
 import { AccountCircle, Login, Logout, Receipt } from "@mui/icons-material";
@@ -71,8 +72,8 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
         {user ? (
           [
             <UserNameItem key="username" disabled>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: (theme) => theme.palette.text.primary }}>
-                {user.display || user.email}
+              <Typography variant="body2" sx={{ fontWeight: 600, color: (theme) => theme.palette.text.primary }} component="span">
+                <UserSignInAccount /> ( 소셜 로그인 - <UserSignInMethod /> )
               </Typography>
             </UserNameItem>,
             <Divider key="divider" sx={{ my: 0.5 }} />,
