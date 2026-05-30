@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useCreateMutation, useListQuery, useRemovePreparedMutation } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useCreateMutation, useListPaginatedQuery, useRemovePreparedMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete } from "@mui/icons-material";
 import {
   Box,
@@ -46,8 +46,8 @@ const InnerEmailAddressSection: FC<{ userId: string }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ userId }) => {
     const client = useBackendAdminClient();
-    const listQuery = useListQuery<EmailAddressRow>(client, "allauth", "email-address", { user: userId });
-    const items = listQuery.data ?? [];
+    const listQuery = useListPaginatedQuery<EmailAddressRow>(client, "allauth", "email-address", { user: userId });
+    const items = listQuery.data?.results ?? [];
 
     const [newEmail, setNewEmail] = useState("");
     const [newVerified, setNewVerified] = useState(false);

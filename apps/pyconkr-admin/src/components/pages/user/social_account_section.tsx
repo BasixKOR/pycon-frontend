@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery, useRemovePreparedMutation } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery, useRemovePreparedMutation } from "@frontend/common/hooks/useAdminAPI";
 import { Delete } from "@mui/icons-material";
 import { Alert, CircularProgress, Divider, IconButton, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
@@ -23,8 +23,8 @@ const InnerSocialAccountSection: FC<{ userId: string }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ userId }) => {
     const client = useBackendAdminClient();
-    const listQuery = useListQuery<SocialAccountRow>(client, "allauth", "social-account", { user: userId });
-    const items = listQuery.data ?? [];
+    const listQuery = useListPaginatedQuery<SocialAccountRow>(client, "allauth", "social-account", { user: userId });
+    const items = listQuery.data?.results ?? [];
     const removeMutation = useRemovePreparedMutation(client, "allauth", "social-account");
 
     const handleDelete = (id: number, label: string) => {
