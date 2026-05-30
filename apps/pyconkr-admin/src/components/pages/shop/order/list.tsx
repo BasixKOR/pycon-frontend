@@ -1,5 +1,7 @@
 import { useBackendAdminClient, useListPaginatedQuery, useListQuery } from "@frontend/common/hooks/useAdminAPI";
+import { RestartAlt } from "@mui/icons-material";
 import {
+  Button,
   Chip,
   CircularProgress,
   MenuItem,
@@ -14,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import { FC, useMemo } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { AdminFilterFieldset } from "@apps/pyconkr-admin/components/elements/admin_filter_fieldset";
@@ -32,55 +34,103 @@ const DEFAULT_PAGE_SIZE = 50;
 
 type StatusFilter = "all" | PaymentStatus;
 
+type FilterState = {
+  name: string;
+  email: string;
+  imp_id: string;
+  status: StatusFilter;
+  category_group_id: string;
+  category_id: string;
+  first_paid_at_after: string;
+  first_paid_at_before: string;
+  status_changed_at_after: string;
+  status_changed_at_before: string;
+};
+
+const FILTER_KEYS: (keyof FilterState)[] = [
+  "name",
+  "email",
+  "imp_id",
+  "status",
+  "category_group_id",
+  "category_id",
+  "first_paid_at_after",
+  "first_paid_at_before",
+  "status_changed_at_after",
+  "status_changed_at_before",
+];
+
+const readFilters = (params: URLSearchParams): FilterState => ({
+  name: params.get("name") ?? "",
+  email: params.get("email") ?? "",
+  imp_id: params.get("imp_id") ?? "",
+  status: (params.get("status") ?? "all") as StatusFilter,
+  category_group_id: params.get("category_group_id") ?? "",
+  category_id: params.get("category_id") ?? "",
+  first_paid_at_after: params.get("first_paid_at_after") ?? "",
+  first_paid_at_before: params.get("first_paid_at_before") ?? "",
+  status_changed_at_after: params.get("status_changed_at_after") ?? "",
+  status_changed_at_before: params.get("status_changed_at_before") ?? "",
+});
+
 const InnerOrderList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const client = useBackendAdminClient();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const nameQuery = searchParams.get("name") ?? "";
-    const emailQuery = searchParams.get("email") ?? "";
-    const impIdQuery = searchParams.get("imp_id") ?? "";
-    const statusQuery = (searchParams.get("status") ?? "all") as StatusFilter;
-    const categoryGroupQuery = searchParams.get("category_group_id") ?? "";
-    const categoryQuery = searchParams.get("category_id") ?? "";
-    const paidAfter = searchParams.get("first_paid_at_after") ?? "";
-    const paidBefore = searchParams.get("first_paid_at_before") ?? "";
-    const statusChangedAfter = searchParams.get("status_changed_at_after") ?? "";
-    const statusChangedBefore = searchParams.get("status_changed_at_before") ?? "";
     const page = Number(searchParams.get("page") ?? 1);
     const pageSize = Number(searchParams.get("page_size") ?? DEFAULT_PAGE_SIZE);
 
+    // apiParams derives from the URL (the "applied" state); local filter inputs only update the URL on Apply.
     const apiParams: Record<string, string> = { page: String(page), page_size: String(pageSize) };
-    if (nameQuery.trim()) apiParams.name = nameQuery.trim();
-    if (emailQuery.trim()) apiParams.email = emailQuery.trim();
-    if (impIdQuery.trim()) apiParams.imp_id = impIdQuery.trim();
-    if (statusQuery !== "all") apiParams.status = statusQuery;
-    if (categoryGroupQuery) apiParams.category_group_id = categoryGroupQuery;
-    if (categoryQuery) apiParams.category_id = categoryQuery;
-    if (paidAfter) apiParams.first_paid_at_after = paidAfter;
-    if (paidBefore) apiParams.first_paid_at_before = paidBefore;
-    if (statusChangedAfter) apiParams.status_changed_at_after = statusChangedAfter;
-    if (statusChangedBefore) apiParams.status_changed_at_before = statusChangedBefore;
+    for (const key of FILTER_KEYS) {
+      const value = searchParams.get(key);
+      if (!value) continue;
+      if (key === "status" && value === "all") continue;
+      if (key === "name" || key === "email" || key === "imp_id") {
+        const trimmed = value.trim();
+        if (trimmed) apiParams[key] = trimmed;
+      } else {
+        apiParams[key] = value;
+      }
+    }
+
+    const [filters, setFilters] = useState<FilterState>(() => readFilters(searchParams));
+
+    // Re-sync local form state when the URL changes externally (browser back/forward, pagination).
+    useEffect(() => {
+      setFilters(readFilters(searchParams));
+    }, [searchParams]);
 
     const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "orders", apiParams);
     const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "category-groups", {});
     const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
     const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
 
-    const updateFilterParam = (key: string, value: string) => {
+    const setFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const setCategoryGroup = (value: string) => {
+      setFilters((prev) => ({ ...prev, category_group_id: value, category_id: "" }));
+    };
+
+    const handleApply = () => {
       const next = new URLSearchParams(searchParams);
-      if (value) next.set(key, value);
-      else next.delete(key);
+      for (const key of FILTER_KEYS) {
+        const value = filters[key];
+        if (value && !(key === "status" && value === "all")) next.set(key, value);
+        else next.delete(key);
+      }
       next.delete("page");
       setSearchParams(next, { replace: true });
     };
 
-    const setCategoryGroup = (value: string) => {
+    const handleReset = () => {
+      setFilters(readFilters(new URLSearchParams()));
       const next = new URLSearchParams(searchParams);
-      if (value) next.set("category_group_id", value);
-      else next.delete("category_group_id");
-      next.delete("category_id"); // 그룹 바꾸면 카테고리 선택 초기화
+      for (const key of FILTER_KEYS) next.delete(key);
       next.delete("page");
       setSearchParams(next, { replace: true });
     };
@@ -109,8 +159,8 @@ const InnerOrderList: FC = ErrorBoundary.with(
               size="small"
               label="시작"
               type="datetime-local"
-              value={paidAfter?.slice(0, 16) ?? ""}
-              onChange={(e) => updateFilterParam("first_paid_at_after", e.target.value)}
+              value={filters.first_paid_at_after.slice(0, 16)}
+              onChange={(e) => setFilter("first_paid_at_after", e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
               sx={{ minWidth: 220 }}
             />
@@ -118,8 +168,8 @@ const InnerOrderList: FC = ErrorBoundary.with(
               size="small"
               label="종료"
               type="datetime-local"
-              value={paidBefore?.slice(0, 16) ?? ""}
-              onChange={(e) => updateFilterParam("first_paid_at_before", e.target.value)}
+              value={filters.first_paid_at_before.slice(0, 16)}
+              onChange={(e) => setFilter("first_paid_at_before", e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
               sx={{ minWidth: 220 }}
             />
@@ -130,8 +180,8 @@ const InnerOrderList: FC = ErrorBoundary.with(
               size="small"
               label="시작"
               type="datetime-local"
-              value={statusChangedAfter?.slice(0, 16) ?? ""}
-              onChange={(e) => updateFilterParam("status_changed_at_after", e.target.value)}
+              value={filters.status_changed_at_after.slice(0, 16)}
+              onChange={(e) => setFilter("status_changed_at_after", e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
               sx={{ minWidth: 220 }}
             />
@@ -139,27 +189,28 @@ const InnerOrderList: FC = ErrorBoundary.with(
               size="small"
               label="종료"
               type="datetime-local"
-              value={statusChangedBefore?.slice(0, 16) ?? ""}
-              onChange={(e) => updateFilterParam("status_changed_at_before", e.target.value)}
+              value={filters.status_changed_at_before.slice(0, 16)}
+              onChange={(e) => setFilter("status_changed_at_before", e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
               sx={{ minWidth: 220 }}
             />
           </AdminFilterFieldset>
 
           <AdminFilterFieldset label="분류">
-            <Select
-              size="small"
-              value={statusQuery}
-              onChange={(e) => updateFilterParam("status", e.target.value === "all" ? "" : (e.target.value as string))}
-              sx={{ minWidth: 140 }}
-            >
+            <Select size="small" value={filters.status} onChange={(e) => setFilter("status", e.target.value as StatusFilter)} sx={{ minWidth: 140 }}>
               <MenuItem value="all">전체 상태</MenuItem>
               <MenuItem value="pending">대기</MenuItem>
               <MenuItem value="completed">완료</MenuItem>
               <MenuItem value="partial_refunded">부분환불</MenuItem>
               <MenuItem value="refunded">환불</MenuItem>
             </Select>
-            <Select size="small" value={categoryGroupQuery} onChange={(e) => setCategoryGroup(e.target.value)} displayEmpty sx={{ minWidth: 200 }}>
+            <Select
+              size="small"
+              value={filters.category_group_id}
+              onChange={(e) => setCategoryGroup(e.target.value)}
+              displayEmpty
+              sx={{ minWidth: 200 }}
+            >
               <MenuItem value="">전체 카테고리 그룹</MenuItem>
               {groups.map((g) => (
                 <MenuItem key={g.id} value={g.id}>
@@ -169,13 +220,13 @@ const InnerOrderList: FC = ErrorBoundary.with(
             </Select>
             <Select
               size="small"
-              value={categoryQuery}
-              onChange={(e) => updateFilterParam("category_id", e.target.value)}
+              value={filters.category_id}
+              onChange={(e) => setFilter("category_id", e.target.value)}
               displayEmpty
               sx={{ minWidth: 200 }}
             >
               <MenuItem value="">전체 카테고리</MenuItem>
-              {(categoryGroupQuery ? groups.filter((g) => g.id === categoryGroupQuery) : groups).flatMap((group) => [
+              {(filters.category_group_id ? groups.filter((g) => g.id === filters.category_group_id) : groups).flatMap((group) => [
                 <MenuItem key={`group-${group.id}`} disabled sx={{ fontWeight: 600, opacity: "0.8 !important" }}>
                   {group.name}
                 </MenuItem>,
@@ -192,25 +243,37 @@ const InnerOrderList: FC = ErrorBoundary.with(
             <TextField
               size="small"
               label="이름 (사용자/고객)"
-              value={nameQuery}
-              onChange={(e) => updateFilterParam("name", e.target.value)}
+              value={filters.name}
+              onChange={(e) => setFilter("name", e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleApply()}
               sx={{ minWidth: 220 }}
             />
             <TextField
               size="small"
               label="이메일"
-              value={emailQuery}
-              onChange={(e) => updateFilterParam("email", e.target.value)}
+              value={filters.email}
+              onChange={(e) => setFilter("email", e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleApply()}
               sx={{ minWidth: 220 }}
             />
             <TextField
               size="small"
               label="PortOne imp_id"
-              value={impIdQuery}
-              onChange={(e) => updateFilterParam("imp_id", e.target.value)}
+              value={filters.imp_id}
+              onChange={(e) => setFilter("imp_id", e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleApply()}
               sx={{ minWidth: 200 }}
             />
           </AdminFilterFieldset>
+        </Stack>
+
+        <Stack direction="row" spacing={1}>
+          <Button variant="contained" onClick={handleApply} size="small">
+            검색
+          </Button>
+          <Button variant="text" onClick={handleReset} size="small" startIcon={<RestartAlt />}>
+            초기화
+          </Button>
         </Stack>
 
         <Table>
