@@ -21,6 +21,8 @@ import {
 import { CSSProperties, FC, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
+import { AppBarAccountMenu } from "@apps/pyconkr-admin/components/elements/app_bar_account_menu";
+
 import { MiniVariantAppBar, MiniVariantDrawer } from "./sidebar";
 
 export type RouteDef =
@@ -145,7 +147,7 @@ export const Layout: FC<{ routes: RouteDef[] }> = ({ routes }) => {
     <Box sx={{ width: "100%", height: "100%" }}>
       <CssBaseline />
       <MiniVariantAppBar position="fixed" open={state.showDrawer}>
-        <Toolbar sx={{ justifyContent: "flex-start", gap: "1rem" }} disableGutters>
+        <Toolbar sx={{ justifyContent: "flex-start", gap: "1rem", pr: 2 }} disableGutters>
           <Stack justifyContent="center" alignItems="center" sx={menuButtonStyle}>
             <Tooltip title="Menu">
               <IconButton color="inherit" onClick={toggleDrawer}>
@@ -166,6 +168,8 @@ export const Layout: FC<{ routes: RouteDef[] }> = ({ routes }) => {
               PyCon Korea Admin
             </a>
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <AppBarAccountMenu />
         </Toolbar>
       </MiniVariantAppBar>
 

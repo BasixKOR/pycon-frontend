@@ -1,5 +1,4 @@
 import {
-  AccountCircle,
   AccountTree,
   AlternateEmail,
   Apartment,
@@ -14,8 +13,8 @@ import {
   FolderSpecial,
   Forum,
   Handshake,
-  Login,
   LocalOffer,
+  Login,
   ManageAccounts,
   MarkEmailRead,
   MeetingRoom,
@@ -229,27 +228,6 @@ export const RouteDefinitions: RouteDef[] = [
   },
   {
     type: "separator",
-    key: "user-separator",
-    title: "사용자",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "user-userext",
-    icon: ManageAccounts,
-    title: "사용자",
-    app: "user",
-    resource: "userext",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "user-organization",
-    icon: Apartment,
-    title: "조직",
-    app: "user",
-    resource: "organization",
-  },
-  {
-    type: "separator",
     key: "notification-template-separator",
     title: "알림 템플릿",
   },
@@ -321,6 +299,27 @@ export const RouteDefinitions: RouteDef[] = [
   },
   {
     type: "separator",
+    key: "user-separator",
+    title: "사용자",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "user-userext",
+    icon: ManageAccounts,
+    title: "사용자",
+    app: "user",
+    resource: "userext",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "user-organization",
+    icon: Apartment,
+    title: "조직",
+    app: "user",
+    resource: "organization",
+  },
+  {
+    type: "separator",
     key: "allauth-separator",
     title: "소셜 계정 관리",
   },
@@ -346,14 +345,6 @@ export const RouteDefinitions: RouteDef[] = [
     title: "이메일 주소",
     app: "allauth",
     resource: "email-address",
-  },
-  {
-    type: "routeDefinition",
-    key: "user-account",
-    icon: AccountCircle,
-    title: "로그인 / 로그아웃",
-    route: "/account",
-    placeOnBottom: true,
   },
 ];
 

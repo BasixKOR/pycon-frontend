@@ -69,7 +69,7 @@ createRoot(document.getElementById("root")!).render(
         }
       >
         <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools buttonPosition="top-right" position="right" />
+          <ReactQueryDevtools buttonPosition="bottom-right" position="right" />
           <CommonContextProvider options={CommonOptions}>
             <ShopContextProvider options={ShopOptions}>
               <SnackbarProvider>
