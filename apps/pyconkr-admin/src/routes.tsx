@@ -4,9 +4,7 @@ import {
   Apartment,
   Article,
   AutoFixHigh,
-  Category,
   ChatBubble,
-  ClearAll,
   Email,
   Event,
   FilePresent,
@@ -17,8 +15,6 @@ import {
   Login,
   ManageAccounts,
   MarkEmailRead,
-  MeetingRoom,
-  NoteAlt,
   Person,
   Public,
   ReceiptLong,
@@ -26,7 +22,6 @@ import {
   ShoppingBag,
   Sms,
   StickyNote2,
-  Tag,
   VpnKey,
 } from "@mui/icons-material";
 
@@ -36,6 +31,7 @@ import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
 import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
+import { AdminEventEditor } from "./components/pages/event/editor";
 import { AdminGoogleOAuth2Editor } from "./components/pages/external_api/google_oauth2_editor";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
@@ -126,62 +122,12 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "event",
   },
   {
-    type: "separator",
-    key: "sponsor-separator",
-    title: "후원사",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "event-sponsortier",
-    icon: ClearAll,
-    title: "후원사 티어",
-    app: "event",
-    resource: "sponsortier",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "event-sponsortag",
-    icon: Tag,
-    title: "후원사 태그",
-    app: "event",
-    resource: "sponsortag",
-  },
-  {
     type: "autoAdminRouteDefinition",
     key: "event-sponsor",
     icon: Handshake,
     title: "후원사",
     app: "event",
     resource: "sponsor",
-  },
-  {
-    type: "separator",
-    key: "presentation-separator",
-    title: "발표",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "event-presentationtype",
-    icon: NoteAlt,
-    title: "발표 유형",
-    app: "event",
-    resource: "presentationtype",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "event-presentationcategory",
-    icon: Category,
-    title: "발표 카테고리",
-    app: "event",
-    resource: "presentationcategory",
-  },
-  {
-    type: "autoAdminRouteDefinition",
-    key: "event-presentationroom",
-    icon: MeetingRoom,
-    title: "발표 장소",
-    app: "event",
-    resource: "room",
   },
   {
     type: "autoAdminRouteDefinition",
@@ -407,6 +353,8 @@ export const RegisteredRoutes = {
   "/cms/sitemap": <SiteMapList />,
   "/cms/sitemap/create": <SiteMapList />,
   "/cms/sitemap/:id": <SiteMapList />,
+  "/event/event/create": <AdminEventEditor />,
+  "/event/event/:id": <AdminEventEditor />,
   "/event/presentation/create": <AdminPresentationEditor />,
   "/event/presentation/:id": <AdminPresentationEditor />,
   "/modification-audit": <AdminModificationAuditList />,
