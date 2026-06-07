@@ -1,4 +1,4 @@
-import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
+import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, alpha, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
@@ -41,10 +41,12 @@ const LogoImageEqualWidthContainer = styled(Stack)(({ theme }) => ({
   maxWidth: LogoContainerWidth,
   border: `1px solid ${theme.palette.primary.light}`,
   borderRadius: "0.5rem",
+  backgroundColor: alpha(theme.palette.primary.light, 0.66),
 
   transition: "all 0.3s ease-in-out",
 
   "&:hover": {
+    backgroundColor: `color-mix(in srgb, ${alpha(theme.palette.primary.light, 1)}, #fff)`,
     borderColor: theme.palette.primary.dark,
     boxShadow: theme.shadows[3],
   },
