@@ -1,6 +1,6 @@
 import { PythonKorea } from "@frontend/common/components";
 import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
-import { ArrowForwardIos } from "@mui/icons-material";
+import { ArrowForwardIos, OpenInNew } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { MUIStyledCommonProps } from "@mui/system";
 import { CSSProperties, Fragment, useEffect, useState } from "react";
@@ -84,7 +84,11 @@ export default function Header() {
                     rel={isString(r.external_link) ? "noopener noreferrer" : undefined}
                     to={r.external_link || r.route_code}
                   >
-                    <NavButton onMouseEnter={() => setDepth1(r)} isActive={navState.depth1?.id === r.id}>
+                    <NavButton
+                      onMouseEnter={() => setDepth1(r)}
+                      isActive={navState.depth1?.id === r.id}
+                      endIcon={isString(r.external_link) ? <OpenInNew sx={{ fontSize: "0.85rem" }} /> : undefined}
+                    >
                       {r.name}
                     </NavButton>
                   </Link>
@@ -125,6 +129,7 @@ export default function Header() {
                       to={r.external_link || getDepth2Route(r.route_code)}
                     >
                       {r.name}
+                      {isString(r.external_link) && <OpenInNew sx={{ fontSize: "0.85rem" }} />}
                     </Depth2Item>
                   ))}
               </Stack>
@@ -147,6 +152,7 @@ export default function Header() {
                           to={r.external_link || getDepth3Route(r?.route_code)}
                         >
                           {r.name}
+                          {isString(r.external_link) && <OpenInNew sx={{ fontSize: "0.85rem" }} />}
                         </Depth3Item>
                       ))}
                   </Stack>
@@ -276,6 +282,9 @@ const HighlightDivider = styled(Divider)({
 });
 
 const Depth2Item = styled(Link)({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.25rem",
   color: "#ededde",
   fontWeight: 300,
   textDecoration: "none",
