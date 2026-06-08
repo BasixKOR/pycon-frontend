@@ -77,7 +77,7 @@ export type FieldLinkTarget = {
 };
 type AdminEditorPropsType = PropsWithChildren<{
   hidingFields?: string[];
-  context?: Record<string, string>;
+  context?: Record<string, unknown>;
   onCreated?: (data: Record<string, string>) => void;
   onClose?: () => void;
   beforeSubmit?: onSubmitType;
@@ -358,12 +358,12 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       useEffect(() => {
         (async () => {
           if (!id) {
-            setFormData(context || {});
+            setFormData((context ?? {}) as Record<string, string>);
             return;
           }
 
           const initialData = await retrieve<Record<string, string>>(backendAdminClient, app, resource, id)();
-          setFormData({ ...initialData, ...context });
+          setFormData({ ...initialData, ...context } as Record<string, string>);
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [app, resource, id, context]);

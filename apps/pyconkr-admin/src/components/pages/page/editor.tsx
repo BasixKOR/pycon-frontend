@@ -137,7 +137,14 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
     };
 
     return (
-      <AdminEditor app="cms" resource="page" id={id} extraActions={[openOnSiteButton]} afterSubmit={onSubmit}>
+      <AdminEditor
+        app="cms"
+        resource="page"
+        id={id}
+        context={id ? undefined : { show_bottom_sponsor_banner: true }}
+        extraActions={[openOnSiteButton]}
+        afterSubmit={onSubmit}
+      >
         {id ? (
           <>
             <br />
