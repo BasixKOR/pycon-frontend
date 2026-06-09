@@ -138,7 +138,7 @@ export type Product = {
   price: number;
   orderable_starts_at: string;
   orderable_ends_at: string;
-  refundable_ends_at: string;
+  refundable_ends_at: string | null; // null이면 환불 불가 상품.
 
   category_group: string;
   category: string;

@@ -51,7 +51,7 @@ export type ProductAdmin = {
   visible_ends_at: string;
   orderable_starts_at: string;
   orderable_ends_at: string;
-  refundable_ends_at: string;
+  refundable_ends_at: string | null; // null이면 환불 불가 상품.
   category: string;
   priority: number;
   donation_allowed: boolean;
