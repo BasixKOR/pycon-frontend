@@ -12,9 +12,9 @@ import { isEmpty } from "remeda";
 import { rtrim } from "@frontend/common/utils/string";
 
 import { ErrorFallback } from "./error_handler";
-import { LinkHandler } from "./link_handler";
 import { StyledDivider } from "./mdx_components/styled_divider";
 import { SubContentContainer } from "./mdx_components/sub_content_container";
+import { MDXLink } from "./mdx_link";
 
 const REGISTERED_KEYWORDS = [
   "import",
@@ -46,7 +46,7 @@ const CustomMDXComponents: MDXComponents = {
   h5: (props) => <h5 style={{ margin: 0 }} {...props} />,
   h6: (props) => <h6 style={{ margin: 0 }} {...props} />,
   strong: (props) => <strong {...props} />,
-  a: (props) => <LinkHandler {...props} />,
+  a: (props) => <MDXLink {...props} />,
   hr: (props) => <StyledDivider {...props} />,
   img: (props) => <img style={{ maxWidth: "100%" }} alt="" {...props} />,
   em: (props) => <em {...props} />,
