@@ -5,11 +5,12 @@ import { FC, useEffect } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { isEmpty, isNullish } from "remeda";
 
+import { EVENT_NAME } from "./consts";
 import { useAppContext } from "./contexts/app_context";
 
 export const App: FC = () => {
   const backendAPIClient = useBackendClient();
-  const { data: sponsorTiers } = useSponsorQuery(backendAPIClient);
+  const { data: sponsorTiers } = useSponsorQuery(backendAPIClient, { event: EVENT_NAME });
   const { data: flatSiteMap } = useFlattenSiteMapQuery(backendAPIClient);
   const siteMapNode = buildNestedSiteMap(flatSiteMap)?.[""];
 

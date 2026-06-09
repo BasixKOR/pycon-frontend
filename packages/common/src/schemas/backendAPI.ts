@@ -68,6 +68,10 @@ export type SponsorTierSchema = {
   }[];
 };
 
+export type SponsorQueryParameterSchema = {
+  event?: string;
+};
+
 export type SessionQueryParameterSchema = {
   event?: string;
   types?: string;

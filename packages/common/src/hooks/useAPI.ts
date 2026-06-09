@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { listSessions, listSiteMaps, listSponsors, retrievePage, retrieveSession } from "@frontend/common/apis";
 import { BackendAPIClient } from "@frontend/common/apis/client";
 import { context as backendContext } from "@frontend/common/contexts";
-import { SessionQueryParameterSchema } from "@frontend/common/schemas/backendAPI";
+import { SessionQueryParameterSchema, SponsorQueryParameterSchema } from "@frontend/common/schemas/backendAPI";
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
@@ -35,10 +35,10 @@ export const usePageQuery = (client: BackendAPIClient, id: string) =>
     queryFn: () => retrievePage(client)(id),
   });
 
-export const useSponsorQuery = (client: BackendAPIClient) =>
+export const useSponsorQuery = (client: BackendAPIClient, params?: SponsorQueryParameterSchema) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language],
-    queryFn: listSponsors(client),
+    queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
+    queryFn: listSponsors(client, params),
   });
 
 export const useSessionsQuery = (client: BackendAPIClient, params?: SessionQueryParameterSchema) =>
