@@ -136,6 +136,7 @@ export type Product = {
   description: string | null;
   image: string | null;
   price: number;
+  is_ticket: boolean;
   orderable_starts_at: string;
   orderable_ends_at: string;
   refundable_ends_at: string | null; // null이면 환불 불가 상품.
@@ -151,6 +152,24 @@ export type Product = {
   leftover_stock: number;
   tag_names: string[];
 };
+
+export type TicketInfo = {
+  name: string;
+  phone: string;
+  email: string;
+  organization: string | null;
+  contribution_message: string | null;
+};
+
+export type TicketInfoRequest = {
+  name: string;
+  phone: string;
+  email: string;
+  organization: string;
+  contribution_message?: string;
+};
+
+export type CertificateStatus = "not_issuable" | "issuable" | "issued" | "revoked";
 
 export type PaymentHistoryStatus = "pending" | "completed" | "partial_refunded" | "refunded";
 
@@ -168,11 +187,15 @@ export type OrderProductItem = {
   donation_price: number;
   not_refundable_reason: string | null;
   scancode_url: string | null;
+  is_ticket: boolean;
+  ticket_info: TicketInfo | null;
+  certificate_status: CertificateStatus;
   product: {
     id: string;
     name: string;
     price: number;
     image: string | null;
+    donation_allowed: boolean;
   };
   options: (
     | {
@@ -217,6 +240,7 @@ export type Order = {
   id: string;
   name: string;
   merchant_uid: string;
+  first_paid_at: string;
   first_paid_price: number;
   current_paid_price: number;
   current_status: PaymentHistoryStatus;
@@ -227,7 +251,7 @@ export type Order = {
   products: OrderProductItem[];
   customer_info: CustomerInfo | null;
 };
-export type Cart = Order;
+export type Cart = Omit<Order, "first_paid_at"> & { first_paid_at: string | null };
 
 export type CartItemAppendRequest = {
   product: string;
@@ -237,6 +261,7 @@ export type CartItemAppendRequest = {
     custom_response: string | null;
   }[];
   donation_price?: number;
+  ticket_info?: TicketInfoRequest; // 티켓 상품(product.is_ticket === true)인 경우 필수.
 };
 export type OneItemOrderRequest = CartItemAppendRequest & { customer_info: CustomerInfo };
 
@@ -245,13 +270,19 @@ export type OneItemRefundRequest = {
   order_product_relation_id: string;
 };
 
-export type OrderOptionsPatchRequest = {
+export type OrderProductPatchRequest = {
   order_id: string;
   order_product_relation_id: string;
-  options: {
+  ticket_info?: TicketInfoRequest;
+  options?: {
     order_product_option_relation: string;
     custom_response: string;
   }[];
+};
+
+export type CertificateIssueRequest = {
+  order_id: string;
+  order_product_relation_id: string;
 };
 
 export type Patron = {

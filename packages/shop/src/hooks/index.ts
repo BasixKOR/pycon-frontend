@@ -5,10 +5,11 @@ import { useContext } from "react";
 import {
   appendItemToCart,
   BackendAPIClient,
+  issueCertificate,
   listOrders,
   listPatrons,
   listProducts,
-  patchOrderOptions,
+  patchOrderProduct,
   prepareCartOrder,
   prepareOneItemOrder,
   refundAllItemsInOrder,
@@ -42,6 +43,8 @@ const MUTATION_KEYS = {
   ONE_ITEM_ORDER_START: ["mutation", "shop", "one_item_order", "start"],
   ALL_ORDER_REFUND: ["mutation", "shop", "all_order_refund"],
   ONE_ITEM_REFUND: ["mutation", "shop", "one_item_refund"],
+  ORDER_PRODUCT_PATCH: ["mutation", "shop", "order_product", "patch"],
+  CERTIFICATE_ISSUE: ["mutation", "shop", "certificate", "issue"],
 };
 
 export const useShopContext = () => {
@@ -146,10 +149,17 @@ export const useOrderRefundMutation = (client: BackendAPIClient) =>
     meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
   });
 
-export const useOptionsOfOneItemInOrderPatchMutation = (client: BackendAPIClient) =>
+export const useOrderProductPatchMutation = (client: BackendAPIClient) =>
   useMutation({
-    mutationKey: MUTATION_KEYS.CART_ITEM_APPEND,
-    mutationFn: patchOrderOptions(client),
+    mutationKey: MUTATION_KEYS.ORDER_PRODUCT_PATCH,
+    mutationFn: patchOrderProduct(client),
+    meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
+  });
+
+export const useIssueCertificateMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: MUTATION_KEYS.CERTIFICATE_ISSUE,
+    mutationFn: issueCertificate(client),
     meta: { invalidates: [QUERY_KEYS.ORDER_LIST] },
   });
 

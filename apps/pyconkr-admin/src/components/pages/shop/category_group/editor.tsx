@@ -1,14 +1,20 @@
-import { useBackendAdminClient, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListAutoQuery, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Button,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  FormControl,
+  FormControlLabel,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Table,
   TableBody,
@@ -31,6 +37,8 @@ type Category = {
   group?: string;
   name: string;
   priority: number;
+  is_ticket?: boolean;
+  event?: string | null; // UUID
   created_at?: string;
   updated_at?: string;
 };
@@ -45,6 +53,8 @@ type CategoryGroup = {
 type CategoryFormValues = {
   name: string;
   priority: string;
+  is_ticket: boolean;
+  event: string;
 };
 
 type CategoryDialogProps = {
@@ -56,10 +66,13 @@ type CategoryDialogProps = {
 
 const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, category }) => {
   const client = useBackendAdminClient();
+  const { data: events } = useListAutoQuery<{ id: string; str_repr: string }>(client, "event", "event");
 
   const [values, setValues] = useState<CategoryFormValues>({
     name: category?.name ?? "",
     priority: category ? String(category.priority) : "0",
+    is_ticket: category?.is_ticket ?? false,
+    event: category?.event ?? "",
   });
 
   useEffect(() => {
@@ -67,6 +80,8 @@ const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, categor
       setValues({
         name: category?.name ?? "",
         priority: category ? String(category.priority) : String((group.categories ?? []).length * 10),
+        is_ticket: category?.is_ticket ?? false,
+        event: category?.event ?? "",
       });
     }
   }, [open, category, group.categories]);
@@ -78,6 +93,8 @@ const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, categor
         group: group.id,
         name: values.name,
         priority: Number(values.priority) || 0,
+        is_ticket: values.is_ticket,
+        event: values.event || null,
       };
       const newCategories = category
         ? group.categories.map((c) => (c.id === category.id ? { ...c, ...payload } : c))
@@ -123,6 +140,28 @@ const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, categor
             fullWidth
             helperText="낮은 값이 먼저 표시됩니다."
           />
+          <FormControlLabel
+            control={<Checkbox checked={values.is_ticket} onChange={(e) => setValues((p) => ({ ...p, is_ticket: e.target.checked }))} />}
+            label="티켓 카테고리 (구매 시 참가자 정보 필요 / 참가확인서 발급 대상)"
+          />
+          <FormControl fullWidth>
+            <InputLabel id="category-event-label">참가확인서 발급 행사 (Event)</InputLabel>
+            <Select
+              labelId="category-event-label"
+              label="참가확인서 발급 행사 (Event)"
+              value={values.event}
+              onChange={(e) => setValues((p) => ({ ...p, event: e.target.value }))}
+            >
+              <MenuItem value="">
+                <em>연결 안 함</em>
+              </MenuItem>
+              {events.items.map((event) => (
+                <MenuItem key={event.id} value={event.id}>
+                  {event.str_repr}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Stack>
       </DialogContent>
       <DialogActions>

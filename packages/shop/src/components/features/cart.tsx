@@ -9,9 +9,15 @@ import { useNavigate } from "react-router-dom";
 import { isArray } from "remeda";
 
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
-import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
+import {
+  CustomerInfoFormDialog,
+  OrderProductRelationOptionInput,
+  PriceDisplay,
+  SignInGuard,
+  TicketInfoDisplay,
+} from "@frontend/shop/components/common";
 import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "@frontend/shop/hooks";
-import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
+import type { Cart, CustomerInfo, OrderProductItem } from "@frontend/shop/schemas";
 import { startPortOnePurchase } from "@frontend/shop/utils";
 
 const CartItem: FC<
@@ -44,6 +50,7 @@ const CartItem: FC<
         />,
       ]}
     >
+      {cartProdRel.ticket_info && <TicketInfoDisplay language={language} ticketInfo={cartProdRel.ticket_info} />}
       <Stack spacing={2} sx={{ width: "100%" }}>
         {cartProdRel.options.map((optionRel) => (
           <OrderProductRelationOptionInput
@@ -118,7 +125,7 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
     closeDialog();
     openBackdrop();
     cartOrderStartMutation.mutate(formData, {
-      onSuccess: (order: Order) => {
+      onSuccess: (order: Cart) => {
         startPortOnePurchase(
           shopImpAccountId,
           order,

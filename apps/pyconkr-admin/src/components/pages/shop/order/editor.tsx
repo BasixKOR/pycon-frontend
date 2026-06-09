@@ -107,36 +107,78 @@ const OrderProductRow: FC<{ relation: SimpleOrderProductRelation }> = ({ relatio
       </TableRow>
       <TableRow>
         <TableCell colSpan={5} sx={{ bgcolor: "action.hover", py: 1, pl: 4 }}>
-          {relation.options.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              옵션 없음
-            </Typography>
-          ) : (
-            <Table size="small" sx={{ width: "auto" }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ minWidth: 140 }}>옵션 그룹</TableCell>
-                  <TableCell sx={{ minWidth: 240 }}>옵션 / 입력</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {relation.options.map((opt) => (
-                  <TableRow key={opt.id}>
-                    <TableCell>{opt.option_group_name_ko || opt.option_group_name_en}</TableCell>
-                    <TableCell>
-                      {opt.option_name_ko || opt.option_name_en ? (
-                        opt.option_name_ko || opt.option_name_en
-                      ) : (
-                        <Typography component="span" variant="body2" color="text.secondary">
-                          사용자 입력: {opt.custom_response || "(없음)"}
-                        </Typography>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+          <Stack spacing={2}>
+            {relation.ticket_info && (
+              <>
+                <Typography variant="subtitle2">참가자 정보</Typography>
+                <Table size="small" sx={{ width: "auto" }}>
+                  <TableHead sx={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+                    <TableRow>
+                      <TableCell sx={{ minWidth: 40 }}>정보</TableCell>
+                      <TableCell sx={{ minWidth: 240 }}>값</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>이름</TableCell>
+                      <TableCell>{relation.ticket_info.name}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>소속</TableCell>
+                      <TableCell>{relation.ticket_info.organization || "—"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>이메일</TableCell>
+                      <TableCell>{relation.ticket_info.email}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>연락처</TableCell>
+                      <TableCell>{relation.ticket_info.phone}</TableCell>
+                    </TableRow>
+                    {relation.ticket_info.contribution_message && (
+                      <TableRow>
+                        <TableCell>후원자 한마디</TableCell>
+                        <TableCell sx={{ whiteSpace: "pre-line" }}>{relation.ticket_info.contribution_message}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+            {relation.options.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                옵션 없음
+              </Typography>
+            ) : (
+              <>
+                <Typography variant="subtitle2">옵션</Typography>
+                <Table size="small" sx={{ width: "auto" }}>
+                  <TableHead sx={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+                    <TableRow>
+                      <TableCell sx={{ minWidth: 40 }}>옵션 그룹</TableCell>
+                      <TableCell sx={{ minWidth: 240 }}>옵션 / 입력</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {relation.options.map((opt) => (
+                      <TableRow key={opt.id}>
+                        <TableCell>{opt.option_group_name_ko || opt.option_group_name_en}</TableCell>
+                        <TableCell>
+                          {opt.option_name_ko || opt.option_name_en ? (
+                            opt.option_name_ko || opt.option_name_en
+                          ) : (
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              사용자 입력: {opt.custom_response || "(없음)"}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+          </Stack>
         </TableCell>
       </TableRow>
     </>

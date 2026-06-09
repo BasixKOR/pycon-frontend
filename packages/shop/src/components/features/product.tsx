@@ -29,15 +29,91 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormRegister } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
-import type { CartItemAppendRequest, CustomerInfo, Order, Product, ProductListQueryParams } from "@frontend/shop/schemas";
-import { getCannotAddMoreOptionGroupReason, getOptionGroupNotOrderableReason, startPortOnePurchase } from "@frontend/shop/utils";
+import type { Cart, CartItemAppendRequest, CustomerInfo, Product, ProductListQueryParams, TicketInfoRequest } from "@frontend/shop/schemas";
+import {
+  getCannotAddMoreOptionGroupReason,
+  getOptionGroupNotOrderableReason,
+  isTicketFormFieldKey,
+  PHONE_REGEX,
+  startPortOnePurchase,
+  TICKET_FORM_FIELD,
+} from "@frontend/shop/utils";
+
+const getTicketInfoPayload = (product: Product, formValue: { [key: string]: string }): TicketInfoRequest | undefined => {
+  if (!product.is_ticket) return undefined;
+  const ticketInfo: TicketInfoRequest = {
+    name: formValue[TICKET_FORM_FIELD.name] ?? "",
+    phone: formValue[TICKET_FORM_FIELD.phone] ?? "",
+    email: formValue[TICKET_FORM_FIELD.email] ?? "",
+    organization: formValue[TICKET_FORM_FIELD.organization] ?? "",
+  };
+  const contributionMessage = formValue[TICKET_FORM_FIELD.contribution_message];
+  if (product.donation_allowed && contributionMessage) ticketInfo.contribution_message = contributionMessage;
+  return ticketInfo;
+};
+
+// 티켓 즉시구매 시 고객정보 다이얼로그 prefill용.
+const ticketInfoToCustomerInfo = (ticketInfo?: TicketInfoRequest): CustomerInfo | null =>
+  ticketInfo ? { name: ticketInfo.name, phone: ticketInfo.phone, email: ticketInfo.email, organization: ticketInfo.organization || null } : null;
+
+const TicketInfoFormSection: FC<{
+  language: "ko" | "en";
+  product: Product;
+  register: UseFormRegister<Record<string, string>>;
+  disabled?: boolean;
+}> = ({ language, product, register, disabled }) => {
+  const sectionTitle = language === "ko" ? "참가자 정보" : "Participant Information";
+  const helpStr = language === "ko" ? "티켓에 기재될 참가자 정보를 입력해주세요." : "Please enter the participant's information for this ticket.";
+  const nameLabel = language === "ko" ? "참가자 성명" : "Participant Name";
+  const orgLabel = language === "ko" ? "소속" : "Organization";
+  const emailLabel = language === "ko" ? "이메일 주소" : "Email Address";
+  const phoneLabel = language === "ko" ? "전화번호 (예: 010-1234-5678 또는 +821012345678)" : "Phone Number (e.g., 010-1234-5678 or +821012345678)";
+  const contributionLabel = language === "ko" ? "후원자 한마디 (선택)" : "Supporter Message (optional)";
+  const phoneTitle =
+    language === "ko"
+      ? "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678 또는 +821012345678"
+      : "Invalid phone number format. e.g., 010-1234-5678 or +821012345678";
+
+  const { ref: nameRef, ...nameRest } = register(TICKET_FORM_FIELD.name, { required: true });
+  const { ref: phoneRef, ...phoneRest } = register(TICKET_FORM_FIELD.phone, { required: true, pattern: PHONE_REGEX });
+  const { ref: emailRef, ...emailRest } = register(TICKET_FORM_FIELD.email, { required: true });
+  const { ref: orgRef, ...orgRest } = register(TICKET_FORM_FIELD.organization);
+  const { ref: contributionRef, ...contributionRest } = register(TICKET_FORM_FIELD.contribution_message);
+
+  return (
+    <Stack spacing={2}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+        {sectionTitle}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {helpStr}
+      </Typography>
+      <TextField inputRef={nameRef} {...nameRest} label={nameLabel} disabled={disabled} required fullWidth />
+      <TextField inputRef={orgRef} {...orgRest} label={orgLabel} disabled={disabled} fullWidth />
+      <TextField inputRef={emailRef} {...emailRest} label={emailLabel} type="email" disabled={disabled} required fullWidth />
+      <TextField
+        inputRef={phoneRef}
+        {...phoneRest}
+        label={phoneLabel}
+        disabled={disabled}
+        required
+        fullWidth
+        slotProps={{ htmlInput: { pattern: PHONE_REGEX.source, title: phoneTitle } }}
+      />
+      {product.donation_allowed && (
+        <TextField inputRef={contributionRef} {...contributionRest} label={contributionLabel} disabled={disabled} fullWidth multiline minRows={2} />
+      )}
+      <Divider />
+    </Stack>
+  );
+};
 
 const getCartAppendRequestPayload = (
   product: Product,
@@ -48,7 +124,7 @@ const getCartAppendRequestPayload = (
   if (isNaN(donation_price)) donation_price = 0;
 
   const options = Object.entries(formValue)
-    .filter(([key]) => key !== "donation_price")
+    .filter(([key]) => key !== "donation_price" && !isTicketFormFieldKey(key))
     .map(([key, value]) => {
       // 필수 그룹은 key=groupId, 선택 그룹 인스턴스는 key=instanceId → groupId 룩업
       const groupId = instanceToGroup.get(key) ?? key;
@@ -60,7 +136,13 @@ const getCartAppendRequestPayload = (
       return { product_option_group: groupId, product_option, custom_response };
     });
 
-  return { product: product.id, options, ...(product.donation_allowed ? { donation_price } : {}) };
+  const ticket_info = getTicketInfoPayload(product, formValue);
+  return {
+    product: product.id,
+    options,
+    ...(product.donation_allowed ? { donation_price } : {}),
+    ...(ticket_info ? { ticket_info } : {}),
+  };
 };
 
 const getProductNotPurchasableReason = (language: "ko" | "en", product: Product): string | null => {
@@ -302,6 +384,33 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
           <br />
           <form onSubmit={handleSubmit(() => {})}>
             <Stack spacing={2}>
+              {product.donation_allowed && (
+                <>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    {thankYouForDonationStr}
+                    <br />
+                    {pleaseEnterDonationAmountStr}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }} children={possibleDonationAmountStr} />
+                  <TextField
+                    inputRef={donationPriceRef}
+                    {...donationPriceInputProps}
+                    label={donationLabelStr}
+                    defaultValue={product.donation_min_price || 0}
+                    fullWidth
+                    type="number"
+                    error={!!helperText}
+                    helperText={helperText}
+                  />
+                  {(product.is_ticket || product.option_groups.length > 0) && (
+                    <>
+                      <Divider />
+                      <br />
+                    </>
+                  )}
+                </>
+              )}
+              {product.is_ticket && <TicketInfoFormSection language={language} product={product} register={register} disabled={disabled} />}
               {requiredGroupsData.map(({ group, reason }) => (
                 <OptionGroupInput
                   key={group.id}
@@ -360,32 +469,6 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
                   </Stack>
                 );
               })}
-              {product.donation_allowed && (
-                <>
-                  {product.option_groups.length > 0 && (
-                    <>
-                      <Divider />
-                      <br />
-                    </>
-                  )}
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    {thankYouForDonationStr}
-                    <br />
-                    {pleaseEnterDonationAmountStr}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }} children={possibleDonationAmountStr} />
-                  <TextField
-                    inputRef={donationPriceRef}
-                    {...donationPriceInputProps}
-                    label={donationLabelStr}
-                    defaultValue={product.donation_min_price || 0}
-                    fullWidth
-                    type="number"
-                    error={!!helperText}
-                    helperText={helperText}
-                  />
-                </>
-              )}
               <Divider />
               <br />
             </Stack>
@@ -575,7 +658,7 @@ export const ProductList: FC<ProductListQueryParams> = (qs) => {
       oneItemOrderStartMutation.mutate(
         { ...state.oneItemOrderData, customer_info: customer_info },
         {
-          onSuccess: (order: Order) => {
+          onSuccess: (order: Cart) => {
             startPortOnePurchase(
               shopImpAccountId,
               order,
@@ -608,7 +691,12 @@ export const ProductList: FC<ProductListQueryParams> = (qs) => {
 
     return (
       <>
-        <CustomerInfoFormDialog open={state.openDialog} closeFunc={closeDialog} onSubmit={onFormSubmit} />
+        <CustomerInfoFormDialog
+          open={state.openDialog}
+          closeFunc={closeDialog}
+          onSubmit={onFormSubmit}
+          defaultValue={ticketInfoToCustomerInfo(state.oneItemOrderData?.ticket_info)}
+        />
         <OneDetailsOpener resetKey={state.resetKey}>
           {data.map((p) => (
             <FoldableProductItem
@@ -683,7 +771,7 @@ export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
       oneItemOrderStartMutation.mutate(
         { ...state.oneItemOrderData, customer_info: customer_info },
         {
-          onSuccess: (order: Order) => {
+          onSuccess: (order: Cart) => {
             startPortOnePurchase(
               shopImpAccountId,
               order,
@@ -716,7 +804,12 @@ export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
 
     return (
       <>
-        <CustomerInfoFormDialog open={state.openCustomerInfoDialog} closeFunc={closeCustomerInfoDialog} onSubmit={onFormSubmit} />
+        <CustomerInfoFormDialog
+          open={state.openCustomerInfoDialog}
+          closeFunc={closeCustomerInfoDialog}
+          onSubmit={onFormSubmit}
+          defaultValue={ticketInfoToCustomerInfo(state.oneItemOrderData?.ticket_info)}
+        />
         <DialogedProductItem
           open={state.openProductDialog}
           onClose={closeProductDialog}
