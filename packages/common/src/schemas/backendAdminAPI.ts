@@ -63,7 +63,7 @@ export type PublicFileSchema = {
 export type PageSectionSchema = {
   id?: string;
   order: number;
-  css: string;
+  css: string | null;
   body_ko: string | null;
   body_en: string | null;
 };

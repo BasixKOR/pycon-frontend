@@ -3,7 +3,20 @@ import { useBackendAdminClient, useBulkUpdatePageSectionsMutation, useListPageSe
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { PageSectionSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Delete, OpenInNew } from "@mui/icons-material";
-import { Box, Button, ButtonProps, CircularProgress, Divider, Stack, Tab, Tabs, ThemeProvider } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonProps,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { commands } from "@uiw/react-md-editor";
 import { FC, SyntheticEvent, useState } from "react";
@@ -16,6 +29,10 @@ import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type SectionType = PageSectionSchema;
 
+// 섹션 편집 탭. "css"는 dynamic_route에서 parseCss로 파싱되는 React 스타일 객체(JSON 문자열)를 편집함.
+type SectionTab = "ko" | "en" | "css";
+const SECTION_TABS: SectionTab[] = ["ko", "en", "css"];
+
 type CommonSectionEditorPropType = {
   disabled?: boolean;
   onInsertNewSection: () => void;
@@ -27,8 +44,13 @@ type SectionTextEditorPropType = CommonSectionEditorPropType & {
   onChange: (value?: string) => void;
 };
 
+type SectionCssEditorPropType = CommonSectionEditorPropType & {
+  defaultValue?: string | null;
+  onChange: (value: string) => void;
+};
+
 type SectionEditorPropType = CommonSectionEditorPropType & {
-  language: "ko" | "en";
+  tab: SectionTab;
   defaultValue: SectionType;
   onChange: (value: SectionType) => void;
 };
@@ -60,18 +82,72 @@ const SectionTextEditor: FC<SectionTextEditorPropType> = ({ disabled, defaultVal
   );
 };
 
-const SectionEditorField: FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
-  const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
+// 빈 문자열은 유효(스타일 없음)로 간주하고, 유효하지 않으면 파싱 에러 메시지를 반환.
+const getJsonError = (value: string): string | null => {
+  if (!value.trim()) return null;
+  try {
+    JSON.parse(value);
+    return null;
+  } catch (e) {
+    return (e as Error).message;
+  }
+};
+
+const SectionCssEditor: FC<SectionCssEditorPropType> = ({ disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+  const value = defaultValue ?? "";
+  const jsonError = getJsonError(value);
 
   return (
-    <Stack direction="row" sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
+    <Stack spacing={1} sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="subtitle2" color="text.secondary">
+          섹션 CSS (React 스타일 객체 · JSON 형식)
+        </Typography>
+        <IconButton size="small" onClick={onDelete} disabled={disabled} aria-label="Delete">
+          <Delete style={{ fontSize: 16 }} />
+        </IconButton>
+      </Stack>
+      <TextField
+        multiline
+        minRows={8}
+        fullWidth
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        error={Boolean(jsonError)}
+        helperText={jsonError ? `JSON 파싱 오류: ${jsonError}` : '예: {"backgroundColor": "#ffffff", "padding": "16px"}'}
+        slotProps={{ input: { sx: { fontFamily: "monospace", fontSize: 13, alignItems: "flex-start" } } }}
+      />
+      <Button size="small" onClick={onInsertNewSection} startIcon={<Add />}>
+        여기에 섹션 추가
+      </Button>
+    </Stack>
+  );
+};
+
+const SectionEditorField: FC<SectionEditorPropType> = ({ tab, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+  const child =
+    tab === "css" ? (
+      <SectionCssEditor
+        disabled={disabled}
+        onInsertNewSection={onInsertNewSection}
+        onDelete={onDelete}
+        defaultValue={defaultValue?.css}
+        onChange={(css) => onChange({ ...defaultValue, css })}
+      />
+    ) : (
       <SectionTextEditor
         disabled={disabled}
         onInsertNewSection={onInsertNewSection}
         onDelete={onDelete}
-        defaultValue={defaultValue?.[`body_${language}`] || undefined}
-        onChange={(text) => onFieldChange(`body_${language}`, text)}
+        defaultValue={defaultValue?.[`body_${tab}`] || undefined}
+        onChange={(text) => onChange({ ...defaultValue, [`body_${tab}`]: text })}
       />
+    );
+
+  return (
+    <Stack direction="row" sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
+      {child}
     </Stack>
   );
 };
@@ -154,6 +230,7 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
               <Tabs orientation="vertical" value={editorState.tab} onChange={setTab} scrollButtons={false}>
                 <Tab wrapped label="한국어" />
                 <Tab wrapped label="영어" />
+                <Tab wrapped label="CSS" />
               </Tabs>
               <Stack sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
                 <Button size="small" onClick={insertNewSection(0)} startIcon={<Add />}>
@@ -163,7 +240,7 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
                   <SectionEditorField
                     key={section.id || index}
                     defaultValue={section}
-                    language={editorState.tab === 0 ? "ko" : "en"}
+                    tab={SECTION_TABS[editorState.tab]}
                     onInsertNewSection={insertNewSection(index + 1)}
                     onChange={onSectionDataChange(index)}
                     onDelete={deleteSection(index)}
