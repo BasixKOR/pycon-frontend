@@ -27,7 +27,7 @@ export const PyConKR2026CoverLayers: ParallaxLayer[] = (
     { name: "02_entrance_ticket_no_floor_aligned.webp", depth: 0.26 },
     { name: "04_program_signboard_front.webp", depth: 0.28 },
     { name: "07_carousel_larger_lower.webp", depth: 0.32 },
-    { name: "00_logo_manual_mask.webp", depth: 0.18 },
+    { name: "00_logo_manual_mask.webp", depth: 0.18, noBlur: true },
   ] as const
 ).map(({ name, ...rest }) => ({ src: PyConKR2026CoverLayerUrlByName[name], ...rest }));
 
