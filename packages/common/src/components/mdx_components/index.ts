@@ -1,5 +1,6 @@
 export { Confetti } from "./confetti";
 export { FAQAccordion, type FAQAccordionProps, type FAQItem } from "./faq_accordion";
+export { MainCoverParallax, type MainCoverParallaxProps, type ParallaxLayer } from "./main_cover_parallax";
 export { Map, type MapPropType } from "./map";
 export { MobileAccordion } from "./mobile_accordion";
 export { MobileCover } from "./mobile_cover";
