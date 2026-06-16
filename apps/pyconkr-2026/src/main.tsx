@@ -1,3 +1,4 @@
+import "./main.css";
 import { Global } from "@emotion/react";
 import { CenteredPage, CommonContextProvider, ErrorFallback } from "@frontend/common/components";
 import type { ContextOptions } from "@frontend/common/contexts";
