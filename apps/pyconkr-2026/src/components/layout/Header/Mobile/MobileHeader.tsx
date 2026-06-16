@@ -19,7 +19,7 @@ export const MobileHeader: FC = () => {
         <LeftContent>
           <HamburgerButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
           <Link to="/" style={{ textDecoration: "none" }}>
-            <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Stack direction="row" alignItems="center" spacing={0.75}>
               <PyConLogo style={{ width: 28, height: 28 }} />
               <Typography variant="h6" sx={{ color: "#ededde", fontSize: 17, fontWeight: 600 }}>
                 파이콘 한국 2026
