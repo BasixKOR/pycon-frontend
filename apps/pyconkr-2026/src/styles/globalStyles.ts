@@ -116,10 +116,6 @@ export const muiTheme = createTheme({
 
 export const globalStyles = css`
   @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
-  @font-face {
-    font-family: "exqt";
-    src: url("assets/fonts/exqt_extra_height.ttf") format("truetype");
-  }
 
   html,
   body {

@@ -8,6 +8,8 @@ import Footer from "./Footer";
 import Header from "./Header";
 import { Sponsor } from "./Sponsor";
 
+import DonggukLogo from "@apps/pyconkr-2026/assets/pythonkorea_dongguk_logo.png";
+
 export default function MainLayout() {
   const { shouldShowSponsorBanner, language } = useAppContext();
   const theme = useTheme();
@@ -75,7 +77,7 @@ export default function MainLayout() {
       <Header />
       <MainContent>
         <Outlet />
-        <img src="src/assets/pythonkorea_dongguk_logo.png" alt="Python Korea X Dongguk University Logo" style={{ width: isMobile ? "95%" : "50%" }} />
+        <img src={DonggukLogo} alt="Python Korea X Dongguk University Logo" style={{ width: isMobile ? "95%" : "50%" }} />
         <DateVenueInfo isMobile={isMobile}>
           {DateInfo}
           {VenueInfo}
