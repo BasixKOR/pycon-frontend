@@ -157,7 +157,7 @@ const FooterContainer = styled.footer`
   justify-content: center;
   width: 100%;
   max-height: 16rem;
-  padding: 1rem 0;
+  padding: 5rem 0 1rem;
 `;
 
 const FooterContent = styled.div`
