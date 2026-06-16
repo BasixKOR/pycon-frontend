@@ -23,7 +23,7 @@ export default function MainLayout() {
             </tr>
             <tr>
               <th>2026.8.17 월</th>
-              <td>튜토리얼 & 스프린트 & 딥다이브</td>
+              <td>튜토리얼 / 스프린트 / 딥다이브</td>
             </tr>
           </tbody>
         </table>
@@ -39,7 +39,7 @@ export default function MainLayout() {
             </tr>
             <tr>
               <th>2026.8.17 MON</th>
-              <td>Tutorial & Sprint & Deep Dive</td>
+              <td>Tutorial / Sprint / Deep Dive</td>
             </tr>
           </tbody>
         </table>
