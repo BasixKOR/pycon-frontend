@@ -133,7 +133,7 @@ export const MainCoverParallax: FC<MainCoverParallaxProps> = ({
         WebkitMaskComposite: "source-in", // 레거시 WebKit: intersect에 해당
         maskComposite: "intersect", // 세로·가로 페이드의 교집합 → 네 변 모두 페이드
 
-        "@media (max-width: 720px)": { width: "100vw" },
+        "@media (max-width: 720px)": { width: "100%" },
         "& img": {
           position: "absolute",
           inset: 0,
