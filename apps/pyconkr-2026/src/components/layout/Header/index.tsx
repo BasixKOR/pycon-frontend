@@ -1,4 +1,3 @@
-import { PythonKorea } from "@frontend/common/components";
 import { NestedSiteMapSchema } from "@frontend/common/schemas/backendAPI";
 import { ArrowForwardIos, OpenInNew } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Divider, Stack, styled, SxProps, Theme, Typography, useMediaQuery, useTheme } from "@mui/material";
@@ -13,6 +12,7 @@ import { UserMenuButton } from "@apps/pyconkr-2026/components/layout/UserMenuBut
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
 import { MobileHeader } from "./Mobile/MobileHeader";
+import { PyConLogo } from "../../pycon_logo";
 
 type MenuType = NestedSiteMapSchema;
 type MenuOrUndefinedType = MenuType | undefined;
@@ -64,7 +64,7 @@ export default function Header() {
           <NavSideElementContainer>
             <Link to="/" onClick={resetDepths}>
               <Stack direction="row" alignItems="center" spacing={0.75}>
-                <PythonKorea style={{ width: 36, height: 36 }} />
+                <PyConLogo style={{ width: 32, height: 32 }} />
                 <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem" }}>
                   PyCon Korea 2026
                 </Typography>

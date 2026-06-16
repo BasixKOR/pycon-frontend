@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 export const muiTheme = createTheme({
   typography: {
     fontFamily:
-      'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
+      'exqt, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
   },
   palette: {
     mode: "dark",
@@ -116,10 +116,15 @@ export const muiTheme = createTheme({
 
 export const globalStyles = css`
   @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+  @font-face {
+    font-family: "exqt";
+    src: url("assets/fonts/exqt_extra_height.ttf") format("truetype");
+  }
 
   html,
   body {
     font-family:
+      "exqt",
       "Pretendard",
       -apple-system,
       BlinkMacSystemFont,
