@@ -154,7 +154,7 @@ export const MobileNavigation: FC<MobileNavigationProps> = ({ isOpen, onClose, s
           <Link to="/" onClick={handleClose} style={{ textDecoration: "none" }}>
             <Stack direction="row" alignItems="center" spacing={0.75}>
               <PyConLogo style={{ width: 28, height: 28 }} />
-              <HeaderTitle>파이콘 한국 2026</HeaderTitle>
+              <HeaderTitle>PyCon Korea 2026</HeaderTitle>
             </Stack>
           </Link>
         </NavigationHeader>
