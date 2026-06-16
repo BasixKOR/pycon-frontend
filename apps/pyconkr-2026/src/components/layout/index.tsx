@@ -13,69 +13,62 @@ export default function MainLayout() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const DateInfo = isMobile ? (
-    language === "ko" ? (
-      <div id="date">
-        <div>2026.8.15 토 - 16 일</div>
-        <div>컨퍼런스</div>
-        <div>2026.8.17 월</div>
-        <div>튜토리얼 / 스프린트 / 딥다이브</div>
-      </div>
-    ) : (
-      <div id="date">
-        <div>2026.8.15 SAT - 16 SUN</div>
-        <div>Conference</div>
-        <div>2026.8.17 MON</div>
-        <div>Tutorial / Sprint / Deep Dive</div>
-      </div>
-    )
-  ) : language === "ko" ? (
+  const dates: { [key in "conference" | "etc"]: { [key in ReturnType<typeof useAppContext>["language"]]: { date: string; description: string } } } = {
+    conference: {
+      ko: { date: "2026.8.15 토 - 16 일", description: "컨퍼런스" },
+      en: { date: "2026.8.15 SAT - 16 SUN", description: "Conference" },
+    },
+    etc: {
+      ko: { date: "2026.8.17 월", description: "튜토리얼 / 스프린트 / 딥다이브" },
+      en: { date: "2026.8.17 MON", description: "Tutorial / Sprint / Deep Dive" },
+    },
+  };
+
+  const DateInfo = (
     <div id="date">
-      일자
-      <table>
-        <tbody>
-          <tr>
-            <th>2026.8.15 토 - 16 일</th>
-            <td>컨퍼런스</td>
-          </tr>
-          <tr>
-            <th>2026.8.17 월</th>
-            <td>튜토리얼 / 스프린트 / 딥다이브</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  ) : (
-    <div id="date">
-      DATE
-      <table>
-        <tbody>
-          <tr>
-            <th>2026.8.15 SAT - 16 SUN</th>
-            <td>Conference</td>
-          </tr>
-          <tr>
-            <th>2026.8.17 MON</th>
-            <td>Tutorial / Sprint / Deep Dive</td>
-          </tr>
-        </tbody>
-      </table>
+      {isMobile ? (
+        <>
+          <div>{dates.conference[language].date}</div>
+          <div>{dates.conference[language].description}</div>
+          <div>{dates.etc[language].date}</div>
+          <div>{dates.etc[language].description}</div>
+        </>
+      ) : (
+        <>
+          {language === "ko" ? "일자" : "DATE"}
+          <table>
+            <tbody>
+              <tr>
+                <th>{dates.conference[language].date}</th>
+                <td>{dates.conference[language].description}</td>
+              </tr>
+              <tr>
+                <th>{dates.etc[language].date}</th>
+                <td>{dates.etc[language].description}</td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
-  const VenueInfo =
-    language === "ko" ? (
-      <div id="venue">
-        {!isMobile && "장소"}
-        <h3>동국대학교, 서울</h3>
-        <p>서울특별시 중구 필동로1길 30 동국대학교 신공학관</p>
-      </div>
-    ) : (
-      <div id="venue">
-        {!isMobile && "VENUE"}
-        <h3>Dongguk University, Seoul</h3>
-        <p>New Engineering Building, Dongguk University, 30, Pildong-ro 1-gil, Jung-gu, Seoul</p>
-      </div>
-    );
+
+  const venues: { [key in ReturnType<typeof useAppContext>["language"]]: { title: string; name: string; address: string } } = {
+    ko: { title: "장소", name: "동국대학교, 서울", address: "서울특별시 중구 필동로1길 30 동국대학교 신공학관" },
+    en: {
+      title: "VENUE",
+      name: "Dongguk University, Seoul",
+      address: "New Engineering Building, Dongguk University, 30, Pildong-ro 1-gil, Jung-gu, Seoul",
+    },
+  };
+
+  const VenueInfo = (
+    <div id="venue">
+      {!isMobile && venues[language].title}
+      <h3>{venues[language].name}</h3>
+      <p>{venues[language].address}</p>
+    </div>
+  );
 
   return (
     <Stack sx={{ minHeight: "100dvh" }}>
