@@ -42,6 +42,14 @@ const PLACEHOLDER_MODE_OPTIONS: { value: OptionGroupPlaceholderMode; label: stri
 ];
 const placeholderModeLabel = (mode: OptionGroupPlaceholderMode): string => PLACEHOLDER_MODE_OPTIONS.find((o) => o.value === mode)?.label ?? mode;
 
+// 빈 값/NaN 일 때만 fallback 을 사용한다. (유효한 0 입력이 falsy 로 걸러지지 않도록)
+const parseNumberOr = (value: string, fallback: number): number => {
+  const trimmed = value.trim();
+  if (trimmed === "") return fallback;
+  const parsed = Number(trimmed);
+  return Number.isNaN(parsed) ? fallback : parsed;
+};
+
 // ----------------- Option dialog -----------------
 type OptionFormValues = {
   name_ko: string;
@@ -96,10 +104,10 @@ const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, optio
     const optionPayload = {
       name_ko: values.name_ko,
       name_en: values.name_en,
-      additional_price: Number(values.additional_price) || 0,
-      stock: Number(values.stock) || 0,
-      max_quantity_per_user: Number(values.max_quantity_per_user) || 0,
-      priority: Number(values.priority) || 0,
+      additional_price: parseNumberOr(values.additional_price, 0),
+      stock: parseNumberOr(values.stock, 0),
+      max_quantity_per_user: parseNumberOr(values.max_quantity_per_user, 0),
+      priority: parseNumberOr(values.priority, 0),
       group: optionGroup.id,
     };
     const newOptions = option
@@ -263,12 +271,12 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
 
     const payload = {
       product: productId,
-      priority: Number(values.priority) || 0,
+      priority: parseNumberOr(values.priority, 0),
       name_ko: values.name_ko,
       name_en: values.name_en,
-      min_quantity_per_product: Number(values.min_quantity_per_product) || 0,
-      max_quantity_per_product: Number(values.max_quantity_per_product) || 1,
-      max_quantity_per_user: Number(values.max_quantity_per_user) || 0,
+      min_quantity_per_product: parseNumberOr(values.min_quantity_per_product, 0),
+      max_quantity_per_product: parseNumberOr(values.max_quantity_per_product, 1),
+      max_quantity_per_user: parseNumberOr(values.max_quantity_per_user, 0),
       visible_starts_at: values.visible_starts_at || null,
       visible_ends_at: values.visible_ends_at || null,
       orderable_starts_at: values.orderable_starts_at || null,
