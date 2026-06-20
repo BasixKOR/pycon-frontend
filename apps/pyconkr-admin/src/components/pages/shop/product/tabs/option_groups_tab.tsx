@@ -13,8 +13,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   FormControlLabel,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Table,
   TableBody,
@@ -27,8 +31,16 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { FC, useEffect, useState } from "react";
 
-import { OptionAdmin, OptionGroupAdmin } from "@apps/pyconkr-admin/components/pages/shop/product/types";
+import { OptionAdmin, OptionGroupAdmin, OptionGroupPlaceholderMode } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
+
+// 백엔드 OptionGroup.PlaceholderMode 와 동일한 라벨.
+const PLACEHOLDER_MODE_OPTIONS: { value: OptionGroupPlaceholderMode; label: string }[] = [
+  { value: "hidden", label: "선택해주세요 미노출" },
+  { value: "optional", label: "노출, 선택해도 통과" },
+  { value: "required", label: "노출, 선택 시 검증 실패" },
+];
+const placeholderModeLabel = (mode: OptionGroupPlaceholderMode): string => PLACEHOLDER_MODE_OPTIONS.find((o) => o.value === mode)?.label ?? mode;
 
 // ----------------- Option dialog -----------------
 type OptionFormValues = {
@@ -185,6 +197,7 @@ type OptionGroupFormValues = {
   custom_response_pattern: string;
   priority: string;
   response_modifiable_ends_at: string;
+  placeholder_mode: OptionGroupPlaceholderMode;
 };
 
 type OptionGroupDialogProps = {
@@ -214,6 +227,7 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
     custom_response_pattern: "",
     priority: "0",
     response_modifiable_ends_at: "",
+    placeholder_mode: "hidden",
   });
 
   useEffect(() => {
@@ -232,6 +246,7 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
         custom_response_pattern: group?.custom_response_pattern ?? "",
         priority: group ? String(group.priority) : String(existingGroupCount * 10),
         response_modifiable_ends_at: group?.response_modifiable_ends_at ?? "",
+        placeholder_mode: group?.placeholder_mode ?? "hidden",
       });
     }
   }, [open, group, existingGroupCount]);
@@ -261,6 +276,8 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
       is_custom_response: values.is_custom_response,
       custom_response_pattern: values.is_custom_response ? values.custom_response_pattern : "",
       response_modifiable_ends_at: values.response_modifiable_ends_at || null,
+      // placeholder_mode 는 선택형 그룹에만 의미가 있음 — custom response 그룹은 hidden 으로 고정.
+      placeholder_mode: values.is_custom_response ? "hidden" : values.placeholder_mode,
       options: group?.options ?? [],
     };
 
@@ -385,6 +402,23 @@ const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productI
               helperText="예: ^.{1,20}$"
             />
           )}
+          {!values.is_custom_response && (
+            <FormControl fullWidth>
+              <InputLabel id="placeholder-mode-label">&quot;선택해주세요&quot; 옵션</InputLabel>
+              <Select
+                labelId="placeholder-mode-label"
+                label='"선택해주세요" 옵션'
+                value={values.placeholder_mode}
+                onChange={(e) => setValues((p) => ({ ...p, placeholder_mode: e.target.value as OptionGroupPlaceholderMode }))}
+              >
+                {PLACEHOLDER_MODE_OPTIONS.map((opt) => (
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
           <TextField
             label="응답 수정 가능 종료"
             type="datetime-local"
@@ -471,6 +505,9 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
               <Stack direction="row" spacing={2} alignItems="center" sx={{ width: "100%", pr: 2 }}>
                 <Typography sx={{ fontWeight: 500 }}>{group.name_ko}</Typography>
                 {group.is_custom_response && <Chip label="사용자 입력" size="small" />}
+                {!group.is_custom_response && group.placeholder_mode !== "hidden" && (
+                  <Chip label={`선택해주세요: ${placeholderModeLabel(group.placeholder_mode)}`} size="small" variant="outlined" />
+                )}
                 <Box sx={{ flexGrow: 1 }} />
                 <Typography variant="caption" color="text.secondary">
                   최소 {group.min_quantity_per_product} / 최대 {group.max_quantity_per_product} · 옵션 {options.length}개

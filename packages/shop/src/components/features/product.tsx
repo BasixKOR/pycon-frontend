@@ -36,7 +36,15 @@ import { isEmpty, isNullish, isNumber, isString } from "remeda";
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
-import type { Cart, CartItemAppendRequest, CustomerInfo, Product, ProductListQueryParams, TicketInfoRequest } from "@frontend/shop/schemas";
+import type {
+  Cart,
+  CartItemAppendRequest,
+  CustomerInfo,
+  OptionGroup,
+  Product,
+  ProductListQueryParams,
+  TicketInfoRequest,
+} from "@frontend/shop/schemas";
 import {
   getCannotAddMoreOptionGroupReason,
   getOptionGroupNotOrderableReason,
@@ -131,7 +139,8 @@ const getCartAppendRequestPayload = (
       const optionGroup = product.option_groups.find((group) => group.id === groupId);
       if (!optionGroup) throw new Error(`Option group ${groupId} not found`);
 
-      const product_option = optionGroup.is_custom_response ? null : value;
+      // 빈 값은 "선택해주세요"(미선택) 상태 — product_option 을 null 로 보낸다.
+      const product_option = optionGroup.is_custom_response ? null : value || null;
       const custom_response = optionGroup.is_custom_response ? value : null;
       return { product_option_group: groupId, product_option, custom_response };
     });
@@ -144,6 +153,10 @@ const getCartAppendRequestPayload = (
     ...(ticket_info ? { ticket_info } : {}),
   };
 };
+
+// placeholder_mode 가 hidden 이 아니면 "선택해주세요"(빈 값)를 기본 선택으로 둔다. hidden 이면 첫 옵션을 선택.
+const getOptionGroupDefaultValue = (group: OptionGroup, reason: string | null): string =>
+  reason || group.placeholder_mode !== "hidden" ? "" : group.options[0]?.id || "";
 
 const getProductNotPurchasableReason = (language: "ko" | "en", product: Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
@@ -416,7 +429,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
                   key={group.id}
                   optionGroup={group}
                   options={group.options}
-                  defaultValue={reason ? "" : group.options[0]?.id || ""}
+                  defaultValue={getOptionGroupDefaultValue(group, reason)}
                   disabled={disabled || !!reason}
                   disabledReason={reason ?? undefined}
                   control={control}
@@ -436,7 +449,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
                           <OptionGroupInput
                             optionGroup={{ ...group, id: instance.id }}
                             options={group.options}
-                            defaultValue={reason ? "" : group.options[0]?.id || ""}
+                            defaultValue={getOptionGroupDefaultValue(group, reason)}
                             disabled={disabled || !!reason}
                             disabledReason={reason ?? undefined}
                             control={control}

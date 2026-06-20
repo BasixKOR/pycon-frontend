@@ -96,6 +96,10 @@ export type Option = {
   leftover_stock_info: OptionLeftoverStockInfo;
 };
 
+// "선택해주세요" placeholder 노출/검증 정책. 백엔드 OptionGroup.PlaceholderMode 와 동일.
+// hidden: 미노출(옵션 필수 선택) / optional: 노출, 미선택 통과 / required: 노출, 미선택 시 검증 실패.
+export type OptionGroupPlaceholderMode = "hidden" | "optional" | "required";
+
 export type OptionGroup = {
   id: string;
   name: string;
@@ -103,6 +107,8 @@ export type OptionGroup = {
   min_quantity_per_product: number;
   max_quantity_per_product: number;
   max_quantity_per_user: number;
+
+  placeholder_mode: OptionGroupPlaceholderMode;
 
   // null이면 Product의 동일 필드를 따름.
   visible_starts_at: string | null;
@@ -206,6 +212,7 @@ export type OrderProductItem = {
           is_custom_response: false;
           custom_response_pattern: null;
           response_modifiable_ends_at: string | null;
+          placeholder_mode: OptionGroupPlaceholderMode;
         };
         product_option: {
           id: string;
@@ -222,6 +229,7 @@ export type OrderProductItem = {
           is_custom_response: true;
           custom_response_pattern: string;
           response_modifiable_ends_at: string | null;
+          placeholder_mode: OptionGroupPlaceholderMode;
         };
         product_option: null;
         custom_response: string;
