@@ -158,4 +158,12 @@ export const globalStyles = css`
     text-decoration: none;
     color: inherit;
   }
+
+  @media (min-width: 900px) {
+    /* mui가 md를 900px로 보는 중 */
+    html,
+    body {
+      font-size: 120%;
+    }
+  }
 `;

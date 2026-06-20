@@ -52,6 +52,7 @@ export default function Footer() {
   const { sendEmail } = useEmail();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const muiMd = theme.breakpoints.values.md;
 
   const { language } = useAppContext();
 
@@ -91,7 +92,7 @@ export default function Footer() {
   return (
     <FooterContainer>
       <FooterContent>
-        <FooterText>
+        <FooterText muiMd={muiMd}>
           <strong>{corpPasamoStr}</strong>
           <br />
           {corpAddressStr}
@@ -167,7 +168,7 @@ const FooterContent = styled.div`
   gap: 0.75rem;
 `;
 
-const FooterText = styled.div`
+const FooterText = styled.div<{ muiMd: number }>`
   padding: 0 2rem;
   margin: 0.1rem;
 
@@ -194,6 +195,18 @@ const FooterText = styled.div`
 
   strong {
     font-size: 12pt;
+  }
+
+  @media (min-width: ${(props) => props.muiMd}px) {
+    font-size: 12pt;
+
+    a > button {
+      font-size: 10pt;
+    }
+
+    strong {
+      font-size: 15pt;
+    }
   }
 `;
 
