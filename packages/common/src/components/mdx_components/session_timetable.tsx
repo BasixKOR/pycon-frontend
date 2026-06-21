@@ -168,7 +168,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
     const roomCount = Object.keys(rooms).length;
     const sortedRoomList = Object.keys(rooms).sort();
 
-    const selectedDate = confDate || dates[0];
+    const [selectedDate, setSelectedDate] = useState<string>(confDate || dates[0]);
     const selectedTableData = timeTableData[selectedDate];
 
     let breakCount = 0;
@@ -186,7 +186,15 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
           {dates.map((date, i) => {
             const dateStr = DateTime.fromISO(date).setLocale(language).toLocaleString({ weekday: "long", month: "long", day: "numeric" });
             return (
-              <Button variant="text" key={date} onClick={() => setConfDate(date)} className={selectedDate === date ? "selected" : ""}>
+              <Button
+                variant="text"
+                key={date}
+                onClick={() => {
+                  setConfDate(date);
+                  setSelectedDate(date);
+                }}
+                className={selectedDate === date ? "selected" : ""}
+              >
                 <SessionDateItemContainer direction="column">
                   <SessionDateTitle children={"Day " + (i + 1)} isSelected={selectedDate === date} />
                   <SessionDateSubTitle children={dateStr} isSelected={selectedDate === date} />
