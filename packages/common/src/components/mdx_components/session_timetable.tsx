@@ -2,7 +2,7 @@ import { Button, Chip, CircularProgress, Stack, styled, Table, TableBody, TableC
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
 import { FC, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { isArray, isEmpty, isString } from "remeda";
 
 import { CenteredPage } from "@frontend/common/components/centered_page";
@@ -108,8 +108,9 @@ const SessionColumn: FC<{
   rowSpan: number;
   colSpan?: number;
   session: SessionSchema;
+  selectedDate: string;
   getSessionUrl?: (session: SessionSchema) => string;
-}> = ({ rowSpan, colSpan, session, getSessionUrl }) => {
+}> = ({ rowSpan, colSpan, session, selectedDate, getSessionUrl }) => {
   const sessionUrl = getSessionUrl ? getSessionUrl(session) : undefined;
   const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
   // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
@@ -117,7 +118,7 @@ const SessionColumn: FC<{
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       {clickable ? (
-        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }}>
+        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }} state={{ selectedDate: selectedDate }}>
           <SessionBox className="clickable" sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
             <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
             <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
@@ -155,7 +156,9 @@ type SessionTimeTablePropType = {
 export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types, getSessionUrl }) => {
-    const [confDate, setConfDate] = useState("");
+    const location = useLocation();
+
+    const [confDate, setConfDate] = useState<string>(location.state?.selectedDate ?? "");
 
     const { language } = Common.useCommonContext();
     const backendAPIClient = BackendAPI.useBackendClient();
@@ -168,7 +171,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
     const roomCount = Object.keys(rooms).length;
     const sortedRoomList = Object.keys(rooms).sort();
 
-    const [selectedDate, setSelectedDate] = useState<string>(confDate || dates[0]);
+    const [selectedDate, setSelectedDate] = useState<string>(location.state?.selectedDate ?? (confDate || dates[0]));
     const selectedTableData = timeTableData[selectedDate];
 
     let breakCount = 0;
@@ -281,6 +284,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                         rowSpan={firstSessionInfo.rowSpan}
                         colSpan={roomCount}
                         session={firstSessionInfo.session}
+                        selectedDate={selectedDate}
                         getSessionUrl={getSessionUrl}
                       />
                     </SessionTableRow>
@@ -301,7 +305,15 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                       }
                       // 세션이 여러 줄에 걸쳐있는 경우, n-1 줄만큼 해당 room에 column을 생성하지 않도록 합니다.
                       if (roomDatum.rowSpan > 1) rooms[room] = roomDatum.rowSpan - 1;
-                      return <SessionColumn key={room} rowSpan={roomDatum.rowSpan} session={roomDatum.session} getSessionUrl={getSessionUrl} />;
+                      return (
+                        <SessionColumn
+                          key={room}
+                          rowSpan={roomDatum.rowSpan}
+                          session={roomDatum.session}
+                          selectedDate={selectedDate}
+                          getSessionUrl={getSessionUrl}
+                        />
+                      );
                     })}
                   </SessionTableRow>
                 );
