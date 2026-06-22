@@ -147,11 +147,18 @@ const BreakTime: FC<{ language: "ko" | "en"; duration: number }> = ({ language, 
 };
 
 type SessionTimeTablePropType = {
+  /** 세션을 조회할 이벤트(연도) slug. 미지정 시 기본 이벤트를 사용한다. */
   event?: string;
+  /** 필터할 세션 유형. 단일 문자열 또는 배열(내부에서 콤마로 join). */
   types?: string | string[];
+  /** 세션 객체로부터 상세 페이지 URL 을 만드는 함수(발표자가 있는 세션만 링크가 된다). */
   getSessionUrl?: (session: SessionSchema) => string;
 };
 
+/**
+ * 발표 세션을 날짜·시간·발표장(room) 기준의 표로 보여주는 타임테이블.
+ * 날짜 선택 탭, 발표장별 열, 휴식 시간 표시를 포함한다.
+ */
 export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types, getSessionUrl }) => {

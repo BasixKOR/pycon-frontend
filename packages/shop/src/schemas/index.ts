@@ -132,7 +132,9 @@ export type OptionGroup = {
 );
 
 export type ProductListQueryParams = {
+  /** 조회할 카테고리 그룹 코드. 지정하면 해당 그룹의 상품만 보여준다. */
   category_group?: string;
+  /** 조회할 카테고리 코드. 지정하면 해당 카테고리의 상품만 보여준다. */
   category?: string;
 };
 

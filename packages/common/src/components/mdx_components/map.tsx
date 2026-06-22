@@ -10,12 +10,16 @@ const MAP_TYPES: SupportedMapType[] = ["kakao", "google", "naver"];
 type LangType = "ko" | "en";
 
 export type MapPropType = {
+  /** 지도 중심 좌표. `lat`=위도, `lng`=경도. */
   geo: {
     lat: number;
     lng: number;
   };
+  /** 장소 이름. 언어별(`ko`/`en`)로 지정하며 카카오맵 마커 안내에 표시된다. */
   placeName: { [key in LangType]: string };
+  /** 각 지도 서비스의 장소 코드. `kakao`/`google`/`naver` 별 '열기' 링크를 만드는 데 사용한다. */
   placeCode: { [key in SupportedMapType]: string };
+  /** 구글 지도 탭에 임베드할 iframe 의 src URL. */
   googleMapIframeSrc: string;
 };
 
@@ -55,6 +59,10 @@ const MapData: { [key in SupportedMapType]: MapDataType } = {
   },
 };
 
+/**
+ * 카카오맵·구글지도·네이버지도 탭으로 특정 장소를 보여주는 지도 컴포넌트.
+ * 각 지도 서비스로 바로 여는 버튼도 함께 렌더하며, 주로 행사장 위치 안내에 사용한다.
+ */
 export const Map: FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIframeSrc }) => {
   const { language } = useCommonContext();
   const kakaoMapRef = useRef<HTMLDivElement>(null);

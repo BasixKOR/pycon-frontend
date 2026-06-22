@@ -14,8 +14,11 @@ import {
 import { FC, PropsWithChildren, ReactNode } from "react";
 type StyledDetailsProps = PropsWithChildren<
   AccordionProps & {
+    /** 펼침/접힘 토글 아이콘. 미지정 시 기본 화살표(▼) 아이콘을 사용한다. */
     expandIcon?: ReactNode;
+    /** 항상 보이는 헤더 영역. 문자열을 넘기면 제목(h5) 스타일로 렌더된다. */
     summary?: ReactNode;
+    /** 펼친 내용 하단에 표시할 동작 영역(버튼 등). */
     actions?: ReactNode;
   }
 >;
@@ -57,11 +60,19 @@ const BaseStyledDetails: FC<BaseStyledDetailsProps> = ({ expandIcon, summary, ch
   );
 };
 
+/**
+ * primary 색으로 강조한 접이식 상세(아코디언). `summary` 를 헤더로, children 을 펼친 내용으로 렌더한다.
+ * 펼치면 배경에 primary 색이 옅게 채워진다.
+ */
 export const PrimaryStyledDetails: FC<StyledDetailsProps> = (props) => {
   const { palette } = useTheme();
   return <BaseStyledDetails {...props} paletteColor={palette.primary} transparencyOnExpand={20} />;
 };
 
+/**
+ * highlight 색으로 강조한 접이식 상세(아코디언). 동작은 PrimaryStyledDetails 와 같고 강조 색상만 다르다.
+ * (레지스트리에는 `SecondaryStyledDetails` 라는 이름으로 등록된다.)
+ */
 export const HighlightedStyledDetails: FC<StyledDetailsProps> = (props) => {
   const { palette } = useTheme();
   return <BaseStyledDetails {...props} paletteColor={palette.highlight} transparencyOnExpand={10} />;

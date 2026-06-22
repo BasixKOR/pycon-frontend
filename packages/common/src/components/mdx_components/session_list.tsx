@@ -69,13 +69,22 @@ const SessionItem: FC<{
 });
 
 type SessionListPropType = {
+  /** 세션을 조회할 이벤트(연도) slug. 미지정 시 기본 이벤트를 사용한다. */
   event?: string;
+  /** 필터할 세션 유형. 단일 문자열 또는 배열(내부에서 콤마로 join). */
   types?: string | string[];
+  /** `true`면 각 세션을 상세 페이지 링크로 감싼다. */
   enableLink?: boolean;
+  /** 세션 이미지가 없을 때 표시할 대체 이미지 노드. */
   fallbackImage?: ReactNode;
+  /** 세션 객체로부터 상세 페이지 URL 을 만드는 함수. */
   getSessionUrl?: (session: SessionSchema) => string;
 };
 
+/**
+ * 백엔드에서 발표 세션 목록을 불러와 발표자 이미지·제목·요약·카테고리 칩이 있는 카드 목록으로 보여준다.
+ * 카테고리가 2개 이상이면 클릭으로 켜고 끄는 필터 버튼을 함께 제공한다.
+ */
 export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink, fallbackImage, getSessionUrl }) => {

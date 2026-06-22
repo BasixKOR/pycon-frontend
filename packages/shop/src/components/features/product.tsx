@@ -36,15 +36,7 @@ import { isEmpty, isNullish, isNumber, isString } from "remeda";
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
 import { CustomerInfoFormDialog, OptionGroupInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
 import { useAddItemToCartMutation, usePrepareOneItemOrderMutation, useProducts, useShopClient, useShopContext } from "@frontend/shop/hooks";
-import type {
-  Cart,
-  CartItemAppendRequest,
-  CustomerInfo,
-  OptionGroup,
-  Product,
-  ProductListQueryParams,
-  TicketInfoRequest,
-} from "@frontend/shop/schemas";
+import type { Cart, CartItemAppendRequest, CustomerInfo, OptionGroup, Product, TicketInfoRequest } from "@frontend/shop/schemas";
 import {
   getCannotAddMoreOptionGroupReason,
   getOptionGroupNotOrderableReason,
@@ -630,7 +622,21 @@ type ProductListStateType = {
   oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductList: FC<ProductListQueryParams> = (qs) => {
+// 매니페스트(mdx-components.json) props 노출용 로컬 타입. react-docgen-typescript 는 임포트한 타입 별칭
+// (schemas 의 ProductListQueryParams)의 멤버를 추출하지 못하므로 같은 구조를 여기서 다시 선언한다.
+// 두 타입이 어긋나면 아래 useProducts(client, qs) 호출에서 컴파일 에러가 나므로 드리프트가 방지된다.
+type ProductListProps = {
+  /** 조회할 카테고리 그룹 코드. 지정하면 해당 그룹의 상품만 보여준다. */
+  category_group?: string;
+  /** 조회할 카테고리 코드. 지정하면 해당 카테고리의 상품만 보여준다. */
+  category?: string;
+};
+
+/**
+ * 상품 목록을 접이식(아코디언) 형태로 보여주는 컴포넌트. 각 상품을 펼치면 설명·옵션 선택·기부 금액 입력이 나오고,
+ * 장바구니 담기와 즉시 구매를 처리한다.
+ */
+export const ProductList: FC<ProductListProps> = (qs) => {
   const WrappedProductList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -744,7 +750,10 @@ type ProductImageCardListStateType = {
   oneItemOrderData?: CartItemAppendRequest;
 };
 
-export const ProductImageCardList: FC<ProductListQueryParams> = (qs) => {
+/**
+ * 상품 목록을 이미지 카드 그리드로 보여주는 컴포넌트. 카드를 누르면 상세 다이얼로그가 열려 옵션 선택·구매가 가능하다.
+ */
+export const ProductImageCardList: FC<ProductListProps> = (qs) => {
   const WrappedProductImageCardList: FC = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();

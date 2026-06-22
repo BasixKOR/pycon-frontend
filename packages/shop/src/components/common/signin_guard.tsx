@@ -5,10 +5,16 @@ import { FC, ReactNode } from "react";
 import { useShopClient, useShopContext, useUserStatus } from "@frontend/shop/hooks";
 
 type SignInGuardProps = {
+  /** 로그인 상태일 때 보여줄 내용. */
   children: ReactNode;
+  /** 비로그인 시 보여줄 대체 내용. 미지정 시 기본 '로그인이 필요합니다' 안내 문구를 보여준다. */
   fallback?: ReactNode;
 };
 
+/**
+ * 로그인한 사용자에게만 children 을 보여주고, 비로그인 시 안내 문구(또는 `fallback`)를 보여주는 가드.
+ * 로그인이 필요한 영역(장바구니·주문 등)을 감쌀 때 사용한다.
+ */
 export const SignInGuard: FC<SignInGuardProps> = Suspense.with({ fallback: <CircularProgress /> }, ({ children, fallback }) => {
   const { language } = useShopContext();
   const shopAPIClient = useShopClient();

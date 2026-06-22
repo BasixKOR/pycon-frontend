@@ -30,4 +30,8 @@ export const PyConKR2026CoverLayers: ParallaxLayer[] = (
   ] as const
 ).map(({ name, ...rest }) => ({ src: PyConKR2026CoverLayerUrlByName[name], ...rest }));
 
+/**
+ * 파이콘 한국 2026 메인 표지. 여러 이미지 레이어를 깊이감 있게 겹친 패럴랙스(시차) 배경을 렌더하며,
+ * 2026 메인 페이지 상단 배경으로 사용한다.
+ */
 export const PyConKR2026MainCover: FC<object> = () => createElement(MainCoverParallax, { layers: PyConKR2026CoverLayers });
