@@ -8,6 +8,7 @@ import { useShopClient, useSignInWithEmailMutation, useSignInWithSNSMutation, us
 /**
  * 현재 로그인 상태를 보여주고 로그인/로그아웃을 처리하는 컴포넌트.
  * 로그인 상태면 사용자명과 로그아웃 버튼을, 비로그인 상태면 이메일·비밀번호 폼과 구글 로그인 버튼을 보여준다.
+ * @example <Shop__Feature__UserInfo />
  */
 export const UserInfo: FC = () => {
   const formRef = useRef<HTMLFormElement>(null);

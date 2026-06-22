@@ -31,14 +31,16 @@ const CUSTOM_SOURCES = [
   resolve(repoRoot, "packages/shop/src/components/features/index.ts"),
 ];
 
-// 레지스트리 식별자(alias/래퍼) → 원본 export (props 출처). 없으면 valueId 그대로 사용.
+// 레지스트리 식별자(alias/래퍼) → props 출처. 없으면 valueId 그대로 사용.
+// 문자열이면 원본 export 이름. 객체면 { export, omit }: omit 은 래퍼가 내부에서 채워(MDX 작성자가
+// 못 바꿈) 노출하면 안 되는 prop 목록, "*" 면 전부 제외(래퍼가 prop 을 받지 않는 경우).
 const OVERRIDES = {
   MDXMap: "Map",
   SecondaryStyledDetails: "HighlightedStyledDetails",
-  PyConKR2025SessionList: "SessionList",
+  PyConKR2025SessionList: { export: "SessionList", omit: ["fallbackImage"] },
   PyConKR2025SessionTimeTable: "SessionTimeTable",
-  PyConKR2025MobileAccordion: "MobileAccordion",
-  PyConKR2025MobileCover: "MobileCover",
+  PyConKR2025MobileAccordion: { export: "MobileAccordion", omit: "*" },
+  PyConKR2025MobileCover: { export: "MobileCover", omit: "*" },
 };
 
 const groupOf = (name) => (name.startsWith("Mui__") ? "mui" : name.startsWith("Common__") ? "common" : name.startsWith("Shop__") ? "shop" : "other");
@@ -65,8 +67,6 @@ const parser = docgen.withDefaultConfig({
   savePropValueAsString: true,
   // MUI/React/HTML 등 외부에서 상속된 props 제외. parent 가 비어도(누수 케이스) declarations 로 걸러낸다.
   propFilter: (prop) => {
-    // children 은 MDX 에서 태그 사이 내용으로 암묵 전달되므로 props 목록에서 제외.
-    if (prop.name === "children") return false;
     const decls = prop.declarations ?? [];
     if (decls.length > 0 && decls.every((d) => isInNodeModules(d.fileName))) return false;
     if (prop.parent && isInNodeModules(prop.parent.fileName)) return false;
@@ -83,24 +83,41 @@ for (const file of CUSTOM_SOURCES) {
   }
 }
 
-const toProps = (props) =>
-  Object.entries(props).map(([name, p]) => ({
-    name,
-    type: p.type?.name ?? "unknown",
-    required: !!p.required,
-    ...(p.defaultValue ? { default: p.defaultValue.value } : {}),
-    ...(p.description ? { description: p.description } : {}),
-  }));
+const toProps = (props, omit) =>
+  Object.entries(props)
+    .filter(([propName, p]) => {
+      // 래퍼가 내부에서 채우는 prop 제외 ("*" = 전부)
+      if (omit === "*" || (Array.isArray(omit) && omit.includes(propName))) return false;
+      // MDX/CMS 본문에서는 함수를 넘길 수 없으므로 함수형 prop 제외 (예: "(s: SessionSchema) => string")
+      if (/=>/.test(p.type?.name ?? "")) return false;
+      return true;
+    })
+    .map(([name, p]) => ({
+      name,
+      type: p.type?.name ?? "unknown",
+      required: !!p.required,
+      ...(p.defaultValue ? { default: p.defaultValue.value } : {}),
+      ...(p.description ? { description: p.description } : {}),
+    }));
 
 const components = entries.map(({ name, valueId }) => {
   const group = groupOf(name);
   if (group === "mui") return { name, group, docUrl: muiDocUrl(name) };
-  const doc = docByExport.get(OVERRIDES[valueId] ?? valueId);
+  const override = OVERRIDES[valueId];
+  const exportName = (typeof override === "object" ? override.export : override) ?? valueId;
+  const omit = typeof override === "object" ? override.omit : undefined;
+  const doc = docByExport.get(exportName);
   if (!doc) {
-    console.warn(`[gen-mdx-components] props 미발견: ${name} (export '${OVERRIDES[valueId] ?? valueId}')`);
+    console.warn(`[gen-mdx-components] props 미발견: ${name} (export '${exportName}')`);
     return { name, group };
   }
-  return { name, group, ...(doc.description ? { description: doc.description } : {}), props: toProps(doc.props) };
+  return {
+    name,
+    group,
+    ...(doc.description ? { description: doc.description } : {}),
+    ...(doc.tags?.example ? { example: doc.tags.example } : {}),
+    props: toProps(doc.props, omit),
+  };
 });
 
 const muiVersion = JSON.parse(readFileSync(require.resolve("@mui/material/package.json"), "utf8")).version;

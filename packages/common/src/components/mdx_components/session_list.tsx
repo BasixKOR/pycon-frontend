@@ -84,6 +84,7 @@ type SessionListPropType = {
 /**
  * 백엔드에서 발표 세션 목록을 불러와 발표자 이미지·제목·요약·카테고리 칩이 있는 카드 목록으로 보여준다.
  * 카테고리가 2개 이상이면 클릭으로 켜고 끄는 필터 버튼을 함께 제공한다.
+ * @example <Common__Components__Session__List types="talk" enableLink />
  */
 export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },

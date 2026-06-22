@@ -77,6 +77,7 @@ export const LottieDebugPanel: FC<LottiePlayerProps> = ({ data, playState = "pla
  * Lottie 애니메이션 JSON 데이터를 받아 재생하는 플레이어.
  * 정적으로 import 한(또는 이미 메모리에 있는) 애니메이션 데이터를 직접 렌더할 때 사용한다.
  * 원격 URL 에서 불러오려면 NetworkLottie 컴포넌트를 사용한다.
+ * @example <Common__Components__Lottie data={animationData} style={{ width: 240 }} />
  */
 export const LottiePlayer: FC<LottiePlayerProps> = ({ data, playState = "playing", disableLoop = false, renderSettings = {}, style }) => (
   <Lottie
@@ -105,6 +106,7 @@ type NetworkLottiePlayerStateType = {
 /**
  * 원격 URL 에서 Lottie 애니메이션 JSON 을 fetch 해 재생하는 플레이어.
  * 로딩 중에는 스피너를, 실패 시에는 에러 폴백을 보여준다. 애니메이션을 네트워크로 불러올 때 사용한다.
+ * @example <Common__Components__NetworkLottie url="https://example.com/animation.json" />
  */
 export const NetworkLottiePlayer: FC<NetworkLottiePlayerProps> = ErrorBoundary.with({ fallback: ErrorFallback }, (props) => {
   const [playerState, setPlayerState] = useState<NetworkLottiePlayerStateType>({});

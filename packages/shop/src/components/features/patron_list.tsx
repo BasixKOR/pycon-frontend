@@ -24,6 +24,7 @@ const InnerPatronList: FC<{ year: number }> = ErrorBoundary.with(
 /**
  * 특정 연도의 개인 후원자 목록을 후원자 이름과 후원 한마디와 함께 보여준다.
  * 후원 한마디 안의 URL 은 자동으로 링크 처리된다.
+ * @example <Shop__Feature__PatronList year={2026} />
  */
 export const PatronList: FC<{
   /** 후원자를 조회할 연도(예: `2026`). */

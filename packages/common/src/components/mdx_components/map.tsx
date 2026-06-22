@@ -62,6 +62,7 @@ const MapData: { [key in SupportedMapType]: MapDataType } = {
 /**
  * 카카오맵·구글지도·네이버지도 탭으로 특정 장소를 보여주는 지도 컴포넌트.
  * 각 지도 서비스로 바로 여는 버튼도 함께 렌더하며, 주로 행사장 위치 안내에 사용한다.
+ * @example <Common__Components__MDX__Map geo={{ lat: 37.5665, lng: 126.978 }} placeName={{ ko: "서울시청", en: "Seoul City Hall" }} placeCode={{ kakao: "7942135", google: "ChIJ...", naver: "..." }} googleMapIframeSrc="https://www.google.com/maps/embed?pb=..." />
  */
 export const Map: FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIframeSrc }) => {
   const { language } = useCommonContext();

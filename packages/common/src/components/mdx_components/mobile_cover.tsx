@@ -19,6 +19,8 @@ type MobileCoverProps = {
 /**
  * 모바일 전용 풀스크린 표지. 배경 이미지·타이틀 이미지·티켓 구매 버튼을 겹쳐 보여준다.
  * 버튼 문구는 현재 언어(ko/en)에 맞춰 자동 선택된다.
+ * 레지스트리에는 이미지가 미리 채워진 래퍼로 등록되어 MDX 에서는 prop 없이 사용한다.
+ * @example <Common__Components__MDX__MobileCover />
  */
 export const MobileCover: FC<MobileCoverProps> = ({
   coverImageSrc,

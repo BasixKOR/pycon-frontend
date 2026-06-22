@@ -635,6 +635,7 @@ type ProductListProps = {
 /**
  * 상품 목록을 접이식(아코디언) 형태로 보여주는 컴포넌트. 각 상품을 펼치면 설명·옵션 선택·기부 금액 입력이 나오고,
  * 장바구니 담기와 즉시 구매를 처리한다.
+ * @example <Shop__Feature__ProductList category="tshirt" />
  */
 export const ProductList: FC<ProductListProps> = (qs) => {
   const WrappedProductList: FC = () => {
@@ -752,6 +753,7 @@ type ProductImageCardListStateType = {
 
 /**
  * 상품 목록을 이미지 카드 그리드로 보여주는 컴포넌트. 카드를 누르면 상세 다이얼로그가 열려 옵션 선택·구매가 가능하다.
+ * @example <Shop__Feature__ProductImageCardList category_group="merch" />
  */
 export const ProductImageCardList: FC<ProductListProps> = (qs) => {
   const WrappedProductImageCardList: FC = () => {

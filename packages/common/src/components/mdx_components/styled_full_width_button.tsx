@@ -15,7 +15,8 @@ type StyledFullWidthButtonPropType = ButtonProps & {
 
 /**
  * 전체 너비를 차지하는 외곽선 버튼. `link` 가 있으면 링크처럼 동작하며,
- * children 텍스트는 자동으로 제목(h5) 스타일로 감싸진다.
+ * 태그 사이 내용(children) 텍스트는 자동으로 제목(h5) 스타일로 감싸진다.
+ * @example <Common__Components__MDX__FullWidthStyledButton link="/store" transparency={10}>티켓 구매하기</Common__Components__MDX__FullWidthStyledButton>
  */
 export const StyledFullWidthButton: FC<StyledFullWidthButtonPropType> = ({ link, setBackgroundColor, transparency, ...props }) => {
   let children = props.children;

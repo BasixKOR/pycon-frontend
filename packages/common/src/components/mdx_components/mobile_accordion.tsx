@@ -36,6 +36,8 @@ type MobileAccordionProps = {
 /**
  * 모바일 화면용 아코디언. 접힌 상태에서는 마퀴(흐르는 텍스트+로고)를,
  * 펼치면 주최 로고와 행사장 주소(현재 언어에 맞춰 ko/en)를 보여준다.
+ * 레지스트리에는 행사 정보가 미리 채워진 래퍼로 등록되어 MDX 에서는 prop 없이 사용한다.
+ * @example <Common__Components__MDX__MobileAccordion />
  */
 export const MobileAccordion: FC<MobileAccordionProps> = ({ marqueeText, marqueeLogoSrc, hostLogoBigSrc, venueKo, venueEnLines }) => {
   const { language } = Common.useCommonContext();

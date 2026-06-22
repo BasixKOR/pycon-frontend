@@ -18,6 +18,7 @@ export interface FAQAccordionProps {
 
 /**
  * 자주 묻는 질문(FAQ) 아코디언. `items` 배열을 받아 질문을 클릭하면 답변이 펼쳐지는 목록을 렌더한다.
+ * @example <Common__Components__MDX__FAQAccordion items={[{ id: "1", question: "환불 되나요?", answer: "행사 7일 전까지 가능합니다." }]} />
  */
 export const FAQAccordion: FC<FAQAccordionProps> = ({ items }) => {
   return (
