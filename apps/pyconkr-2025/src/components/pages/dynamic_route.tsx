@@ -6,7 +6,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 import { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { isEmpty, isString } from "remeda";
 
 import { useAppContext } from "@apps/pyconkr-2025/contexts/app_context";
@@ -82,8 +82,15 @@ export const PageRenderer: FC<{ id: string }> = ({ id }) => (
 export const RouteRenderer: FC = ErrorBoundary.with(
   { fallback: RouteErrorFallback },
   Suspense.with({ fallback: <CenteredLoadingPage /> }, () => {
+    const { pathname } = useLocation();
     const { siteMapNode, currentSiteMapDepth } = useAppContext();
     const routeInfo = !isEmpty(currentSiteMapDepth) && currentSiteMapDepth[currentSiteMapDepth.length - 1];
+
+    useEffect(() => {
+      if (siteMapNode && !isEmpty(currentSiteMapDepth) && !routeInfo) {
+        console.warn(`Route not found in site map: ${pathname}`);
+      }
+    }, [pathname, siteMapNode, currentSiteMapDepth, routeInfo]);
 
     if (!(siteMapNode && routeInfo)) return <WaitedCenteredLoadingPage />;
     if (isString(routeInfo.page)) return <PageRenderer id={routeInfo.page} />;
