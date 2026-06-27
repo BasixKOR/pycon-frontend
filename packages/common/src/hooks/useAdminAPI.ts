@@ -6,9 +6,11 @@ import {
   changePassword,
   choices,
   create,
+  fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
   list,
   listAuto,
+  listDashboardCharts,
   listPaginated,
   listSections,
   me,
@@ -31,7 +33,7 @@ import {
   uploadPublicFile,
 } from "@frontend/common/apis/admin_api";
 import { BackendAPIClient } from "@frontend/common/apis/client";
-import { PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { DashboardChartDefinition, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
 
 import { useBackendContext } from "./useAPI";
 
@@ -44,6 +46,8 @@ const QUERY_KEYS = {
   ADMIN_OPENAPI_SCHEMA: ["query", "admin", "openapi-schema"],
   ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
   ADMIN_RENDER_SENT_TO: ["query", "admin", "render-sent-to"],
+  ADMIN_DASHBOARD_CHARTS: ["query", "admin", "dashboard", "charts"],
+  ADMIN_DASHBOARD_CHART_DATA: ["query", "admin", "dashboard", "chart-data"],
 };
 
 const MUTATION_KEYS = {
@@ -251,4 +255,23 @@ export const useIssueGoogleOAuth2AccessTokenMutation = (client: BackendAPIClient
     mutationKey: [...MUTATION_KEYS.ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN, id],
     mutationFn: issueGoogleOAuth2AccessToken(client, id),
     meta: { invalidates: [] },
+  });
+
+// 정의 자체는 정적이지만 응답의 옵션(티켓/이벤트)은 DB에서 동적 주입 → 기본 staleTime 으로 갱신되게 둔다.
+export const useDashboardChartsQuery = (client: BackendAPIClient) =>
+  useSuspenseQuery({
+    queryKey: QUERY_KEYS.ADMIN_DASHBOARD_CHARTS,
+    queryFn: listDashboardCharts(client),
+  });
+
+export const useDashboardChartDataQuery = (
+  client: BackendAPIClient,
+  chart: DashboardChartDefinition,
+  params: Record<string, unknown>,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_DASHBOARD_CHART_DATA, chart.id, JSON.stringify(params)],
+    queryFn: () => fetchDashboardChartData(client, chart.endpoint)(params),
+    enabled,
   });

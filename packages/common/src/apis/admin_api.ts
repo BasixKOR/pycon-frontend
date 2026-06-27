@@ -1,6 +1,8 @@
 import {
   AdminSchemaDefinition,
   ChoicesResponse,
+  DashboardChartDataResponse,
+  DashboardChartDefinition,
   GoogleOAuth2AccessTokenResponseSchema,
   ModificationAuditPreviewSchema,
   ModificationAuditSchema,
@@ -145,3 +147,8 @@ export const renderSentTo = (client: BackendAPIClient, app: string, resource: st
 
 export const issueGoogleOAuth2AccessToken = (client: BackendAPIClient, id: string) => () =>
   client.post<GoogleOAuth2AccessTokenResponseSchema, undefined>(`v1/admin-api/external-api/google/oauth2/${id}/access-token/`, undefined);
+
+export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
+
+export const fetchDashboardChartData = (client: BackendAPIClient, endpoint: string) => (params: Record<string, unknown>) =>
+  client.post<DashboardChartDataResponse, { params: Record<string, unknown> }>(endpoint, { params });

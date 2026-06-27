@@ -4,6 +4,7 @@ import {
   Apartment,
   Article,
   AutoFixHigh,
+  BarChart,
   ChatBubble,
   Email,
   Event,
@@ -31,6 +32,7 @@ import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
 import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
+import { DashboardPage } from "./components/pages/dashboard";
 import { AdminEventEditor } from "./components/pages/event/editor";
 import { AdminGoogleOAuth2Editor } from "./components/pages/external_api/google_oauth2_editor";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
@@ -54,6 +56,18 @@ import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
 
 export const RouteDefinitions: RouteDef[] = [
+  {
+    type: "separator",
+    key: "dashboard-separator",
+    title: "통계",
+  },
+  {
+    type: "routeDefinition",
+    key: "dashboard",
+    icon: BarChart,
+    title: "통계 대시보드",
+    route: "/dashboard",
+  },
   {
     type: "separator",
     key: "audit-separator",
@@ -347,6 +361,7 @@ export const RegisteredRoutes = {
     <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
   ),
   "/allauth/email-address": <AdminList app="allauth" resource="email-address" hideCreatedAt hideUpdatedAt />,
+  "/dashboard": <DashboardPage />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
   "/account/manage": <AccountManagementPage />,
