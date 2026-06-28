@@ -41,6 +41,7 @@ const queryClient = new QueryClient({
 const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
+  appType: "admin",
   debug: true,
   language: "ko",
   baseUrl: ".",

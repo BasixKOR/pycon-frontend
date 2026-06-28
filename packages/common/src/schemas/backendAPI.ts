@@ -89,6 +89,11 @@ export type SessionQueryParameterSchema = {
 
 export type SessionSchema = {
   id: string;
+  presentation_type: {
+    id: string;
+    name: string;
+    event: EventSchema;
+  };
   title: string;
   summary: string | null;
   description: string;

@@ -9,6 +9,7 @@ import { CenteredPage } from "@frontend/common/components/centered_page";
 import { ErrorFallback } from "@frontend/common/components/error_handler";
 import { BackendAPI, Common } from "@frontend/common/hooks";
 import { SessionSchema } from "@frontend/common/schemas/backendAPI";
+import { getSessionDetailUrl } from "@frontend/common/utils";
 
 import { StyledDivider } from "./styled_divider";
 
@@ -108,9 +109,9 @@ const SessionColumn: FC<{
   rowSpan: number;
   colSpan?: number;
   session: SessionSchema;
-  getSessionUrl?: (session: SessionSchema) => string;
-}> = ({ rowSpan, colSpan, session, getSessionUrl }) => {
-  const sessionUrl = getSessionUrl ? getSessionUrl(session) : undefined;
+  linkable?: boolean;
+}> = ({ rowSpan, colSpan, session, linkable }) => {
+  const sessionUrl = linkable ? getSessionDetailUrl(session) : undefined;
   const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
   // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
   const sessionBoxHeight = `${TD_HEIGHT * rowSpan}rem`;
@@ -151,8 +152,6 @@ type SessionTimeTablePropType = {
   event?: string;
   /** 필터할 세션 유형. 단일 문자열 또는 배열(내부에서 콤마로 join). */
   types?: string | string[];
-  /** 세션 객체로부터 상세 페이지 URL 을 만드는 함수(발표자가 있는 세션만 링크가 된다). */
-  getSessionUrl?: (session: SessionSchema) => string;
 };
 
 /**
@@ -162,10 +161,11 @@ type SessionTimeTablePropType = {
  */
 export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types, getSessionUrl }) => {
+  Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types }) => {
     const [confDate, setConfDate] = useState("");
 
-    const { language } = Common.useCommonContext();
+    const { language, appType } = Common.useCommonContext();
+    const linkable = appType === "main";
     const backendAPIClient = BackendAPI.useBackendClient();
     const params = { ...(event && { event }), ...(types && { types: isString(types) ? types : types.join(",") }) };
     const { data: sessionList } = BackendAPI.useSessionsQuery(backendAPIClient, params);
@@ -281,7 +281,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                         rowSpan={firstSessionInfo.rowSpan}
                         colSpan={roomCount}
                         session={firstSessionInfo.session}
-                        getSessionUrl={getSessionUrl}
+                        linkable={linkable}
                       />
                     </SessionTableRow>
                   );
@@ -301,7 +301,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                       }
                       // 세션이 여러 줄에 걸쳐있는 경우, n-1 줄만큼 해당 room에 column을 생성하지 않도록 합니다.
                       if (roomDatum.rowSpan > 1) rooms[room] = roomDatum.rowSpan - 1;
-                      return <SessionColumn key={room} rowSpan={roomDatum.rowSpan} session={roomDatum.session} getSessionUrl={getSessionUrl} />;
+                      return <SessionColumn key={room} rowSpan={roomDatum.rowSpan} session={roomDatum.session} linkable={linkable} />;
                     })}
                   </SessionTableRow>
                 );

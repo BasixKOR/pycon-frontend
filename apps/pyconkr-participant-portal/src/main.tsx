@@ -39,6 +39,7 @@ const muiTheme = createTheme();
 const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
+  appType: "participant_portal",
   language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",

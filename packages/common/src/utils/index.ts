@@ -6,4 +6,5 @@ export type { InitFaroOptions } from "./faro";
 export { getFormValue, isFormValid } from "./form";
 export { filterPropertiesByLanguageInJsonSchema, filterReadOnlyPropertiesInJsonSchema, filterWritablePropertiesInJsonSchema } from "./json_schema";
 export { extractQueryParameters } from "./openapi";
+export { getSessionDetailUrl } from "./session";
 export { isFilledString, isValidHttpUrl, rtrim } from "./string";
