@@ -104,7 +104,7 @@ const PresentationSpeakerItem: FC<{ speaker: SimplifiedSpeakerSchema; fallbackIm
   const { baseUrl, mdxComponents } = useCommonContext();
   return (
     <>
-      <Stack direction="row" spacing={4} sx={{ px: 2, py: 1 }}>
+      <Stack direction="row" spacing={4} sx={{ px: 2, py: 1, flexWrap: "wrap" }}>
         <ProfileImageContainer sx={{ flexGrow: 0 }}>
           <ProfileImage
             alt="Speaker Image"
@@ -112,7 +112,11 @@ const PresentationSpeakerItem: FC<{ speaker: SimplifiedSpeakerSchema; fallbackIm
             errorFallback={<ProfileImageErrorFallback>{fallbackImage}</ProfileImageErrorFallback>}
           />
         </ProfileImageContainer>
-        <Stack alignItems="flex-start" justifyContent="center" sx={{ flexGrow: 1 }}>
+        <Stack
+          alignItems="flex-start"
+          justifyContent="center"
+          sx={(theme) => ({ flexGrow: 1, flexBasis: 0, minWidth: 0, [theme.breakpoints.down("sm")]: { flexBasis: "100%" } })}
+        >
           <Typography variant="h4" fontWeight="700" fontSize="2rem" children={speaker.nickname} />
           {speaker.biography ? (
             <BiographyBox children={<MDXRenderer text={speaker.biography || ""} format="md" baseUrl={baseUrl} mdxComponents={mdxComponents} />} />
