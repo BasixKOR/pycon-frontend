@@ -36,7 +36,7 @@ const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 // ----------------- Customer Info Tab (editable) -----------------
 const CustomerInfoTab: FC<{ order: OrderAdmin }> = ({ order }) => {
   const client = useBackendAdminClient();
-  const updateMutation = useUpdateMutation<{ customer_info: SimpleCustomerInfo }>(client, "shop", "orders", order.id);
+  const updateMutation = useUpdateMutation<{ customer_info: SimpleCustomerInfo }>(client, "shop", "order", order.id);
 
   const [name, setName] = useState(order.customer_info?.name ?? "");
   const [phone, setPhone] = useState(order.customer_info?.phone ?? "");
@@ -290,7 +290,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
     const [tab, setTab] = useState(0);
     const [refundOpen, setRefundOpen] = useState(false);
 
-    const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "orders", id ?? "");
+    const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "order", id ?? "");
     const order = orderQuery.data;
 
     if (!order) {
@@ -298,7 +298,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
         <Stack sx={{ flexGrow: 1, width: "100%" }} spacing={2}>
           <Typography variant="h5">SHOP &gt; ORDERS</Typography>
           <Alert severity="error">해당 ID의 주문을 찾을 수 없습니다.</Alert>
-          <Button variant="outlined" onClick={() => navigate("/shop/orders")} sx={{ alignSelf: "flex-start" }}>
+          <Button variant="outlined" onClick={() => navigate("/shop/order")} sx={{ alignSelf: "flex-start" }}>
             목록으로
           </Button>
         </Stack>

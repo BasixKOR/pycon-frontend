@@ -277,12 +277,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                   return (
                     <SessionTableRow>
                       <SessionTableCell align="center" children={time} />
-                      <SessionColumn
-                        rowSpan={firstSessionInfo.rowSpan}
-                        colSpan={roomCount}
-                        session={firstSessionInfo.session}
-                        linkable={linkable}
-                      />
+                      <SessionColumn rowSpan={firstSessionInfo.rowSpan} colSpan={roomCount} session={firstSessionInfo.session} linkable={linkable} />
                     </SessionTableRow>
                   );
                 }

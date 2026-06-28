@@ -69,7 +69,7 @@ type OptionDialogProps = {
 
 const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, option }) => {
   const client = useBackendAdminClient();
-  const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "option-groups", optionGroup.id);
+  const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "optiongroup", optionGroup.id);
   const [values, setValues] = useState<OptionFormValues>({
     name_ko: "",
     name_en: "",
@@ -218,8 +218,8 @@ type OptionGroupDialogProps = {
 
 const OptionGroupDialog: FC<OptionGroupDialogProps> = ({ open, onClose, productId, group, existingGroupCount }) => {
   const client = useBackendAdminClient();
-  const createMutation = useCreateMutation<OptionGroupAdmin>(client, "shop", "option-groups");
-  const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "option-groups", group?.id ?? "");
+  const createMutation = useCreateMutation<OptionGroupAdmin>(client, "shop", "optiongroup");
+  const updateMutation = useUpdateMutation<OptionGroupAdmin>(client, "shop", "optiongroup", group?.id ?? "");
 
   const [values, setValues] = useState<OptionGroupFormValues>({
     name_ko: "",
@@ -462,7 +462,7 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
   const [optionDialog, setOptionDialog] = useState<{ open: boolean; optionGroup?: OptionGroupAdmin; option?: OptionAdmin }>({ open: false });
 
   const deleteGroupMutation = useMutation({
-    mutationFn: async (groupId: string) => client.delete<void>(`v1/admin-api/shop/option-groups/${groupId}/`),
+    mutationFn: async (groupId: string) => client.delete<void>(`v1/admin-api/shop/optiongroup/${groupId}/`),
     onSuccess: () => addSnackbar("옵션 그룹을 삭제했습니다.", "success"),
     onError: addErrorSnackbar,
   });
@@ -470,7 +470,7 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
   const deleteOptionMutation = useMutation({
     mutationFn: async (params: { group: OptionGroupAdmin; optionId: string }) => {
       const newOptions = params.group.options.filter((o) => o.id !== params.optionId);
-      return client.patch(`v1/admin-api/shop/option-groups/${params.group.id}/`, { ...params.group, options: newOptions });
+      return client.patch(`v1/admin-api/shop/optiongroup/${params.group.id}/`, { ...params.group, options: newOptions });
     },
     onSuccess: () => addSnackbar("옵션을 삭제했습니다.", "success"),
     onError: addErrorSnackbar,

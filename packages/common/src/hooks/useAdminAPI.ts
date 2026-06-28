@@ -4,7 +4,6 @@ import {
   approveModificationAudit,
   bulkUpdateSections,
   changePassword,
-  choices,
   create,
   fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
@@ -26,6 +25,7 @@ import {
   retryHistory,
   retrySentTo,
   schema,
+  selectables,
   signIn,
   signOut,
   update,
@@ -33,7 +33,7 @@ import {
   uploadPublicFile,
 } from "@frontend/common/apis/admin_api";
 import { BackendAPIClient } from "@frontend/common/apis/client";
-import { DashboardChartDefinition, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { ChoicesResponse, DashboardChartDefinition, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
 
 import { useBackendContext } from "./useAPI";
 
@@ -42,7 +42,7 @@ const QUERY_KEYS = {
   ADMIN_LIST: ["query", "admin", "list"],
   ADMIN_RETRIEVE: ["query", "admin", "retrieve"],
   ADMIN_SCHEMA: ["query", "admin", "schema"],
-  ADMIN_CHOICES: ["query", "admin", "choices"],
+  ADMIN_SELECTABLES: ["query", "admin", "selectables"],
   ADMIN_OPENAPI_SCHEMA: ["query", "admin", "openapi-schema"],
   ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
   ADMIN_RENDER_SENT_TO: ["query", "admin", "render-sent-to"],
@@ -107,19 +107,36 @@ export const useSchemaQuery = (client: BackendAPIClient, app: string, resource: 
     queryFn: schema(client, app, resource),
   });
 
-export const useChoicesQuery = (client: BackendAPIClient, app: string, resource: string) =>
+export const useSelectablesQuery = (client: BackendAPIClient, app: string, resource: string) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
-    queryFn: choices(client, app, resource),
+    queryKey: [...QUERY_KEYS.ADMIN_SELECTABLES, app, resource],
+    queryFn: selectables(client, app, resource),
   });
 
-export const useChoicesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
+export const useSelectablesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
   useSuspenseQueries({
     queries: pairs.map(({ app, resource }) => ({
-      queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
-      queryFn: choices(client, app, resource),
+      queryKey: [...QUERY_KEYS.ADMIN_SELECTABLES, app, resource],
+      queryFn: selectables(client, app, resource),
     })),
   });
+
+// 리소스의 FK/M2M 필드별 선택지를 {field: ChoiceItem[]} 로 반환.
+// json-schema 의 ui:options.choiceApp/choiceResource 로 각 필드의 대상 selectables 를 모아 구성한다.
+export const useFieldSelectablesQuery = (client: BackendAPIClient, app: string, resource: string): ChoicesResponse => {
+  const { data: schemaDef } = useSchemaQuery(client, app, resource);
+  const fields = Object.entries(schemaDef.ui_schema ?? {})
+    .map(([field, ui]) => {
+      const opts = (ui as { "ui:options"?: { choiceApp?: string; choiceResource?: string } })["ui:options"];
+      return opts?.choiceApp && opts?.choiceResource ? { field, app: opts.choiceApp, resource: opts.choiceResource } : null;
+    })
+    .filter((f): f is { field: string; app: string; resource: string } => f !== null);
+  const queries = useSelectablesQueries(
+    client,
+    fields.map(({ app, resource }) => ({ app, resource }))
+  );
+  return fields.reduce<ChoicesResponse>((acc, f, i) => ({ ...acc, [f.field]: queries[i]?.data?.results ?? [] }), {});
+};
 
 export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({

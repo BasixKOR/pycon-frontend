@@ -17,7 +17,24 @@ export type AdminSchemaDefinition = {
   translation_fields: string[];
 };
 
-export type ChoicesResponse = Record<string, { const: string | null; title: string }[]>;
+export type ChoiceMetaValue = string | number | boolean | null;
+export type ChoiceItem = {
+  const: string | null;
+  title: string;
+  meta?: Record<string, ChoiceMetaValue>;
+};
+export type ChoicesResponse = Record<string, ChoiceItem[]>;
+
+export type ChoiceMetaFieldDef = {
+  label: string;
+  type: "string" | "number" | "boolean";
+  filter?: "search" | "select";
+  display?: "image" | "year" | "filesize";
+  filterOnly?: boolean;
+};
+export type ChoiceMetaSchema = Record<string, ChoiceMetaFieldDef>;
+
+export type SelectablesResponse = { results: ChoiceItem[]; meta_schema: ChoiceMetaSchema };
 
 export type PaginatedListResponse<T> = {
   count: number;
@@ -35,6 +52,7 @@ export type UserSchema = {
   is_staff: boolean;
   is_active: boolean;
   date_joined: string; // ISO 8601 format
+  str_repr: string;
 };
 
 export type UserSignInSchema = {

@@ -53,7 +53,7 @@ const InnerMcpTokenSection: FC<{ userId: string }> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ userId }) => {
     const client = useBackendAdminClient();
-    const listQuery = useListPaginatedQuery<McpTokenRow>(client, "user", "mcp-token", { user: userId });
+    const listQuery = useListPaginatedQuery<McpTokenRow>(client, "user", "mcptoken", { user: userId });
     const items = listQuery.data?.results ?? [];
 
     // 발급된 토큰은 사용자가 비활성/비슈퍼유저가 되면 무효가 된다(행은 남아있음). 발급 가능 여부와 토큰 유효성 표시에 사용.
@@ -71,7 +71,7 @@ const InnerMcpTokenSection: FC<{ userId: string }> = ErrorBoundary.with(
       onError: addErrorSnackbar,
     });
 
-    const removeMutation = useRemovePreparedMutation(client, "user", "mcp-token");
+    const removeMutation = useRemovePreparedMutation(client, "user", "mcptoken");
 
     const handleRevoke = (id: string) => {
       if (!window.confirm("이 토큰을 폐기하시겠습니까? 폐기 후에는 즉시 사용할 수 없습니다.")) return;

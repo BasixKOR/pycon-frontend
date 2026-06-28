@@ -45,7 +45,7 @@ const buildView = (target: { order: OrderAdmin } & RefundVariant): RefundView =>
           <strong>전액 환불</strong>만 지원됩니다. 환불 가능한 상태의 모든 상품이 환불 처리되며, 이 작업은 되돌릴 수 없습니다.
         </>
       ),
-      url: `v1/admin-api/shop/orders/${order.id}/refund/`,
+      url: `v1/admin-api/shop/order/${order.id}/refund/`,
       successMessage: `주문 '${name}'의 전액 환불(${formatPrice(order.current_paid_price)})이 처리되었습니다.`,
     };
   }
@@ -68,7 +68,7 @@ const buildView = (target: { order: OrderAdmin } & RefundVariant): RefundView =>
       </>
     ),
     warning: "이 상품만 환불 처리됩니다. 이 작업은 되돌릴 수 없습니다.",
-    url: `v1/admin-api/shop/orders/${order.id}/products/${relation.id}/refund/`,
+    url: `v1/admin-api/shop/order/${order.id}/products/${relation.id}/refund/`,
     successMessage: `상품 '${name}'의 환불(${formatPrice(refundPrice)})이 처리되었습니다.`,
   };
 };
