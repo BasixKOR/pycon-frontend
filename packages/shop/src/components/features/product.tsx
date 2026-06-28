@@ -29,7 +29,7 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar, OptionsObject } from "notistack";
 import { FC, FocusEventHandler, PropsWithChildren, ReactNode, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useForm, UseFormRegister } from "react-hook-form";
+import { FieldErrors, useForm, UseFormRegister } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
@@ -63,12 +63,36 @@ const getTicketInfoPayload = (product: Product, formValue: { [key: string]: stri
 const ticketInfoToCustomerInfo = (ticketInfo?: TicketInfoRequest): CustomerInfo | null =>
   ticketInfo ? { name: ticketInfo.name, phone: ticketInfo.phone, email: ticketInfo.email, organization: ticketInfo.organization || null } : null;
 
+// 참가자 정보 필드(name/email/phone)의 검증 오류를 사용자에게 보여줄 메시지로 변환한다.
+const getTicketFieldErrorMessage = (language: "ko" | "en", errors: FieldErrors<Record<string, string>>, fieldName: string): string | undefined => {
+  const error = errors[fieldName];
+  if (!error) return undefined;
+  const isKo = language === "ko";
+  switch (fieldName) {
+    case TICKET_FORM_FIELD.name:
+      return isKo ? "참가자 성명을 입력해주세요." : "Please enter the participant's name.";
+    case TICKET_FORM_FIELD.email:
+      return isKo ? "이메일 주소를 입력해주세요." : "Please enter the email address.";
+    case TICKET_FORM_FIELD.phone:
+      return error.type === "pattern"
+        ? isKo
+          ? "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678 또는 +821012345678"
+          : "Invalid phone number format. e.g., 010-1234-5678 or +821012345678"
+        : isKo
+          ? "전화번호를 입력해주세요."
+          : "Please enter the phone number.";
+    default:
+      return undefined;
+  }
+};
+
 const TicketInfoFormSection: FC<{
   language: "ko" | "en";
   product: Product;
   register: UseFormRegister<Record<string, string>>;
+  errors: FieldErrors<Record<string, string>>;
   disabled?: boolean;
-}> = ({ language, product, register, disabled }) => {
+}> = ({ language, product, register, errors, disabled }) => {
   const sectionTitle = language === "ko" ? "참가자 정보" : "Participant Information";
   const helpStr = language === "ko" ? "티켓에 기재될 참가자 정보를 입력해주세요." : "Please enter the participant's information for this ticket.";
   const nameLabel = language === "ko" ? "참가자 성명" : "Participant Name";
@@ -87,6 +111,10 @@ const TicketInfoFormSection: FC<{
   const { ref: orgRef, ...orgRest } = register(TICKET_FORM_FIELD.organization);
   const { ref: contributionRef, ...contributionRest } = register(TICKET_FORM_FIELD.contribution_message);
 
+  const nameError = getTicketFieldErrorMessage(language, errors, TICKET_FORM_FIELD.name);
+  const emailError = getTicketFieldErrorMessage(language, errors, TICKET_FORM_FIELD.email);
+  const phoneError = getTicketFieldErrorMessage(language, errors, TICKET_FORM_FIELD.phone);
+
   return (
     <Stack spacing={2}>
       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -95,9 +123,28 @@ const TicketInfoFormSection: FC<{
       <Typography variant="body2" color="text.secondary">
         {helpStr}
       </Typography>
-      <TextField inputRef={nameRef} {...nameRest} label={nameLabel} disabled={disabled} required fullWidth />
+      <TextField
+        inputRef={nameRef}
+        {...nameRest}
+        label={nameLabel}
+        disabled={disabled}
+        required
+        fullWidth
+        error={!!nameError}
+        helperText={nameError}
+      />
       <TextField inputRef={orgRef} {...orgRest} label={orgLabel} disabled={disabled} fullWidth />
-      <TextField inputRef={emailRef} {...emailRest} label={emailLabel} type="email" disabled={disabled} required fullWidth />
+      <TextField
+        inputRef={emailRef}
+        {...emailRest}
+        label={emailLabel}
+        type="email"
+        disabled={disabled}
+        required
+        fullWidth
+        error={!!emailError}
+        helperText={emailError}
+      />
       <TextField
         inputRef={phoneRef}
         {...phoneRest}
@@ -105,6 +152,8 @@ const TicketInfoFormSection: FC<{
         disabled={disabled}
         required
         fullWidth
+        error={!!phoneError}
+        helperText={phoneError}
         slotProps={{ htmlInput: { pattern: PHONE_REGEX.source, title: phoneTitle } }}
       />
       {product.donation_allowed && (
@@ -244,6 +293,7 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
     language === "ko"
       ? "상품 가격이 0원 이하입니다. 상품을 구매할 수 없습니다."
       : "The product price is 0 or less. You cannot purchase this product.";
+  const pleaseFillRequiredStr = language === "ko" ? "필수 정보를 모두 올바르게 입력해주세요." : "Please fill in all required fields correctly.";
   const donationLabelStr = language === "ko" ? "추가 기부 금액" : "Additional Donation Amount";
   const thankYouForDonationStr =
     language === "ko"
@@ -379,6 +429,16 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
     startPurchaseProcess(formData);
   };
 
+  // 입력란 아래에 표시되는 개별 오류와 별개로, 버튼 위에 모아 보여줄 검증 오류 메시지.
+  const ticketValidationMessages = product.is_ticket
+    ? [TICKET_FORM_FIELD.name, TICKET_FORM_FIELD.email, TICKET_FORM_FIELD.phone]
+        .map((field) => getTicketFieldErrorMessage(language, formState.errors, field))
+        .filter((message): message is string => !!message)
+    : [];
+  const validationMessages = [...(helperText ? [helperText] : []), ...ticketValidationMessages];
+  // 구체적 오류가 없더라도 필수 입력이 비어 폼이 무효한 경우(사용자가 한 번이라도 입력을 건드린 뒤)엔 안내 메시지를 보여준다.
+  const summaryMessages = validationMessages.length > 0 ? validationMessages : !formState.isValid && formState.isDirty ? [pleaseFillRequiredStr] : [];
+
   return (
     <>
       <MDXRenderer text={product.description || ""} format="mdx" baseUrl={baseUrl} mdxComponents={mdxComponents} />
@@ -415,7 +475,9 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
                   )}
                 </>
               )}
-              {product.is_ticket && <TicketInfoFormSection language={language} product={product} register={register} disabled={disabled} />}
+              {product.is_ticket && (
+                <TicketInfoFormSection language={language} product={product} register={register} errors={formState.errors} disabled={disabled} />
+              )}
               {requiredGroupsData.map(({ group, reason }) => (
                 <OptionGroupInput
                   key={group.id}
@@ -489,6 +551,15 @@ const ProductItem: FC<ProductItemPropType> = ({ disabled: rootDisabled, language
       {isNullish(notPurchasableReason) && (
         <SignInGuard fallback={<NotPurchasable>{requiresSignInStr}</NotPurchasable>}>
           {disabledRequiredGroupReason && <NotPurchasable>{disabledRequiredGroupReason}</NotPurchasable>}
+          {summaryMessages.length > 0 && (
+            <Stack spacing={0.5} sx={{ mt: 2 }}>
+              {summaryMessages.map((message, idx) => (
+                <Typography key={idx} variant="body2" color="error" sx={{ textAlign: "right", whiteSpace: "pre-line" }}>
+                  {message}
+                </Typography>
+              ))}
+            </Stack>
+          )}
           <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", mt: 2 }}>
             <Button {...actionButtonProps} onClick={addItemToCart} children={addToCartStr} />
             <Button {...actionButtonProps} onClick={onOrderOneItemButtonClick} children={orderOneItemStr} />
