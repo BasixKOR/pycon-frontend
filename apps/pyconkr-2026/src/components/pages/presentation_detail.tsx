@@ -199,7 +199,7 @@ export const PresentationDetailPage: FC = ErrorBoundary.with(
       setAppContext((prev) => ({
         ...prev,
         title: language === "ko" ? "발표 상세" : "Presentation Detail",
-        shouldShowTitleBanner: true,
+        shouldShowTitleBanner: false,
         shouldShowSponsorBanner: true,
       }));
     }, [language, presentation, setAppContext]);
