@@ -1,6 +1,6 @@
 import { Box, Button, Chip, CircularProgress, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import { FC, ReactNode, useMemo, useState } from "react";
+import { CSSProperties, FC, ReactNode, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { isArray, isEmpty, isString } from "remeda";
 
@@ -12,6 +12,7 @@ import { SessionSchema } from "@frontend/common/schemas/backendAPI";
 import { StyledDivider } from "./styled_divider";
 
 const EXCLUDE_CATEGORIES = ["후원사", "Sponsor"];
+const SESSION_FALLBACK_IMAGE_STYLE: CSSProperties = { width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" };
 
 const SessionItem: FC<{
   session: SessionSchema;
@@ -75,7 +76,7 @@ type SessionListPropType = {
   types?: string | string[];
   /** `true`면 각 세션을 상세 페이지 링크로 감싼다. */
   enableLink?: boolean;
-  /** 세션 이미지가 없을 때 표시할 대체 이미지 노드. */
+  /** 세션 이미지가 없을 때 표시할 기본 대체 이미지 노드. */
   fallbackImage?: ReactNode;
   /** 세션 객체로부터 상세 페이지 URL 을 만드는 함수. */
   getSessionUrl?: (session: SessionSchema) => string;
@@ -93,6 +94,22 @@ export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
     const backendAPIClient = BackendAPI.useBackendClient();
     const params = { ...(event && { event }), ...(types && { types: isString(types) ? types : types.join(",") }) };
     const { data: sessions } = BackendAPI.useSessionsQuery(backendAPIClient, params);
+    const { data: events } = BackendAPI.useEventsQuery(backendAPIClient);
+
+    const resolvedFallbackImageByEvent = useMemo<Record<string, ReactNode>>(() => {
+      const map: Record<string, ReactNode> = {};
+      for (const ev of events ?? []) {
+        if (!ev.logo) continue;
+        const year = ev.name.match(/\d{4}/)?.[0];
+        if (year) map[year] = <img src={ev.logo} alt={ev.name} style={SESSION_FALLBACK_IMAGE_STYLE} />;
+      }
+      return map;
+    }, [events]);
+
+    const resolvedFallbackImage =
+      (event
+        ? (resolvedFallbackImageByEvent[event] ?? Object.entries(resolvedFallbackImageByEvent).find(([key]) => event.includes(key))?.[1])
+        : undefined) ?? fallbackImage;
 
     const warningMessage =
       language === "ko"
@@ -139,7 +156,7 @@ export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
           )}
         </Box>
         {filteredSessions.map((s) => (
-          <SessionItem key={s.id} session={s} enableLink={enableLink} fallbackImage={fallbackImage} getSessionUrl={getSessionUrl} />
+          <SessionItem key={s.id} session={s} enableLink={enableLink} fallbackImage={resolvedFallbackImage} getSessionUrl={getSessionUrl} />
         ))}
       </Box>
     );
