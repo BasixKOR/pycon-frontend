@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListAutoQuery, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
 import { RestartAlt } from "@mui/icons-material";
 import {
   Button,
@@ -104,9 +104,9 @@ const InnerOrderList: FC = ErrorBoundary.with(
     }, [searchParams]);
 
     const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "order", apiParams);
-    const groupsQuery = useListAutoQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", {});
+    const groupsQuery = useListPaginatedQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", { page_size: "200" });
     const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
-    const groups = useMemo(() => groupsQuery.data.items, [groupsQuery.data]);
+    const groups = useMemo(() => groupsQuery.data.results, [groupsQuery.data]);
 
     const setFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
       setFilters((prev) => ({ ...prev, [key]: value }));
