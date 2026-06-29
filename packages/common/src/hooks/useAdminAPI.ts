@@ -7,7 +7,6 @@ import {
   create,
   fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
-  list,
   listAuto,
   listDashboardCharts,
   listPaginated,
@@ -143,12 +142,6 @@ export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
     queryKey: QUERY_KEYS.ADMIN_OPENAPI_SCHEMA,
     queryFn: openApiSchema(client),
     staleTime: Infinity,
-  });
-
-export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
-  useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, JSON.stringify(params)],
-    queryFn: list<T>(client, app, resource, params),
   });
 
 export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>

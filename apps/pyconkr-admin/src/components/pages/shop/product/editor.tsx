@@ -1,7 +1,7 @@
 import {
   useBackendAdminClient,
   useCreateMutation,
-  useListQuery,
+  useListAutoQuery,
   useRemoveMutation,
   useRetrieveQuery,
   useUpdateMutation,
@@ -57,12 +57,12 @@ const InnerProductEditor: FC = ErrorBoundary.with(
 
     const isCreate = !id;
     const productQuery = useRetrieveQuery<ProductAdmin>(client, "shop", "product", id ?? "");
-    const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", {});
-    const tagsQuery = useListQuery<TagAdmin>(client, "shop", "tag", {});
+    const groupsQuery = useListAutoQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", {});
+    const tagsQuery = useListAutoQuery<TagAdmin>(client, "shop", "tag", {});
 
     const existing = isCreate ? undefined : (productQuery.data ?? undefined);
-    const groups = groupsQuery.data ?? [];
-    const tags = tagsQuery.data ?? [];
+    const groups = groupsQuery.data.items;
+    const tags = tagsQuery.data.items;
 
     const [tab, setTab] = useState(0);
     const [values, setValues] = useState<ProductFormValues>(() => buildDefaultFormValues(existing));

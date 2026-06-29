@@ -39,11 +39,6 @@ export const changePassword = (client: BackendAPIClient) => (data: UserChangePas
 export const resetUserPassword = (client: BackendAPIClient, id: string) => () =>
   client.delete<UserResetPasswordResponseSchema>(`v1/admin-api/user/userext/${id}/password/`);
 
-export const list =
-  <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
-  () =>
-    client.get<T[]>(`v1/admin-api/${app}/${resource}/`, { params });
-
 export const listPaginated =
   <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   () =>

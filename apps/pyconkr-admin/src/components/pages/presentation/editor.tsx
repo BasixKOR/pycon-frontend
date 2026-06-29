@@ -3,7 +3,7 @@ import {
   useBackendAdminClient,
   useCreateMutation,
   useFieldSelectablesQuery,
-  useListQuery,
+  useListAutoQuery,
   useRemovePreparedMutation,
   useSchemaQuery,
   useUpdatePreparedMutation,
@@ -290,7 +290,9 @@ export const AdminPresentationEditor: FC = ErrorBoundary.with(
     const speakerDeleteMutation = useRemovePreparedMutation(...speakerQueryParams);
     const { data: speakerJsonSchema } = useSchemaQuery(...speakerQueryParams);
     const speakerChoices = useFieldSelectablesQuery(...speakerQueryParams);
-    const { data: speakerInitialData } = useListQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
+    const {
+      data: { items: speakerInitialData },
+    } = useListAutoQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
     const speakers = speakerInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     const scheduleQueryParams = [backendAdminAPIClient, "event", "roomschedule"] as const;
@@ -299,7 +301,9 @@ export const AdminPresentationEditor: FC = ErrorBoundary.with(
     const scheduleDeleteMutation = useRemovePreparedMutation(...scheduleQueryParams);
     const { data: scheduleJsonSchema } = useSchemaQuery(...scheduleQueryParams);
     const scheduleChoices = useFieldSelectablesQuery(...scheduleQueryParams);
-    const { data: scheduleInitialData } = useListQuery<Schedule>(...scheduleQueryParams, { presentation });
+    const {
+      data: { items: scheduleInitialData },
+    } = useListAutoQuery<Schedule>(...scheduleQueryParams, { presentation });
     const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     useMemo(() => {

@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListAutoQuery } from "@frontend/common/hooks/useAdminAPI";
 import { CircularProgress, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC } from "react";
@@ -19,7 +19,7 @@ const InnerAdminModificationAuditList: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const backendAdminClient = useBackendAdminClient();
-    const listQuery = useListQuery<ListRowType>(backendAdminClient, "participant_portal_api", "modificationaudit");
+    const listQuery = useListAutoQuery<ListRowType>(backendAdminClient, "participant_portal_api", "modificationaudit");
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }}>
@@ -35,7 +35,7 @@ const InnerAdminModificationAuditList: FC = ErrorBoundary.with(
             </TableRow>
           </TableHead>
           <TableBody>
-            {listQuery.data?.map((item) => {
+            {listQuery.data.items.map((item) => {
               const link = `/modification-audit/modification-audit/${item.id}`;
               const isRequested = item.status === "requested";
               return (

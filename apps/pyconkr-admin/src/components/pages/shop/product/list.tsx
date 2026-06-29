@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListAutoQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Button,
@@ -54,11 +54,11 @@ const InnerProductList: FC = ErrorBoundary.with(
     if (categoryQuery) apiParams.category = categoryQuery;
     if (statusQuery !== "all") apiParams.status = statusQuery;
 
-    const productsQuery = useListQuery<ProductAdmin>(client, "shop", "product", apiParams);
-    const groupsQuery = useListQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", {});
+    const productsQuery = useListAutoQuery<ProductAdmin>(client, "shop", "product", apiParams);
+    const groupsQuery = useListAutoQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", {});
 
-    const products = productsQuery.data ?? [];
-    const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
+    const products = productsQuery.data.items;
+    const groups = useMemo(() => groupsQuery.data.items, [groupsQuery.data]);
 
     const categoryToGroup: Record<string, { groupId: string; groupName: string; categoryName: string }> = useMemo(() => {
       const map: Record<string, { groupId: string; groupName: string; categoryName: string }> = {};
