@@ -77,20 +77,26 @@ export const Map: FC<MapPropType> = ({ geo, placeName, placeCode, googleMapIfram
 
     const kakaoMapUrl = MapData.kakao.basePlaceInfoUrl + placeCode.kakao;
     const content: string = renderToStaticMarkup(
-      <a href={kakaoMapUrl} target="_blank" rel="noopener noreferrer" style={{ width: "max-content", height: "max-content" }}>
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            textAlign: "center",
-            fontSize: "18px",
-            whiteSpace: "pre-wrap",
-            textWrap: "nowrap",
-          }}
-        >
-          {placeName[language]}
-        </div>
-      </a>
+      <a
+        href={kakaoMapUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-block",
+          boxSizing: "border-box",
+          width: "max-content",
+          maxWidth: "240px",
+          padding: "8px 12px",
+          textAlign: "center",
+          fontSize: "20px",
+          lineHeight: 1.4,
+          whiteSpace: "normal",
+          wordBreak: "keep-all",
+          color: "#000",
+          textDecoration: "none",
+        }}
+        children={placeName[language]}
+      />
     );
     const position = new window.kakao.maps.LatLng(geo.lat, geo.lng);
     const map = new window.kakao.maps.Map(kakaoMapDiv, { center: position, level: 3 });
