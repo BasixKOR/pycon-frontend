@@ -7,6 +7,7 @@ import {
   create,
   fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
+  listAll,
   listDashboardCharts,
   listPaginated,
   listSections,
@@ -147,6 +148,12 @@ export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, 
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "paginated", JSON.stringify(params)],
     queryFn: listPaginated<T>(client, app, resource, params),
+  });
+
+export const useListAllQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  useSuspenseQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "all", JSON.stringify(params)],
+    queryFn: listAll<T>(client, app, resource, params),
   });
 
 export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>

@@ -44,6 +44,20 @@ export const listPaginated =
   () =>
     client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
 
+export const listAll =
+  <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+  async (): Promise<T[]> => {
+    const items: T[] = [];
+    for (let page = 1; ; page += 1) {
+      const data = await client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, {
+        params: { ...params, page: String(page), page_size: "200" },
+      });
+      items.push(...data.results);
+      if (!data.next) break;
+    }
+    return items;
+  };
+
 export const retrieve =
   <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
   () => {
