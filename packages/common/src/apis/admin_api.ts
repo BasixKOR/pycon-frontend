@@ -142,6 +142,9 @@ export const renderSentTo = (client: BackendAPIClient, app: string, resource: st
 export const issueGoogleOAuth2AccessToken = (client: BackendAPIClient, id: string) => () =>
   client.post<GoogleOAuth2AccessTokenResponseSchema, undefined>(`v1/admin-api/external_api/googleoauth2/${id}/access-token/`, undefined);
 
+export const exportOrders = (client: BackendAPIClient) => (params: Record<string, string>) =>
+  client.post<Blob, null>("v1/admin-api/shop/order/export/", null, { params, responseType: "blob" });
+
 export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
 
 export const fetchDashboardChartData = (client: BackendAPIClient, endpoint: string) => (params: Record<string, unknown>) =>

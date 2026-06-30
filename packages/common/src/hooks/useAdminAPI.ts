@@ -5,6 +5,7 @@ import {
   bulkUpdateSections,
   changePassword,
   create,
+  exportOrders,
   fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
   listAll,
@@ -63,6 +64,7 @@ const MUTATION_KEYS = {
   ADMIN_RETRY_HISTORY: ["mutation", "admin", "retry-history"],
   ADMIN_RETRY_SENT_TO: ["mutation", "admin", "retry-sent-to"],
   ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN: ["mutation", "admin", "google-oauth2-access-token"],
+  ADMIN_EXPORT_ORDERS: ["mutation", "admin", "export-orders"],
 };
 
 export const useBackendAdminClient = () => {
@@ -264,6 +266,13 @@ export const useIssueGoogleOAuth2AccessTokenMutation = (client: BackendAPIClient
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN, id],
     mutationFn: issueGoogleOAuth2AccessToken(client, id),
+    meta: { invalidates: [] },
+  });
+
+export const useExportOrdersMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_EXPORT_ORDERS],
+    mutationFn: exportOrders(client),
     meta: { invalidates: [] },
   });
 

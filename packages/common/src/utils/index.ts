@@ -1,6 +1,7 @@
 export { buildFlatSiteMap, buildNestedSiteMap, parseCss } from "./api";
 export { isChunkLoadError, registerChunkLoadErrorReloadHandler, reloadForChunkLoadError } from "./chunk_load_error";
 export { captureSessionTokenFromURL, getCookie } from "./cookie";
+export { timestampedFilename, triggerBlobDownload } from "./download";
 export { getFaro, initFaro } from "./faro";
 export type { InitFaroOptions } from "./faro";
 export { getFormValue, isFormValid } from "./form";
