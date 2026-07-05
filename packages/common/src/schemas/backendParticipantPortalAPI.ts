@@ -36,12 +36,6 @@ export type UserSignInSchema = {
   password: string;
 };
 
-export type UserChangePasswordSchema = {
-  old_password: string;
-  new_password: string;
-  new_password_confirm: string;
-};
-
 export type PublicFileSchema = {
   id: string; // UUID
   file: string; // URL to the public file

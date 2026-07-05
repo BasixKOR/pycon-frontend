@@ -3,11 +3,11 @@ import { useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@ta
 import {
   approveModificationAudit,
   bulkUpdateSections,
-  changePassword,
   create,
   exportOrders,
   fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
+  previewUserMerge,
   listAll,
   listDashboardCharts,
   listPaginated,
@@ -24,6 +24,7 @@ import {
   retrieve,
   retryHistory,
   retrySentTo,
+  revertUserMerge,
   schema,
   selectables,
   signIn,
@@ -53,7 +54,6 @@ const QUERY_KEYS = {
 const MUTATION_KEYS = {
   ADMIN_SIGN_IN: ["mutation", "admin", "sign-in"],
   ADMIN_SIGN_OUT: ["mutation", "admin", "sign-out"],
-  ADMIN_CHANGE_PASSWORD: ["mutation", "admin", "change-password"],
   ADMIN_RESET_PASSWORD: ["mutation", "admin", "reset-password"],
   ADMIN_CREATE: ["mutation", "admin", "create"],
   ADMIN_UPDATE: ["mutation", "admin", "update"],
@@ -65,6 +65,8 @@ const MUTATION_KEYS = {
   ADMIN_RETRY_SENT_TO: ["mutation", "admin", "retry-sent-to"],
   ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN: ["mutation", "admin", "google-oauth2-access-token"],
   ADMIN_EXPORT_ORDERS: ["mutation", "admin", "export-orders"],
+  ADMIN_PREVIEW_USER_MERGE: ["mutation", "admin", "preview", "user-merge"],
+  ADMIN_REVERT_USER_MERGE: ["mutation", "admin", "revert", "user-merge"],
 };
 
 export const useBackendAdminClient = () => {
@@ -88,12 +90,6 @@ export const useSignOutMutation = (client: BackendAPIClient) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_OUT],
     mutationFn: signOut(client),
-  });
-
-export const useChangePasswordMutation = (client: BackendAPIClient) =>
-  useMutation({
-    mutationKey: [...MUTATION_KEYS.ADMIN_CHANGE_PASSWORD],
-    mutationFn: changePassword(client),
   });
 
 export const useResetUserPasswordMutation = (client: BackendAPIClient, id: string) =>
@@ -274,6 +270,19 @@ export const useExportOrdersMutation = (client: BackendAPIClient) =>
     mutationKey: [...MUTATION_KEYS.ADMIN_EXPORT_ORDERS],
     mutationFn: exportOrders(client),
     meta: { invalidates: [] },
+  });
+
+export const usePreviewUserMergeMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_PREVIEW_USER_MERGE],
+    mutationFn: previewUserMerge(client),
+    meta: { invalidates: [] },
+  });
+
+export const useRevertUserMergeMutation = (client: BackendAPIClient, id: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_REVERT_USER_MERGE, id],
+    mutationFn: revertUserMerge(client, id),
   });
 
 // 정의 자체는 정적이지만 응답의 옵션(티켓/이벤트)은 DB에서 동적 주입 → 기본 staleTime 으로 갱신되게 둔다.

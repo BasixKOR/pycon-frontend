@@ -11,7 +11,8 @@ import {
   PaginatedListResponse,
   PublicFileSchema,
   SelectablesResponse,
-  UserChangePasswordSchema,
+  UserMergeHistoryDetailSchema,
+  UserMergeRequestSchema,
   UserResetPasswordResponseSchema,
   UserSchema,
   UserSignInSchema,
@@ -32,9 +33,6 @@ export const signIn = (client: BackendAPIClient) => (data: UserSignInSchema) =>
   client.post<UserSchema, UserSignInSchema>("v1/admin-api/user/userext/signin/", data);
 
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/admin-api/user/userext/signout/");
-
-export const changePassword = (client: BackendAPIClient) => (data: UserChangePasswordSchema) =>
-  client.post<void, UserChangePasswordSchema>("v1/admin-api/user/userext/password/", data);
 
 export const resetUserPassword = (client: BackendAPIClient, id: string) => () =>
   client.delete<UserResetPasswordResponseSchema>(`v1/admin-api/user/userext/${id}/password/`);
@@ -67,8 +65,8 @@ export const retrieve =
 
 export const create =
   <T>(client: BackendAPIClient, app: string, resource: string) =>
-  (data: T) =>
-    client.post<Omit<T, "id">, T>(`v1/admin-api/${app}/${resource}/`, data);
+  (data: Omit<T, "id">) =>
+    client.post<T, Omit<T, "id">>(`v1/admin-api/${app}/${resource}/`, data);
 
 export const update =
   <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
@@ -149,3 +147,9 @@ export const listDashboardCharts = (client: BackendAPIClient) => () => client.ge
 
 export const fetchDashboardChartData = (client: BackendAPIClient, endpoint: string) => (params: Record<string, unknown>) =>
   client.post<DashboardChartDataResponse, { params: Record<string, unknown> }>(endpoint, { params });
+
+export const previewUserMerge = (client: BackendAPIClient) => (data: UserMergeRequestSchema) =>
+  client.post<UserMergeHistoryDetailSchema, UserMergeRequestSchema>("v1/admin-api/user/usermergehistory/preview/", data);
+
+export const revertUserMerge = (client: BackendAPIClient, id: string) => () =>
+  client.post<UserMergeHistoryDetailSchema, undefined>(`v1/admin-api/user/usermergehistory/${id}/revert/`, undefined);

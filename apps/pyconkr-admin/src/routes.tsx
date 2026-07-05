@@ -16,6 +16,7 @@ import {
   Login,
   ManageAccounts,
   MarkEmailRead,
+  Merge,
   Person,
   Public,
   ReceiptLong,
@@ -30,7 +31,6 @@ import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./compon
 import { AdminList } from "./components/layouts/admin_list";
 import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
-import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
 import { DashboardPage } from "./components/pages/dashboard";
 import { AdminEventEditor } from "./components/pages/event/editor";
@@ -55,6 +55,9 @@ import { ShopProductListPage } from "./components/pages/shop/product/list";
 import { ShopTagListPage } from "./components/pages/shop/tag/list";
 import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
+import { AdminUserMergePage } from "./components/pages/user/merge/create";
+import { AdminUserMergeDetail } from "./components/pages/user/merge/detail";
+import { AdminUserMergeList } from "./components/pages/user/merge/list";
 
 export const RouteDefinitions: RouteDef[] = [
   {
@@ -280,6 +283,13 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "organization",
   },
   {
+    type: "routeDefinition",
+    key: "user-merge",
+    icon: Merge,
+    title: "계정 병합",
+    route: "/user/usermergehistory",
+  },
+  {
     type: "separator",
     key: "allauth-separator",
     title: "소셜 계정 관리",
@@ -349,6 +359,9 @@ export const RegisteredRoutes = {
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
   "/user/userext/:id": <AdminUserExtEditor />,
+  "/user/usermergehistory": <AdminUserMergeList />,
+  "/user/usermergehistory/create": <AdminUserMergePage />,
+  "/user/usermergehistory/:id": <AdminUserMergeDetail />,
   "/allauth/socialapp": <AdminList app="allauth" resource="socialapp" hideCreatedAt hideUpdatedAt />,
   "/allauth/socialaccount": (
     <AdminList
@@ -367,7 +380,6 @@ export const RegisteredRoutes = {
   "/dashboard": <DashboardPage />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
-  "/account/manage": <AccountManagementPage />,
   "/cms/sitemap": <SiteMapList />,
   "/cms/sitemap/create": <SiteMapList />,
   "/cms/sitemap/:id": <SiteMapList />,
@@ -387,3 +399,13 @@ export const RegisteredRoutes = {
   "/shop/order": <ShopOrderListPage />,
   "/shop/order/:id": <ShopOrderEditorPage />,
 };
+
+const ADMIN_DETAIL_RESOURCES: ReadonlySet<string> = new Set(
+  Object.keys(RegisteredRoutes)
+    .map((path) => /^\/([^/]+)\/([^/]+)\/:id$/.exec(path))
+    .filter((match): match is RegExpExecArray => match !== null)
+    .map((match) => `${match[1]}/${match[2]}`)
+);
+
+export const adminDetailPathFor = (app: string, resource: string, id: string): string | null =>
+  ADMIN_DETAIL_RESOURCES.has(`${app}/${resource}`) ? `/${app}/${resource}/${id}` : null;

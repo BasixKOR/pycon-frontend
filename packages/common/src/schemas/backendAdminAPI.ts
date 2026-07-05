@@ -60,12 +60,6 @@ export type UserSignInSchema = {
   password: string;
 };
 
-export type UserChangePasswordSchema = {
-  old_password: string;
-  new_password: string;
-  new_password_confirm: string;
-};
-
 export type UserResetPasswordResponseSchema = {
   password: string;
 };
@@ -160,6 +154,44 @@ export type ModificationAuditPreviewSchema<T> = {
   modification_audit: ModificationAuditSchema;
   original: T;
   modified: T;
+};
+
+export type UserMergeUserSchema = {
+  id: number;
+  username: string;
+  email: string;
+  nickname: string;
+  is_active: boolean;
+  str_repr: string;
+};
+
+export type UserMergeObjectSchema = {
+  id: string; // UUID
+  target_type_app: string;
+  target_type_resource: string;
+  target_id: string;
+  field_names: string[];
+};
+
+export type UserMergeHistoryListSchema = {
+  id: string; // UUID
+  source: UserMergeUserSchema;
+  target: UserMergeUserSchema;
+  is_self_merge: boolean;
+  created_by: string;
+  created_at: string; // ISO 8601 timestamp
+  updated_at: string; // ISO 8601 timestamp
+  reverted_at: string | null; // ISO 8601 timestamp
+  str_repr: string;
+};
+
+export type UserMergeHistoryDetailSchema = UserMergeHistoryListSchema & {
+  merged_objects: UserMergeObjectSchema[];
+};
+
+export type UserMergeRequestSchema = {
+  source: number;
+  target: number;
 };
 
 export type OpenAPIParameterSchema = {

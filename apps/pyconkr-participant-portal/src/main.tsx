@@ -44,6 +44,7 @@ const CommonOptions: ContextOptions = {
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
   backendApiDomain,
+  accountsDomain: import.meta.env.VITE_PYCONKR_ACCOUNTS_DOMAIN,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
   mdxComponents: {},

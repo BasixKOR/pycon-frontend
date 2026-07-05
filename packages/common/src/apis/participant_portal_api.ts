@@ -5,7 +5,6 @@ import {
   PresentationRetrieveSchema,
   PresentationUpdateSchema,
   PublicFileSchema,
-  UserChangePasswordSchema,
   UserSchema,
   UserSignInSchema,
   UserUpdateSchema,
@@ -31,9 +30,6 @@ export const signIn = (client: BackendAPIClient) => (data: UserSignInSchema) =>
   client.post<UserSchema, UserSignInSchema>("v1/participant-portal/user/signin/", data);
 
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/participant-portal/user/signout/");
-
-export const changePassword = (client: BackendAPIClient) => (data: UserChangePasswordSchema) =>
-  client.put<void, UserChangePasswordSchema>("v1/participant-portal/user/password/", data);
 
 export const listPublicFiles = (client: BackendAPIClient) => () => client.get<PublicFileSchema[]>("v1/participant-portal/public-file/");
 
