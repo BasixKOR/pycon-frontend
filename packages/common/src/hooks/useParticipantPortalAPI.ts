@@ -13,7 +13,6 @@ import {
   previewPresentationModAudit,
   retrieveModificationAudit,
   retrievePresentation,
-  signIn,
   signOut,
   updateMe,
   uploadPublicFile,
@@ -31,7 +30,6 @@ const QUERY_KEYS = {
 };
 
 const MUTATION_KEYS = {
-  PARTICIPANT_SIGN_IN: ["mutation", "participant", "sign-in"],
   PARTICIPANT_SIGN_OUT: ["mutation", "participant", "sign-out"],
   PARTICIPANT_UPDATE_ME: ["mutation", "participant", "update-me"],
   PARTICIPANT_UPLOAD_PUBLIC_FILE: ["mutation", "participant", "public-file", "upload"],
@@ -60,12 +58,6 @@ export const useUpdateMeMutation = (client: BackendAPIClient) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.PARTICIPANT_UPDATE_ME],
     mutationFn: updateMe(client),
-  });
-
-export const useSignInMutation = (client: BackendAPIClient) =>
-  useMutation({
-    mutationKey: [...MUTATION_KEYS.PARTICIPANT_SIGN_IN],
-    mutationFn: signIn(client),
   });
 
 export const useSignOutMutation = (client: BackendAPIClient) =>

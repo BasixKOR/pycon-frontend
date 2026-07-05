@@ -15,7 +15,6 @@ import {
   UserMergeRequestSchema,
   UserResetPasswordResponseSchema,
   UserSchema,
-  UserSignInSchema,
 } from "@frontend/common/schemas/backendAdminAPI";
 
 import { BackendAPIClient } from "./client";
@@ -28,9 +27,6 @@ export const me = (client: BackendAPIClient) => async () => {
     return null;
   }
 };
-
-export const signIn = (client: BackendAPIClient) => (data: UserSignInSchema) =>
-  client.post<UserSchema, UserSignInSchema>("v1/admin-api/user/userext/signin/", data);
 
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/admin-api/user/userext/signout/");
 

@@ -55,11 +55,6 @@ export type UserSchema = {
   str_repr: string;
 };
 
-export type UserSignInSchema = {
-  identity: string; // username or email
-  password: string;
-};
-
 export type UserResetPasswordResponseSchema = {
   password: string;
 };

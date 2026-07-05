@@ -27,7 +27,6 @@ import {
   revertUserMerge,
   schema,
   selectables,
-  signIn,
   signOut,
   update,
   updatePrepared,
@@ -52,7 +51,6 @@ const QUERY_KEYS = {
 };
 
 const MUTATION_KEYS = {
-  ADMIN_SIGN_IN: ["mutation", "admin", "sign-in"],
   ADMIN_SIGN_OUT: ["mutation", "admin", "sign-out"],
   ADMIN_RESET_PASSWORD: ["mutation", "admin", "reset-password"],
   ADMIN_CREATE: ["mutation", "admin", "create"],
@@ -78,12 +76,6 @@ export const useSignedInUserQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
     queryKey: QUERY_KEYS.ADMIN_ME,
     queryFn: me(client),
-  });
-
-export const useSignInMutation = (client: BackendAPIClient) =>
-  useMutation({
-    mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_IN],
-    mutationFn: signIn(client),
   });
 
 export const useSignOutMutation = (client: BackendAPIClient) =>

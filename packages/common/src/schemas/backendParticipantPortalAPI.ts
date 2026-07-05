@@ -31,11 +31,6 @@ export type UserUpdateSchema = {
   image?: string | null; // PK of the user's profile image
 };
 
-export type UserSignInSchema = {
-  identity: string; // email
-  password: string;
-};
-
 export type PublicFileSchema = {
   id: string; // UUID
   file: string; // URL to the public file

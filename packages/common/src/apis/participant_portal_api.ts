@@ -6,7 +6,6 @@ import {
   PresentationUpdateSchema,
   PublicFileSchema,
   UserSchema,
-  UserSignInSchema,
   UserUpdateSchema,
 } from "@frontend/common/schemas/backendParticipantPortalAPI";
 
@@ -25,9 +24,6 @@ export const updateMe = (client: BackendAPIClient) => (data: UserUpdateSchema) =
   client.patch<UserSchema, UserUpdateSchema>("v1/participant-portal/user/me/", data);
 
 export const previewMeModAudit = (client: BackendAPIClient) => async () => client.get<UserSchema>("v1/participant-portal/user/me/preview/");
-
-export const signIn = (client: BackendAPIClient) => (data: UserSignInSchema) =>
-  client.post<UserSchema, UserSignInSchema>("v1/participant-portal/user/signin/", data);
 
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/participant-portal/user/signout/");
 
