@@ -2,7 +2,7 @@ import { Button, Chip, CircularProgress, Stack, styled, Table, TableBody, TableC
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
 import { FC, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { isArray, isEmpty, isString } from "remeda";
 
 import { CenteredPage } from "@frontend/common/components/centered_page";
@@ -110,7 +110,8 @@ const SessionColumn: FC<{
   colSpan?: number;
   session: SessionSchema;
   linkable?: boolean;
-}> = ({ rowSpan, colSpan, session, linkable }) => {
+  selectedDate: string;
+}> = ({ rowSpan, colSpan, session, linkable, selectedDate }) => {
   const sessionUrl = linkable ? getSessionDetailUrl(session) : undefined;
   const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
   // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
@@ -118,7 +119,7 @@ const SessionColumn: FC<{
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       {clickable ? (
-        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }}>
+        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }} state={{ selectedDate: selectedDate }}>
           <SessionBox className="clickable" sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
             <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
             <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
@@ -162,7 +163,9 @@ type SessionTimeTablePropType = {
 export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types }) => {
-    const [confDate, setConfDate] = useState("");
+    const location = useLocation();
+
+    const [confDate, setConfDate] = useState<string>(location.state?.selectedDate ?? "");
 
     const { language, appType } = Common.useCommonContext();
     const linkable = appType === "main";
@@ -176,7 +179,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
     const roomCount = Object.keys(rooms).length;
     const sortedRoomList = Object.keys(rooms).sort();
 
-    const selectedDate = confDate || dates[0];
+    const [selectedDate, setSelectedDate] = useState<string>(location.state?.selectedDate ?? (confDate || dates[0]));
     const selectedTableData = timeTableData[selectedDate];
 
     let breakCount = 0;
@@ -194,7 +197,15 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
           {dates.map((date, i) => {
             const dateStr = DateTime.fromISO(date).setLocale(language).toLocaleString({ weekday: "long", month: "long", day: "numeric" });
             return (
-              <Button variant="text" key={date} onClick={() => setConfDate(date)} className={selectedDate === date ? "selected" : ""}>
+              <Button
+                variant="text"
+                key={date}
+                onClick={() => {
+                  setConfDate(date);
+                  setSelectedDate(date);
+                }}
+                className={selectedDate === date ? "selected" : ""}
+              >
                 <SessionDateItemContainer direction="column">
                   <SessionDateTitle children={"Day " + (i + 1)} isSelected={selectedDate === date} />
                   <SessionDateSubTitle children={dateStr} isSelected={selectedDate === date} />
@@ -277,7 +288,13 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                   return (
                     <SessionTableRow>
                       <SessionTableCell align="center" children={time} />
-                      <SessionColumn rowSpan={firstSessionInfo.rowSpan} colSpan={roomCount} session={firstSessionInfo.session} linkable={linkable} />
+                      <SessionColumn
+                        rowSpan={firstSessionInfo.rowSpan}
+                        colSpan={roomCount}
+                        session={firstSessionInfo.session}
+                        linkable={linkable}
+                        selectedDate={selectedDate}
+                      />
                     </SessionTableRow>
                   );
                 }
@@ -296,7 +313,15 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                       }
                       // 세션이 여러 줄에 걸쳐있는 경우, n-1 줄만큼 해당 room에 column을 생성하지 않도록 합니다.
                       if (roomDatum.rowSpan > 1) rooms[room] = roomDatum.rowSpan - 1;
-                      return <SessionColumn key={room} rowSpan={roomDatum.rowSpan} session={roomDatum.session} linkable={linkable} />;
+                      return (
+                        <SessionColumn
+                          key={room}
+                          rowSpan={roomDatum.rowSpan}
+                          session={roomDatum.session}
+                          linkable={linkable}
+                          selectedDate={selectedDate}
+                        />
+                      );
                     })}
                   </SessionTableRow>
                 );
