@@ -6,7 +6,7 @@ import { AccountCircle, Login, Logout, ManageAccounts, Receipt } from "@mui/icon
 import { Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, MouseEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import { useAppContext } from "@apps/pyconkr-2026/contexts/app_context";
 
@@ -43,7 +43,6 @@ type InnerUserMenuButtonPropType = UserMenuButtonProps & {
 };
 
 const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut, onClose, showLabel }) => {
-  const navigate = useNavigate();
   const { language } = useAppContext();
   const { accountsDomain } = useCommonContext();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -57,10 +56,9 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
   const manageAccountLabel = language === "ko" ? "계정 관리" : "Manage Account";
   const signOutLabel = language === "ko" ? "로그아웃" : "Sign Out";
 
-  const goTo = (path: string) => {
+  const closeAll = () => {
     handleMenuClose();
     onClose?.();
-    navigate(path);
   };
 
   const goToAccounts = () => {
@@ -111,7 +109,7 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
               </Typography>
             </UserNameItem>,
             <Divider key="divider" sx={{ my: 0.5 }} />,
-            <MenuItem key="orders" onClick={() => goTo("/store/order-histories")}>
+            <MenuItem key="orders" component={RouterLink} to="/store/order-histories" onClick={closeAll}>
               <ListItemIcon>
                 <Receipt fontSize="small" />
               </ListItemIcon>
@@ -131,7 +129,7 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
             </MenuItem>,
           ]
         ) : (
-          <MenuItem onClick={() => goTo("/account/sign-in")}>
+          <MenuItem component={RouterLink} to="/account/sign-in" onClick={closeAll}>
             <ListItemIcon>
               <Login fontSize="small" />
             </ListItemIcon>
