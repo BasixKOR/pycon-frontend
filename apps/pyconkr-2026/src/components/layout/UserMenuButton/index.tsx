@@ -1,7 +1,8 @@
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { useShopClient, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 import { UserSignedInStatus } from "@frontend/shop/schemas";
-import { AccountCircle, Login, Logout, Receipt } from "@mui/icons-material";
+import { AccountCircle, Login, Logout, ManageAccounts, Receipt } from "@mui/icons-material";
 import { Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, MouseEvent, useState } from "react";
@@ -43,6 +44,7 @@ type InnerUserMenuButtonPropType = UserMenuButtonProps & {
 
 const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, onSignOut, onClose, showLabel }) => {
   const { language } = useAppContext();
+  const { accountsDomain } = useCommonContext();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
 
@@ -51,11 +53,18 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
 
   const signInLabel = language === "ko" ? "로그인" : "Sign In";
   const orderHistoryLabel = language === "ko" ? "결제 내역" : "Order History";
+  const manageAccountLabel = language === "ko" ? "계정 관리" : "Manage Account";
   const signOutLabel = language === "ko" ? "로그아웃" : "Sign Out";
 
   const closeAll = () => {
     handleMenuClose();
     onClose?.();
+  };
+
+  const goToAccounts = () => {
+    handleMenuClose();
+    onClose?.();
+    window.open(accountsDomain, "_blank", "noopener,noreferrer");
   };
 
   const handleSignOut = () => {
@@ -105,6 +114,12 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
                 <Receipt fontSize="small" />
               </ListItemIcon>
               <ListItemText>{orderHistoryLabel}</ListItemText>
+            </MenuItem>,
+            <MenuItem key="accounts" onClick={goToAccounts}>
+              <ListItemIcon>
+                <ManageAccounts fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{manageAccountLabel}</ListItemText>
             </MenuItem>,
             <MenuItem key="signout" onClick={handleSignOut}>
               <ListItemIcon>

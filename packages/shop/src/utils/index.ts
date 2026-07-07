@@ -1,8 +1,22 @@
 import { isEmpty, isNullish, isString } from "remeda";
 
-import type { OptionGroup, OrderProductItem, Product } from "@frontend/shop/schemas";
+import type { OptionGroup, Order, OrderProductItem, Product } from "@frontend/shop/schemas";
 
 export { startPortOnePurchase } from "./portone";
+
+// 백엔드 PHONE_PATTERN과 동일.
+export const PHONE_REGEX = /^([\d]{3}-[\d]{3,4}-[\d]{4}|\+[\d]{9,14})$/;
+
+// 티켓 참가자 정보를 react-hook-form에 담을 때의 필드명. 옵션 그룹 id(UUID)와 충돌하지 않도록 prefix 사용.
+export const TICKET_FORM_FIELD = {
+  name: "__ticket_name",
+  organization: "__ticket_organization",
+  email: "__ticket_email",
+  phone: "__ticket_phone",
+  contribution_message: "__ticket_contribution_message",
+} as const;
+
+export const isTicketFormFieldKey = (key: string): boolean => key.startsWith("__ticket_");
 
 export const getCustomResponsePattern = (optionGroup: Pick<OptionGroup, "custom_response_pattern">) => {
   const pattern = optionGroup.custom_response_pattern?.trim() ?? "";
@@ -15,22 +29,15 @@ export const isOrderProductOptionModifiable = (optionRel: OrderProductItem["opti
   return new Date() <= new Date(optionRel.product_option_group.response_modifiable_ends_at);
 };
 
-export const getOrderProductOptionNotModifiableReason = (
-  language: "ko" | "en",
-  optionRel: OrderProductItem["options"][number]
-): string | null => {
+export const getOrderProductOptionNotModifiableReason = (language: "ko" | "en", optionRel: OrderProductItem["options"][number]): string | null => {
   if (!optionRel.product_option_group.is_custom_response) {
-    return language === "ko"
-      ? "추가 비용이 발생하는 옵션은 수정할 수 없어요."
-      : "You cannot modify options that incur additional costs.";
+    return language === "ko" ? "추가 비용이 발생하는 옵션은 수정할 수 없어요." : "You cannot modify options that incur additional costs.";
   }
   if (isNullish(optionRel.product_option_group.response_modifiable_ends_at)) {
     return language === "ko" ? "이 옵션은 수정할 수 없어요." : "This option cannot be modified.";
   }
   if (new Date() > new Date(optionRel.product_option_group.response_modifiable_ends_at)) {
-    return language === "ko"
-      ? "옵션 수정 가능 기간이 종료되었어요."
-      : "The modification period for this option has ended.";
+    return language === "ko" ? "옵션 수정 가능 기간이 종료되었어요." : "The modification period for this option has ended.";
   }
   return null;
 };
@@ -57,9 +64,7 @@ export const getCannotAddMoreOptionGroupReason = (
     return language === "ko" ? "상품 재고가 부족해 더 이상 선택할 수 없어요." : "Not enough product stock to select more.";
   }
   if (info.option_group_max_quantity_per_user !== null && info.option_group_max_quantity_per_user === userLeftover) {
-    return language === "ko"
-      ? "이 옵션의 사용자당 구매 한도에 도달했어요."
-      : "You've reached the per-user limit for this option.";
+    return language === "ko" ? "이 옵션의 사용자당 구매 한도에 도달했어요." : "You've reached the per-user limit for this option.";
   }
   if (info.product_max_quantity_per_user !== null && info.product_max_quantity_per_user === userLeftover) {
     return language === "ko" ? "이 상품의 사용자당 구매 한도에 도달했어요." : "You've reached the per-user limit for this product.";
@@ -87,3 +92,10 @@ export const getOptionGroupNotOrderableReason = (
   }
   return null;
 };
+
+// 주문 전액 환불 가능: 남은 결제액이 있고, 완료 또는 부분환불 상태일 때.
+export const canRefundOrder = (order: Pick<Order, "current_paid_price" | "current_status">): boolean =>
+  order.current_paid_price > 0 && (order.current_status === "completed" || order.current_status === "partial_refunded");
+
+// 상품 부분 환불 가능: 해당 상품이 결제 완료(paid) 상태일 때.
+export const canRefundProduct = (product: Pick<OrderProductItem, "status">): boolean => product.status === "paid";

@@ -1,4 +1,5 @@
 import { useBackendAdminClient, useRetrieveQuery, useUpdateMutation } from "@frontend/common/hooks/useAdminAPI";
+import { canRefundOrder, canRefundProduct } from "@frontend/shop/utils";
 import { CurrencyExchange, NotificationsActive, Save } from "@mui/icons-material";
 import {
   Alert,
@@ -35,7 +36,7 @@ const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 // ----------------- Customer Info Tab (editable) -----------------
 const CustomerInfoTab: FC<{ order: OrderAdmin }> = ({ order }) => {
   const client = useBackendAdminClient();
-  const updateMutation = useUpdateMutation<{ customer_info: SimpleCustomerInfo }>(client, "shop", "orders", order.id);
+  const updateMutation = useUpdateMutation<{ customer_info: SimpleCustomerInfo }>(client, "shop", "order", order.id);
 
   const [name, setName] = useState(order.customer_info?.name ?? "");
   const [phone, setPhone] = useState(order.customer_info?.phone ?? "");
@@ -90,8 +91,10 @@ const CustomerInfoTab: FC<{ order: OrderAdmin }> = ({ order }) => {
   );
 };
 
-const OrderProductRow: FC<{ relation: SimpleOrderProductRelation }> = ({ relation }) => {
+const OrderProductRow: FC<{ order: OrderAdmin; relation: SimpleOrderProductRelation }> = ({ order, relation }) => {
   const status = ORDER_PRODUCT_STATUS_LABEL[relation.status];
+  const [refundOpen, setRefundOpen] = useState(false);
+  const canRefund = canRefundProduct(relation);
   return (
     <>
       <TableRow hover>
@@ -104,41 +107,96 @@ const OrderProductRow: FC<{ relation: SimpleOrderProductRelation }> = ({ relatio
         </TableCell>
         <TableCell align="right">{formatPrice(relation.price)}</TableCell>
         <TableCell align="right">{relation.donation_price > 0 ? formatPrice(relation.donation_price) : "—"}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={5} sx={{ bgcolor: "action.hover", py: 1, pl: 4 }}>
-          {relation.options.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              옵션 없음
-            </Typography>
-          ) : (
-            <Table size="small" sx={{ width: "auto" }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ minWidth: 140 }}>옵션 그룹</TableCell>
-                  <TableCell sx={{ minWidth: 240 }}>옵션 / 입력</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {relation.options.map((opt) => (
-                  <TableRow key={opt.id}>
-                    <TableCell>{opt.option_group_name_ko || opt.option_group_name_en}</TableCell>
-                    <TableCell>
-                      {opt.option_name_ko || opt.option_name_en ? (
-                        opt.option_name_ko || opt.option_name_en
-                      ) : (
-                        <Typography component="span" variant="body2" color="text.secondary">
-                          사용자 입력: {opt.custom_response || "(없음)"}
-                        </Typography>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+        <TableCell align="right">
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<CurrencyExchange />}
+            onClick={() => setRefundOpen(true)}
+            disabled={!canRefund}
+          >
+            환불
+          </Button>
         </TableCell>
       </TableRow>
+      <TableRow>
+        <TableCell colSpan={6} sx={{ bgcolor: "action.hover", py: 1, pl: 4 }}>
+          <Stack spacing={2}>
+            {relation.ticket_info && (
+              <>
+                <Typography variant="subtitle2">참가자 정보</Typography>
+                <Table size="small" sx={{ width: "auto" }}>
+                  <TableHead sx={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+                    <TableRow>
+                      <TableCell sx={{ minWidth: 40 }}>정보</TableCell>
+                      <TableCell sx={{ minWidth: 240 }}>값</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>이름</TableCell>
+                      <TableCell>{relation.ticket_info.name}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>소속</TableCell>
+                      <TableCell>{relation.ticket_info.organization || "—"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>이메일</TableCell>
+                      <TableCell>{relation.ticket_info.email}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>연락처</TableCell>
+                      <TableCell>{relation.ticket_info.phone}</TableCell>
+                    </TableRow>
+                    {relation.ticket_info.contribution_message && (
+                      <TableRow>
+                        <TableCell>후원자 한마디</TableCell>
+                        <TableCell sx={{ whiteSpace: "pre-line" }}>{relation.ticket_info.contribution_message}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+            {relation.options.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                옵션 없음
+              </Typography>
+            ) : (
+              <>
+                <Typography variant="subtitle2">옵션</Typography>
+                <Table size="small" sx={{ width: "auto" }}>
+                  <TableHead sx={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+                    <TableRow>
+                      <TableCell sx={{ minWidth: 40 }}>옵션 그룹</TableCell>
+                      <TableCell sx={{ minWidth: 240 }}>옵션 / 입력</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {relation.options.map((opt) => (
+                      <TableRow key={opt.id}>
+                        <TableCell>{opt.option_group_name_ko || opt.option_group_name_en}</TableCell>
+                        <TableCell>
+                          {opt.option_name_ko || opt.option_name_en ? (
+                            opt.option_name_ko || opt.option_name_en
+                          ) : (
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              사용자 입력: {opt.custom_response || "(없음)"}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+          </Stack>
+        </TableCell>
+      </TableRow>
+      <RefundDialog open={refundOpen} onClose={() => setRefundOpen(false)} order={order} kind="product" relation={relation} />
     </>
   );
 };
@@ -152,18 +210,19 @@ const OrderProductsTab: FC<{ order: OrderAdmin }> = ({ order }) => (
         <TableCell>상태</TableCell>
         <TableCell align="right">가격</TableCell>
         <TableCell align="right">기부</TableCell>
+        <TableCell align="right">환불</TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
       {order.products.length === 0 && (
         <TableRow>
-          <TableCell colSpan={5} align="center" sx={{ color: "text.secondary" }}>
+          <TableCell colSpan={6} align="center" sx={{ color: "text.secondary" }}>
             주문 상품이 없습니다.
           </TableCell>
         </TableRow>
       )}
       {order.products.map((p) => (
-        <OrderProductRow key={p.id} relation={p} />
+        <OrderProductRow key={p.id} order={order} relation={p} />
       ))}
     </TableBody>
   </Table>
@@ -171,7 +230,7 @@ const OrderProductsTab: FC<{ order: OrderAdmin }> = ({ order }) => (
 
 const PaymentHistoryTab: FC<{ order: OrderAdmin; onRefund: () => void }> = ({ order, onRefund }) => {
   const histories = [...order.payment_histories].sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
-  const canRefund = order.current_paid_price > 0 && (order.current_status === "completed" || order.current_status === "partial_refunded");
+  const canRefund = canRefundOrder(order);
 
   return (
     <Stack spacing={2}>
@@ -231,7 +290,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
     const [tab, setTab] = useState(0);
     const [refundOpen, setRefundOpen] = useState(false);
 
-    const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "orders", id ?? "");
+    const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "order", id ?? "");
     const order = orderQuery.data;
 
     if (!order) {
@@ -239,7 +298,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
         <Stack sx={{ flexGrow: 1, width: "100%" }} spacing={2}>
           <Typography variant="h5">SHOP &gt; ORDERS</Typography>
           <Alert severity="error">해당 ID의 주문을 찾을 수 없습니다.</Alert>
-          <Button variant="outlined" onClick={() => navigate("/shop/orders")} sx={{ alignSelf: "flex-start" }}>
+          <Button variant="outlined" onClick={() => navigate("/shop/order")} sx={{ alignSelf: "flex-start" }}>
             목록으로
           </Button>
         </Stack>
@@ -247,7 +306,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
     }
 
     const status = PAYMENT_STATUS_LABEL[order.current_status] ?? { label: order.current_status, color: "default" as const };
-    const canRefund = order.current_paid_price > 0 && (order.current_status === "completed" || order.current_status === "partial_refunded");
+    const canRefund = canRefundOrder(order);
 
     const onNotify = () => {
       navigate({
@@ -340,7 +399,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
           {tab === 2 && <PaymentHistoryTab order={order} onRefund={() => setRefundOpen(true)} />}
         </Box>
 
-        <RefundDialog open={refundOpen} onClose={() => setRefundOpen(false)} order={order} />
+        <RefundDialog open={refundOpen} onClose={() => setRefundOpen(false)} order={order} kind="order" />
       </Stack>
     );
   })

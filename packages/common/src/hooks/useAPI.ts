@@ -1,15 +1,25 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import { listSessions, listSiteMaps, listSponsors, retrievePage, retrieveSession } from "@frontend/common/apis";
+import {
+  listEvents,
+  listSessions,
+  listSiteMaps,
+  listSponsors,
+  retrievePage,
+  retrieveSession,
+  retrieveSocialSession,
+  signInWithSNS,
+} from "@frontend/common/apis";
 import { BackendAPIClient } from "@frontend/common/apis/client";
 import { context as backendContext } from "@frontend/common/contexts";
-import { SessionQueryParameterSchema } from "@frontend/common/schemas/backendAPI";
+import { SessionQueryParameterSchema, SponsorQueryParameterSchema } from "@frontend/common/schemas/backendAPI";
 const QUERY_KEYS = {
   SITEMAP_LIST: ["query", "sitemap", "list"],
   PAGE: ["query", "page"],
   SPONSOR_LIST: ["query", "sponsor", "list"],
   SESSION_LIST: ["query", "session", "list"],
+  EVENT_LIST: ["query", "event", "list"],
 };
 
 export const useBackendContext = () => {
@@ -19,9 +29,22 @@ export const useBackendContext = () => {
 };
 
 export const useBackendClient = () => {
-  const { language, backendApiDomain, backendApiTimeout } = useBackendContext();
-  return new BackendAPIClient(backendApiDomain, backendApiTimeout, "", "", false, language);
+  const { language, backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName } = useBackendContext();
+  return new BackendAPIClient(backendApiDomain, backendApiTimeout, backendApiCSRFCookieName, backendApiSessionCookieName, true, language);
 };
+
+export const useSignInWithSNSMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: ["mutation", "sign-in", "sns"],
+    mutationFn: signInWithSNS(client),
+    meta: { invalidates: [] },
+  });
+
+export const useSocialSessionQuery = (client: BackendAPIClient) =>
+  useQuery({
+    queryKey: ["query", "social-session", client.language],
+    queryFn: retrieveSocialSession(client),
+  });
 
 export const useFlattenSiteMapQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
@@ -35,10 +58,16 @@ export const usePageQuery = (client: BackendAPIClient, id: string) =>
     queryFn: () => retrievePage(client)(id),
   });
 
-export const useSponsorQuery = (client: BackendAPIClient) =>
+export const useSponsorQuery = (client: BackendAPIClient, params?: SponsorQueryParameterSchema) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language],
-    queryFn: listSponsors(client),
+    queryKey: [...QUERY_KEYS.SPONSOR_LIST, client.language, ...(params ? [JSON.stringify(params)] : [])],
+    queryFn: listSponsors(client, params),
+  });
+
+export const useEventsQuery = (client: BackendAPIClient) =>
+  useQuery({
+    queryKey: [...QUERY_KEYS.EVENT_LIST, client.language],
+    queryFn: listEvents(client),
   });
 
 export const useSessionsQuery = (client: BackendAPIClient, params?: SessionQueryParameterSchema) =>

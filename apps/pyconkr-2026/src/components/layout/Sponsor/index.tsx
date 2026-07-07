@@ -1,4 +1,4 @@
-import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, styled } from "@mui/material";
+import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, alpha, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
@@ -41,10 +41,12 @@ const LogoImageEqualWidthContainer = styled(Stack)(({ theme }) => ({
   maxWidth: LogoContainerWidth,
   border: `1px solid ${theme.palette.primary.light}`,
   borderRadius: "0.5rem",
+  backgroundColor: alpha(theme.palette.primary.light, 0.66),
 
   transition: "all 0.3s ease-in-out",
 
   "&:hover": {
+    backgroundColor: `color-mix(in srgb, ${alpha(theme.palette.primary.light, 1)}, #fff)`,
     borderColor: theme.palette.primary.dark,
     boxShadow: theme.shadows[3],
   },
@@ -129,41 +131,42 @@ export const Sponsor: React.FC = ErrorBoundary.with(
 
     const titleStr = language === "ko" ? "후원사 목록" : "Sponsor List";
 
+    const visibleSponsorTiers = sponsorTiers.filter((t) => t.sponsors.length);
+    if (!visibleSponsorTiers.length) return null;
+
     return (
       <SponsorContainer>
         <SponsorSection aria-label="후원사 섹션">
           <Typography variant="h4" {...textProps} children={titleStr} area-level={4} />
           <Stack spacing={4} sx={{ my: 4 }} aria-label="후원사 목록 그리드">
-            {sponsorTiers
-              .filter((t) => t.sponsors.length)
-              .map((sponsorTier, i, a) => (
-                <Stack spacing={6} key={sponsorTier.id} aria-label={`후원사 티어: ${sponsorTier.name}`}>
-                  <Typography variant="h5" key={sponsorTier.id} {...textProps} children={sponsorTier.name} area-level={5} />
-                  <SponsorStack>
-                    {sponsorTier.sponsors.map((sponsor) => {
-                      const sponsorName = sponsor.name.replace(/\\n/g, "\n");
-                      const sponsorNameContent = <Typography variant="body1" {...textProps} children={sponsorName} sx={{ whiteSpace: "pre-wrap" }} />;
-                      return (
-                        <Link to={`/sponsors/${sponsor.id}`} key={sponsor.id} style={{ textDecoration: "none" }}>
-                          <Tooltip title={sponsorNameContent} arrow placement="top">
-                            <LogoImageEqualWidthContainer>
-                              <LogoBadgeContainer>
-                                {sponsor.tags.map((tag, i) => (
-                                  <LogoBadge key={i} badgeContent={tag} />
-                                ))}
-                              </LogoBadgeContainer>
-                              <LogoImageContainer>
-                                <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
-                              </LogoImageContainer>
-                            </LogoImageEqualWidthContainer>
-                          </Tooltip>
-                        </Link>
-                      );
-                    })}
-                  </SponsorStack>
-                  {i !== a.length - 1 && <Divider sx={{ m: "2rem" }} />}
-                </Stack>
-              ))}
+            {visibleSponsorTiers.map((sponsorTier, i, a) => (
+              <Stack spacing={6} key={sponsorTier.id} aria-label={`후원사 티어: ${sponsorTier.name}`}>
+                <Typography variant="h5" key={sponsorTier.id} {...textProps} children={sponsorTier.name} area-level={5} />
+                <SponsorStack>
+                  {sponsorTier.sponsors.map((sponsor) => {
+                    const sponsorName = sponsor.name.replace(/\\n/g, "\n");
+                    const sponsorNameContent = <Typography variant="body1" {...textProps} children={sponsorName} sx={{ whiteSpace: "pre-wrap" }} />;
+                    return (
+                      <Link to={`/sponsors/${sponsor.id}`} key={sponsor.id} style={{ textDecoration: "none" }}>
+                        <Tooltip title={sponsorNameContent} arrow placement="top">
+                          <LogoImageEqualWidthContainer>
+                            <LogoBadgeContainer>
+                              {sponsor.tags.map((tag, i) => (
+                                <LogoBadge key={i} badgeContent={tag} />
+                              ))}
+                            </LogoBadgeContainer>
+                            <LogoImageContainer>
+                              <LogoImage src={sponsor.logo} alt={sponsor.name} loading="lazy" />
+                            </LogoImageContainer>
+                          </LogoImageEqualWidthContainer>
+                        </Tooltip>
+                      </Link>
+                    );
+                  })}
+                </SponsorStack>
+                {i !== a.length - 1 && <Divider sx={{ m: "2rem" }} />}
+              </Stack>
+            ))}
           </Stack>
         </SponsorSection>
       </SponsorContainer>

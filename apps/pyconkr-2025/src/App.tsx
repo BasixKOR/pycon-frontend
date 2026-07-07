@@ -4,11 +4,13 @@ import { buildNestedSiteMap } from "@frontend/common/utils";
 import { FC, useEffect } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { isEmpty, isNullish } from "remeda";
+
+import { EVENT_NAME } from "./consts";
 import { useAppContext } from "./contexts/app_context";
 
 export const App: FC = () => {
   const backendAPIClient = useBackendClient();
-  const { data: sponsorTiers } = useSponsorQuery(backendAPIClient);
+  const { data: sponsorTiers } = useSponsorQuery(backendAPIClient, { event: EVENT_NAME });
   const { data: flatSiteMap } = useFlattenSiteMapQuery(backendAPIClient);
   const siteMapNode = buildNestedSiteMap(flatSiteMap)?.[""];
 
@@ -25,10 +27,7 @@ export const App: FC = () => {
           .at(-1)
           ?.children?.reduce((acc, child) => ({ ...acc, [child.route_code]: child }), {} as Record<string, NestedSiteMapSchema>);
         currentSiteMapDepth.push(childrenMap?.[routeCode]);
-        if (isNullish(currentSiteMapDepth.at(-1))) {
-          console.warn(`Route not found in site map: ${routeCode}`);
-          break;
-        }
+        if (isNullish(currentSiteMapDepth.at(-1))) break;
       }
 
       setAppContext((ps) => ({ ...ps, siteMapNode, sponsorTiers, currentSiteMapDepth }));

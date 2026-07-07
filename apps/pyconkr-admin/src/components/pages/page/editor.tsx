@@ -11,10 +11,15 @@ import { useParams } from "react-router-dom";
 
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { AdminEditor } from "@apps/pyconkr-admin/components/layouts/admin_editor";
+import { SectionCssEditor } from "@apps/pyconkr-admin/components/pages/page/css_style_field";
 import { muiTheme } from "@apps/pyconkr-admin/styles/globalStyles";
 import { addErrorSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type SectionType = PageSectionSchema;
+
+// 섹션 편집 탭. "css"는 dynamic_route에서 parseCss로 파싱되는 React 스타일 객체(JSON 문자열)를 편집함.
+type SectionTab = "ko" | "en" | "css";
+const SECTION_TABS: SectionTab[] = ["ko", "en", "css"];
 
 type CommonSectionEditorPropType = {
   disabled?: boolean;
@@ -28,7 +33,7 @@ type SectionTextEditorPropType = CommonSectionEditorPropType & {
 };
 
 type SectionEditorPropType = CommonSectionEditorPropType & {
-  language: "ko" | "en";
+  tab: SectionTab;
   defaultValue: SectionType;
   onChange: (value: SectionType) => void;
 };
@@ -60,18 +65,29 @@ const SectionTextEditor: FC<SectionTextEditorPropType> = ({ disabled, defaultVal
   );
 };
 
-const SectionEditorField: FC<SectionEditorPropType> = ({ language, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
-  const onFieldChange = (key: "body_ko" | "body_en", value?: string) => onChange({ ...defaultValue, [key]: value });
-
-  return (
-    <Stack direction="row" sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
+const SectionEditorField: FC<SectionEditorPropType> = ({ tab, disabled, defaultValue, onInsertNewSection, onChange, onDelete }) => {
+  const child =
+    tab === "css" ? (
+      <SectionCssEditor
+        disabled={disabled}
+        onInsertNewSection={onInsertNewSection}
+        onDelete={onDelete}
+        defaultValue={defaultValue?.css}
+        onChange={(css) => onChange({ ...defaultValue, css })}
+      />
+    ) : (
       <SectionTextEditor
         disabled={disabled}
         onInsertNewSection={onInsertNewSection}
         onDelete={onDelete}
-        defaultValue={defaultValue?.[`body_${language}`] || undefined}
-        onChange={(text) => onFieldChange(`body_${language}`, text)}
+        defaultValue={defaultValue?.[`body_${tab}`] || undefined}
+        onChange={(text) => onChange({ ...defaultValue, [`body_${tab}`]: text })}
       />
+    );
+
+  return (
+    <Stack direction="row" sx={{ flexGrow: 1, width: "100%", height: "100%", maxWidth: "100%" }}>
+      {child}
     </Stack>
   );
 };
@@ -137,7 +153,14 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
     };
 
     return (
-      <AdminEditor app="cms" resource="page" id={id} extraActions={[openOnSiteButton]} afterSubmit={onSubmit}>
+      <AdminEditor
+        app="cms"
+        resource="page"
+        id={id}
+        context={id ? undefined : { show_bottom_sponsor_banner: true }}
+        extraActions={[openOnSiteButton]}
+        afterSubmit={onSubmit}
+      >
         {id ? (
           <>
             <br />
@@ -147,6 +170,7 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
               <Tabs orientation="vertical" value={editorState.tab} onChange={setTab} scrollButtons={false}>
                 <Tab wrapped label="한국어" />
                 <Tab wrapped label="영어" />
+                <Tab wrapped label="CSS" />
               </Tabs>
               <Stack sx={{ width: "100%", height: "100%", maxWidth: "100%" }}>
                 <Button size="small" onClick={insertNewSection(0)} startIcon={<Add />}>
@@ -156,7 +180,7 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
                   <SectionEditorField
                     key={section.id || index}
                     defaultValue={section}
-                    language={editorState.tab === 0 ? "ko" : "en"}
+                    tab={SECTION_TABS[editorState.tab]}
                     onInsertNewSection={insertNewSection(index + 1)}
                     onChange={onSectionDataChange(index)}
                     onDelete={deleteSection(index)}

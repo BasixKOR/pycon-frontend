@@ -31,6 +31,14 @@ export type SimpleOrderProductOptionRelation = {
   custom_response: string | null;
 };
 
+export type SimpleTicketInfo = {
+  name: string;
+  phone: string;
+  email: string;
+  organization: string | null;
+  contribution_message: string | null;
+};
+
 export type SimpleOrderProductRelation = {
   id: string;
   product: SimpleProduct;
@@ -38,6 +46,7 @@ export type SimpleOrderProductRelation = {
   price: number;
   donation_price: number;
   options: SimpleOrderProductOptionRelation[];
+  ticket_info: SimpleTicketInfo | null;
 };
 
 export type SimplePaymentHistory = {

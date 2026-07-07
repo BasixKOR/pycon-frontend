@@ -34,6 +34,6 @@ export const CartBadgeButton: FC = Suspense.with(
   ErrorBoundary.with({ fallback: <InnerCartBadgeButton /> }, () => {
     const shopAPIClient = useShopClient();
     const { data: cart } = useCart(shopAPIClient);
-    return <InnerCartBadgeButton count={cart?.products.length} loading={false} />;
+    return <InnerCartBadgeButton count={cart?.products?.length} loading={false} />;
   })
 );

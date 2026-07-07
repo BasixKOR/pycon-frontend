@@ -32,6 +32,9 @@ export const TimeSettingsTab: FC<Props> = ({ values, setField }) => (
       <TextField {...dateTimeFieldProps(values, setField, "orderable_starts_at", "주문 가능 시작")} />
       <TextField {...dateTimeFieldProps(values, setField, "orderable_ends_at", "주문 가능 종료")} />
     </Stack>
-    <TextField {...dateTimeFieldProps(values, setField, "refundable_ends_at", "환불 가능 종료")} />
+    <TextField
+      {...dateTimeFieldProps(values, setField, "refundable_ends_at", "환불 가능 종료")}
+      helperText="비워두면 환불 불가 상품입니다. 항상 환불 가능하게 하려면 9999-12-31 같은 먼 미래 날짜로 설정하세요."
+    />
   </Stack>
 );

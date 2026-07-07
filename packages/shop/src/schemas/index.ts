@@ -96,6 +96,10 @@ export type Option = {
   leftover_stock_info: OptionLeftoverStockInfo;
 };
 
+// "선택해주세요" placeholder 노출/검증 정책. 백엔드 OptionGroup.PlaceholderMode 와 동일.
+// hidden: 미노출(옵션 필수 선택) / optional: 노출, 미선택 통과 / required: 노출, 미선택 시 검증 실패.
+export type OptionGroupPlaceholderMode = "hidden" | "optional" | "required";
+
 export type OptionGroup = {
   id: string;
   name: string;
@@ -103,6 +107,8 @@ export type OptionGroup = {
   min_quantity_per_product: number;
   max_quantity_per_product: number;
   max_quantity_per_user: number;
+
+  placeholder_mode: OptionGroupPlaceholderMode;
 
   // null이면 Product의 동일 필드를 따름.
   visible_starts_at: string | null;
@@ -126,7 +132,9 @@ export type OptionGroup = {
 );
 
 export type ProductListQueryParams = {
+  /** 조회할 카테고리 그룹 코드. 지정하면 해당 그룹의 상품만 보여준다. */
   category_group?: string;
+  /** 조회할 카테고리 코드. 지정하면 해당 카테고리의 상품만 보여준다. */
   category?: string;
 };
 
@@ -136,9 +144,10 @@ export type Product = {
   description: string | null;
   image: string | null;
   price: number;
+  is_ticket: boolean;
   orderable_starts_at: string;
   orderable_ends_at: string;
-  refundable_ends_at: string;
+  refundable_ends_at: string | null; // null이면 환불 불가 상품.
 
   category_group: string;
   category: string;
@@ -151,6 +160,24 @@ export type Product = {
   leftover_stock: number;
   tag_names: string[];
 };
+
+export type TicketInfo = {
+  name: string;
+  phone: string;
+  email: string;
+  organization: string | null;
+  contribution_message: string | null;
+};
+
+export type TicketInfoRequest = {
+  name: string;
+  phone: string;
+  email: string;
+  organization: string;
+  contribution_message?: string;
+};
+
+export type CertificateStatus = "not_issuable" | "issuable" | "issued" | "revoked";
 
 export type PaymentHistoryStatus = "pending" | "completed" | "partial_refunded" | "refunded";
 
@@ -168,11 +195,15 @@ export type OrderProductItem = {
   donation_price: number;
   not_refundable_reason: string | null;
   scancode_url: string | null;
+  is_ticket: boolean;
+  ticket_info: TicketInfo | null;
+  certificate_status: CertificateStatus;
   product: {
     id: string;
     name: string;
     price: number;
     image: string | null;
+    donation_allowed: boolean;
   };
   options: (
     | {
@@ -183,6 +214,7 @@ export type OrderProductItem = {
           is_custom_response: false;
           custom_response_pattern: null;
           response_modifiable_ends_at: string | null;
+          placeholder_mode: OptionGroupPlaceholderMode;
         };
         product_option: {
           id: string;
@@ -199,6 +231,7 @@ export type OrderProductItem = {
           is_custom_response: true;
           custom_response_pattern: string;
           response_modifiable_ends_at: string | null;
+          placeholder_mode: OptionGroupPlaceholderMode;
         };
         product_option: null;
         custom_response: string;
@@ -217,6 +250,7 @@ export type Order = {
   id: string;
   name: string;
   merchant_uid: string;
+  first_paid_at: string;
   first_paid_price: number;
   current_paid_price: number;
   current_status: PaymentHistoryStatus;
@@ -227,7 +261,7 @@ export type Order = {
   products: OrderProductItem[];
   customer_info: CustomerInfo | null;
 };
-export type Cart = Order;
+export type Cart = Omit<Order, "first_paid_at"> & { first_paid_at: string | null };
 
 export type CartItemAppendRequest = {
   product: string;
@@ -237,6 +271,7 @@ export type CartItemAppendRequest = {
     custom_response: string | null;
   }[];
   donation_price?: number;
+  ticket_info?: TicketInfoRequest; // 티켓 상품(product.is_ticket === true)인 경우 필수.
 };
 export type OneItemOrderRequest = CartItemAppendRequest & { customer_info: CustomerInfo };
 
@@ -245,13 +280,19 @@ export type OneItemRefundRequest = {
   order_product_relation_id: string;
 };
 
-export type OrderOptionsPatchRequest = {
+export type OrderProductPatchRequest = {
   order_id: string;
   order_product_relation_id: string;
-  options: {
+  ticket_info?: TicketInfoRequest;
+  options?: {
     order_product_option_relation: string;
     custom_response: string;
   }[];
+};
+
+export type CertificateIssueRequest = {
+  order_id: string;
+  order_product_relation_id: string;
 };
 
 export type Patron = {

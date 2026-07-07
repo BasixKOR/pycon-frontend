@@ -1,7 +1,7 @@
 import {
   useBackendAdminClient,
-  useChoicesQuery,
-  useListQuery,
+  useListAllQuery,
+  useSelectablesQuery,
   useRemovePreparedMutation,
   useUpdatePreparedMutation,
 } from "@frontend/common/hooks/useAdminAPI";
@@ -111,7 +111,7 @@ const InnerSiteMapList: FC<InnerSiteMapListProps> = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, ({ domainGroupId, headerSlot }: InnerSiteMapListProps) => {
     const backendAdminAPIClient = useBackendAdminClient();
-    const { data } = useListQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap", { domain_group: domainGroupId });
+    const { data } = useListAllQuery<FlatSiteMap>(backendAdminAPIClient, "cms", "sitemap", { domain_group: domainGroupId });
     const deleteMutation = useRemovePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
     const { mutateAsync: updateMutationAsync } = useUpdatePreparedMutation(backendAdminAPIClient, "cms", "sitemap");
 
@@ -265,8 +265,8 @@ const DomainGroupSelector: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
     const backendAdminAPIClient = useBackendAdminClient();
-    const { data: choices } = useChoicesQuery(backendAdminAPIClient, "cms", "sitemap");
-    const domainGroupChoices = (choices["domain_group"] ?? []).filter((c): c is { const: string; title: string } => c.const !== null);
+    const { data } = useSelectablesQuery(backendAdminAPIClient, "cms", "domaingroup");
+    const domainGroupChoices = data.results.filter((c): c is { const: string; title: string } => c.const !== null);
 
     const [domainGroupId, setDomainGroupId] = useState<string>(() => domainGroupChoices[0]?.const ?? "");
 

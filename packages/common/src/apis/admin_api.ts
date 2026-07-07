@@ -1,6 +1,7 @@
 import {
   AdminSchemaDefinition,
-  ChoicesResponse,
+  DashboardChartDataResponse,
+  DashboardChartDefinition,
   GoogleOAuth2AccessTokenResponseSchema,
   ModificationAuditPreviewSchema,
   ModificationAuditSchema,
@@ -9,10 +10,11 @@ import {
   PageSectionSchema,
   PaginatedListResponse,
   PublicFileSchema,
-  UserChangePasswordSchema,
+  SelectablesResponse,
+  UserMergeHistoryDetailSchema,
+  UserMergeRequestSchema,
   UserResetPasswordResponseSchema,
   UserSchema,
-  UserSignInSchema,
 } from "@frontend/common/schemas/backendAdminAPI";
 
 import { BackendAPIClient } from "./client";
@@ -26,40 +28,28 @@ export const me = (client: BackendAPIClient) => async () => {
   }
 };
 
-export const signIn = (client: BackendAPIClient) => (data: UserSignInSchema) =>
-  client.post<UserSchema, UserSignInSchema>("v1/admin-api/user/userext/signin/", data);
-
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/admin-api/user/userext/signout/");
-
-export const changePassword = (client: BackendAPIClient) => (data: UserChangePasswordSchema) =>
-  client.post<void, UserChangePasswordSchema>("v1/admin-api/user/userext/password/", data);
 
 export const resetUserPassword = (client: BackendAPIClient, id: string) => () =>
   client.delete<UserResetPasswordResponseSchema>(`v1/admin-api/user/userext/${id}/password/`);
-
-export const list =
-  <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
-  () =>
-    client.get<T[]>(`v1/admin-api/${app}/${resource}/`, { params });
 
 export const listPaginated =
   <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   () =>
     client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
 
-export type ListAutoResult<T> = {
-  items: T[];
-  pagination: { count: number; next: string | null; previous: string | null } | null;
-};
-
-// Probes the list endpoint and normalizes whether the viewset uses DRF pagination:
-// paginated responses become {items, pagination}, flat array responses become {items, pagination: null}.
-export const listAuto =
+export const listAll =
   <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
-  async (): Promise<ListAutoResult<T>> => {
-    const data = await client.get<T[] | PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, { params });
-    if (Array.isArray(data)) return { items: data, pagination: null };
-    return { items: data.results, pagination: { count: data.count, next: data.next, previous: data.previous } };
+  async (): Promise<T[]> => {
+    const items: T[] = [];
+    for (let page = 1; ; page += 1) {
+      const data = await client.get<PaginatedListResponse<T>>(`v1/admin-api/${app}/${resource}/`, {
+        params: { ...params, page: String(page), page_size: "200" },
+      });
+      items.push(...data.results);
+      if (!data.next) break;
+    }
+    return items;
   };
 
 export const retrieve =
@@ -71,8 +61,8 @@ export const retrieve =
 
 export const create =
   <T>(client: BackendAPIClient, app: string, resource: string) =>
-  (data: T) =>
-    client.post<Omit<T, "id">, T>(`v1/admin-api/${app}/${resource}/`, data);
+  (data: Omit<T, "id">) =>
+    client.post<T, Omit<T, "id">>(`v1/admin-api/${app}/${resource}/`, data);
 
 export const update =
   <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
@@ -106,8 +96,8 @@ export const listSections = (client: BackendAPIClient, pageId: string) => () => 
   return client.get<PageSectionSchema[]>(`v1/admin-api/cms/page/${pageId}/section/`);
 };
 
-export const choices = (client: BackendAPIClient, app: string, resource: string) => () =>
-  client.get<ChoicesResponse>(`v1/admin-api/${app}/${resource}/choices/`);
+export const selectables = (client: BackendAPIClient, app: string, resource: string) => () =>
+  client.get<SelectablesResponse>(`v1/admin-api/${app}/${resource}/selectables/`);
 
 export const openApiSchema = (client: BackendAPIClient) => () => client.get<OpenAPISchema>("api/schema/v1/", { params: { format: "json" } });
 
@@ -115,19 +105,19 @@ export const bulkUpdateSections = (client: BackendAPIClient, pageId: string) => 
   client.put<PageSectionSchema[], { sections: PageSectionBulkUpdateSchema[] }>(`v1/admin-api/cms/page/${pageId}/section/bulk-update/`, data);
 
 export const approveModificationAudit = (client: BackendAPIClient, id: string) => (reason?: string | null) =>
-  client.patch<ModificationAuditSchema, { reason?: string | null }>(`v1/admin-api/modification-audit/modification-audit/${id}/approve/`, {
+  client.patch<ModificationAuditSchema, { reason?: string | null }>(`v1/admin-api/participant_portal_api/modificationaudit/${id}/approve/`, {
     reason: reason ?? null,
   });
 
 export const rejectModificationAudit = (client: BackendAPIClient, id: string) => (reason?: string | null) =>
-  client.patch<ModificationAuditSchema, { reason?: string | null }>(`v1/admin-api/modification-audit/modification-audit/${id}/reject/`, {
+  client.patch<ModificationAuditSchema, { reason?: string | null }>(`v1/admin-api/participant_portal_api/modificationaudit/${id}/reject/`, {
     reason: reason ?? null,
   });
 
 export const previewModificationAudit =
   <T>(client: BackendAPIClient, id: string) =>
   () =>
-    client.get<ModificationAuditPreviewSchema<T>>(`v1/admin-api/modification-audit/modification-audit/${id}/preview/`);
+    client.get<ModificationAuditPreviewSchema<T>>(`v1/admin-api/participant_portal_api/modificationaudit/${id}/preview/`);
 
 export const renderTemplate =
   (client: BackendAPIClient, app: string, resource: string) =>
@@ -144,4 +134,18 @@ export const renderSentTo = (client: BackendAPIClient, app: string, resource: st
   client.get<string>(`v1/admin-api/${app}/${resource}/${id}/sent-to/${sentToId}/render/`);
 
 export const issueGoogleOAuth2AccessToken = (client: BackendAPIClient, id: string) => () =>
-  client.post<GoogleOAuth2AccessTokenResponseSchema, undefined>(`v1/admin-api/external-api/google/oauth2/${id}/access-token/`, undefined);
+  client.post<GoogleOAuth2AccessTokenResponseSchema, undefined>(`v1/admin-api/external_api/googleoauth2/${id}/access-token/`, undefined);
+
+export const exportOrders = (client: BackendAPIClient) => (params: Record<string, string>) =>
+  client.post<Blob, null>("v1/admin-api/shop/order/export/", null, { params, responseType: "blob" });
+
+export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
+
+export const fetchDashboardChartData = (client: BackendAPIClient, endpoint: string) => (params: Record<string, unknown>) =>
+  client.post<DashboardChartDataResponse, { params: Record<string, unknown> }>(endpoint, { params });
+
+export const previewUserMerge = (client: BackendAPIClient) => (data: UserMergeRequestSchema) =>
+  client.post<UserMergeHistoryDetailSchema, UserMergeRequestSchema>("v1/admin-api/user/usermergehistory/preview/", data);
+
+export const revertUserMerge = (client: BackendAPIClient, id: string) => () =>
+  client.post<UserMergeHistoryDetailSchema, undefined>(`v1/admin-api/user/usermergehistory/${id}/revert/`, undefined);

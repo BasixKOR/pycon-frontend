@@ -12,6 +12,8 @@ export type OptionAdmin = {
   leftover_stock?: number | null;
 };
 
+export type OptionGroupPlaceholderMode = "hidden" | "optional" | "required";
+
 export type OptionGroupAdmin = {
   id: string;
   created_at: string;
@@ -31,6 +33,11 @@ export type OptionGroupAdmin = {
   is_custom_response: boolean;
   custom_response_pattern: string;
   response_modifiable_ends_at: string | null;
+  // "선택해주세요" placeholder 노출/검증 정책.
+  // - hidden: 미노출
+  // - optional: 노출, 미선택 통과
+  // - required: 노출, 미선택 시 검증 실패.
+  placeholder_mode: OptionGroupPlaceholderMode;
   options: OptionAdmin[];
 };
 
@@ -51,7 +58,7 @@ export type ProductAdmin = {
   visible_ends_at: string;
   orderable_starts_at: string;
   orderable_ends_at: string;
-  refundable_ends_at: string;
+  refundable_ends_at: string | null; // null이면 환불 불가 상품.
   category: string;
   priority: number;
   donation_allowed: boolean;

@@ -1,11 +1,12 @@
 import { RequestPayResponse } from "iamport-typings/src";
 import { isEmpty, isString } from "remeda";
 
-import type { Order } from "@frontend/shop/schemas";
+import type { Cart } from "@frontend/shop/schemas";
 
+// 결제 직전(미결제) 상태를 받으므로 Cart. Order는 Cart에 할당 가능해 둘 다 허용된다.
 export const startPortOnePurchase = (
   portOneAccountId: string,
-  order: Order,
+  order: Cart,
   onSuccess?: (response: RequestPayResponse) => void,
   onFailure?: (response: RequestPayResponse) => void,
   onCleanUp?: (response: RequestPayResponse) => void

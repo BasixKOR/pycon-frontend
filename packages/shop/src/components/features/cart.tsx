@@ -9,9 +9,15 @@ import { useNavigate } from "react-router-dom";
 import { isArray } from "remeda";
 
 import { formatBackendErrorMessage } from "@frontend/shop/apis";
-import { CustomerInfoFormDialog, OrderProductRelationOptionInput, PriceDisplay, SignInGuard } from "@frontend/shop/components/common";
+import {
+  CustomerInfoFormDialog,
+  OrderProductRelationOptionInput,
+  PriceDisplay,
+  SignInGuard,
+  TicketInfoDisplay,
+} from "@frontend/shop/components/common";
 import { useCart, usePrepareCartOrderMutation, useRemoveItemFromCartMutation, useShopClient, useShopContext } from "@frontend/shop/hooks";
-import type { CustomerInfo, Order, OrderProductItem } from "@frontend/shop/schemas";
+import type { Cart, CustomerInfo, OrderProductItem } from "@frontend/shop/schemas";
 import { startPortOnePurchase } from "@frontend/shop/utils";
 
 const CartItem: FC<
@@ -44,6 +50,7 @@ const CartItem: FC<
         />,
       ]}
     >
+      {cartProdRel.ticket_info && <TicketInfoDisplay language={language} ticketInfo={cartProdRel.ticket_info} />}
       <Stack spacing={2} sx={{ width: "100%" }}>
         {cartProdRel.options.map((optionRel) => (
           <OrderProductRelationOptionInput
@@ -70,6 +77,11 @@ type CartStatusStateType = {
   openBackdrop: boolean;
 };
 
+/**
+ * 로그인 사용자의 장바구니 상태를 보여주는 컴포넌트. 담긴 상품 목록·총 결제 금액·결제 버튼을 렌더하고,
+ * 상품 삭제와 (고객 정보 입력 후) 결제 진행까지 처리한다. 비로그인 시에는 로그인 안내를 보여준다.
+ * @example <Shop__Feature__CartStatus />
+ */
 export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -118,7 +130,7 @@ export const CartStatus: FC = Suspense.with({ fallback: <CircularProgress /> }, 
     closeDialog();
     openBackdrop();
     cartOrderStartMutation.mutate(formData, {
-      onSuccess: (order: Order) => {
+      onSuccess: (order: Cart) => {
         startPortOnePurchase(
           shopImpAccountId,
           order,

@@ -1,6 +1,6 @@
 import { CenteredPage, CommonContextProvider } from "@frontend/common/components";
 import type { ContextOptions } from "@frontend/common/contexts";
-import { registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
+import { initFaro, registerChunkLoadErrorReloadHandler } from "@frontend/common/utils";
 import { ShopContextProvider } from "@frontend/shop/components/common";
 import { ContextOptions as ShopContextOptions } from "@frontend/shop/contexts";
 import { CircularProgress } from "@mui/material";
@@ -41,13 +41,17 @@ const queryClient = new QueryClient({
 const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
+  appType: "admin",
   debug: true,
   language: "ko",
   baseUrl: ".",
   frontendDomain: import.meta.env.VITE_PYCONKR_FRONTEND_DOMAIN,
   backendApiDomain,
+  backendApiAbsoluteDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  accountsDomain: import.meta.env.VITE_PYCONKR_ACCOUNTS_DOMAIN,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
+  backendApiSessionCookieName: import.meta.env.VITE_PYCONKR_BACKEND_SESSION_COOKIE_NAME,
   mdxComponents: PyConKRMDXComponents,
 };
 
@@ -56,6 +60,15 @@ const ShopOptions: ShopContextOptions = {
   shopImpAccountId: import.meta.env.VITE_PYCONKR_SHOP_IMP_ACCOUNT_ID,
 };
 
+initFaro({
+  enabled: import.meta.env.PROD,
+  url: import.meta.env.VITE_FARO_COLLECTOR_URL,
+  app: {
+    name: "pyconkr-admin",
+    version: import.meta.env.VITE_APP_VERSION,
+    environment: import.meta.env.MODE as "development" | "production",
+  },
+});
 registerChunkLoadErrorReloadHandler();
 
 createRoot(document.getElementById("root")!).render(
