@@ -1,6 +1,17 @@
 import { isArray, isPlainObject, isString } from "remeda";
 export type EmptyObject = Record<string, never>;
 
+export type SocialSignInProvider = "google" | "naver" | "kakao";
+export type SocialSignInRequest = {
+  provider: SocialSignInProvider;
+  callback_url: string;
+};
+
+export type SocialSessionStatus = {
+  meta: { is_authenticated: boolean };
+  data: { user?: { username?: string; display?: string } };
+};
+
 export type DetailedErrorSchema = {
   code: string;
   detail: string;
@@ -68,6 +79,16 @@ export type SponsorTierSchema = {
   }[];
 };
 
+export type EventSchema = {
+  id: string;
+  name: string;
+  slogan: string | null;
+  description: string | null;
+  event_start_at: string | null;
+  event_end_at: string | null;
+  logo: string | null;
+};
+
 export type SponsorQueryParameterSchema = {
   event?: string;
 };
@@ -79,6 +100,11 @@ export type SessionQueryParameterSchema = {
 
 export type SessionSchema = {
   id: string;
+  presentation_type: {
+    id: string;
+    name: string;
+    event: EventSchema;
+  };
   title: string;
   summary: string | null;
   description: string;

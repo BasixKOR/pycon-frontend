@@ -39,12 +39,16 @@ const muiTheme = createTheme();
 const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
+  appType: "participant_portal",
   language: "ko",
   debug: IS_DEBUG_ENV,
   baseUrl: ".",
   backendApiDomain,
+  backendApiAbsoluteDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  accountsDomain: import.meta.env.VITE_PYCONKR_ACCOUNTS_DOMAIN,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
+  backendApiSessionCookieName: import.meta.env.VITE_PYCONKR_BACKEND_SESSION_COOKIE_NAME,
   mdxComponents: {},
 };
 

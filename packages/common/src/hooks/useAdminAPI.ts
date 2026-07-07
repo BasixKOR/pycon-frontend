@@ -3,12 +3,13 @@ import { useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@ta
 import {
   approveModificationAudit,
   bulkUpdateSections,
-  changePassword,
-  choices,
   create,
+  exportOrders,
+  fetchDashboardChartData,
   issueGoogleOAuth2AccessToken,
-  list,
-  listAuto,
+  previewUserMerge,
+  listAll,
+  listDashboardCharts,
   listPaginated,
   listSections,
   me,
@@ -23,15 +24,16 @@ import {
   retrieve,
   retryHistory,
   retrySentTo,
+  revertUserMerge,
   schema,
-  signIn,
+  selectables,
   signOut,
   update,
   updatePrepared,
   uploadPublicFile,
 } from "@frontend/common/apis/admin_api";
 import { BackendAPIClient } from "@frontend/common/apis/client";
-import { PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { ChoicesResponse, DashboardChartDefinition, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
 
 import { useBackendContext } from "./useAPI";
 
@@ -40,16 +42,16 @@ const QUERY_KEYS = {
   ADMIN_LIST: ["query", "admin", "list"],
   ADMIN_RETRIEVE: ["query", "admin", "retrieve"],
   ADMIN_SCHEMA: ["query", "admin", "schema"],
-  ADMIN_CHOICES: ["query", "admin", "choices"],
+  ADMIN_SELECTABLES: ["query", "admin", "selectables"],
   ADMIN_OPENAPI_SCHEMA: ["query", "admin", "openapi-schema"],
   ADMIN_PREVIEW_MODIFICATION_AUDIT: ["query", "admin", "retrieve", "modification-audit"],
   ADMIN_RENDER_SENT_TO: ["query", "admin", "render-sent-to"],
+  ADMIN_DASHBOARD_CHARTS: ["query", "admin", "dashboard", "charts"],
+  ADMIN_DASHBOARD_CHART_DATA: ["query", "admin", "dashboard", "chart-data"],
 };
 
 const MUTATION_KEYS = {
-  ADMIN_SIGN_IN: ["mutation", "admin", "sign-in"],
   ADMIN_SIGN_OUT: ["mutation", "admin", "sign-out"],
-  ADMIN_CHANGE_PASSWORD: ["mutation", "admin", "change-password"],
   ADMIN_RESET_PASSWORD: ["mutation", "admin", "reset-password"],
   ADMIN_CREATE: ["mutation", "admin", "create"],
   ADMIN_UPDATE: ["mutation", "admin", "update"],
@@ -60,6 +62,9 @@ const MUTATION_KEYS = {
   ADMIN_RETRY_HISTORY: ["mutation", "admin", "retry-history"],
   ADMIN_RETRY_SENT_TO: ["mutation", "admin", "retry-sent-to"],
   ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN: ["mutation", "admin", "google-oauth2-access-token"],
+  ADMIN_EXPORT_ORDERS: ["mutation", "admin", "export-orders"],
+  ADMIN_PREVIEW_USER_MERGE: ["mutation", "admin", "preview", "user-merge"],
+  ADMIN_REVERT_USER_MERGE: ["mutation", "admin", "revert", "user-merge"],
 };
 
 export const useBackendAdminClient = () => {
@@ -73,22 +78,10 @@ export const useSignedInUserQuery = (client: BackendAPIClient) =>
     queryFn: me(client),
   });
 
-export const useSignInMutation = (client: BackendAPIClient) =>
-  useMutation({
-    mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_IN],
-    mutationFn: signIn(client),
-  });
-
 export const useSignOutMutation = (client: BackendAPIClient) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_SIGN_OUT],
     mutationFn: signOut(client),
-  });
-
-export const useChangePasswordMutation = (client: BackendAPIClient) =>
-  useMutation({
-    mutationKey: [...MUTATION_KEYS.ADMIN_CHANGE_PASSWORD],
-    mutationFn: changePassword(client),
   });
 
 export const useResetUserPasswordMutation = (client: BackendAPIClient, id: string) =>
@@ -103,19 +96,36 @@ export const useSchemaQuery = (client: BackendAPIClient, app: string, resource: 
     queryFn: schema(client, app, resource),
   });
 
-export const useChoicesQuery = (client: BackendAPIClient, app: string, resource: string) =>
+export const useSelectablesQuery = (client: BackendAPIClient, app: string, resource: string) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
-    queryFn: choices(client, app, resource),
+    queryKey: [...QUERY_KEYS.ADMIN_SELECTABLES, app, resource],
+    queryFn: selectables(client, app, resource),
   });
 
-export const useChoicesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
+export const useSelectablesQueries = (client: BackendAPIClient, pairs: { app: string; resource: string }[]) =>
   useSuspenseQueries({
     queries: pairs.map(({ app, resource }) => ({
-      queryKey: [...QUERY_KEYS.ADMIN_CHOICES, app, resource],
-      queryFn: choices(client, app, resource),
+      queryKey: [...QUERY_KEYS.ADMIN_SELECTABLES, app, resource],
+      queryFn: selectables(client, app, resource),
     })),
   });
+
+// 리소스의 FK/M2M 필드별 선택지를 {field: ChoiceItem[]} 로 반환.
+// json-schema 의 ui:options.choiceApp/choiceResource 로 각 필드의 대상 selectables 를 모아 구성한다.
+export const useFieldSelectablesQuery = (client: BackendAPIClient, app: string, resource: string): ChoicesResponse => {
+  const { data: schemaDef } = useSchemaQuery(client, app, resource);
+  const fields = Object.entries(schemaDef.ui_schema ?? {})
+    .map(([field, ui]) => {
+      const opts = (ui as { "ui:options"?: { choiceApp?: string; choiceResource?: string } })["ui:options"];
+      return opts?.choiceApp && opts?.choiceResource ? { field, app: opts.choiceApp, resource: opts.choiceResource } : null;
+    })
+    .filter((f): f is { field: string; app: string; resource: string } => f !== null);
+  const queries = useSelectablesQueries(
+    client,
+    fields.map(({ app, resource }) => ({ app, resource }))
+  );
+  return fields.reduce<ChoicesResponse>((acc, f, i) => ({ ...acc, [f.field]: queries[i]?.data?.results ?? [] }), {});
+};
 
 export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
   useSuspenseQuery({
@@ -124,22 +134,16 @@ export const useOpenApiSchemaQuery = (client: BackendAPIClient) =>
     staleTime: Infinity,
   });
 
-export const useListQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
-  useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, JSON.stringify(params)],
-    queryFn: list<T>(client, app, resource, params),
-  });
-
 export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "paginated", JSON.stringify(params)],
     queryFn: listPaginated<T>(client, app, resource, params),
   });
 
-export const useListAutoQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
+export const useListAllQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "auto", JSON.stringify(params)],
-    queryFn: listAuto<T>(client, app, resource, params),
+    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "all", JSON.stringify(params)],
+    queryFn: listAll<T>(client, app, resource, params),
   });
 
 export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
@@ -251,4 +255,43 @@ export const useIssueGoogleOAuth2AccessTokenMutation = (client: BackendAPIClient
     mutationKey: [...MUTATION_KEYS.ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN, id],
     mutationFn: issueGoogleOAuth2AccessToken(client, id),
     meta: { invalidates: [] },
+  });
+
+export const useExportOrdersMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_EXPORT_ORDERS],
+    mutationFn: exportOrders(client),
+    meta: { invalidates: [] },
+  });
+
+export const usePreviewUserMergeMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_PREVIEW_USER_MERGE],
+    mutationFn: previewUserMerge(client),
+    meta: { invalidates: [] },
+  });
+
+export const useRevertUserMergeMutation = (client: BackendAPIClient, id: string) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_REVERT_USER_MERGE, id],
+    mutationFn: revertUserMerge(client, id),
+  });
+
+// 정의 자체는 정적이지만 응답의 옵션(티켓/이벤트)은 DB에서 동적 주입 → 기본 staleTime 으로 갱신되게 둔다.
+export const useDashboardChartsQuery = (client: BackendAPIClient) =>
+  useSuspenseQuery({
+    queryKey: QUERY_KEYS.ADMIN_DASHBOARD_CHARTS,
+    queryFn: listDashboardCharts(client),
+  });
+
+export const useDashboardChartDataQuery = (
+  client: BackendAPIClient,
+  chart: DashboardChartDefinition,
+  params: Record<string, unknown>,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: [...QUERY_KEYS.ADMIN_DASHBOARD_CHART_DATA, chart.id, JSON.stringify(params)],
+    queryFn: () => fetchDashboardChartData(client, chart.endpoint)(params),
+    enabled,
   });

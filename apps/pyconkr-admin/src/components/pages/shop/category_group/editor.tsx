@@ -1,4 +1,4 @@
-import { useBackendAdminClient, useListAutoQuery, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
+import { useBackendAdminClient, useListPaginatedQuery, useRetrieveQuery } from "@frontend/common/hooks/useAdminAPI";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import {
   Button,
@@ -66,7 +66,7 @@ type CategoryDialogProps = {
 
 const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, category }) => {
   const client = useBackendAdminClient();
-  const { data: events } = useListAutoQuery<{ id: string; str_repr: string }>(client, "event", "event");
+  const { data: events } = useListPaginatedQuery<{ id: string; str_repr: string }>(client, "event", "event", { page_size: "200" });
 
   const [values, setValues] = useState<CategoryFormValues>({
     name: category?.name ?? "",
@@ -99,7 +99,7 @@ const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, categor
       const newCategories = category
         ? group.categories.map((c) => (c.id === category.id ? { ...c, ...payload } : c))
         : [...group.categories, payload];
-      return client.patch(`v1/admin-api/shop/category-groups/${group.id}/`, {
+      return client.patch(`v1/admin-api/shop/categorygroup/${group.id}/`, {
         ...group,
         categories: newCategories,
       });
@@ -155,7 +155,7 @@ const CategoryDialog: FC<CategoryDialogProps> = ({ open, onClose, group, categor
               <MenuItem value="">
                 <em>연결 안 함</em>
               </MenuItem>
-              {events.items.map((event) => (
+              {events.results.map((event) => (
                 <MenuItem key={event.id} value={event.id}>
                   {event.str_repr}
                 </MenuItem>
@@ -180,7 +180,7 @@ const InnerChildCategoryList: FC<{ groupId: string }> = ErrorBoundary.with(
   { fallback: () => null },
   Suspense.with({ fallback: <CircularProgress /> }, ({ groupId }) => {
     const client = useBackendAdminClient();
-    const groupQuery = useRetrieveQuery<CategoryGroup>(client, "shop", "category-groups", groupId);
+    const groupQuery = useRetrieveQuery<CategoryGroup>(client, "shop", "categorygroup", groupId);
     const group = groupQuery.data;
     const [dialogState, setDialogState] = useState<{ open: boolean; category?: Category }>({ open: false });
 
@@ -188,7 +188,7 @@ const InnerChildCategoryList: FC<{ groupId: string }> = ErrorBoundary.with(
       mutationFn: async (categoryId: string) => {
         if (!group) return;
         const newCategories = group.categories.filter((c) => c.id !== categoryId);
-        return client.patch(`v1/admin-api/shop/category-groups/${group.id}/`, { ...group, categories: newCategories });
+        return client.patch(`v1/admin-api/shop/categorygroup/${group.id}/`, { ...group, categories: newCategories });
       },
       onSuccess: () => addSnackbar("카테고리를 삭제했습니다.", "success"),
       onError: addErrorSnackbar,
@@ -260,7 +260,7 @@ export const ShopCategoryGroupEditorPage: FC = () => {
   return (
     <AdminEditor
       app="shop"
-      resource="category-groups"
+      resource="categorygroup"
       id={id}
       hidingFields={["categories"]}
       context={id ? undefined : ({ categories: [] } as unknown as Record<string, string>)}

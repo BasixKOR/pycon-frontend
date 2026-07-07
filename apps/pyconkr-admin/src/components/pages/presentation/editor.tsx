@@ -1,9 +1,9 @@
 import { Fieldset, MDXRenderer, MarkdownEditor } from "@frontend/common/components";
 import {
   useBackendAdminClient,
-  useChoicesQuery,
   useCreateMutation,
-  useListQuery,
+  useFieldSelectablesQuery,
+  useListPaginatedQuery,
   useRemovePreparedMutation,
   useSchemaQuery,
   useUpdatePreparedMutation,
@@ -289,8 +289,10 @@ export const AdminPresentationEditor: FC = ErrorBoundary.with(
     const speakerUpdateMutation = useUpdatePreparedMutation<PresentationSpeaker>(...speakerQueryParams);
     const speakerDeleteMutation = useRemovePreparedMutation(...speakerQueryParams);
     const { data: speakerJsonSchema } = useSchemaQuery(...speakerQueryParams);
-    const { data: speakerChoices } = useChoicesQuery(...speakerQueryParams);
-    const { data: speakerInitialData } = useListQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
+    const speakerChoices = useFieldSelectablesQuery(...speakerQueryParams);
+    const {
+      data: { results: speakerInitialData },
+    } = useListPaginatedQuery<PresentationSpeaker>(...speakerQueryParams, { presentation });
     const speakers = speakerInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     const scheduleQueryParams = [backendAdminAPIClient, "event", "roomschedule"] as const;
@@ -298,8 +300,10 @@ export const AdminPresentationEditor: FC = ErrorBoundary.with(
     const scheduleUpdateMutation = useUpdatePreparedMutation<Schedule>(...scheduleQueryParams);
     const scheduleDeleteMutation = useRemovePreparedMutation(...scheduleQueryParams);
     const { data: scheduleJsonSchema } = useSchemaQuery(...scheduleQueryParams);
-    const { data: scheduleChoices } = useChoicesQuery(...scheduleQueryParams);
-    const { data: scheduleInitialData } = useListQuery<Schedule>(...scheduleQueryParams, { presentation });
+    const scheduleChoices = useFieldSelectablesQuery(...scheduleQueryParams);
+    const {
+      data: { results: scheduleInitialData },
+    } = useListPaginatedQuery<Schedule>(...scheduleQueryParams, { presentation });
     const schedules = scheduleInitialData.map((s) => ({ ...s, trackId: s.id || Math.random().toString(36).substring(2, 15) }));
 
     useMemo(() => {

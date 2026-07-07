@@ -1,7 +1,6 @@
 // 후대의 개발자님께 : 컴포넌트 맨 첫글자가 대문자로 시작하지 않으면 JSX 컴포넌트가 아니라 일반 HTML 태그로 인식합니다. 제발 대문자로 시작해주세요.
 import PyCon2025HostLogoBig from "@frontend/common/assets/pyconkr2025_hostlogo_big.png";
 import PyCon2025HostLogoSmall from "@frontend/common/assets/pyconkr2025_hostlogo_small.png";
-import PyCon2025Logo from "@frontend/common/assets/pyconkr2025_logo.png";
 import PyCon2025MobileLogoImage from "@frontend/common/assets/pyconkr2025_main_cover_image.png";
 import PyCon2025MobileLogoTitle from "@frontend/common/assets/pyconkr2025_main_cover_title.png";
 import { LottiePlayer, NetworkLottiePlayer } from "@frontend/common/components";
@@ -18,7 +17,6 @@ import {
   SessionTimeTable,
   StyledFullWidthButton,
 } from "@frontend/common/components/mdx_components";
-import type { SessionSchema } from "@frontend/common/schemas/backendAPI";
 import { PriceDisplay, ShopContextProvider, SignInGuard, UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { CartStatus, OrderList, PatronList, ProductImageCardList, ProductList, UserInfo } from "@frontend/shop/components/features";
 import {
@@ -147,7 +145,7 @@ import {
   Zoom,
 } from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
-import { ComponentProps, FC, createElement } from "react";
+import { FC, createElement } from "react";
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: Accordion,
   Mui__material__AccordionActions: AccordionActions,
@@ -274,33 +272,6 @@ const MUIMDXComponents: MDXComponents = {
   Mui__material__Zoom: Zoom,
 };
 
-const getPyConKR2025SessionUrl = (session: SessionSchema): string => {
-  const urlSafeTitle = session.title
-    .replace(/ /g, "-")
-    .replace(/([.])/g, "_")
-    .replace(/(?![.0-9A-Za-zㄱ-ㅣ가-힣-])./g, "");
-  return `/presentations/${session.id}#${urlSafeTitle}`;
-};
-
-const PyConKR2025FallbackImage = createElement("img", {
-  src: PyCon2025Logo,
-  alt: "PyCon 2025 Logo",
-  style: { width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" },
-});
-
-const PyConKR2025SessionList: FC<ComponentProps<typeof SessionList>> = (props) =>
-  createElement(SessionList, {
-    ...props,
-    fallbackImage: PyConKR2025FallbackImage,
-    getSessionUrl: getPyConKR2025SessionUrl,
-  });
-
-const PyConKR2025SessionTimeTable: FC<ComponentProps<typeof SessionTimeTable>> = (props) =>
-  createElement(SessionTimeTable, {
-    ...props,
-    getSessionUrl: getPyConKR2025SessionUrl,
-  });
-
 const PyConKR2025MobileAccordion: FC<object> = () =>
   createElement(MobileAccordion, {
     marqueeText: "AUG 15 - 17",
@@ -325,8 +296,8 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__Map: MDXMap,
   Common__Components__MDX__FAQAccordion: FAQAccordion,
   Common__Components__MDX__FullWidthStyledButton: StyledFullWidthButton,
-  Common__Components__Session__List: PyConKR2025SessionList,
-  Common__Components__Session__TimeTable: PyConKR2025SessionTimeTable,
+  Common__Components__Session__List: SessionList,
+  Common__Components__Session__TimeTable: SessionTimeTable,
   Common__Components__MDX__MobileAccordion: PyConKR2025MobileAccordion,
   Common__Components__MDX__MobileCover: PyConKR2025MobileCover,
   Common__Components__MDX__PyConKR2026MainCover: PyConKR2026MainCover,

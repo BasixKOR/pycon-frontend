@@ -41,13 +41,17 @@ const queryClient = new QueryClient({
 const backendApiDomain = import.meta.env.DEV ? "" : import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN;
 
 const CommonOptions: ContextOptions = {
+  appType: "admin",
   debug: true,
   language: "ko",
   baseUrl: ".",
   frontendDomain: import.meta.env.VITE_PYCONKR_FRONTEND_DOMAIN,
   backendApiDomain,
+  backendApiAbsoluteDomain: import.meta.env.VITE_PYCONKR_BACKEND_API_DOMAIN,
+  accountsDomain: import.meta.env.VITE_PYCONKR_ACCOUNTS_DOMAIN,
   backendApiTimeout: 10000,
   backendApiCSRFCookieName: import.meta.env.VITE_PYCONKR_BACKEND_CSRF_COOKIE_NAME,
+  backendApiSessionCookieName: import.meta.env.VITE_PYCONKR_BACKEND_SESSION_COOKIE_NAME,
   mdxComponents: PyConKRMDXComponents,
 };
 

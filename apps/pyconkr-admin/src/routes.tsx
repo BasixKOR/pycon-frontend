@@ -4,6 +4,7 @@ import {
   Apartment,
   Article,
   AutoFixHigh,
+  BarChart,
   ChatBubble,
   Email,
   Event,
@@ -15,6 +16,7 @@ import {
   Login,
   ManageAccounts,
   MarkEmailRead,
+  Merge,
   Person,
   Public,
   ReceiptLong,
@@ -29,13 +31,14 @@ import { AdminEditorCreateRoutePage, AdminEditorModifyRoutePage } from "./compon
 import { AdminList } from "./components/layouts/admin_list";
 import { RouteDef } from "./components/layouts/global";
 import { AccountRedirectPage } from "./components/pages/account/account";
-import { AccountManagementPage } from "./components/pages/account/manage";
 import { SignInPage } from "./components/pages/account/sign_in";
+import { DashboardPage } from "./components/pages/dashboard";
 import { AdminEventEditor } from "./components/pages/event/editor";
 import { AdminGoogleOAuth2Editor } from "./components/pages/external_api/google_oauth2_editor";
 import { PublicFileUploadPage } from "./components/pages/file/upload";
 import { AdminModificationAuditList } from "./components/pages/modification_audit/list";
 import { AdminModificationAuditEditor } from "./components/pages/modification_audit/pages";
+import { EMAIL_CHANNEL, KAKAO_CHANNEL, SMS_CHANNEL } from "./components/pages/notification/channels";
 import { AdminEmailTemplateEditor } from "./components/pages/notification/email_template_editor";
 import { AdminKakaoAlimTalkTemplateEditor } from "./components/pages/notification/kakao_alimtalk_template_editor";
 import { AdminNotificationHistoryCreate } from "./components/pages/notification/send_history_create";
@@ -52,8 +55,23 @@ import { ShopProductListPage } from "./components/pages/shop/product/list";
 import { ShopTagListPage } from "./components/pages/shop/tag/list";
 import { SiteMapList } from "./components/pages/sitemap/list";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
+import { AdminUserMergePage } from "./components/pages/user/merge/create";
+import { AdminUserMergeDetail } from "./components/pages/user/merge/detail";
+import { AdminUserMergeList } from "./components/pages/user/merge/list";
 
 export const RouteDefinitions: RouteDef[] = [
+  {
+    type: "separator",
+    key: "dashboard-separator",
+    title: "통계",
+  },
+  {
+    type: "routeDefinition",
+    key: "dashboard",
+    icon: BarChart,
+    title: "통계 대시보드",
+    route: "/dashboard",
+  },
   {
     type: "separator",
     key: "audit-separator",
@@ -64,7 +82,7 @@ export const RouteDefinitions: RouteDef[] = [
     key: "modificationaudit-modificationaudit",
     icon: AutoFixHigh,
     title: "수정 심사",
-    route: "/modification-audit",
+    route: "/participant_portal_api/modificationaudit",
   },
   {
     type: "separator",
@@ -77,7 +95,7 @@ export const RouteDefinitions: RouteDef[] = [
     icon: Public,
     title: "도메인 그룹",
     app: "cms",
-    resource: "domain-group",
+    resource: "domaingroup",
   },
   {
     type: "autoAdminRouteDefinition",
@@ -148,7 +166,7 @@ export const RouteDefinitions: RouteDef[] = [
     icon: FolderSpecial,
     title: "카테고리 그룹",
     app: "shop",
-    resource: "category-groups",
+    resource: "categorygroup",
   },
   {
     type: "autoAdminRouteDefinition",
@@ -156,21 +174,21 @@ export const RouteDefinitions: RouteDef[] = [
     icon: LocalOffer,
     title: "태그",
     app: "shop",
-    resource: "tags",
+    resource: "tag",
   },
   {
     type: "routeDefinition",
     key: "shop-product",
     icon: ShoppingBag,
     title: "상품",
-    route: "/shop/products",
+    route: "/shop/product",
   },
   {
     type: "routeDefinition",
     key: "shop-order",
     icon: ReceiptLong,
     title: "주문",
-    route: "/shop/orders",
+    route: "/shop/order",
   },
   {
     type: "separator",
@@ -182,24 +200,24 @@ export const RouteDefinitions: RouteDef[] = [
     key: "notification-email-template",
     icon: Email,
     title: "이메일 템플릿",
-    app: "notification/email",
-    resource: "template",
+    app: "notification",
+    resource: "emailnotificationtemplate",
   },
   {
     type: "autoAdminRouteDefinition",
     key: "notification-kakao-alimtalk-template",
     icon: Forum,
     title: "카카오 알림톡 템플릿",
-    app: "notification/kakao-alimtalk",
-    resource: "template",
+    app: "notification",
+    resource: "nhncloudkakaoalimtalknotificationtemplate",
   },
   {
     type: "autoAdminRouteDefinition",
     key: "notification-sms-template",
     icon: Sms,
     title: "SMS 템플릿",
-    app: "notification/sms",
-    resource: "template",
+    app: "notification",
+    resource: "nhncloudsmsnotificationtemplate",
   },
   {
     type: "separator",
@@ -211,24 +229,24 @@ export const RouteDefinitions: RouteDef[] = [
     key: "notification-email-history",
     icon: MarkEmailRead,
     title: "이메일 발송 이력",
-    app: "notification/email",
-    resource: "history",
+    app: "notification",
+    resource: "emailnotificationhistory",
   },
   {
     type: "autoAdminRouteDefinition",
     key: "notification-kakao-alimtalk-history",
     icon: ChatBubble,
     title: "카카오 알림톡 발송 이력",
-    app: "notification/kakao-alimtalk",
-    resource: "history",
+    app: "notification",
+    resource: "nhncloudkakaoalimtalknotificationhistory",
   },
   {
     type: "autoAdminRouteDefinition",
     key: "notification-sms-history",
     icon: Send,
     title: "SMS 발송 이력",
-    app: "notification/sms",
-    resource: "history",
+    app: "notification",
+    resource: "nhncloudsmsnotificationhistory",
   },
   {
     type: "separator",
@@ -240,8 +258,8 @@ export const RouteDefinitions: RouteDef[] = [
     key: "external-api-google-oauth2",
     icon: VpnKey,
     title: "Google OAuth2",
-    app: "external-api/google",
-    resource: "oauth2",
+    app: "external_api",
+    resource: "googleoauth2",
   },
   {
     type: "separator",
@@ -265,6 +283,13 @@ export const RouteDefinitions: RouteDef[] = [
     resource: "organization",
   },
   {
+    type: "routeDefinition",
+    key: "user-merge",
+    icon: Merge,
+    title: "계정 병합",
+    route: "/user/usermergehistory",
+  },
+  {
     type: "separator",
     key: "allauth-separator",
     title: "소셜 계정 관리",
@@ -275,14 +300,14 @@ export const RouteDefinitions: RouteDef[] = [
     icon: Login,
     title: "소셜 앱",
     app: "allauth",
-    resource: "social-app",
+    resource: "socialapp",
   },
   {
     type: "routeDefinition",
     key: "allauth-social-account",
     icon: Person,
     title: "소셜 계정",
-    route: "/allauth/social-account",
+    route: "/allauth/socialaccount",
   },
   {
     type: "autoAdminRouteDefinition",
@@ -290,7 +315,7 @@ export const RouteDefinitions: RouteDef[] = [
     icon: AlternateEmail,
     title: "이메일 주소",
     app: "allauth",
-    resource: "email-address",
+    resource: "emailaddress",
   },
 ];
 
@@ -314,42 +339,47 @@ export const RegisteredRoutes = {
   ),
   "/cms/page/create": <AdminCMSPageEditor />,
   "/cms/page/:id": <AdminCMSPageEditor />,
-  "/notification/email/template/create": <AdminEmailTemplateEditor />,
-  "/notification/email/template/:id": <AdminEmailTemplateEditor />,
-  "/notification/email/history/create": <AdminNotificationHistoryCreate app="notification/email" />,
-  "/notification/email/history/:id": <AdminNotificationHistoryEditor app="notification/email" />,
-  "/notification/kakao-alimtalk/template": <AdminList app="notification/kakao-alimtalk" resource="template" hideCreateNew />,
-  "/notification/kakao-alimtalk/template/:id": <AdminKakaoAlimTalkTemplateEditor />,
-  "/notification/kakao-alimtalk/history/create": <AdminNotificationHistoryCreate app="notification/kakao-alimtalk" />,
-  "/notification/kakao-alimtalk/history/:id": <AdminNotificationHistoryEditor app="notification/kakao-alimtalk" />,
-  "/notification/sms/template/create": <AdminSMSTemplateEditor />,
-  "/notification/sms/template/:id": <AdminSMSTemplateEditor />,
-  "/notification/sms/history/create": <AdminNotificationHistoryCreate app="notification/sms" />,
-  "/notification/sms/history/:id": <AdminNotificationHistoryEditor app="notification/sms" />,
-  "/external-api/google/oauth2/create": <AdminGoogleOAuth2Editor />,
-  "/external-api/google/oauth2/:id": <AdminGoogleOAuth2Editor />,
+  "/notification/emailnotificationtemplate/create": <AdminEmailTemplateEditor />,
+  "/notification/emailnotificationtemplate/:id": <AdminEmailTemplateEditor />,
+  "/notification/emailnotificationhistory/create": <AdminNotificationHistoryCreate channel={EMAIL_CHANNEL} />,
+  "/notification/emailnotificationhistory/:id": <AdminNotificationHistoryEditor channel={EMAIL_CHANNEL} />,
+  "/notification/nhncloudkakaoalimtalknotificationtemplate": (
+    <AdminList app="notification" resource="nhncloudkakaoalimtalknotificationtemplate" hideCreateNew />
+  ),
+  "/notification/nhncloudkakaoalimtalknotificationtemplate/:id": <AdminKakaoAlimTalkTemplateEditor />,
+  "/notification/nhncloudkakaoalimtalknotificationhistory/create": <AdminNotificationHistoryCreate channel={KAKAO_CHANNEL} />,
+  "/notification/nhncloudkakaoalimtalknotificationhistory/:id": <AdminNotificationHistoryEditor channel={KAKAO_CHANNEL} />,
+  "/notification/nhncloudsmsnotificationtemplate/create": <AdminSMSTemplateEditor />,
+  "/notification/nhncloudsmsnotificationtemplate/:id": <AdminSMSTemplateEditor />,
+  "/notification/nhncloudsmsnotificationhistory/create": <AdminNotificationHistoryCreate channel={SMS_CHANNEL} />,
+  "/notification/nhncloudsmsnotificationhistory/:id": <AdminNotificationHistoryEditor channel={SMS_CHANNEL} />,
+  "/external_api/googleoauth2/create": <AdminGoogleOAuth2Editor />,
+  "/external_api/googleoauth2/:id": <AdminGoogleOAuth2Editor />,
   "/file/publicfile/create": <PublicFileUploadPage />,
   "/file/publicfile/:id": <AdminEditorModifyRoutePage app="file" resource="publicfile" notModifiable notDeletable />,
   "/user/userext": <AdminList app="user" resource="userext" hideCreatedAt hideUpdatedAt />,
   "/user/userext/:id": <AdminUserExtEditor />,
-  "/allauth/social-app": <AdminList app="allauth" resource="social-app" hideCreatedAt hideUpdatedAt />,
-  "/allauth/social-account": (
+  "/user/usermergehistory": <AdminUserMergeList />,
+  "/user/usermergehistory/create": <AdminUserMergePage />,
+  "/user/usermergehistory/:id": <AdminUserMergeDetail />,
+  "/allauth/socialapp": <AdminList app="allauth" resource="socialapp" hideCreatedAt hideUpdatedAt />,
+  "/allauth/socialaccount": (
     <AdminList
       app="allauth"
-      resource="social-account"
+      resource="socialaccount"
       hideCreatedAt
       hideUpdatedAt
       hideCreateNew
-      filterChoicesFrom={{ user: { app: "allauth", resource: "email-address" } }}
+      filterChoicesFrom={{ user: { app: "user", resource: "userext" } }}
     />
   ),
-  "/allauth/social-account/:id": (
-    <AdminEditorModifyRoutePage app="allauth" resource="social-account" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
+  "/allauth/socialaccount/:id": (
+    <AdminEditorModifyRoutePage app="allauth" resource="socialaccount" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
   ),
-  "/allauth/email-address": <AdminList app="allauth" resource="email-address" hideCreatedAt hideUpdatedAt />,
+  "/allauth/emailaddress": <AdminList app="allauth" resource="emailaddress" hideCreatedAt hideUpdatedAt />,
+  "/dashboard": <DashboardPage />,
   "/account": <AccountRedirectPage />,
   "/account/sign-in": <SignInPage />,
-  "/account/manage": <AccountManagementPage />,
   "/cms/sitemap": <SiteMapList />,
   "/cms/sitemap/create": <SiteMapList />,
   "/cms/sitemap/:id": <SiteMapList />,
@@ -357,15 +387,25 @@ export const RegisteredRoutes = {
   "/event/event/:id": <AdminEventEditor />,
   "/event/presentation/create": <AdminPresentationEditor />,
   "/event/presentation/:id": <AdminPresentationEditor />,
-  "/modification-audit": <AdminModificationAuditList />,
-  "/modification-audit/modification-audit/:id": <AdminModificationAuditEditor />,
-  "/shop/category-groups": <ShopCategoryGroupListPage />,
-  "/shop/category-groups/create": <ShopCategoryGroupEditorPage />,
-  "/shop/category-groups/:id": <ShopCategoryGroupEditorPage />,
-  "/shop/tags": <ShopTagListPage />,
-  "/shop/products": <ShopProductListPage />,
-  "/shop/products/create": <ShopProductEditorPage />,
-  "/shop/products/:id": <ShopProductEditorPage />,
-  "/shop/orders": <ShopOrderListPage />,
-  "/shop/orders/:id": <ShopOrderEditorPage />,
+  "/participant_portal_api/modificationaudit": <AdminModificationAuditList />,
+  "/participant_portal_api/modificationaudit/:id": <AdminModificationAuditEditor />,
+  "/shop/categorygroup": <ShopCategoryGroupListPage />,
+  "/shop/categorygroup/create": <ShopCategoryGroupEditorPage />,
+  "/shop/categorygroup/:id": <ShopCategoryGroupEditorPage />,
+  "/shop/tag": <ShopTagListPage />,
+  "/shop/product": <ShopProductListPage />,
+  "/shop/product/create": <ShopProductEditorPage />,
+  "/shop/product/:id": <ShopProductEditorPage />,
+  "/shop/order": <ShopOrderListPage />,
+  "/shop/order/:id": <ShopOrderEditorPage />,
 };
+
+const ADMIN_DETAIL_RESOURCES: ReadonlySet<string> = new Set(
+  Object.keys(RegisteredRoutes)
+    .map((path) => /^\/([^/]+)\/([^/]+)\/:id$/.exec(path))
+    .filter((match): match is RegExpExecArray => match !== null)
+    .map((match) => `${match[1]}/${match[2]}`)
+);
+
+export const adminDetailPathFor = (app: string, resource: string, id: string): string | null =>
+  ADMIN_DETAIL_RESOURCES.has(`${app}/${resource}`) ? `/${app}/${resource}/${id}` : null;

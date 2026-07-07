@@ -1,3 +1,4 @@
+import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { useParticipantPortalClient, useSignOutMutation, useSignedInUserQuery } from "@frontend/common/hooks/useParticipantPortalAPI";
 import { AccountCircle } from "@mui/icons-material";
 import { AppBar, ButtonBase, CircularProgress, IconButton, Menu, MenuItem, Stack, styled, Toolbar, Tooltip, Typography } from "@mui/material";
@@ -65,13 +66,20 @@ const InnerProfileMenuButton: FC<ProfileMenuButtonProps> = ({ loading, signedIn 
   const openMenu: MouseEventHandler<HTMLButtonElement> = (evt) => setBtnState((ps) => ({ ...ps, anchorEl: evt.currentTarget }));
   const closeMenu = () => setBtnState((ps) => ({ ...ps, anchorEl: undefined }));
   const { language } = useAppContext();
+  const { accountsDomain } = useCommonContext();
   const accountStr = language === "ko" ? "계정" : "Account";
   const signInStr = language === "ko" ? "로그인" : "Sign In";
   const signOutStr = language === "ko" ? "로그아웃" : "Sign Out";
   const editProfileStr = language === "ko" ? "프로필 편집" : "Edit Profile";
+  const manageAccountStr = language === "ko" ? "계정 관리" : "Manage Account";
 
   const goToProfileEditor = () => {
     navigate("/user");
+    closeMenu();
+  };
+
+  const goToAccounts = () => {
+    window.open(accountsDomain, "_blank", "noopener,noreferrer");
     closeMenu();
   };
   const goToSignIn = () => navigate("/signin");
@@ -90,6 +98,7 @@ const InnerProfileMenuButton: FC<ProfileMenuButtonProps> = ({ loading, signedIn 
       </Tooltip>
       <Menu open={!!btnState.anchorEl} anchorEl={btnState.anchorEl} onClose={closeMenu}>
         {signedIn && <MenuItem children={editProfileStr} onClick={goToProfileEditor} />}
+        {signedIn && <MenuItem children={manageAccountStr} onClick={goToAccounts} />}
         <MenuItem children={signedIn ? signOutStr : signInStr} onClick={onSignInOutClick} />
       </Menu>
     </>
