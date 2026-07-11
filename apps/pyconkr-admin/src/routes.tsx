@@ -5,6 +5,7 @@ import {
   Article,
   AutoFixHigh,
   BarChart,
+  CalendarViewWeek,
   ChatBubble,
   Email,
   Event,
@@ -54,6 +55,7 @@ import { ShopProductEditorPage } from "./components/pages/shop/product/editor";
 import { ShopProductListPage } from "./components/pages/shop/product/list";
 import { ShopTagListPage } from "./components/pages/shop/tag/list";
 import { SiteMapList } from "./components/pages/sitemap/list";
+import { SessionTimetablePage } from "./components/pages/timetable";
 import { AdminUserExtEditor } from "./components/pages/user/editor";
 import { AdminUserMergePage } from "./components/pages/user/merge/create";
 import { AdminUserMergeDetail } from "./components/pages/user/merge/detail";
@@ -154,6 +156,13 @@ export const RouteDefinitions: RouteDef[] = [
     title: "발표",
     app: "event",
     resource: "presentation",
+  },
+  {
+    type: "routeDefinition",
+    key: "event-timetable",
+    icon: CalendarViewWeek,
+    title: "시간표",
+    route: "/event/timetable",
   },
   {
     type: "separator",
@@ -387,6 +396,7 @@ export const RegisteredRoutes = {
   "/event/event/:id": <AdminEventEditor />,
   "/event/presentation/create": <AdminPresentationEditor />,
   "/event/presentation/:id": <AdminPresentationEditor />,
+  "/event/timetable": <SessionTimetablePage />,
   "/participant_portal_api/modificationaudit": <AdminModificationAuditList />,
   "/participant_portal_api/modificationaudit/:id": <AdminModificationAuditEditor />,
   "/shop/categorygroup": <ShopCategoryGroupListPage />,

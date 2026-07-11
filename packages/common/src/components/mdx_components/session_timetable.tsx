@@ -156,8 +156,8 @@ type SessionTimeTablePropType = {
 };
 
 /**
- * 발표 세션을 날짜·시간·발표장(room) 기준의 표로 보여주는 타임테이블.
- * 날짜 선택 탭, 발표장별 열, 휴식 시간 표시를 포함한다.
+ * 발표 세션을 날짜·시간·장소(room) 기준의 표로 보여주는 타임테이블.
+ * 날짜 선택 탭, 장소별 열, 휴식 시간 표시를 포함한다.
  * @example <Common__Components__Session__TimeTable types="talk" />
  */
 export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with(

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
+import { MutationMeta, useMutation, useQuery, useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   approveModificationAudit,
@@ -140,9 +140,12 @@ export const useListPaginatedQuery = <T>(client: BackendAPIClient, app: string, 
     queryFn: listPaginated<T>(client, app, resource, params),
   });
 
+export const adminListAllQueryKey = (app: string, resource: string, params?: Record<string, string>) =>
+  [...QUERY_KEYS.ADMIN_LIST, app, resource, "all", JSON.stringify(params)] as const;
+
 export const useListAllQuery = <T>(client: BackendAPIClient, app: string, resource: string, params?: Record<string, string>) =>
   useSuspenseQuery({
-    queryKey: [...QUERY_KEYS.ADMIN_LIST, app, resource, "all", JSON.stringify(params)],
+    queryKey: adminListAllQueryKey(app, resource, params),
     queryFn: listAll<T>(client, app, resource, params),
   });
 
@@ -152,10 +155,11 @@ export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resou
     queryFn: retrieve<T>(client, app, resource, id),
   });
 
-export const useCreateMutation = <T>(client: BackendAPIClient, app: string, resource: string) =>
+export const useCreateMutation = <T>(client: BackendAPIClient, app: string, resource: string, options?: { meta?: MutationMeta }) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_CREATE, app, resource],
     mutationFn: create<T>(client, app, resource),
+    ...options,
   });
 
 export const useUpdateMutation = <T>(client: BackendAPIClient, app: string, resource: string, id: string) =>
@@ -164,10 +168,16 @@ export const useUpdateMutation = <T>(client: BackendAPIClient, app: string, reso
     mutationFn: update<T>(client, app, resource, id),
   });
 
-export const useUpdatePreparedMutation = <T extends { id: string }>(client: BackendAPIClient, app: string, resource: string) =>
+export const useUpdatePreparedMutation = <T extends { id: string }>(
+  client: BackendAPIClient,
+  app: string,
+  resource: string,
+  options?: { meta?: MutationMeta }
+) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_UPDATE, app, resource, "prepared"],
     mutationFn: updatePrepared<T>(client, app, resource),
+    ...options,
   });
 
 export const useRemoveMutation = (client: BackendAPIClient, app: string, resource: string, id: string) =>
@@ -176,10 +186,11 @@ export const useRemoveMutation = (client: BackendAPIClient, app: string, resourc
     mutationFn: remove(client, app, resource, id),
   });
 
-export const useRemovePreparedMutation = (client: BackendAPIClient, app: string, resource: string) =>
+export const useRemovePreparedMutation = (client: BackendAPIClient, app: string, resource: string, options?: { meta?: MutationMeta }) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_REMOVE, app, resource, "prepared"],
     mutationFn: removePrepared(client, app, resource),
+    ...options,
   });
 
 export const usePublicFileQuery = (client: BackendAPIClient, id: string) =>

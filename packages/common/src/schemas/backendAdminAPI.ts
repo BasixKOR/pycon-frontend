@@ -116,6 +116,41 @@ export type PresentationSchema = {
   description_en: string;
   slideshow_url: string | null;
   image: string | null;
+  str_repr: string;
+};
+
+export type PresentationTypeSchema = {
+  id: string; // UUID
+  event: string; // Event UUID
+  name_ko: string;
+  name_en: string | null;
+  str_repr: string;
+};
+
+export type RoomSchema = {
+  id: string; // UUID
+  event: string; // Event UUID
+  name_ko: string;
+  name_en: string | null;
+  order: number;
+  str_repr: string;
+};
+
+export type RoomScheduleSchema = {
+  id: string; // UUID
+  room: string; // Room UUID
+  presentation: string; // Presentation UUID
+  start_at: string; // ISO 8601 date-time
+  end_at: string; // ISO 8601 date-time
+};
+
+export type EventSchema = {
+  id: string; // UUID
+  name_ko: string;
+  name_en: string | null;
+  event_start_at: string | null;
+  event_end_at: string | null;
+  str_repr: string;
 };
 
 export type ModificationAuditSchema = {

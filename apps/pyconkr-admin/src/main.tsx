@@ -15,6 +15,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/layouts/global";
 import { LandingPage } from "./components/pages/home";
 import { PyConKRMDXComponents } from "./consts/mdx_components";
+import { AppContextProvider } from "./contexts/app_context_provider";
 import { RegisteredRoutes, RouteDefinitions } from "./routes";
 
 const queryClient = new QueryClient({
@@ -86,17 +87,19 @@ createRoot(document.getElementById("root")!).render(
           <CommonContextProvider options={CommonOptions}>
             <ShopContextProvider options={ShopOptions}>
               <SnackbarProvider>
-                <BrowserRouter>
-                  <Routes>
-                    <Route element={<Layout routes={RouteDefinitions} />}>
-                      <Route path="/" element={<LandingPage />} />
-                      {Object.entries(RegisteredRoutes).map(([path, element]) => (
-                        <Route key={path} path={path} element={element} />
-                      ))}
-                      <Route path="*" element={<Navigate to="/" />} />
-                    </Route>
-                  </Routes>
-                </BrowserRouter>
+                <AppContextProvider>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route element={<Layout routes={RouteDefinitions} />}>
+                        <Route path="/" element={<LandingPage />} />
+                        {Object.entries(RegisteredRoutes).map(([path, element]) => (
+                          <Route key={path} path={path} element={element} />
+                        ))}
+                        <Route path="*" element={<Navigate to="/" />} />
+                      </Route>
+                    </Routes>
+                  </BrowserRouter>
+                </AppContextProvider>
               </SnackbarProvider>
             </ShopContextProvider>
           </CommonContextProvider>

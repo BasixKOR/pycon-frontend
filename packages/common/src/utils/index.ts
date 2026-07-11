@@ -6,6 +6,8 @@ export { getFaro, initFaro } from "./faro";
 export type { InitFaroOptions } from "./faro";
 export { getFormValue, isFormValid } from "./form";
 export { filterPropertiesByLanguageInJsonSchema, filterReadOnlyPropertiesInJsonSchema, filterWritablePropertiesInJsonSchema } from "./json_schema";
+export { clamp, snapToStep, stepsBetween } from "./math";
 export { extractQueryParameters } from "./openapi";
 export { getSessionDetailUrl } from "./session";
 export { isFilledString, isValidHttpUrl, rtrim } from "./string";
+export { dayBoundsMs, dayTabLabel, eachDayISO, formatMs, isoDateOf, toMs, toNaiveISO } from "./time";
