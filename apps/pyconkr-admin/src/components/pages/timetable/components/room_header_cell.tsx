@@ -1,14 +1,12 @@
-import { RoomSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { DragIndicator, Edit } from "@mui/icons-material";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import { FC } from "react";
 
-import { resourceLabel } from "@apps/pyconkr-admin/utils/label";
-
 import { TIMETABLE_MIN_COL } from "../const";
 
 type RoomHeaderCellProps = {
-  room: RoomSchema;
+  room: TimetableRoomSchema;
   index: number;
   isSource: boolean;
   isTarget: boolean;
@@ -17,7 +15,7 @@ type RoomHeaderCellProps = {
   onReorderDrop: (index: number) => void;
   onReorderStart: (index: number) => void;
   onReorderEnd: () => void;
-  onEdit?: (room: RoomSchema) => void;
+  onEdit?: (room: TimetableRoomSchema) => void;
 };
 
 export const RoomHeaderCell: FC<RoomHeaderCellProps> = ({
@@ -71,7 +69,7 @@ export const RoomHeaderCell: FC<RoomHeaderCellProps> = ({
         sx={{ cursor: "grab", flexShrink: 0, touchAction: "none", color: "text.disabled" }}
         children={<DragIndicator fontSize="small" />}
       />
-      <Typography variant="subtitle2" noWrap children={resourceLabel(room)} sx={{ flexGrow: 1, textAlign: "center", minWidth: 0 }} />
+      <Typography variant="subtitle2" noWrap children={room.name_ko} sx={{ flexGrow: 1, textAlign: "center", minWidth: 0 }} />
       {onEdit && (
         <IconButton
           size="small"

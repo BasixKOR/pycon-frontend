@@ -1,20 +1,22 @@
-import { RoomSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { adminTimetableQueryKey, useBackendAdminClient, useTimetableVersionQuery } from "@frontend/common/hooks/useAdminAPI";
+import { TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { isoDateOf } from "@frontend/common/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 
 import { useAppContext } from "@apps/pyconkr-admin/contexts/app_context";
 
 import { RoomInput } from "../types";
-import { useRoomMutations, useScheduleDraft, useTimetableData } from "./timetable_hooks";
+import { useTimetableDraft, useTimetableReferenceData } from "./timetable_hooks";
 import { TimetableContext, TimetableContextValue } from "./use_timetable";
 import { computeDays } from "../utils/days";
 
 export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = ({ eventId, children }) => {
-  const { rooms, presentations, schedules, event } = useTimetableData(eventId);
-  const { working, dirty, saving, applyLocal, discard, save, dropRoomSchedules } = useScheduleDraft(eventId, schedules);
-  const { createRoom, updateRoom, removeRoom, commitRoomOrder } = useRoomMutations(eventId, rooms, schedules);
+  const { presentations, event } = useTimetableReferenceData(eventId);
+  const { rooms, schedules, version, dirty, saving, applyLocal, addRoom, updateRoom, removeRoom, commitRoomOrder, discard, save } =
+    useTimetableDraft(eventId);
   const [draggingPresentationId, setDraggingPresentationId] = useState<string | null>(null);
-  const [roomDialogRoom, setRoomDialogRoom] = useState<RoomSchema | null | undefined>(undefined);
+  const [roomDialogRoom, setRoomDialogRoom] = useState<TimetableRoomSchema | null | undefined>(undefined);
   const { setUnsavedChanges } = useAppContext();
 
   useEffect(() => {
@@ -33,37 +35,42 @@ export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = (
     };
   }, [draggingPresentationId]);
 
+  // 다른 관리자의 변경 감지: 편집 중이면 자주, 아니면 드물게 폴링.
+  const client = useBackendAdminClient();
+  const queryClient = useQueryClient();
+  const { data: latestVersion } = useTimetableVersionQuery(client, eventId, dirty ? 20_000 : 60_000);
+  const serverChanged = latestVersion != null && latestVersion !== version;
+  const reloadBoard = () => queryClient.invalidateQueries({ queryKey: adminTimetableQueryKey(eventId) });
+  const reload = () => {
+    discard(); // 로컬 편집 파기 후 재조회 — 재조회가 끝나면 sync 이펙트가 최신으로 재시드.
+    reloadBoard();
+  };
+  // 편집 중이 아닐 때 서버가 바뀌면 배너 없이 조용히 최신화(board 재조회 → 드래프트 재시드).
+  useEffect(() => {
+    if (serverChanged && !dirty) reloadBoard();
+  }, [serverChanged, dirty]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const orderedRooms = useMemo(() => [...rooms].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), [rooms]);
-
-  // working(로컬 드래프트)에서 파생하되, 이벤트 소속 방으로 재확인해 타 이벤트 스케줄이 새지 않도록 한다.
-  const eventSchedules = useMemo(() => {
-    const roomIds = new Set(rooms.map((r) => r.id));
-    return working.filter((s) => roomIds.has(s.room));
-  }, [working, rooms]);
-
-  const days = useMemo(() => computeDays(event, eventSchedules), [event, eventSchedules]);
+  const days = useMemo(() => computeDays(event, schedules), [event, schedules]);
   const [selectedDate, setSelectedDate] = useState<string>(days[0]);
   useEffect(() => {
     if (!days.includes(selectedDate)) setSelectedDate(days[0]);
   }, [days, selectedDate]);
 
   const presentationsById = useMemo(() => new Map(presentations.map((p) => [p.id, p])), [presentations]);
-  const placedPresentationIds = useMemo(() => new Set(eventSchedules.map((s) => s.presentation)), [eventSchedules]);
-  const daySchedules = useMemo(() => eventSchedules.filter((s) => isoDateOf(s.start_at) === selectedDate), [eventSchedules, selectedDate]);
+  const placedPresentationIds = useMemo(() => new Set(schedules.map((s) => s.presentation)), [schedules]);
+  const daySchedules = useMemo(() => schedules.filter((s) => isoDateOf(s.start_at) === selectedDate), [schedules, selectedDate]);
 
   const submitRoom = (values: RoomInput) => {
     if (roomDialogRoom) updateRoom(roomDialogRoom, values);
-    else createRoom(values);
+    else addRoom(values);
     setRoomDialogRoom(undefined);
   };
   const deleteRoom = () => {
-    if (roomDialogRoom) {
-      removeRoom(roomDialogRoom);
-      dropRoomSchedules(roomDialogRoom.id);
-    }
+    if (roomDialogRoom) removeRoom(roomDialogRoom);
     setRoomDialogRoom(undefined);
   };
-  const dialogRoomScheduleCount = roomDialogRoom ? eventSchedules.filter((s) => s.room === roomDialogRoom.id).length : 0;
+  const dialogRoomScheduleCount = roomDialogRoom ? schedules.filter((s) => s.room_id === roomDialogRoom.id).length : 0;
 
   const value: TimetableContextValue = {
     eventId,
@@ -80,6 +87,8 @@ export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = (
     discard,
     save,
     commitRoomOrder,
+    serverChanged,
+    reload,
     draggingPresentationId,
     setDraggingPresentationId,
     roomDialogRoom,

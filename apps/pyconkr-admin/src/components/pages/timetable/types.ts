@@ -1,8 +1,11 @@
-import { RoomScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
 
 export type RoomInput = { name_ko: string; name_en: string };
 
-export type ScheduleOp = { kind: "create"; temp: RoomScheduleSchema } | { kind: "update"; row: RoomScheduleSchema } | { kind: "delete"; id: string };
+export type ScheduleOp =
+  | { kind: "create"; temp: TimetableScheduleSchema }
+  | { kind: "update"; row: TimetableScheduleSchema }
+  | { kind: "delete"; id: string };
 
 export type Block = {
   key: string;

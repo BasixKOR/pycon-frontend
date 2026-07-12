@@ -11,6 +11,10 @@ import {
   PaginatedListResponse,
   PublicFileSchema,
   SelectablesResponse,
+  TimetableReadResult,
+  TimetableSavePayload,
+  TimetableSaveResult,
+  TimetableSchema,
   UserMergeHistoryDetailSchema,
   UserMergeRequestSchema,
   UserResetPasswordResponseSchema,
@@ -90,6 +94,28 @@ export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
+const parseVersion = (etag: unknown): string => (typeof etag === "string" ? etag.replaceAll('"', "") : "");
+const timetableUrl = (eventId: string) => `v1/admin-api/event/presentation/timetable/${eventId}/`;
+
+export const getTimetable = (client: BackendAPIClient, eventId: string) => async (): Promise<TimetableReadResult> => {
+  const response = await client.getResponse<TimetableSchema>(timetableUrl(eventId));
+  return { ...response.data, version: parseVersion(response.headers["etag"]) };
+};
+
+export const getTimetableVersion = (client: BackendAPIClient, eventId: string) => async (): Promise<string> =>
+  parseVersion((await client.headResponse(timetableUrl(eventId))).headers["etag"]);
+
+// 버전 불일치 시 서버가 412 + 현재 상태를 반환 — throw 대신 conflict=true 로 표면화.
+export const saveTimetable =
+  (client: BackendAPIClient, eventId: string, version: string) =>
+  async (payload: TimetableSavePayload): Promise<TimetableSaveResult> => {
+    const response = await client.putResponse<TimetableSchema, TimetableSavePayload>(timetableUrl(eventId), payload, {
+      headers: { "If-Match": version },
+      validateStatus: (status) => (status >= 200 && status < 300) || status === 412,
+    });
+    return { ...response.data, version: parseVersion(response.headers["etag"]), conflict: response.status === 412 };
+  };
 
 export const listSections = (client: BackendAPIClient, pageId: string) => () => {
   if (!pageId) return Promise.resolve([]);

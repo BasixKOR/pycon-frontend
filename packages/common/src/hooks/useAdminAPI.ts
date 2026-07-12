@@ -6,6 +6,8 @@ import {
   create,
   exportOrders,
   fetchDashboardChartData,
+  getTimetable,
+  getTimetableVersion,
   issueGoogleOAuth2AccessToken,
   previewUserMerge,
   listAll,
@@ -153,6 +155,23 @@ export const useRetrieveQuery = <T>(client: BackendAPIClient, app: string, resou
   useSuspenseQuery({
     queryKey: [...QUERY_KEYS.ADMIN_RETRIEVE, app, resource, id],
     queryFn: retrieve<T>(client, app, resource, id),
+  });
+
+export const adminTimetableQueryKey = (eventId: string) => [...QUERY_KEYS.ADMIN_LIST, "event", "timetable", eventId] as const;
+
+export const useTimetableQuery = (client: BackendAPIClient, eventId: string) =>
+  useSuspenseQuery({
+    queryKey: adminTimetableQueryKey(eventId),
+    queryFn: getTimetable(client, eventId),
+  });
+
+// 다른 관리자의 변경을 감지하기 위한 경량 버전 폴링 (본문 없이 count+max(updated_at) 해시만 반환).
+export const useTimetableVersionQuery = (client: BackendAPIClient, eventId: string, refetchInterval: number) =>
+  useQuery({
+    queryKey: [...adminTimetableQueryKey(eventId), "version"],
+    queryFn: getTimetableVersion(client, eventId),
+    refetchInterval,
+    refetchIntervalInBackground: false,
   });
 
 export const useCreateMutation = <T>(client: BackendAPIClient, app: string, resource: string, options?: { meta?: MutationMeta }) =>

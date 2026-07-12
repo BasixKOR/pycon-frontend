@@ -1,4 +1,4 @@
-import { RoomScheduleSchema, RoomSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableScheduleSchema, TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { clamp } from "@frontend/common/utils";
 import { DragEvent, RefObject, useEffect, useState } from "react";
 
@@ -12,8 +12,8 @@ import { opsForCreate, overlaps } from "../utils/schedule";
 type UsePaletteDropParams = {
   elRef: RefObject<HTMLDivElement | null>;
   bounds: GridBounds;
-  rooms: RoomSchema[];
-  daySchedules: RoomScheduleSchema[];
+  rooms: TimetableRoomSchema[];
+  daySchedules: TimetableScheduleSchema[];
   onCommit: (ops: ScheduleOp[]) => void;
   draggingPresentationId: string | null;
 };

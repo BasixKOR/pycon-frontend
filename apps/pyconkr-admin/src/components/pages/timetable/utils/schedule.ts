@@ -1,16 +1,15 @@
-import { RoomScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { toMs, toNaiveISO } from "@frontend/common/utils";
 
 import { Block, ScheduleOp } from "../types";
 
 // ── 자동저장 연산(op) ───────────────────────────────────────────────────────
 
-const TEMP_ID_PREFIX = "temp-";
-const makeTempId = (): string => `${TEMP_ID_PREFIX}${Math.random().toString(36).slice(2)}`;
-export const isTempId = (id: string): boolean => id.startsWith(TEMP_ID_PREFIX);
+export const makeTempId = (): string => `temp-${Math.random().toString(36).slice(2)}`;
+export const isTempId = (id: string): boolean => id.startsWith("temp-");
 
 // op 목록을 현재 스케줄 배열에 적용해 optimistic 결과를 만든다.
-export const applyOps = (schedules: RoomScheduleSchema[], ops: ScheduleOp[]): RoomScheduleSchema[] => {
+export const applyOps = (schedules: TimetableScheduleSchema[], ops: ScheduleOp[]): TimetableScheduleSchema[] => {
   let next = schedules;
   for (const op of ops) {
     if (op.kind === "create") next = [...next, op.temp];
@@ -29,18 +28,18 @@ const groupKey = (presentation: string, startMs: number, endMs: number): string 
  * 같은 발표·시작·종료를 공유하고 방 열이 연속인 스케줄을 하나의 블록으로 묶는다.
  * (연속되지 않은 경우 각 연속 구간을 별도 블록으로 나눈다.)
  */
-export const groupSchedulesToBlocks = (schedules: RoomScheduleSchema[], colIndexByRoom: Map<string, number>): Block[] => {
+export const groupSchedulesToBlocks = (schedules: TimetableScheduleSchema[], colIndexByRoom: Map<string, number>): Block[] => {
   type Cell = { col: number; roomId: string; scheduleId: string };
   const groups = new Map<string, { presentation: string; startMs: number; endMs: number; cells: Cell[] }>();
 
   for (const s of schedules) {
-    const col = colIndexByRoom.get(s.room);
+    const col = colIndexByRoom.get(s.room_id);
     if (col === undefined) continue; // 다른 이벤트/삭제된 방
     const startMs = toMs(s.start_at);
     const endMs = toMs(s.end_at);
     const key = groupKey(s.presentation, startMs, endMs);
     const group = groups.get(key) ?? { presentation: s.presentation, startMs, endMs, cells: [] };
-    group.cells.push({ col, roomId: s.room, scheduleId: s.id });
+    group.cells.push({ col, roomId: s.room_id, scheduleId: s.id });
     groups.set(key, group);
   }
 
@@ -78,7 +77,13 @@ export const groupSchedulesToBlocks = (schedules: RoomScheduleSchema[], colIndex
 export const opsForBlockTransform = (block: Block, targetRoomIds: string[], startMs: number, endMs: number): ScheduleOp[] => {
   const start_at = toNaiveISO(startMs);
   const end_at = toNaiveISO(endMs);
-  const mkRow = (id: string, room: string): RoomScheduleSchema => ({ id, room, presentation: block.presentation, start_at, end_at });
+  const mkRow = (id: string, roomId: string): TimetableScheduleSchema => ({
+    id,
+    room_id: roomId,
+    presentation: block.presentation,
+    start_at,
+    end_at,
+  });
 
   const targetSet = new Set(targetRoomIds);
   const ops: ScheduleOp[] = [];
@@ -110,13 +115,14 @@ export const opsForBlockTransform = (block: Block, targetRoomIds: string[], star
 export const opsForBlockDelete = (block: Block): ScheduleOp[] => Array.from(block.scheduleByRoom.values()).map((id) => ({ kind: "delete", id }));
 
 export const opsForCreate = (presentation: string, roomId: string, startMs: number, endMs: number): ScheduleOp[] => [
-  { kind: "create", temp: { id: makeTempId(), room: roomId, presentation, start_at: toNaiveISO(startMs), end_at: toNaiveISO(endMs) } },
+  { kind: "create", temp: { id: makeTempId(), room_id: roomId, presentation, start_at: toNaiveISO(startMs), end_at: toNaiveISO(endMs) } },
 ];
 
 // 같은 방에서 [startMs, endMs) 와 시간이 겹치는 스케줄이 있는지 (백엔드 filter_conflict 와 동일 규칙, 자기 자신 제외).
-export const overlaps = (schedules: RoomScheduleSchema[], roomId: string, startMs: number, endMs: number, excludeIds: ReadonlySet<string>): boolean =>
-  schedules.some((s) => s.room === roomId && !excludeIds.has(s.id) && toMs(s.start_at) < endMs && toMs(s.end_at) > startMs);
-
-// 저장 시 변경 여부 판정 — 시간은 offset 유무가 달라도 epoch 로 비교한다.
-export const schedulesEqual = (a: RoomScheduleSchema, b: RoomScheduleSchema): boolean =>
-  a.room === b.room && a.presentation === b.presentation && toMs(a.start_at) === toMs(b.start_at) && toMs(a.end_at) === toMs(b.end_at);
+export const overlaps = (
+  schedules: TimetableScheduleSchema[],
+  roomId: string,
+  startMs: number,
+  endMs: number,
+  excludeIds: ReadonlySet<string>
+): boolean => schedules.some((s) => s.room_id === roomId && !excludeIds.has(s.id) && toMs(s.start_at) < endMs && toMs(s.end_at) > startMs);

@@ -1,6 +1,6 @@
 import { dayTabLabel } from "@frontend/common/utils";
 import { Add, Save } from "@mui/icons-material";
-import { Box, Button, Chip, CircularProgress, Link, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, CircularProgress, Link, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -18,7 +18,8 @@ import { useSelectedEvent } from "./contexts/use_selected_event";
 import { useTimetable } from "./contexts/use_timetable";
 
 const TimetableBoardShell: FC = () => {
-  const { eventId, orderedRooms, days, selectedDate, setSelectedDate, dirty, saving, save, discard, setRoomDialogRoom } = useTimetable();
+  const { eventId, orderedRooms, days, selectedDate, setSelectedDate, dirty, saving, save, discard, setRoomDialogRoom, serverChanged, reload } =
+    useTimetable();
 
   return (
     <Stack spacing={1.5} sx={{ flex: 1, minHeight: 0 }}>
@@ -55,6 +56,17 @@ const TimetableBoardShell: FC = () => {
           children="저장"
         />
       </Stack>
+
+      {serverChanged && (
+        <Alert
+          severity="warning"
+          variant="outlined"
+          sx={{ flexShrink: 0, py: 0, alignItems: "center" }}
+          action={<Button color="inherit" size="small" onClick={reload} children="새로고침" />}
+        >
+          다른 사람이 시간표를 변경했습니다. 저장하면 최신 내용으로 병합이 필요합니다.
+        </Alert>
+      )}
 
       <Stack direction="row" spacing={2} sx={{ flex: 1, minHeight: 0 }}>
         <Box sx={{ width: 300, flexShrink: 0, minHeight: 0 }} children={<TimetablePalette />} />

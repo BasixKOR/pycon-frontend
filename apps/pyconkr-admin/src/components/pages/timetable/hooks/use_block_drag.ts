@@ -1,4 +1,4 @@
-import { RoomScheduleSchema, RoomSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableScheduleSchema, TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { PointerEvent as ReactPointerEvent, RefObject, useEffect, useRef, useState } from "react";
 
 import { addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
@@ -10,8 +10,8 @@ import { opsForBlockDelete, opsForBlockTransform, overlaps } from "../utils/sche
 type UseBlockDragParams = {
   elRef: RefObject<HTMLDivElement | null>;
   bounds: GridBounds;
-  rooms: RoomSchema[];
-  daySchedules: RoomScheduleSchema[];
+  rooms: TimetableRoomSchema[];
+  daySchedules: TimetableScheduleSchema[];
   onCommit: (ops: ScheduleOp[]) => void;
 };
 

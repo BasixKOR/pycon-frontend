@@ -127,23 +127,6 @@ export type PresentationTypeSchema = {
   str_repr: string;
 };
 
-export type RoomSchema = {
-  id: string; // UUID
-  event: string; // Event UUID
-  name_ko: string;
-  name_en: string | null;
-  order: number;
-  str_repr: string;
-};
-
-export type RoomScheduleSchema = {
-  id: string; // UUID
-  room: string; // Room UUID
-  presentation: string; // Presentation UUID
-  start_at: string; // ISO 8601 date-time
-  end_at: string; // ISO 8601 date-time
-};
-
 export type EventSchema = {
   id: string; // UUID
   name_ko: string;
@@ -152,6 +135,29 @@ export type EventSchema = {
   event_end_at: string | null;
   str_repr: string;
 };
+
+// event/presentation/timetable 벌크 API (op 기반 부분반영).
+export type TimetableRoomSchema = { id: string; name_ko: string; name_en: string | null; order: number };
+export type TimetableScheduleSchema = {
+  id: string; // 미저장 신규는 temp-*
+  room_id: string; // 기존 Room id 또는 신규 방의 ref(=temp id)
+  presentation: string;
+  start_at: string;
+  end_at: string;
+};
+export type TimetableSchema = { rooms: TimetableRoomSchema[]; schedules: TimetableScheduleSchema[] };
+export type TimetableReadResult = TimetableSchema & { version: string };
+export type TimetableSaveResult = TimetableReadResult & { conflict: boolean };
+
+export type TimetableRoomOp =
+  | { op: "create"; ref: string; name_ko: string; name_en: string | null; order: number }
+  | { op: "update"; id: string; name_ko: string; name_en: string | null; order: number }
+  | { op: "delete"; id: string };
+export type TimetableScheduleOp =
+  | { op: "create"; room_id: string; presentation: string; start_at: string; end_at: string }
+  | { op: "update"; id: string; room_id: string; presentation: string; start_at: string; end_at: string }
+  | { op: "delete"; id: string };
+export type TimetableSavePayload = { rooms: TimetableRoomOp[]; schedules: TimetableScheduleOp[] };
 
 export type ModificationAuditSchema = {
   id: string; // UUID

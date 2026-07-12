@@ -1,27 +1,29 @@
-import { PresentationSchema, RoomSchema, RoomScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { PresentationSchema, TimetableRoomSchema, TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { createContext, useContext } from "react";
 
 import { RoomInput, ScheduleOp } from "../types";
 
 export type TimetableContextValue = {
   eventId: string;
-  orderedRooms: RoomSchema[];
+  orderedRooms: TimetableRoomSchema[];
   presentationsById: Map<string, PresentationSchema>;
   days: string[];
   selectedDate: string;
   setSelectedDate: (date: string) => void;
-  daySchedules: RoomScheduleSchema[];
+  daySchedules: TimetableScheduleSchema[];
   placedPresentationIds: Set<string>;
   dirty: boolean;
   saving: boolean;
   applyLocal: (ops: ScheduleOp[]) => void;
   discard: () => void;
   save: () => Promise<void>;
-  commitRoomOrder: (orderedRoomIds: string[]) => Promise<void>;
+  commitRoomOrder: (orderedRoomIds: string[]) => void;
+  serverChanged: boolean;
+  reload: () => void;
   draggingPresentationId: string | null;
   setDraggingPresentationId: (id: string | null) => void;
-  roomDialogRoom: RoomSchema | null | undefined; // undefined=닫힘, null=추가 다이얼로그, RoomSchema=수정 다이얼로그.
-  setRoomDialogRoom: (room: RoomSchema | null | undefined) => void;
+  roomDialogRoom: TimetableRoomSchema | null | undefined; // undefined=닫힘, null=추가 다이얼로그, TimetableRoomSchema=수정 다이얼로그.
+  setRoomDialogRoom: (room: TimetableRoomSchema | null | undefined) => void;
   submitRoom: (values: RoomInput) => void;
   deleteRoom: () => void;
   dialogRoomScheduleCount: number;

@@ -1,4 +1,4 @@
-import { RoomSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { useState } from "react";
 
 import { moveItem } from "../utils/grid";
@@ -6,7 +6,7 @@ import { moveItem } from "../utils/grid";
 type RoomDragState = { fromIndex: number; overIndex: number };
 
 type UseRoomReorderParams = {
-  rooms: RoomSchema[];
+  rooms: TimetableRoomSchema[];
   onReorderRooms: (orderedRoomIds: string[]) => void | Promise<void>;
 };
 
