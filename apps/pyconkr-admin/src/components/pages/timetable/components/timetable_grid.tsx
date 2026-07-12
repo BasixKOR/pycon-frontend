@@ -1,5 +1,6 @@
 import { dayBoundsMs, formatMs, stepsBetween } from "@frontend/common/utils";
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { UnfoldMore } from "@mui/icons-material";
+import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
 import { FC, useMemo, useRef } from "react";
 
 import {
@@ -30,16 +31,26 @@ const GRID_LINES =
 
 export const TimetableGrid: FC = () => {
   const {
-    orderedRooms: rooms,
+    visibleRooms: rooms,
+    orderedRooms,
+    collapsedRoomIds,
+    toggleRoomCollapsed,
     presentationsById,
     daySchedules,
     selectedDate,
     highlightTypeId,
     draggingPresentationId,
     applyLocal: onCommit,
-    commitRoomOrder: onReorderRooms,
+    commitRoomOrder,
     setRoomDialogRoom: onEditRoom,
   } = useTimetable();
+
+  const collapsedRooms = useMemo(() => orderedRooms.filter((r) => collapsedRoomIds.has(r.id)), [orderedRooms, collapsedRoomIds]);
+  // 리오더는 보이는 방만 다루므로, 접힌 방을 원래 슬롯에 고정한 채 전체 순서를 재구성해 커밋한다 (접힌 방 유실 방지).
+  const onReorderRooms = (nextVisibleIds: string[]) => {
+    let vi = 0;
+    commitRoomOrder(orderedRooms.map((r) => (collapsedRoomIds.has(r.id) ? r.id : nextVisibleIds[vi++])));
+  };
 
   const { dayStartMs, dayEndMs } = useMemo(
     () => dayBoundsMs(selectedDate, TIMETABLE_DEFAULT_DAY_START_HOUR, TIMETABLE_DEFAULT_DAY_END_HOUR, daySchedules),
@@ -66,6 +77,28 @@ export const TimetableGrid: FC = () => {
 
   return (
     <Paper variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* 접은 발표장 복원 바 */}
+      {collapsedRooms.length > 0 && (
+        <Stack
+          direction="row"
+          spacing={0.5}
+          alignItems="center"
+          sx={{ flexShrink: 0, flexWrap: "wrap", gap: 0.5, px: 1, py: 0.5, borderBottom: 1, borderColor: "divider" }}
+        >
+          <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }} children="접은 발표장" />
+          {collapsedRooms.map((room) => (
+            <Chip
+              key={room.id}
+              size="small"
+              variant="outlined"
+              label={room.name_ko}
+              icon={<UnfoldMore sx={{ transform: "rotate(90deg)" }} />}
+              onClick={() => toggleRoomCollapsed(room.id)}
+              title="펼치기"
+            />
+          ))}
+        </Stack>
+      )}
       <Box
         ref={autoScroll.scrollRef}
         onDragOver={draggingPresentationId ? autoScroll.onDragOver : undefined}
@@ -90,6 +123,7 @@ export const TimetableGrid: FC = () => {
                 onReorderStart={reorder.onReorderStart}
                 onReorderEnd={reorder.onReorderEnd}
                 onEdit={onEditRoom}
+                onCollapse={(r) => toggleRoomCollapsed(r.id)}
               />
             ))}
           </Stack>

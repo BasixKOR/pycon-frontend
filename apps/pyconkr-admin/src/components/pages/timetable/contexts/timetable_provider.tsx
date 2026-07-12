@@ -52,6 +52,16 @@ export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = (
   }, [serverChanged, dirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const orderedRooms = useMemo(() => [...rooms].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), [rooms]);
+  // 접힌 방(열에서 숨김). 세션 한정 in-memory 상태 — 새로고침 시 초기화.
+  const [collapsedRoomIds, setCollapsedRoomIds] = useState<Set<string>>(new Set());
+  const toggleRoomCollapsed = (roomId: string) =>
+    setCollapsedRoomIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(roomId)) next.delete(roomId);
+      else next.add(roomId);
+      return next;
+    });
+  const visibleRooms = useMemo(() => orderedRooms.filter((r) => !collapsedRoomIds.has(r.id)), [orderedRooms, collapsedRoomIds]);
   const days = useMemo(() => computeDays(event, schedules), [event, schedules]);
   const [selectedDate, setSelectedDate] = useState<string>(days[0]);
   useEffect(() => {
@@ -76,6 +86,9 @@ export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = (
   const value: TimetableContextValue = {
     eventId,
     orderedRooms,
+    visibleRooms,
+    collapsedRoomIds,
+    toggleRoomCollapsed,
     presentationsById,
     presentationTypes,
     highlightTypeId,

@@ -1,5 +1,5 @@
 import { TimetableRoomSchema } from "@frontend/common/schemas/backendAdminAPI";
-import { DragIndicator, Edit } from "@mui/icons-material";
+import { DragIndicator, Edit, UnfoldLess } from "@mui/icons-material";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import { FC } from "react";
 
@@ -16,6 +16,7 @@ type RoomHeaderCellProps = {
   onReorderStart: (index: number) => void;
   onReorderEnd: () => void;
   onEdit?: (room: TimetableRoomSchema) => void;
+  onCollapse?: (room: TimetableRoomSchema) => void;
 };
 
 export const RoomHeaderCell: FC<RoomHeaderCellProps> = ({
@@ -29,6 +30,7 @@ export const RoomHeaderCell: FC<RoomHeaderCellProps> = ({
   onReorderStart,
   onReorderEnd,
   onEdit,
+  onCollapse,
 }) => (
   <Box
     onDragOver={
@@ -77,6 +79,16 @@ export const RoomHeaderCell: FC<RoomHeaderCellProps> = ({
           aria-label="발표장 편집"
           sx={{ flexShrink: 0, p: 0.25 }}
           children={<Edit sx={{ fontSize: 16 }} />}
+        />
+      )}
+      {onCollapse && (
+        <IconButton
+          size="small"
+          onClick={() => onCollapse(room)}
+          aria-label="발표장 접기"
+          title="이 발표장 접기"
+          sx={{ flexShrink: 0, p: 0.25 }}
+          children={<UnfoldLess sx={{ fontSize: 16, transform: "rotate(90deg)" }} />}
         />
       )}
     </Stack>

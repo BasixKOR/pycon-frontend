@@ -6,6 +6,9 @@ import { RoomInput, ScheduleOp } from "../types";
 export type TimetableContextValue = {
   eventId: string;
   orderedRooms: TimetableRoomSchema[];
+  visibleRooms: TimetableRoomSchema[]; // orderedRooms 에서 접힌 방을 제외한 열 집합
+  collapsedRoomIds: Set<string>;
+  toggleRoomCollapsed: (roomId: string) => void;
   presentationsById: Map<string, PresentationSchema>;
   presentationTypes: PresentationTypeSchema[];
   highlightTypeId: string;
