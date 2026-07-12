@@ -36,6 +36,16 @@ const getRooms = (data: SessionSchema[]) => {
   return Array.from(new Set<string>(data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => r.room_name)], [] as string[])));
 };
 
+const getRoomOrders = (data: SessionSchema[]): { [room: string]: number } => {
+  return data.reduce(
+    (acc, s) => {
+      s.room_schedules.forEach((r) => (acc[r.room_name] = r.room_order));
+      return acc;
+    },
+    {} as { [room: string]: number }
+  );
+};
+
 const getConfStartEndTimePerDay: (data: SessionSchema[]) => {
   [date: string]: { start: DateTime; end: DateTime };
 } = (data) => {
@@ -180,7 +190,8 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
     const dates = Object.keys(timeTableData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
     const rooms: { [room: string]: number } = getRooms(sessionList).reduce((acc, room) => ({ ...acc, [room]: 0 }), {});
     const roomCount = Object.keys(rooms).length;
-    const sortedRoomList = Object.keys(rooms).sort();
+    const roomOrders = getRoomOrders(sessionList);
+    const sortedRoomList = Object.keys(rooms).sort((a, b) => roomOrders[a] - roomOrders[b] || a.localeCompare(b));
 
     const [selectedDate, setSelectedDate] = useState<string>(location.state?.selectedDate ?? (confDate || dates[0]));
     const selectedTableData = timeTableData[selectedDate];

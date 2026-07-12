@@ -124,6 +124,7 @@ export type SessionSchema = {
   room_schedules: {
     id: string;
     room_name: string;
+    room_order: number;
     start_at: string;
     end_at: string;
   }[];
