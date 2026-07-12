@@ -1,6 +1,21 @@
 import { dayTabLabel } from "@frontend/common/utils";
 import { Add, Save } from "@mui/icons-material";
-import { Alert, Box, Button, Chip, CircularProgress, Link, Stack, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -9,6 +24,7 @@ import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements
 import { ChoicePicker } from "@apps/pyconkr-admin/components/elements/choice_picker";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { useAppContext } from "@apps/pyconkr-admin/contexts/app_context";
+import { resourceLabel } from "@apps/pyconkr-admin/utils/label";
 
 import { TimetablePalette } from "./components/palette";
 import { RoomDialog } from "./components/room_dialog";
@@ -18,8 +34,23 @@ import { useSelectedEvent } from "./contexts/use_selected_event";
 import { useTimetable } from "./contexts/use_timetable";
 
 const TimetableBoardShell: FC = () => {
-  const { eventId, orderedRooms, days, selectedDate, setSelectedDate, dirty, saving, save, discard, setRoomDialogRoom, serverChanged, reload } =
-    useTimetable();
+  const {
+    eventId,
+    orderedRooms,
+    days,
+    selectedDate,
+    setSelectedDate,
+    dirty,
+    saving,
+    save,
+    discard,
+    setRoomDialogRoom,
+    serverChanged,
+    reload,
+    presentationTypes,
+    highlightTypeId,
+    setHighlightTypeId,
+  } = useTimetable();
 
   return (
     <Stack spacing={1.5} sx={{ flex: 1, minHeight: 0 }}>
@@ -36,6 +67,15 @@ const TimetableBoardShell: FC = () => {
           ))}
         </Tabs>
         <Box sx={{ flexGrow: 1 }} />
+        <FormControl size="small" sx={{ flexShrink: 0, minWidth: 160 }}>
+          <InputLabel>타입 강조</InputLabel>
+          <Select label="타입 강조" value={highlightTypeId} onChange={(e) => setHighlightTypeId(e.target.value)}>
+            <MenuItem value="" children={<em>강조 없음</em>} />
+            {presentationTypes.map((t) => (
+              <MenuItem key={t.id} value={t.id} children={resourceLabel(t)} />
+            ))}
+          </Select>
+        </FormControl>
         <Button
           size="small"
           variant="outlined"

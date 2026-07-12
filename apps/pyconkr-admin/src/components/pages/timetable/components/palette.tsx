@@ -1,5 +1,5 @@
 import { useBackendAdminClient, useListAllQuery } from "@frontend/common/hooks/useAdminAPI";
-import { PresentationSchema, PresentationTypeSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { PresentationSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { DragIndicator } from "@mui/icons-material";
 import { Box, Chip, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
 import { DragEvent, FC, useMemo, useState } from "react";
@@ -10,10 +10,9 @@ import { APP, TIMETABLE_PALETTE_DROP_ATTR, TIMETABLE_PRESENTATION_DND_MIME } fro
 import { useTimetable } from "../contexts/use_timetable";
 
 export const TimetablePalette: FC = () => {
-  const { eventId, placedPresentationIds, setDraggingPresentationId } = useTimetable();
+  const { eventId, placedPresentationIds, presentationTypes, setDraggingPresentationId } = useTimetable();
   const client = useBackendAdminClient();
   const { data: presentations } = useListAllQuery<PresentationSchema>(client, APP, "presentation", { event: eventId });
-  const { data: presentationTypes } = useListAllQuery<PresentationTypeSchema>(client, APP, "presentationtype", { event: eventId });
 
   const [nameQuery, setNameQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("");

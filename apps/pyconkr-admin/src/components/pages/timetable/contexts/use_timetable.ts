@@ -1,4 +1,4 @@
-import { PresentationSchema, TimetableRoomSchema, TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { PresentationSchema, PresentationTypeSchema, TimetableRoomSchema, TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { createContext, useContext } from "react";
 
 import { RoomInput, ScheduleOp } from "../types";
@@ -7,6 +7,9 @@ export type TimetableContextValue = {
   eventId: string;
   orderedRooms: TimetableRoomSchema[];
   presentationsById: Map<string, PresentationSchema>;
+  presentationTypes: PresentationTypeSchema[];
+  highlightTypeId: string;
+  setHighlightTypeId: (id: string) => void;
   days: string[];
   selectedDate: string;
   setSelectedDate: (date: string) => void;

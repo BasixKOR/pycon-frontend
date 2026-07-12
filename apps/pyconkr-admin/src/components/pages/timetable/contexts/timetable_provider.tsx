@@ -12,10 +12,11 @@ import { TimetableContext, TimetableContextValue } from "./use_timetable";
 import { computeDays } from "../utils/days";
 
 export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = ({ eventId, children }) => {
-  const { presentations, event } = useTimetableReferenceData(eventId);
+  const { presentations, presentationTypes, event } = useTimetableReferenceData(eventId);
   const { rooms, schedules, version, dirty, saving, applyLocal, addRoom, updateRoom, removeRoom, commitRoomOrder, discard, save } =
     useTimetableDraft(eventId);
   const [draggingPresentationId, setDraggingPresentationId] = useState<string | null>(null);
+  const [highlightTypeId, setHighlightTypeId] = useState<string>("");
   const [roomDialogRoom, setRoomDialogRoom] = useState<TimetableRoomSchema | null | undefined>(undefined);
   const { setUnsavedChanges } = useAppContext();
 
@@ -76,6 +77,9 @@ export const TimetableProvider: FC<{ eventId: string; children: ReactNode }> = (
     eventId,
     orderedRooms,
     presentationsById,
+    presentationTypes,
+    highlightTypeId,
+    setHighlightTypeId,
     days,
     selectedDate,
     setSelectedDate,

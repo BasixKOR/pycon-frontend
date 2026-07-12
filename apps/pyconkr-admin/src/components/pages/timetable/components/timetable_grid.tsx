@@ -34,6 +34,7 @@ export const TimetableGrid: FC = () => {
     presentationsById,
     daySchedules,
     selectedDate,
+    highlightTypeId,
     draggingPresentationId,
     applyLocal: onCommit,
     commitRoomOrder: onReorderRooms,
@@ -157,6 +158,7 @@ export const TimetableGrid: FC = () => {
               {/* 블록 */}
               {blocks.map((block) => {
                 const active = drag?.block.key === block.key;
+                const presentation = presentationsById.get(block.presentation);
                 return (
                   <TimetableBlock
                     key={block.key}
@@ -164,7 +166,8 @@ export const TimetableGrid: FC = () => {
                     geom={active && drag ? drag.preview : geomOf(block)}
                     isDragging={active}
                     toPalette={active && !!drag?.overPalette}
-                    presentation={presentationsById.get(block.presentation)}
+                    presentation={presentation}
+                    dimmed={highlightTypeId !== "" && presentation?.type !== highlightTypeId}
                     columnCount={n}
                     dayStartMs={dayStartMs}
                     interactionDisabled={draggingPresentationId !== null}

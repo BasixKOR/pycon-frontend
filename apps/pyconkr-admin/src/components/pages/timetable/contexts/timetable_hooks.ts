@@ -7,7 +7,13 @@ import {
   useRetrieveQuery,
   useTimetableQuery,
 } from "@frontend/common/hooks/useAdminAPI";
-import { EventSchema, PresentationSchema, TimetableRoomSchema, TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
+import {
+  EventSchema,
+  PresentationSchema,
+  PresentationTypeSchema,
+  TimetableRoomSchema,
+  TimetableScheduleSchema,
+} from "@frontend/common/schemas/backendAdminAPI";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -21,8 +27,9 @@ import { applyOps, makeTempId } from "../utils/schedule";
 export const useTimetableReferenceData = (eventId: string) => {
   const client = useBackendAdminClient();
   const { data: presentations } = useListAllQuery<PresentationSchema>(client, APP, "presentation", { event: eventId });
+  const { data: presentationTypes } = useListAllQuery<PresentationTypeSchema>(client, APP, "presentationtype", { event: eventId });
   const { data: event } = useRetrieveQuery<EventSchema>(client, APP, "event", eventId);
-  return { presentations, event };
+  return { presentations, presentationTypes, event };
 };
 
 const makeTempRoom = (rooms: TimetableRoomSchema[], name_ko: string, name_en: string): TimetableRoomSchema => ({

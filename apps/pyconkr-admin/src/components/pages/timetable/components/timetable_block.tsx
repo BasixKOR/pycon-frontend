@@ -6,7 +6,7 @@ import { PointerEvent as ReactPointerEvent, FC } from "react";
 
 import { resourceLabel } from "@apps/pyconkr-admin/utils/label";
 
-import { TIMETABLE_HANDLE, TIMETABLE_ROW_H, TIMETABLE_SLOT_MS } from "../const";
+import { TIMETABLE_DIM_OPACITY, TIMETABLE_HANDLE, TIMETABLE_ROW_H, TIMETABLE_SLOT_MS } from "../const";
 import { Block, DragMode, Geometry } from "../types";
 
 const HANDLE_BASE = { position: "absolute" as const, zIndex: 6, touchAction: "none" as const };
@@ -23,6 +23,7 @@ type TimetableBlockProps = {
   isDragging: boolean;
   toPalette: boolean;
   presentation?: PresentationSchema;
+  dimmed: boolean;
   columnCount: number;
   dayStartMs: number;
   interactionDisabled: boolean;
@@ -36,6 +37,7 @@ export const TimetableBlock: FC<TimetableBlockProps> = ({
   isDragging,
   toPalette,
   presentation,
+  dimmed,
   columnCount,
   dayStartMs,
   interactionDisabled,
@@ -69,7 +71,8 @@ export const TimetableBlock: FC<TimetableBlockProps> = ({
         bgcolor: toPalette ? "error.light" : isDragging ? "primary.light" : "primary.main",
         color: "primary.contrastText",
         boxShadow: isDragging ? 4 : 1,
-        opacity: isDragging ? (toPalette ? 0.85 : 0.9) : 1,
+        opacity: isDragging ? (toPalette ? 0.85 : 0.9) : dimmed ? TIMETABLE_DIM_OPACITY : 1,
+        transition: "opacity 0.15s ease",
         p: 0.5,
       }}
     >
