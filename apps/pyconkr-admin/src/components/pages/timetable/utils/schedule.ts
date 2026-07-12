@@ -1,5 +1,5 @@
 import { TimetableScheduleSchema } from "@frontend/common/schemas/backendAdminAPI";
-import { toMs, toNaiveISO } from "@frontend/common/utils";
+import { floorToMinute, toMs, toNaiveISO } from "@frontend/common/utils";
 
 import { Block, ScheduleOp } from "../types";
 
@@ -35,8 +35,8 @@ export const groupSchedulesToBlocks = (schedules: TimetableScheduleSchema[], col
   for (const s of schedules) {
     const col = colIndexByRoom.get(s.room_id);
     if (col === undefined) continue; // 다른 이벤트/삭제된 방
-    const startMs = toMs(s.start_at);
-    const endMs = toMs(s.end_at);
+    const startMs = floorToMinute(toMs(s.start_at));
+    const endMs = floorToMinute(toMs(s.end_at));
     const key = groupKey(s.presentation, startMs, endMs);
     const group = groups.get(key) ?? { presentation: s.presentation, startMs, endMs, cells: [] };
     group.cells.push({ col, roomId: s.room_id, scheduleId: s.id });

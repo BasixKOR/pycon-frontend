@@ -4,6 +4,7 @@ export const toMs = (iso: string): number => DateTime.fromISO(iso).toMillis();
 export const toNaiveISO = (ms: number): string => DateTime.fromMillis(ms).toISO({ includeOffset: false })!;
 export const isoDateOf = (iso: string): string => DateTime.fromISO(iso).toISODate()!;
 export const formatMs = (ms: number, format: string): string => DateTime.fromMillis(ms).toFormat(format);
+export const floorToMinute = (ms: number): number => Math.floor(ms / 60_000) * 60_000;
 
 const ceilToHour = (dt: DateTime): DateTime =>
   dt.minute > 0 || dt.second > 0 || dt.millisecond > 0 ? dt.startOf("hour").plus({ hours: 1 }) : dt.startOf("hour");
