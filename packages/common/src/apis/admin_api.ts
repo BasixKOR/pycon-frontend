@@ -95,7 +95,7 @@ export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
   });
 };
 
-const parseVersion = (etag: unknown): string => (typeof etag === "string" ? etag.replaceAll('"', "") : "");
+const parseVersion = (etag: unknown): string => (typeof etag === "string" ? etag.replace(/^W\//, "").replaceAll('"', "") : "");
 const timetableUrl = (eventId: string) => `v1/admin-api/event/presentation/timetable/${eventId}/`;
 
 export const getTimetable = (client: BackendAPIClient, eventId: string) => async (): Promise<TimetableReadResult> => {
