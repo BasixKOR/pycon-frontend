@@ -9,6 +9,7 @@ import {
   SecondaryStyledDetails,
   SessionList,
   SessionTimeTable,
+  SessionTimeTableTransposed,
   StyledFullWidthButton,
 } from "@frontend/common/components/mdx_components";
 import { PriceDisplay, ShopContextProvider, SignInGuard, UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
@@ -277,6 +278,7 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__FullWidthStyledButton: StyledFullWidthButton,
   Common__Components__Session__List: SessionList,
   Common__Components__Session__TimeTable: SessionTimeTable,
+  Common__Components__Session__TimeTableTransposed: SessionTimeTableTransposed,
   Common__Components__MDX__PyConKR2026MainCover: PyConKR2026MainCover,
 };
 

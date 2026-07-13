@@ -8,5 +8,6 @@ export { OneDetailsOpener } from "./one_details_opener";
 export { PyConKR2026CoverLayers, PyConKR2026MainCover } from "./pyconkr2026_main_cover";
 export { SessionList } from "./session_list";
 export { SessionTimeTable } from "./session_timetable";
+export { SessionTimeTableTransposed } from "./session_timetable_transposed";
 export { PrimaryStyledDetails, HighlightedStyledDetails as SecondaryStyledDetails } from "./styled_details";
 export { StyledFullWidthButton } from "./styled_full_width_button";
