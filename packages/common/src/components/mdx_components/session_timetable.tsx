@@ -15,6 +15,7 @@ import { getSessionDetailUrl } from "@frontend/common/utils";
 import { getRoomOrders, getRooms, getTimeTableData, TIME_COL_WIDTH, useHorizontalOverflow } from "./session_timetable_data";
 import {
   BreakTime,
+  HorizontalScrollNotice,
   ScrollHintEdge,
   SessionBox,
   SessionDateItemContainer,
@@ -88,7 +89,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
   Suspense.with({ fallback: <CenteredPage children={<CircularProgress />} /> }, ({ event, types, rowHeight = TD_HEIGHT }) => {
     const location = useLocation();
     const tdHeight = Number(rowHeight) || TD_HEIGHT; // MDX에서 문자열로 들어와도 안전하게 처리
-    const { scrollRef, canScrollLeft, canScrollRight } = useHorizontalOverflow();
+    const { scrollRef, canScrollLeft, canScrollRight, scrollByViewport } = useHorizontalOverflow();
 
     const [confDate, setConfDate] = useState<string>(location.state?.selectedDate ?? "");
 
@@ -117,7 +118,10 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
 
     return (
       <Stack direction="column" sx={{ width: "100%" }}>
-        <Typography variant="body2" sx={{ width: "100%", textAlign: "right", my: 0.5, fontSize: "0.6rem" }} children={warningMessage} />
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: "100%", my: 0.5, gap: 1 }}>
+          <HorizontalScrollNotice visible={canScrollLeft || canScrollRight} language={language} />
+          <Typography variant="body2" sx={{ textAlign: "right", fontSize: "0.6rem" }} children={warningMessage} />
+        </Stack>
         <StyledDivider />
         {dates.length > 1 && (
           <>
@@ -268,11 +272,25 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                 </SessionTableBody>
               </SessionTable>
             </SessionTableScroll>
-            {/* 표가 화면보다 넓을 때만 좌우 스크롤 가능 방향을 페이드+화살표로 안내한다. */}
-            <ScrollHintEdge className="left" data-visible={canScrollLeft || undefined} aria-hidden>
+            {/* 표가 화면보다 넓을 때만 좌우 스크롤 가능 방향을 페이드+화살표로 안내하고, 누르면 한 화면씩 스크롤한다. */}
+            <ScrollHintEdge
+              type="button"
+              className="left"
+              data-visible={canScrollLeft || undefined}
+              disabled={!canScrollLeft}
+              onClick={() => scrollByViewport("left")}
+              aria-label={language === "ko" ? "이전 화면으로 스크롤" : "Scroll left"}
+            >
               <KeyboardArrowLeft fontSize="small" />
             </ScrollHintEdge>
-            <ScrollHintEdge className="right" data-visible={canScrollRight || undefined} aria-hidden>
+            <ScrollHintEdge
+              type="button"
+              className="right"
+              data-visible={canScrollRight || undefined}
+              disabled={!canScrollRight}
+              onClick={() => scrollByViewport("right")}
+              aria-label={language === "ko" ? "다음 화면으로 스크롤" : "Scroll right"}
+            >
               <KeyboardArrowRight fontSize="small" />
             </ScrollHintEdge>
           </SessionTableScrollWrapper>

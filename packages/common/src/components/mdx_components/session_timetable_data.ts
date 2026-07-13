@@ -51,7 +51,14 @@ export const useHorizontalOverflow = () => {
     };
   }, [update]);
 
-  return { scrollRef, canScrollLeft: left, canScrollRight: right };
+  // 스크롤 안내 화살표 클릭 시 현재 보이는 폭(clientWidth)만큼 좌/우로 한 화면씩 이동한다.
+  const scrollByViewport = useCallback((direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction === "left" ? -el.clientWidth : el.clientWidth, behavior: "smooth" });
+  }, []);
+
+  return { scrollRef, canScrollLeft: left, canScrollRight: right, scrollByViewport };
 };
 
 const getPaddedTime = (time: DateTime) => `${time.hour}:${time.minute.toString().padStart(2, "0")}`;

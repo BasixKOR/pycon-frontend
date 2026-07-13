@@ -1,3 +1,4 @@
+import { SwapHoriz } from "@mui/icons-material";
 import { keyframes, Stack, styled, TableRow, Typography } from "@mui/material";
 import { FC } from "react";
 
@@ -10,6 +11,30 @@ export const BreakTime: FC<{ language: "ko" | "en"; duration: number }> = ({ lan
   const text = language === "ko" ? `휴식 (${duration}분)` : `Break Time (${duration}min.)`;
   return <Typography variant="subtitle2" fontWeight="500" children={text} />;
 };
+
+// 표가 화면 폭을 넘겨 좌우 스크롤이 가능할 때만 상단에 노출하는 작은 안내 문구.
+// visible 이 false 여도 자리를 유지해 나타날 때 레이아웃이 흔들리지 않도록 opacity 로만 감춘다.
+export const HorizontalScrollNotice: FC<{ visible: boolean; language: "ko" | "en" }> = ({ visible, language }) => (
+  <Stack
+    direction="row"
+    alignItems="center"
+    gap={0.25}
+    aria-hidden={!visible}
+    sx={{
+      flexShrink: 0,
+      color: (t) => t.palette.primary.main,
+      fontSize: "0.6rem",
+      whiteSpace: "nowrap",
+      userSelect: "none",
+      pointerEvents: "none",
+      opacity: visible ? 1 : 0,
+      transition: "opacity 0.25s ease",
+    }}
+  >
+    <SwapHoriz sx={{ fontSize: "0.9rem" }} />
+    <span>{language === "ko" ? "좌우로 스크롤할 수 있습니다" : "Scroll horizontally to see more"}</span>
+  </Stack>
+);
 
 export const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
@@ -67,8 +92,8 @@ export const SessionTableScrollWrapper = styled("div")({
 });
 
 // 표가 화면 폭을 넘칠 때 해당 방향으로 더 스크롤할 수 있음을 알리는 페이드+화살표.
-// data-visible 이 있을 때만 나타나며, 스크롤을 막지 않도록 pointer-events는 비활성화한다.
-export const ScrollHintEdge = styled("div")(({ theme }) => ({
+// data-visible 이 있을 때만 나타나고 클릭 가능해지며, 이때 눌러 한 화면씩 스크롤할 수 있다.
+export const ScrollHintEdge = styled("button")(({ theme }) => ({
   position: "absolute",
   top: 0,
   bottom: 0,
@@ -77,11 +102,18 @@ export const ScrollHintEdge = styled("div")(({ theme }) => ({
   alignItems: "flex-start",
   paddingTop: "0.75rem",
   color: theme.palette.primary.main,
+  // button 기본 스타일 초기화
+  border: "none",
+  margin: 0,
+  font: "inherit",
+  appearance: "none",
+  WebkitAppearance: "none",
+  // 숨겨진(스크롤 불가) 동안엔 아래 셀 클릭을 막지 않도록 pointer-events 를 끈다.
   pointerEvents: "none",
   opacity: 0,
   transition: "opacity 0.25s ease",
   zIndex: 3, // sticky 시간 열(zIndex 2) 위에 표시
-  "&[data-visible]": { opacity: 1 },
+  "&[data-visible]": { opacity: 1, pointerEvents: "auto", cursor: "pointer" },
 
   "&.right": {
     right: 0,
