@@ -41,12 +41,18 @@ const SessionColumn: FC<{
 }> = ({ rowSpan, colSpan, session, linkable, selectedDate }) => {
   const sessionUrl = linkable ? getSessionDetailUrl(session) : undefined;
   const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
-  // rowSpan 된 셀의 실제 높이를 그대로 채운다. (calc 로 rowSpan×--td-h 를 추정하면 내용에 따라 늘어난 행 높이와 어긋난다)
+  // height 100% 로 rowSpan 셀의 실제 높이를 채우되(Chromium 기준), Firefox 는 rowSpan 셀에서 100% 를 지정 높이(--td-h) 기준으로 계산해 한 줄로 쪼그라들므로
+  // minHeight 로 rowSpan×--td-h 하한을 준다. (세션 셀은 --td-h 이상 행만 span 하므로 안전한 하한)
+  const sessionBoxMinHeight = `calc(var(--td-h, ${TD_HEIGHT}rem) * ${rowSpan})`;
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       {clickable ? (
-        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block", height: "100%" }} state={{ selectedDate: selectedDate }}>
-          <SessionBox className="clickable" sx={{ height: "100%", gap: 0.75, padding: "0.5rem" }}>
+        <Link
+          to={sessionUrl!}
+          style={{ textDecoration: "none", display: "block", height: "100%", minHeight: sessionBoxMinHeight }}
+          state={{ selectedDate: selectedDate }}
+        >
+          <SessionBox className="clickable" sx={{ height: "100%", minHeight: sessionBoxMinHeight, gap: 0.75, padding: "0.5rem" }}>
             <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
             <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
               {session.speakers.map((speaker) => (
@@ -56,7 +62,7 @@ const SessionColumn: FC<{
           </SessionBox>
         </Link>
       ) : (
-        <SessionBox sx={{ height: "100%", gap: 0.75, padding: "0.5rem" }}>
+        <SessionBox sx={{ height: "100%", minHeight: sessionBoxMinHeight, gap: 0.75, padding: "0.5rem" }}>
           <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
           <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
             {session.speakers.map((speaker) => (
