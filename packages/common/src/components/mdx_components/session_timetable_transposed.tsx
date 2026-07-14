@@ -116,8 +116,9 @@ const buildTransposedModel = (selectedTableData: TimeTableData[string], sortedRo
     // 정상 데이터에선 colSpan===rowSpan 이지만, 세션이 표시 범위를 넘겨 선언된 경우 열 개수로 제한한다.
     const colSpan = (datum: SessionCell) => Math.min(datum.rowSpan, columns.length - colStart);
     const sessionIds = new Set(starting.map(([, datum]) => datum.session.id));
-    if (sessionIds.size === 1) {
-      // 한 종류뿐이면 모든 장소 행을 가로지른다(키노트/전체 대상 세션).
+    if (sessionIds.size === 1 && starting.length === roomCount) {
+      // 모든 장소에서 동시에 시작하는 한 종류의 세션일 때만 모든 장소 행을 가로지른다(키노트/전체 대상 세션).
+      // starting 은 이 시각에 시작하는 장소만 담으므로, 장소 하나뿐인 세션이 전체를 덮지 않도록 장소 개수까지 확인한다.
       const [, datum] = starting[0];
       placements.push({ rowStart: 0, rowSpan: roomCount, colStart, colSpan: colSpan(datum), session: datum.session });
     } else {

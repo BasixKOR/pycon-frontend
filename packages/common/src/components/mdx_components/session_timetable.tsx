@@ -41,13 +41,12 @@ const SessionColumn: FC<{
 }> = ({ rowSpan, colSpan, session, linkable, selectedDate }) => {
   const sessionUrl = linkable ? getSessionDetailUrl(session) : undefined;
   const clickable = isArray(session.speakers) && !isEmpty(session.speakers) && !!sessionUrl;
-  // Firefox는 rowSpan된 td의 height를 계산할 때 rowSpan을 고려하지 않습니다. 따라서 직접 계산하여 height를 설정합니다.
-  const sessionBoxHeight = `calc(var(--td-h, ${TD_HEIGHT}rem) * ${rowSpan})`;
+  // rowSpan 된 셀의 실제 높이를 그대로 채운다. (calc 로 rowSpan×--td-h 를 추정하면 내용에 따라 늘어난 행 높이와 어긋난다)
   return (
     <SessionTableCell rowSpan={rowSpan} colSpan={colSpan}>
       {clickable ? (
-        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block" }} state={{ selectedDate: selectedDate }}>
-          <SessionBox className="clickable" sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
+        <Link to={sessionUrl!} style={{ textDecoration: "none", display: "block", height: "100%" }} state={{ selectedDate: selectedDate }}>
+          <SessionBox className="clickable" sx={{ height: "100%", gap: 0.75, padding: "0.5rem" }}>
             <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
             <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
               {session.speakers.map((speaker) => (
@@ -57,7 +56,7 @@ const SessionColumn: FC<{
           </SessionBox>
         </Link>
       ) : (
-        <SessionBox sx={{ height: sessionBoxHeight, gap: 0.75, padding: "0.5rem" }}>
+        <SessionBox sx={{ height: "100%", gap: 0.75, padding: "0.5rem" }}>
           <SessionTitle children={session.title.replace("\\n", "\n")} align="center" />
           <Stack direction="row" alignItems="center" justifyContent="center" sx={{ width: "100%", flexWrap: "wrap", gap: 0.5 }}>
             {session.speakers.map((speaker) => (
@@ -221,10 +220,11 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
                       }
                     }
 
-                    // 만약 동일 세션이 모든 방에서 진행되는 경우, 해당 줄에서는 colSpan이 roomCount인 column을 생성합니다.
+                    // 동일 세션이 "모든 방"에서 동시에 시작하는 경우(키노트 등)에만 colSpan=roomCount 로 한 칸에 합칩니다.
+                    // roomData 는 이 시각에 시작하는 방만 담으므로, 방 하나에서만 시작하는 세션이 전체 폭으로 퍼지지 않도록 방 개수까지 확인합니다.
                     const sessionIds = new Set(Object.values(roomData).map((room) => room?.session.id));
                     const firstSessionInfo = Object.values(roomData)[0];
-                    if (sessionIds.size === 1 && firstSessionInfo !== undefined) {
+                    if (sessionIds.size === 1 && firstSessionInfo !== undefined && Object.keys(roomData).length === roomCount) {
                       Object.keys(rooms).forEach((room) => (rooms[room] = firstSessionInfo.rowSpan - 1));
                       return (
                         <SessionTableRow>
