@@ -106,7 +106,7 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
     const sortedRoomList = Object.keys(rooms).sort((a, b) => roomOrders[a] - roomOrders[b] || a.localeCompare(b));
 
     const [selectedDate, setSelectedDate] = useState<string>(location.state?.selectedDate ?? (confDate || dates[0]));
-    const selectedTableData = timeTableData[selectedDate];
+    const selectedTableData = timeTableData[selectedDate] ?? {};
 
     let breakCount = 0;
 

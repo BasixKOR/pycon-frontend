@@ -18,6 +18,7 @@ import {
   SessionTimeTableTransposed,
   StyledFullWidthButton,
 } from "@frontend/common/components/mdx_components";
+import type { SessionSchema } from "@frontend/common/schemas/backendAPI";
 import { PriceDisplay, ShopContextProvider, SignInGuard, UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { CartStatus, OrderList, PatronList, ProductImageCardList, ProductList, UserInfo } from "@frontend/shop/components/features";
 import {
@@ -146,7 +147,9 @@ import {
   Zoom,
 } from "@mui/material";
 import type { MDXComponents } from "mdx/types.js";
-import { FC, createElement } from "react";
+import { ComponentProps, FC, createElement } from "react";
+
+import { SessionScheduleToggleButton } from "@apps/pyconkr-2026/features/schedule/toggle_schedule_button";
 const MUIMDXComponents: MDXComponents = {
   Mui__material__Accordion: Accordion,
   Mui__material__AccordionActions: AccordionActions,
@@ -288,6 +291,12 @@ const PyConKR2025MobileCover: FC<object> = () =>
     coverTitleSrc: PyCon2025MobileLogoTitle,
   });
 
+const PyConKR2026SessionList: FC<ComponentProps<typeof SessionList>> = (props) =>
+  createElement(SessionList, {
+    ...props,
+    renderAction: (session: SessionSchema) => createElement(SessionScheduleToggleButton, { session }),
+  });
+
 const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__Lottie: LottiePlayer,
   Common__Components__NetworkLottie: NetworkLottiePlayer,
@@ -297,7 +306,7 @@ const PyConKRCommonMDXComponents: MDXComponents = {
   Common__Components__MDX__Map: MDXMap,
   Common__Components__MDX__FAQAccordion: FAQAccordion,
   Common__Components__MDX__FullWidthStyledButton: StyledFullWidthButton,
-  Common__Components__Session__List: SessionList,
+  Common__Components__Session__List: PyConKR2026SessionList,
   Common__Components__Session__TimeTable: SessionTimeTable,
   Common__Components__Session__TimeTableTransposed: SessionTimeTableTransposed,
   Common__Components__MDX__MobileAccordion: PyConKR2025MobileAccordion,

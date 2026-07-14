@@ -19,7 +19,8 @@ const SessionItem: FC<{
   session: SessionSchema;
   enableLink?: boolean;
   linkable?: boolean;
-}> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, linkable }) => {
+  renderAction?: (session: SessionSchema) => ReactNode;
+}> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, linkable, renderAction }) => {
   const sessionTitle = session.title.replace("\\n", "\n");
 
   let speakerImgSrc = session.image || "";
@@ -66,9 +67,22 @@ const SessionItem: FC<{
       </Stack>
     </SessionItemContainer>
   );
+  const linkedResult =
+    enableLink && sessionDetailedUrl ? (
+      <Link to={sessionDetailedUrl} style={{ textDecoration: "none", flexGrow: 1, minWidth: 0 }} children={result} />
+    ) : (
+      result
+    );
   return (
     <>
-      {enableLink && sessionDetailedUrl ? <Link to={sessionDetailedUrl} style={{ textDecoration: "none" }} children={result} /> : result}
+      {renderAction ? (
+        <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }} children={linkedResult} />
+          <Box sx={{ pr: { xs: 1, md: 2 }, flexShrink: 0 }} children={renderAction(session)} />
+        </Stack>
+      ) : (
+        linkedResult
+      )}
       <StyledDivider />
     </>
   );
@@ -81,6 +95,7 @@ type SessionListPropType = {
   types?: string | string[];
   /** `true`면 각 세션을 상세 페이지 링크로 감싼다. */
   enableLink?: boolean;
+  renderAction?: (session: SessionSchema) => ReactNode;
 };
 
 /**
@@ -90,7 +105,7 @@ type SessionListPropType = {
  */
 export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
   { fallback: ErrorFallback },
-  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink }) => {
+  Suspense.with({ fallback: <CircularProgress /> }, ({ event, types, enableLink, renderAction }) => {
     const { language, appType } = Common.useCommonContext();
     const linkable = appType === "main";
     const backendAPIClient = BackendAPI.useBackendClient();
@@ -142,7 +157,7 @@ export const SessionList: FC<SessionListPropType> = ErrorBoundary.with(
           )}
         </Box>
         {filteredSessions.map((s) => (
-          <SessionItem key={s.id} session={s} enableLink={enableLink} linkable={linkable} />
+          <SessionItem key={s.id} session={s} enableLink={enableLink} linkable={linkable} renderAction={renderAction} />
         ))}
       </Box>
     );
