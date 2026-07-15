@@ -61,7 +61,10 @@ export default function Header() {
             <Link to="/" onClick={resetDepths}>
               <Stack direction="row" alignItems="center" spacing={0.75}>
                 <PyConLogo style={{ width: 32, height: 32 }} />
-                <Typography className="header-title-text" sx={{ color: "#ededde", fontWeight: 600, fontSize: "1rem" }}>
+                <Typography
+                  className="header-title-text"
+                  sx={{ color: "#ededde", fontWeight: 600, fontSize: "1.2rem", fontFamily: "'exqtEnglish', 'exqtNumber', 'exqt', 'Pretendard'" }}
+                >
                   PyCon Korea 2026
                 </Typography>
               </Stack>

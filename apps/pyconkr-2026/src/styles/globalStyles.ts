@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 export const muiTheme = createTheme({
   typography: {
     fontFamily:
-      'exqtEnglish, exqtNumber, exqt, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
+      'Galmuri11, exqtEnglish, exqtNumber, exqt, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
   },
   palette: {
     mode: "dark",
@@ -129,6 +129,7 @@ export const globalStyles = css`
   html,
   body {
     font-family:
+      "Galmuri11",
       "exqtEnglish",
       "exqtNumber",
       "exqt",
@@ -149,10 +150,10 @@ export const globalStyles = css`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-touch-callout: none;
-
     overscroll-behavior: none;
     word-break: keep-all;
     overflow-wrap: break-all;
+    line-height: 1.7;
 
     -webkit-user-drag: none;
     -khtml-user-drag: none;
@@ -168,11 +169,11 @@ export const globalStyles = css`
     color: inherit;
   }
 
-  @media (min-width: 900px) {
+  @media (max-width: 900px) {
     /* mui가 md를 900px로 보는 중 */
     html,
     body {
-      font-size: 120%;
+      font-size: 90%;
     }
   }
 `;

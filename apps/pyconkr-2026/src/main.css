@@ -16,3 +16,9 @@
   unicode-range: U+0030-0039; /* 숫자 */
   size-adjust: 120%;
 }
+
+@font-face {
+  font-family: "Galmuri11"; /* 갈무리11 (OFL, 닌텐도DS 스타일), https://galmuri.quiple.dev */
+  src: url("assets/fonts/galmuri11.woff2") format("woff2");
+  font-display: swap;
+}
