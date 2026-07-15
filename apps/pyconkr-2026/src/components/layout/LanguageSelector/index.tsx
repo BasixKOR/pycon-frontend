@@ -29,4 +29,5 @@ const LanguageItem = styled(Button)<{ selected: boolean }>(({ selected, theme })
   minWidth: 0,
   padding: "0.375rem 0.25rem",
   transition: "color 0.2s ease",
+  fontSize: "0.75rem",
 }));
