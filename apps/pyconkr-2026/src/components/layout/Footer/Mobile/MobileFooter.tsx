@@ -31,7 +31,7 @@ export default function MobileFooter() {
   const committeeTitle =
     language === "ko"
       ? "파이콘 한국 2026은 파이콘 한국 준비위원회가 만들고 있습니다"
-      : "PyCon Korea 2026 is organized by the PyCon Korea Organizing Committee";
+      : "PyCon Korea 2026 is organized by the PyCon Korea Organizing Team";
   const djangoTitle = language === "ko" ? "파이썬 웹 프레임워크 Django로 만들었습니다" : "Built with the Django web framework for Python";
 
   const links = [
@@ -87,7 +87,7 @@ const FooterContainer = styled.footer`
     ${({ theme }) => theme.palette.primary.main} 100%
   );
   color: ${({ theme }) => theme.palette.text.primary};
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   display: flex;
   flex-direction: column;
   align-items: center;

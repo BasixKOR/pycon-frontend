@@ -156,7 +156,6 @@ const FooterContainer = styled.footer`
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-height: 16rem;
   padding: 5rem 0 1rem;
 `;
 
@@ -198,14 +197,14 @@ const FooterText = styled.div<{ muiMd: number }>`
   }
 
   @media (min-width: ${(props) => props.muiMd}px) {
-    font-size: 12pt;
+    font-size: 9pt;
 
     a > button {
-      font-size: 10pt;
+      font-size: 8pt;
     }
 
     strong {
-      font-size: 15pt;
+      font-size: 12pt;
     }
   }
 `;
