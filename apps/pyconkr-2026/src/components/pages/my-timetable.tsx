@@ -72,5 +72,19 @@ export const MyTimetablePage: FC = () => {
     );
   }
 
-  return <PageLayout>{isLoading ? <CircularProgress /> : <MyTimetableGrid placements={placements} />}</PageLayout>;
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <Stack alignItems="center" sx={{ py: 6 }}>
+          <CircularProgress />
+        </Stack>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout>
+      <MyTimetableGrid placements={placements} />
+    </PageLayout>
+  );
 };
