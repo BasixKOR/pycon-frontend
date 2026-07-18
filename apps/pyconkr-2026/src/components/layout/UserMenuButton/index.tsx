@@ -2,7 +2,7 @@ import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { UserSignInAccount, UserSignInMethod } from "@frontend/shop/components/common";
 import { useShopClient, useSignOutMutation, useUserStatus } from "@frontend/shop/hooks";
 import { UserSignedInStatus } from "@frontend/shop/schemas";
-import { AccountCircle, Login, Logout, ManageAccounts, Receipt } from "@mui/icons-material";
+import { AccountCircle, CalendarMonth, Login, Logout, ManageAccounts, Receipt } from "@mui/icons-material";
 import { Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, MouseEvent, useState } from "react";
@@ -52,6 +52,7 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
   const handleMenuClose = () => setAnchorEl(null);
 
   const signInLabel = language === "ko" ? "로그인" : "Sign In";
+  const myTimetableLabel = language === "ko" ? "나의 세션 시간표 보기" : "View My Session Schedule";
   const orderHistoryLabel = language === "ko" ? "결제 내역" : "Order History";
   const manageAccountLabel = language === "ko" ? "계정 관리" : "Manage Account";
   const signOutLabel = language === "ko" ? "로그아웃" : "Sign Out";
@@ -109,6 +110,12 @@ const InnerUserMenuButton: FC<InnerUserMenuButtonPropType> = ({ loading, user, o
               </Typography>
             </UserNameItem>,
             <Divider key="divider" sx={{ my: 0.5 }} />,
+            <MenuItem key="my-timetable" component={RouterLink} to="/my-timetable" onClick={closeAll}>
+              <ListItemIcon>
+                <CalendarMonth fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{myTimetableLabel}</ListItemText>
+            </MenuItem>,
             <MenuItem key="orders" component={RouterLink} to="/store/order-histories" onClick={closeAll}>
               <ListItemIcon>
                 <Receipt fontSize="small" />
