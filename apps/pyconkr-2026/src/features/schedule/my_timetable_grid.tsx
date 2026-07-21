@@ -19,7 +19,7 @@ const AFTERNOON_START_HOUR = 13;
 const AFTERNOON_START_MINUTE = 30;
 const SLOT_MINUTES = 10;
 const SLOT_MS = SLOT_MINUTES * 60_000;
-const ROW_HEIGHT = 30;
+const ROW_HEIGHT = 34;
 
 type FixedProgram = {
   start: string;
@@ -119,7 +119,7 @@ const SessionCard: FC<{ placement: TimetablePlacement; color: string }> = ({ pla
           lineHeight: compact ? 1 : 1.25,
           textOverflow: "ellipsis",
           whiteSpace: compact ? "nowrap" : undefined,
-          my: compact ? 0.2 : 0.35,
+          my: compact ? 0.45 : 0.5,
         }}
         children={placement.title}
       />
