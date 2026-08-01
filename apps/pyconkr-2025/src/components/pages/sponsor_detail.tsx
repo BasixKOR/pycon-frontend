@@ -83,7 +83,7 @@ export const SponsorDetailPage: FC = ErrorBoundary.with(
           {sponsor.tags.length ? (
             <Stack direction="row" spacing={1} sx={{ width: "100%", mt: 1 }} aria-label="후원사 태그 목록">
               {sponsor.tags.map((tag) => (
-                <Chip key={tag} size="small" variant="outlined" color="primary" label={tag} />
+                <Chip key={tag.id} size="small" variant="outlined" color="primary" label={tag.name} />
               ))}
             </Stack>
           ) : null}

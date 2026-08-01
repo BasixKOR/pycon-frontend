@@ -6,8 +6,10 @@ import {
   useRemovePreparedMutation,
   useUpdatePreparedMutation,
 } from "@frontend/common/hooks/useAdminAPI";
+import { isHexColor } from "@frontend/common/utils";
 import { Add, ArrowDownward, ArrowUpward, Delete, Edit } from "@mui/icons-material";
 import {
+  Box,
   Button,
   CircularProgress,
   Dialog,
@@ -27,6 +29,7 @@ import {
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 
+import { ColorInput } from "@apps/pyconkr-admin/components/elements/color_input";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
@@ -44,14 +47,14 @@ type Width = string | number;
  *
  * - `translated` renders as two table columns (한국어/영어) and two form inputs.
  *   The _ko variant is always treated as required.
- * - `text` / `number` render as one column and one input.
+ * - `text` / `number` / `color` render as one column and one input.
  */
 export type ColumnDef =
   | { name: string; label: string; type: "translated"; align?: Align; width?: Width }
   | {
       name: string;
       label: string;
-      type: "text" | "number";
+      type: "text" | "number" | "color";
       align?: Align;
       width?: Width;
       defaultValue?: (existingCount: number) => string;
@@ -90,6 +93,8 @@ const buildPayload = (columns: ColumnDef[], values: FormValues, filter: { key: s
       payload[`${c.name}_en`] = values[`${c.name}_en`] ?? "";
     } else if (c.type === "number") {
       payload[c.name] = Number(values[c.name]) || 0;
+    } else if (c.type === "color") {
+      payload[c.name] = values[c.name] || null;
     } else {
       payload[c.name] = values[c.name] ?? "";
     }
@@ -217,6 +222,19 @@ const ResourceDialog: FC<ResourceDialogProps> = ({ open, onClose, app, resource,
                   </Stack>
                 );
               }
+              if (c.type === "color") {
+                return (
+                  <ColorInput
+                    key={c.name}
+                    label={c.label}
+                    value={values[c.name] || null}
+                    error={!!fieldErrors[c.name]}
+                    helperText={fieldErrors[c.name] || c.helperText}
+                    autoFocus={idx === 0}
+                    onChange={(v) => setField(c.name, v ?? "")}
+                  />
+                );
+              }
               return (
                 <TextField
                   key={c.name}
@@ -273,6 +291,15 @@ const renderCellValue = (column: ColumnDef, row: ResourceRow, subKey?: "ko" | "e
   }
   if (column.render) return column.render(row);
   const v = row[column.name];
+  if (column.type === "color") {
+    if (!isHexColor(v)) return "";
+    return (
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Box sx={{ width: 16, height: 16, borderRadius: "4px", backgroundColor: v, border: 1, borderColor: "divider" }} />
+        <span>{v}</span>
+      </Stack>
+    );
+  }
   return v === null || v === undefined ? "" : String(v);
 };
 

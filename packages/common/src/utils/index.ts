@@ -11,5 +11,5 @@ export { filterPropertiesByLanguageInJsonSchema, filterReadOnlyPropertiesInJsonS
 export { clamp, snapToStep, stepsBetween } from "./math";
 export { extractQueryParameters } from "./openapi";
 export { getSessionDetailUrl } from "./session";
-export { isFilledString, isValidHttpUrl, rtrim } from "./string";
+export { isFilledString, isHexColor, isValidHttpUrl, rtrim } from "./string";
 export { dayBoundsMs, dayTabLabel, eachDayISO, floorToMinute, formatMs, isoDateOf, toMs, toNaiveISO } from "./time";

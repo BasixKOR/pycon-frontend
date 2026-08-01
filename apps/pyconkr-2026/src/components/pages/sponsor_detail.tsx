@@ -1,6 +1,7 @@
 import { CenteredPage, ErrorFallback, MDXRenderer } from "@frontend/common/components";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
 import { SponsorTierSchema } from "@frontend/common/schemas/backendAPI";
+import { isHexColor } from "@frontend/common/utils";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, useEffect } from "react";
@@ -114,7 +115,14 @@ export const SponsorDetailPage: FC = ErrorBoundary.with(
           {sponsor.tags.length ? (
             <Stack direction="row" spacing={1} sx={{ width: "100%", mt: 1 }} aria-label="후원사 태그 목록">
               {sponsor.tags.map((tag) => (
-                <Chip key={tag} size="small" variant="outlined" color="primary" label={tag} />
+                <Chip
+                  key={tag.id}
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  label={tag.name}
+                  sx={isHexColor(tag.color) ? { color: tag.color, borderColor: tag.color } : undefined}
+                />
               ))}
             </Stack>
           ) : null}

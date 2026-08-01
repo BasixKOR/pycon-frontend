@@ -1,4 +1,5 @@
-import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, alpha, styled } from "@mui/material";
+import { isHexColor } from "@frontend/common/utils";
+import { Badge, CircularProgress, Divider, Stack, Tooltip, Typography, TypographyProps, alpha, darken, styled } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { Link } from "react-router-dom";
 
@@ -85,30 +86,35 @@ const LogoBadgeContainer = styled(Stack)({
   gap: "0.25rem",
 });
 
-const LogoBadge = styled(Badge)(({ theme }) => ({
-  alignItems: "flex-end",
+const LogoBadge = styled(Badge, { shouldForwardProp: (prop) => prop !== "tagColor" })<{ tagColor?: string | null }>(({ theme, tagColor }) => {
+  const backgroundColor = isHexColor(tagColor) ? tagColor : theme.palette.primary.main;
+  const foldColor = isHexColor(tagColor) ? darken(tagColor, 0.3) : theme.palette.primary.dark;
 
-  "& .MuiBadge-badge": {
-    position: "relative",
-    borderRadius: "0.25rem",
-    padding: "0 0.5rem",
-    backgroundColor: theme.palette.primary.main,
-    color: "white",
-    borderEndEndRadius: "0",
-    transform: "none",
+  return {
+    alignItems: "flex-end",
 
-    "&:after": {
-      content: '""',
-      position: "absolute",
-      bottom: "-8px",
-      right: "-0.1px",
-      width: 0,
-      height: 0,
-      border: "solid 4px",
-      borderColor: `${theme.palette.primary.dark} transparent transparent ${theme.palette.primary.dark}`,
+    "& .MuiBadge-badge": {
+      position: "relative",
+      borderRadius: "0.25rem",
+      padding: "0 0.5rem",
+      backgroundColor,
+      color: theme.palette.getContrastText(backgroundColor),
+      borderEndEndRadius: "0",
+      transform: "none",
+
+      "&:after": {
+        content: '""',
+        position: "absolute",
+        bottom: "-8px",
+        right: "-0.1px",
+        width: 0,
+        height: 0,
+        border: "solid 4px",
+        borderColor: `${foldColor} transparent transparent ${foldColor}`,
+      },
     },
-  },
-}));
+  };
+});
 
 export const Sponsor: React.FC = ErrorBoundary.with(
   {
@@ -151,8 +157,8 @@ export const Sponsor: React.FC = ErrorBoundary.with(
                         <Tooltip title={sponsorNameContent} arrow placement="top">
                           <LogoImageEqualWidthContainer>
                             <LogoBadgeContainer>
-                              {sponsor.tags.map((tag, i) => (
-                                <LogoBadge key={i} badgeContent={tag} />
+                              {sponsor.tags.map((tag) => (
+                                <LogoBadge key={tag.id} badgeContent={tag.name} tagColor={tag.color} />
                               ))}
                             </LogoBadgeContainer>
                             <LogoImageContainer>

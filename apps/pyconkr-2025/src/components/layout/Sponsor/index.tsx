@@ -148,8 +148,8 @@ export const Sponsor: React.FC = ErrorBoundary.with(
                           <Tooltip title={sponsorNameContent} arrow placement="top">
                             <LogoImageEqualWidthContainer>
                               <LogoBadgeContainer>
-                                {sponsor.tags.map((tag, i) => (
-                                  <LogoBadge key={i} badgeContent={tag} />
+                                {sponsor.tags.map((tag) => (
+                                  <LogoBadge key={tag.id} badgeContent={tag.name} />
                                 ))}
                               </LogoBadgeContainer>
                               <LogoImageContainer>

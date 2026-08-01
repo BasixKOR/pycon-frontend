@@ -66,6 +66,12 @@ export type PageSchema = {
   sections: SectionSchema[];
 };
 
+export type SponsorTagSchema = {
+  id: string;
+  name: string;
+  color: string | null;
+};
+
 export type SponsorTierSchema = {
   id: string;
   name: string;
@@ -75,7 +81,7 @@ export type SponsorTierSchema = {
     name: string;
     logo: string;
     description: string;
-    tags: string[];
+    tags: SponsorTagSchema[];
   }[];
 };
 

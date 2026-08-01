@@ -50,6 +50,7 @@ import { isArray, isNonNullish, isObjectType, isString } from "remeda";
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
 import { ChoicePicker } from "@apps/pyconkr-admin/components/elements/choice_picker";
 import { ChoicePickerWidget } from "@apps/pyconkr-admin/components/elements/choice_picker_widget";
+import { ColorPickerWidget } from "@apps/pyconkr-admin/components/elements/color_picker_widget";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
@@ -446,7 +447,7 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
                 disabled={disabled}
                 showErrorList={false}
                 fields={{ file: FileField, m2m_select: M2MSelect, markdown: MDEditorField }}
-                widgets={{ SelectWidget: ChoicePickerWidget, choice_picker: ChoicePickerWidget }}
+                widgets={{ SelectWidget: ChoicePickerWidget, choice_picker: ChoicePickerWidget, color: ColorPickerWidget }}
               />
             </Box>
           </Stack>

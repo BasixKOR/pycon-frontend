@@ -46,7 +46,10 @@ export const SponsorSettingsTabs: FC<{ eventId: string }> = ({ eventId }) => {
             resource="sponsortag"
             filter={{ key: "event", value: eventId }}
             label="태그"
-            columns={[{ name: "name", label: "이름", type: "translated" }]}
+            columns={[
+              { name: "name", label: "이름", type: "translated" },
+              { name: "color", label: "색상", type: "color", width: 160, helperText: "비워두면 홈페이지 기본색으로 표시됩니다." },
+            ]}
           />
         )}
       </Box>
