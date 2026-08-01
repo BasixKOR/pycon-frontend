@@ -1,5 +1,5 @@
 import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
-import { FileDownload, RestartAlt } from "@mui/icons-material";
+import { FileDownload, FileUpload, RestartAlt } from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -25,6 +25,7 @@ import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
 import { OrderExportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/export_dialog";
+import { OrderImportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/import_dialog";
 import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 
 import { OrderAdmin, PaymentStatus } from "./types";
@@ -99,6 +100,7 @@ const InnerOrderList: FC = ErrorBoundary.with(
 
     const [filters, setFilters] = useState<FilterState>(() => readFilters(searchParams));
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
 
     // Re-sync local form state when the URL changes externally (browser back/forward, pagination).
     useEffect(() => {
@@ -276,11 +278,15 @@ const InnerOrderList: FC = ErrorBoundary.with(
           <Button variant="text" onClick={handleReset} size="small" startIcon={<RestartAlt />}>
             초기화
           </Button>
-          <Button variant="outlined" size="small" startIcon={<FileDownload />} onClick={() => setExportDialogOpen(true)} sx={{ ml: "auto" }}>
+          <Button variant="outlined" size="small" startIcon={<FileUpload />} onClick={() => setImportDialogOpen(true)} sx={{ ml: "auto" }}>
+            가져오기
+          </Button>
+          <Button variant="outlined" size="small" startIcon={<FileDownload />} onClick={() => setExportDialogOpen(true)}>
             내보내기
           </Button>
         </Stack>
 
+        <OrderImportDialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} />
         <OrderExportDialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} />
 
         <Table>

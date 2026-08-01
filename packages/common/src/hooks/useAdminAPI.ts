@@ -8,7 +8,9 @@ import {
   fetchDashboardChartData,
   getTimetable,
   getTimetableVersion,
+  importOrders,
   issueGoogleOAuth2AccessToken,
+  orderImportTemplate,
   previewUserMerge,
   listAll,
   listDashboardCharts,
@@ -65,6 +67,8 @@ const MUTATION_KEYS = {
   ADMIN_RETRY_SENT_TO: ["mutation", "admin", "retry-sent-to"],
   ADMIN_ISSUE_GOOGLE_OAUTH2_ACCESS_TOKEN: ["mutation", "admin", "google-oauth2-access-token"],
   ADMIN_EXPORT_ORDERS: ["mutation", "admin", "export-orders"],
+  ADMIN_IMPORT_ORDERS: ["mutation", "admin", "import-orders"],
+  ADMIN_ORDER_IMPORT_TEMPLATE: ["mutation", "admin", "order-import-template"],
   ADMIN_PREVIEW_USER_MERGE: ["mutation", "admin", "preview", "user-merge"],
   ADMIN_REVERT_USER_MERGE: ["mutation", "admin", "revert", "user-merge"],
 };
@@ -292,6 +296,20 @@ export const useExportOrdersMutation = (client: BackendAPIClient) =>
     mutationKey: [...MUTATION_KEYS.ADMIN_EXPORT_ORDERS],
     mutationFn: exportOrders(client),
     meta: { invalidates: [] },
+  });
+
+export const useOrderImportTemplateMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_ORDER_IMPORT_TEMPLATE],
+    mutationFn: orderImportTemplate(client),
+    meta: { invalidates: [] },
+  });
+
+export const useImportOrdersMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_IMPORT_ORDERS],
+    mutationFn: importOrders(client),
+    meta: { invalidates: [QUERY_KEYS.ADMIN_LIST] },
   });
 
 export const usePreviewUserMergeMutation = (client: BackendAPIClient) =>

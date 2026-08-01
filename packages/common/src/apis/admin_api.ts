@@ -21,7 +21,7 @@ import {
   UserSchema,
 } from "@frontend/common/schemas/backendAdminAPI";
 
-import { BackendAPIClient } from "./client";
+import { BackendAPIClient, BackendAPIClientError } from "./client";
 
 export const me = (client: BackendAPIClient) => async () => {
   try {
@@ -164,6 +164,38 @@ export const issueGoogleOAuth2AccessToken = (client: BackendAPIClient, id: strin
 
 export const exportOrders = (client: BackendAPIClient) => (params: Record<string, string>) =>
   client.post<Blob, null>("v1/admin-api/shop/order/export/", null, { params, responseType: "blob" });
+
+export const orderImportTemplate = (client: BackendAPIClient) => (productId: string) =>
+  client.get<string>("v1/admin-api/shop/order/import-template/", { params: { product_id: productId }, responseType: "text" });
+
+export const importOrders = (client: BackendAPIClient) => (csvFile: File) => {
+  const formData = new FormData();
+  formData.append("csv_file", csvFile);
+  return client.post<void, FormData>("v1/admin-api/shop/order/import/", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export type OrderImportRowError = { row: number; messages: string[] };
+
+export const extractOrderImportRowErrors = (error: unknown): OrderImportRowError[] | null => {
+  if (!(error instanceof BackendAPIClientError) || error.detail.type !== "validation_error") return null;
+
+  const messagesByRow = new Map<number, string[]>();
+  for (const { attr, detail } of error.detail.errors) {
+    const [rowIndex, ...fieldPath] = (attr ?? "").split(".");
+    const row = Number(rowIndex);
+    if (!fieldPath.length || !Number.isInteger(row)) return null;
+
+    const field = fieldPath.join(".");
+    const message = field === "non_field_errors" ? detail : `${field}: ${detail}`;
+    messagesByRow.set(row, [...(messagesByRow.get(row) ?? []), message]);
+  }
+  if (!messagesByRow.size) return null;
+
+  // 헤더를 제외한 데이터 행 번호(1-based)로 노출.
+  return [...messagesByRow.entries()].sort(([a], [b]) => a - b).map(([row, messages]) => ({ row: row + 1, messages }));
+};
 
 export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
 

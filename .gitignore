@@ -29,3 +29,6 @@ dist-ssr
 
 # MDX Components information file
 **/mdx-components.json
+
+# Scratch files
+tmp
