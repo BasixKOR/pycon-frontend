@@ -10,6 +10,7 @@ export type OptionAdmin = {
   additional_price: number;
   stock: number;
   leftover_stock?: number | null;
+  sold_count?: number;
 };
 
 export type OptionGroupPlaceholderMode = "hidden" | "optional" | "required";
@@ -67,6 +68,7 @@ export type ProductAdmin = {
   option_groups: OptionGroupAdmin[];
   tag_set: string[];
   leftover_stock?: number | null;
+  sold_count?: number;
   current_status: ProductCurrentStatus;
 };
 
@@ -79,6 +81,7 @@ export type TagAdmin = {
   stock: number;
   max_quantity_per_user: number;
   leftover_stock?: number | null;
+  sold_count?: number;
 };
 
 export type CategoryAdminFromGroup = {

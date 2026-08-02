@@ -50,6 +50,9 @@ const parseNumberOr = (value: string, fallback: number): number => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
+const formatSoldCount = (v: number | undefined) => (v === undefined ? "—" : v.toLocaleString());
+const formatLeftover = (v: number | null | undefined) => (v === undefined ? "—" : v === null ? "무한대" : v.toLocaleString());
+
 // ----------------- Option dialog -----------------
 type OptionFormValues = {
   name_ko: string;
@@ -92,6 +95,9 @@ const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, optio
     }
   }, [open, option, optionGroup.options.length]);
 
+  const soldCount = option?.sold_count ?? 0;
+  const stockValue = parseNumberOr(values.stock, 0);
+
   const onSubmit = () => {
     if (!values.name_ko.trim()) {
       addSnackbar("한국어 이름은 필수입니다.", "error");
@@ -101,11 +107,15 @@ const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, optio
       addSnackbar("영어 이름은 필수입니다.", "error");
       return;
     }
+    if (soldCount > 0 && stockValue !== 0 && stockValue < soldCount) {
+      addSnackbar(`이미 ${soldCount.toLocaleString()}개가 판매된 옵션입니다. 재고는 그보다 작을 수 없습니다.`, "error");
+      return;
+    }
     const optionPayload = {
       name_ko: values.name_ko,
       name_en: values.name_en,
       additional_price: parseNumberOr(values.additional_price, 0),
-      stock: parseNumberOr(values.stock, 0),
+      stock: stockValue,
       max_quantity_per_user: parseNumberOr(values.max_quantity_per_user, 0),
       priority: parseNumberOr(values.priority, 0),
       group: optionGroup.id,
@@ -166,6 +176,13 @@ const OptionDialog: FC<OptionDialogProps> = ({ open, onClose, optionGroup, optio
               type="number"
               value={values.stock}
               onChange={(e) => setValues((p) => ({ ...p, stock: e.target.value }))}
+              error={soldCount > 0 && stockValue !== 0 && stockValue < soldCount}
+              // 재고는 "누적 판매 가능 수량"이라 판매분보다 작으면 남은 재고가 음수가 된다. 백엔드도 같은 값으로 거절.
+              helperText={
+                soldCount > 0
+                  ? `이미 ${soldCount.toLocaleString()}개 판매됨 — ${soldCount.toLocaleString()} 이상이거나 0이어야 합니다.`
+                  : "판매 이력 없음"
+              }
               fullWidth
             />
             <TextField
@@ -545,9 +562,11 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ width: "35%" }}>이름</TableCell>
+                        <TableCell sx={{ width: "30%" }}>이름</TableCell>
                         <TableCell align="right">추가 금액</TableCell>
                         <TableCell align="right">재고</TableCell>
+                        <TableCell align="right">판매 수량</TableCell>
+                        <TableCell align="right">남은 재고</TableCell>
                         <TableCell align="right">사용자당 최대</TableCell>
                         <TableCell align="right">우선순위</TableCell>
                         <TableCell sx={{ width: 100 }}>작업</TableCell>
@@ -556,7 +575,7 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
                     <TableBody>
                       {options.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={6} align="center" sx={{ color: "text.secondary" }}>
+                          <TableCell colSpan={8} align="center" sx={{ color: "text.secondary" }}>
                             옵션이 없습니다.
                           </TableCell>
                         </TableRow>
@@ -566,6 +585,8 @@ export const OptionGroupsTab: FC<Props> = ({ productId, optionGroups }) => {
                           <TableCell>{option.name_ko}</TableCell>
                           <TableCell align="right">₩{option.additional_price.toLocaleString()}</TableCell>
                           <TableCell align="right">{option.stock === 0 ? "무한대" : option.stock.toLocaleString()}</TableCell>
+                          <TableCell align="right">{formatSoldCount(option.sold_count)}</TableCell>
+                          <TableCell align="right">{formatLeftover(option.leftover_stock)}</TableCell>
                           <TableCell align="right">
                             {option.max_quantity_per_user === 0 ? "제한 없음" : option.max_quantity_per_user.toLocaleString()}
                           </TableCell>

@@ -48,6 +48,15 @@ const formatLeftover = (v: number | null | undefined): ReactNode =>
     v.toLocaleString()
   );
 
+const formatSoldCount = (v: number | undefined): ReactNode =>
+  v === undefined ? (
+    <Typography component="span" variant="body2" color="text.disabled">
+      —
+    </Typography>
+  ) : (
+    v.toLocaleString()
+  );
+
 const InnerProductEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
@@ -159,8 +168,9 @@ const InnerProductEditor: FC = ErrorBoundary.with(
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: "55%" }}>제약</TableCell>
+                    <TableCell sx={{ width: "45%" }}>제약</TableCell>
                     <TableCell align="right">한도</TableCell>
+                    <TableCell align="right">판매 수량</TableCell>
                     <TableCell align="right">남은 재고</TableCell>
                   </TableRow>
                 </TableHead>
@@ -168,6 +178,7 @@ const InnerProductEditor: FC = ErrorBoundary.with(
                   <TableRow>
                     <TableCell>상품 자체</TableCell>
                     <TableCell align="right">{existing.stock === 0 ? "무한대" : existing.stock.toLocaleString()}</TableCell>
+                    <TableCell align="right">{formatSoldCount(existing.sold_count)}</TableCell>
                     <TableCell align="right">{formatLeftover(existing.leftover_stock)}</TableCell>
                   </TableRow>
                   {existing.tag_set.map((tagId) => {
@@ -177,6 +188,7 @@ const InnerProductEditor: FC = ErrorBoundary.with(
                       <TableRow key={`tag-${tagId}`}>
                         <TableCell>태그: {tag.name_ko || tag.name_en}</TableCell>
                         <TableCell align="right">{tag.stock === 0 ? "무한대" : tag.stock.toLocaleString()}</TableCell>
+                        <TableCell align="right">{formatSoldCount(tag.sold_count)}</TableCell>
                         <TableCell align="right">{formatLeftover(tag.leftover_stock)}</TableCell>
                       </TableRow>
                     );
@@ -188,13 +200,14 @@ const InnerProductEditor: FC = ErrorBoundary.with(
                           옵션: {og.name_ko} &gt; {opt.name_ko}
                         </TableCell>
                         <TableCell align="right">{opt.stock === 0 ? "무한대" : opt.stock.toLocaleString()}</TableCell>
+                        <TableCell align="right">{formatSoldCount(opt.sold_count)}</TableCell>
                         <TableCell align="right">{formatLeftover(opt.leftover_stock)}</TableCell>
                       </TableRow>
                     ))
                   )}
                   <TableRow sx={{ "& td": { fontWeight: 600, borderTop: 2, borderColor: "divider" } }}>
                     <TableCell>현재 판매 가능 재고</TableCell>
-                    <TableCell align="right" colSpan={2}>
+                    <TableCell align="right" colSpan={3}>
                       {existing.leftover_stock === undefined ? (
                         <Typography component="span" variant="body2" color="text.secondary">
                           백엔드 leftover_stock 노출 후 표시

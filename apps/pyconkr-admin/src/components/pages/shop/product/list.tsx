@@ -35,6 +35,7 @@ const formatLeftoverStock = (leftover: number | null | undefined) => {
   if (leftover === null || leftover === undefined) return "무한대";
   return leftover.toLocaleString();
 };
+const formatSoldCount = (sold: number | undefined) => (sold === undefined ? "—" : sold.toLocaleString());
 
 type StatusFilter = "all" | ProductCurrentStatus;
 
@@ -165,6 +166,7 @@ const InnerProductList: FC = ErrorBoundary.with(
               <TableCell sx={{ width: "30%" }}>이름</TableCell>
               <TableCell>카테고리</TableCell>
               <TableCell align="right">가격</TableCell>
+              <TableCell align="right">판매 수량</TableCell>
               <TableCell align="right">판매 가능 재고</TableCell>
               <TableCell>상태</TableCell>
               <TableCell sx={{ width: 120 }}>작업</TableCell>
@@ -173,7 +175,7 @@ const InnerProductList: FC = ErrorBoundary.with(
           <TableBody>
             {products.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ color: "text.secondary" }}>
+                <TableCell colSpan={7} align="center" sx={{ color: "text.secondary" }}>
                   조건에 맞는 상품이 없습니다.
                 </TableCell>
               </TableRow>
@@ -188,6 +190,7 @@ const InnerProductList: FC = ErrorBoundary.with(
                   </TableCell>
                   <TableCell>{cat ? `${cat.groupName} > ${cat.categoryName}` : "—"}</TableCell>
                   <TableCell align="right">{formatPrice(product.price)}</TableCell>
+                  <TableCell align="right">{formatSoldCount(product.sold_count)}</TableCell>
                   <TableCell align="right">{formatLeftoverStock(product.leftover_stock)}</TableCell>
                   <TableCell>
                     <Chip label={status.label} size="small" color={status.color} />

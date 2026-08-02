@@ -38,6 +38,12 @@ const columns: AdminListColumn[] = [
     render: (row) => formatMaxPerUser(Number(row.max_quantity_per_user ?? 0)),
   },
   {
+    field: "sold_count",
+    header: "판매 수량",
+    align: "right",
+    render: (row) => (row.sold_count === undefined ? "—" : Number(row.sold_count).toLocaleString()),
+  },
+  {
     field: "leftover_stock",
     header: "남은 재고",
     align: "right",
