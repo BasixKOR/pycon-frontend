@@ -2,11 +2,16 @@ import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Se
 import { Suspense } from "@suspensive/react";
 import { FC } from "react";
 import { Control, Controller, FieldValues } from "react-hook-form";
-import { isEmpty, isNonNull, isNumber, isString } from "remeda";
+import { isEmpty, isNonNull, isString } from "remeda";
 
 import { useShopContext } from "@frontend/shop/hooks";
 import type { Option, OptionGroupPlaceholderMode, OrderProductItem } from "@frontend/shop/schemas";
-import { getCustomResponsePattern, getOrderProductOptionNotModifiableReason, isOrderProductOptionModifiable } from "@frontend/shop/utils";
+import {
+  getCustomResponsePattern,
+  getOrderProductOptionNotModifiableReason,
+  isOptionSoldOut,
+  isOrderProductOptionModifiable,
+} from "@frontend/shop/utils";
 
 import { PriceDisplay } from "./price_display";
 
@@ -40,7 +45,7 @@ const SelectableOptionGroupInput: FC<{
 }> = ({ language, optionGroup, options, defaultValue, disabled, disabledReason, control }) => {
   const required = optionGroup.placeholder_mode !== "optional";
   const optionElements = options.map((option) => {
-    const isOptionOutOfStock = isNumber(option.leftover_stock) && option.leftover_stock <= 0;
+    const isOptionOutOfStock = isOptionSoldOut(option);
 
     return (
       <MenuItem key={option.id} value={option.id} disabled={disabled || isOptionOutOfStock}>

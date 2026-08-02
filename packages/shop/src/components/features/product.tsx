@@ -40,6 +40,8 @@ import type { Cart, CartItemAppendRequest, CustomerInfo, OptionGroup, Product, T
 import {
   getCannotAddMoreOptionGroupReason,
   getOptionGroupNotOrderableReason,
+  isOptionGroupSoldOut,
+  isOptionSoldOut,
   isTicketFormFieldKey,
   PHONE_REGEX,
   startPortOnePurchase,
@@ -195,9 +197,10 @@ const getCartAppendRequestPayload = (
   };
 };
 
-// placeholder_mode 가 hidden 이 아니면 "선택해주세요"(빈 값)를 기본 선택으로 둔다. hidden 이면 첫 옵션을 선택.
+// placeholder_mode 가 hidden 이 아니면 "선택해주세요"(빈 값)를 기본 선택으로 둔다.
+// hidden 이면 품절되지 않은 첫 옵션을 선택 — 품절 옵션이 기본값으로 잡혀 그대로 주문되는 것을 막는다.
 const getOptionGroupDefaultValue = (group: OptionGroup, reason: string | null): string =>
-  reason || group.placeholder_mode !== "hidden" ? "" : group.options[0]?.id || "";
+  reason || group.placeholder_mode !== "hidden" ? "" : (group.options.find((o) => !isOptionSoldOut(o))?.id ?? "");
 
 const getProductNotPurchasableReason = (language: "ko" | "en", product: Product): string | null => {
   // 상품이 구매 가능 기간 내에 있고, 상품이 매진되지 않았으며, 매진된 상품 옵션 재고가 없으면 true
@@ -215,10 +218,11 @@ const getProductNotPurchasableReason = (language: "ko" | "en", product: Product)
 
   if (isNumber(product.leftover_stock) && product.leftover_stock <= 0)
     return language === "ko" ? "상품이 매진되었어요!" : "This product is out of stock!";
-  if (product.option_groups.some((og) => !isEmpty(og.options) && og.options.every((o) => isNumber(o.leftover_stock) && o.leftover_stock <= 0)))
+  // 필수 그룹이 전부 품절일 때만 상품 자체를 막는다. 선택 그룹 품절은 그 그룹만 못 고르면 되므로 구매를 막지 않는다.
+  if (product.option_groups.some((og) => og.min_quantity_per_product >= 1 && isOptionGroupSoldOut(og)))
     return language === "ko"
-      ? "선택 가능한 상품 옵션이 모두 품절되어 구매할 수 없어요!"
-      : "All selectable options for this product are out of stock!";
+      ? "필수 선택 옵션이 모두 품절되어 구매할 수 없어요!"
+      : "A required option group for this product is entirely out of stock!";
 
   return null;
 };

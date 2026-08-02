@@ -1,6 +1,6 @@
-import { isEmpty, isNullish, isString } from "remeda";
+import { isEmpty, isNullish, isNumber, isString } from "remeda";
 
-import type { OptionGroup, Order, OrderProductItem, Product } from "@frontend/shop/schemas";
+import type { Option, OptionGroup, Order, OrderProductItem, Product } from "@frontend/shop/schemas";
 
 export { startPortOnePurchase } from "./portone";
 
@@ -22,6 +22,12 @@ export const getCustomResponsePattern = (optionGroup: Pick<OptionGroup, "custom_
   const pattern = optionGroup.custom_response_pattern?.trim() ?? "";
   return isString(pattern) && !isEmpty(pattern) ? new RegExp(pattern, "g") : undefined;
 };
+
+// leftover_stock 이 null 이면 재고 무제한. 음수는 백엔드 데이터 이상이지만 품절로 취급.
+export const isOptionSoldOut = (option: Pick<Option, "leftover_stock">): boolean => isNumber(option.leftover_stock) && option.leftover_stock <= 0;
+
+// 선택 가능한 옵션이 하나도 남지 않은 그룹. 옵션이 없는 그룹(자유 응답 등)은 품절로 보지 않는다.
+export const isOptionGroupSoldOut = (group: Pick<OptionGroup, "options">): boolean => !isEmpty(group.options) && group.options.every(isOptionSoldOut);
 
 export const isOrderProductOptionModifiable = (optionRel: OrderProductItem["options"][number]): boolean => {
   if (!optionRel.product_option_group.is_custom_response) return false;
@@ -46,9 +52,13 @@ export const getOrderProductOptionNotModifiableReason = (language: "ko" | "en", 
 // null = 추가 가능.
 export const getCannotAddMoreOptionGroupReason = (
   language: "ko" | "en",
-  group: Pick<OptionGroup, "max_quantity_per_product" | "leftover_stock_per_user" | "leftover_stock_info">,
+  group: Pick<OptionGroup, "max_quantity_per_product" | "leftover_stock_per_user" | "leftover_stock_info" | "options">,
   currentInstanceCount: number
 ): string | null => {
+  // 그룹 단위 재고(leftover_stock_per_user)는 개별 옵션 품절을 반영하지 않으므로 별도로 확인.
+  if (isOptionGroupSoldOut(group)) {
+    return language === "ko" ? "이 옵션은 모두 품절되어 선택할 수 없어요." : "All choices for this option are out of stock.";
+  }
   // max_quantity_per_product = 0 → 무제한 sentinel
   if (group.max_quantity_per_product > 0 && currentInstanceCount >= group.max_quantity_per_product) {
     return language === "ko"
