@@ -2,7 +2,7 @@ import { Box, Button, Chip, CircularProgress, Stack, styled, Typography } from "
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { CSSProperties, FC, ReactNode, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { isArray, isEmpty, isString } from "remeda";
+import { isString } from "remeda";
 
 import { ErrorFallback } from "@frontend/common/components/error_handler";
 import { FallbackImage } from "@frontend/common/components/fallback_image";
@@ -22,16 +22,11 @@ const SessionItem: FC<{
   renderAction?: (session: SessionSchema) => ReactNode;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, linkable, renderAction }) => {
   const sessionTitle = session.title.replace("\\n", "\n");
-
-  let speakerImgSrc = session.image || "";
-  if (!speakerImgSrc && isArray(session.speakers) && !isEmpty(session.speakers)) {
-    for (const speaker of session.speakers) {
-      if (speaker.image) {
-        speakerImgSrc = speaker.image;
-        break;
-      }
-    }
-  }
+  const displayedImages = session.image
+    ? [{ id: session.id, nickname: sessionTitle, image: session.image }]
+    : session.speakers.length > 0
+      ? session.speakers
+      : [{ id: session.id, nickname: sessionTitle, image: "" }];
 
   const sessionEvent = session.presentation_type.event;
   const resolvedFallbackImage = sessionEvent.logo ? (
@@ -41,16 +36,17 @@ const SessionItem: FC<{
   const sessionDetailedUrl = linkable ? getSessionDetailUrl(session) : undefined;
   const result = (
     <SessionItemContainer direction="row">
-      <SessionImageContainer
-        children={
+      <SessionImageContainer className={displayedImages.length > 1 ? "multiple" : undefined}>
+        {displayedImages.map((image) => (
           <SessionImage
-            src={speakerImgSrc}
-            alt="Session Image"
+            key={image.id}
+            src={image.image || ""}
+            alt={image.nickname}
             loading="lazy"
             errorFallback={<SessionImageErrorFallback>{resolvedFallbackImage}</SessionImageErrorFallback>}
           />
-        }
-      />
+        ))}
+      </SessionImageContainer>
       <Stack direction="column" sx={{ flexGrow: 1, py: 0.5, gap: 0.75 }}>
         <SessionTitle children={sessionTitle} />
         {session.summary && <Typography variant="subtitle1" sx={{ whiteSpace: "pre-wrap" }} children={session.summary} />}
@@ -207,6 +203,20 @@ const SessionImageContainer = styled(Stack)({
   height: "6rem",
   minHeight: "6rem",
   maxHeight: "6rem",
+
+  "&.multiple": {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "0.25rem",
+    height: "auto",
+    minHeight: 0,
+    maxHeight: "none",
+
+    "& > *": {
+      aspectRatio: "1",
+      height: "auto",
+    },
+  },
 });
 
 const SessionImage = styled(FallbackImage)(({ theme }) => ({
