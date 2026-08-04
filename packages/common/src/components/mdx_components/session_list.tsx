@@ -22,11 +22,7 @@ const SessionItem: FC<{
   renderAction?: (session: SessionSchema) => ReactNode;
 }> = Suspense.with({ fallback: <CircularProgress /> }, ({ session, enableLink, linkable, renderAction }) => {
   const sessionTitle = session.title.replace("\\n", "\n");
-  const displayedImages = session.image
-    ? [{ id: session.id, nickname: sessionTitle, image: session.image }]
-    : session.speakers.length > 0
-      ? session.speakers
-      : [{ id: session.id, nickname: sessionTitle, image: "" }];
+  const displayedImages = session.speakers.length > 0 ? session.speakers : [{ id: session.id, nickname: sessionTitle, image: "" }];
 
   const sessionEvent = session.presentation_type.event;
   const resolvedFallbackImage = sessionEvent.logo ? (
