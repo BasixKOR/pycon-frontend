@@ -1,5 +1,6 @@
 import { Fieldset } from "@frontend/common/components";
 import { useBackendAdminClient, useCreateMutation, useListPaginatedQuery, useRenderTemplateMutation } from "@frontend/common/hooks/useAdminAPI";
+import { NotificationTemplateSchema } from "@frontend/common/schemas/backendAdminAPI";
 import { Add, Close, Delete, Send, Visibility } from "@mui/icons-material";
 import {
   Box,
@@ -44,17 +45,6 @@ type NotificationHistoryCreateRequest = {
   template_data?: string;
   sent_from?: string;
   sent_to_list: NotificationHistorySentToCreateRequest[];
-};
-
-type NotificationTemplateSchema = {
-  id: string;
-  str_repr: string;
-  code: string;
-  title: string;
-  description: string;
-  data: string;
-  sent_from: string;
-  template_variables: string[];
 };
 
 type OnMemorySentTo = {

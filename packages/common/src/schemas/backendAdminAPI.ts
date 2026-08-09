@@ -230,6 +230,48 @@ export type UserMergeRequestSchema = {
   target: number;
 };
 
+// 알림 채널 값은 백엔드 notification.channels.NotificationChannel 과 1:1 대응.
+export type NotificationChannelValue = "email" | "nhn_cloud_sms" | "nhn_cloud_kakao_alimtalk";
+
+export type OrderNotificationRequestSchema = {
+  channel: NotificationChannelValue;
+  template_id: string;
+  context_override?: Record<string, string>;
+};
+
+export type NotificationTemplateSchema = {
+  id: string;
+  str_repr: string;
+  code: string;
+  title: string;
+  description: string;
+  data: string;
+  sent_from: string;
+  template_variables: string[];
+};
+
+// 주문 단위 / 상품 단위 발송 — 백엔드 라우트 이름과 그대로 일치시킨다.
+export type OrderNotificationTarget = "order-notifications" | "order-product-notifications";
+
+export type OrderNotificationRecipientSchema = {
+  recipient: string;
+  context: Record<string, unknown>;
+  // 상품 단위 발송은 한 수신자가 여러 번 나올 수 있어 OPR id 가 실린다 (주문 단위는 "").
+  dedupe_key: string;
+  missing_variables: string[];
+};
+
+export type OrderNotificationPreviewSchema = {
+  template_variables: string[];
+  recipients: OrderNotificationRecipientSchema[];
+};
+
+export type OrderNotificationSendResultSchema = {
+  id: string;
+  template_code: string;
+  sent_to_status_summary: { created: number; sending: number; sent: number; failed: number };
+};
+
 export type OpenAPIParameterSchema = {
   name: string;
   in: "query" | "path" | "header" | "cookie";

@@ -1,5 +1,5 @@
 import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
-import { FileDownload, FileUpload, RestartAlt } from "@mui/icons-material";
+import { FileDownload, FileUpload, RestartAlt, Send } from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -26,6 +26,7 @@ import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fal
 import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
 import { OrderExportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/export_dialog";
 import { OrderImportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/import_dialog";
+import { OrderNotificationDialog } from "@apps/pyconkr-admin/components/pages/shop/order/notification_dialog";
 import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 
 import { OrderAdmin, PaymentStatus } from "./types";
@@ -84,23 +85,26 @@ const InnerOrderList: FC = ErrorBoundary.with(
     const page = Number(searchParams.get("page") ?? 1);
     const pageSize = Number(searchParams.get("page_size") ?? DEFAULT_PAGE_SIZE);
 
-    // apiParams derives from the URL (the "applied" state); local filter inputs only update the URL on Apply.
-    const apiParams: Record<string, string> = { page: String(page), page_size: String(pageSize) };
+    // filterParams derives from the URL (the "applied" state); local filter inputs only update the URL on Apply.
+    // 알림 발송은 페이지네이션 없이 같은 필터 전체를 대상으로 하므로 page/page_size 와 분리해 둔다.
+    const filterParams: Record<string, string> = {};
     for (const key of FILTER_KEYS) {
       const value = searchParams.get(key);
       if (!value) continue;
       if (key === "status" && value === "all") continue;
       if (key === "name" || key === "email" || key === "imp_id") {
         const trimmed = value.trim();
-        if (trimmed) apiParams[key] = trimmed;
+        if (trimmed) filterParams[key] = trimmed;
       } else {
-        apiParams[key] = value;
+        filterParams[key] = value;
       }
     }
+    const apiParams: Record<string, string> = { page: String(page), page_size: String(pageSize), ...filterParams };
 
     const [filters, setFilters] = useState<FilterState>(() => readFilters(searchParams));
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
     const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
 
     // Re-sync local form state when the URL changes externally (browser back/forward, pagination).
     useEffect(() => {
@@ -284,10 +288,17 @@ const InnerOrderList: FC = ErrorBoundary.with(
           <Button variant="outlined" size="small" startIcon={<FileDownload />} onClick={() => setExportDialogOpen(true)}>
             내보내기
           </Button>
+          <Button variant="outlined" size="small" color="secondary" startIcon={<Send />} onClick={() => setNotificationDialogOpen(true)}>
+            알림 발송
+          </Button>
         </Stack>
 
         <OrderImportDialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} />
         <OrderExportDialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} />
+        {/* 열릴 때만 마운트 — 템플릿 목록 조회와 폼 상태를 매번 새로 시작한다. */}
+        {notificationDialogOpen && (
+          <OrderNotificationDialog scope={{ kind: "orderFilter", params: filterParams }} onClose={() => setNotificationDialogOpen(false)} />
+        )}
 
         <Table>
           <TableHead>

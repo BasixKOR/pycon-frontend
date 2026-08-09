@@ -6,6 +6,10 @@ import {
   ModificationAuditPreviewSchema,
   ModificationAuditSchema,
   OpenAPISchema,
+  OrderNotificationPreviewSchema,
+  OrderNotificationRequestSchema,
+  OrderNotificationSendResultSchema,
+  OrderNotificationTarget,
   PageSectionBulkUpdateSchema,
   PageSectionSchema,
   PaginatedListResponse,
@@ -196,6 +200,29 @@ export const extractOrderImportRowErrors = (error: unknown): OrderImportRowError
   // 헤더를 제외한 데이터 행 번호(1-based)로 노출.
   return [...messagesByRow.entries()].sort(([a], [b]) => a - b).map(([row, messages]) => ({ row: row + 1, messages }));
 };
+
+// 발송 대상은 body 가 아니라 query params (filterset) 로 지정한다.
+// order-notifications 는 주문 단위(수신자=주문자, OrderAdminFilterSet),
+// order-product-notifications 는 상품 단위(수신자=참가자, OrderProductRelationAdminFilterSet) — filterset 키가 서로 다르다.
+type OrderNotificationArgs = { params: Record<string, string>; data: OrderNotificationRequestSchema };
+
+const orderNotificationUrl = (target: OrderNotificationTarget, action: string) => `v1/admin-api/shop/${target}/${action}/`;
+
+export const previewOrderNotification =
+  (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  ({ params, data }: OrderNotificationArgs) =>
+    client.post<OrderNotificationPreviewSchema, OrderNotificationRequestSchema>(orderNotificationUrl(target, "preview"), data, { params });
+
+// filterset 에 걸린 첫 대상의 context 로 렌더한 HTML.
+export const renderOrderNotification =
+  (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  ({ params, data }: OrderNotificationArgs) =>
+    client.post<string, OrderNotificationRequestSchema>(orderNotificationUrl(target, "render"), data, { params });
+
+export const sendOrderNotification =
+  (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  ({ params, data }: OrderNotificationArgs) =>
+    client.post<OrderNotificationSendResultSchema, OrderNotificationRequestSchema>(orderNotificationUrl(target, "send"), data, { params });
 
 export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
 

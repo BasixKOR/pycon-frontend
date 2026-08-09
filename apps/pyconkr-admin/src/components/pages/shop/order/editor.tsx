@@ -28,6 +28,7 @@ import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fal
 import { ORDER_PRODUCT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
+import { OrderNotificationDialog } from "./notification_dialog";
 import { RefundDialog } from "./refund_dialog";
 import { OrderAdmin, SimpleCustomerInfo, SimpleOrderProductRelation } from "./types";
 
@@ -94,6 +95,7 @@ const CustomerInfoTab: FC<{ order: OrderAdmin }> = ({ order }) => {
 const OrderProductRow: FC<{ order: OrderAdmin; relation: SimpleOrderProductRelation }> = ({ order, relation }) => {
   const status = ORDER_PRODUCT_STATUS_LABEL[relation.status];
   const [refundOpen, setRefundOpen] = useState(false);
+  const [notifyOpen, setNotifyOpen] = useState(false);
   const canRefund = canRefundProduct(relation);
   return (
     <>
@@ -108,16 +110,21 @@ const OrderProductRow: FC<{ order: OrderAdmin; relation: SimpleOrderProductRelat
         <TableCell align="right">{formatPrice(relation.price)}</TableCell>
         <TableCell align="right">{relation.donation_price > 0 ? formatPrice(relation.donation_price) : "—"}</TableCell>
         <TableCell align="right">
-          <Button
-            size="small"
-            variant="outlined"
-            color="error"
-            startIcon={<CurrencyExchange />}
-            onClick={() => setRefundOpen(true)}
-            disabled={!canRefund}
-          >
-            환불
-          </Button>
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Button size="small" variant="outlined" startIcon={<NotificationsActive />} onClick={() => setNotifyOpen(true)}>
+              알림
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              startIcon={<CurrencyExchange />}
+              onClick={() => setRefundOpen(true)}
+              disabled={!canRefund}
+            >
+              환불
+            </Button>
+          </Stack>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -197,6 +204,7 @@ const OrderProductRow: FC<{ order: OrderAdmin; relation: SimpleOrderProductRelat
         </TableCell>
       </TableRow>
       <RefundDialog open={refundOpen} onClose={() => setRefundOpen(false)} order={order} kind="product" relation={relation} />
+      {notifyOpen && <OrderNotificationDialog scope={{ kind: "orderProduct", orderProductId: relation.id }} onClose={() => setNotifyOpen(false)} />}
     </>
   );
 };
@@ -289,6 +297,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
     const client = useBackendAdminClient();
     const [tab, setTab] = useState(0);
     const [refundOpen, setRefundOpen] = useState(false);
+    const [notifyOpen, setNotifyOpen] = useState(false);
 
     const orderQuery = useRetrieveQuery<OrderAdmin>(client, "shop", "order", id ?? "");
     const order = orderQuery.data;
@@ -307,13 +316,6 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
 
     const status = PAYMENT_STATUS_LABEL[order.current_status] ?? { label: order.current_status, color: "default" as const };
     const canRefund = canRefundOrder(order);
-
-    const onNotify = () => {
-      navigate({
-        pathname: "/notification/notification/create",
-        search: `?order_id=${order.id}`,
-      });
-    };
 
     return (
       <Stack sx={{ flexGrow: 1, width: "100%", minHeight: "100%" }} spacing={3}>
@@ -341,7 +343,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<NotificationsActive />} onClick={onNotify}>
+            <Button variant="outlined" startIcon={<NotificationsActive />} onClick={() => setNotifyOpen(true)}>
               알림 발송
             </Button>
             <Button variant="contained" color="error" startIcon={<CurrencyExchange />} onClick={() => setRefundOpen(true)} disabled={!canRefund}>
@@ -400,6 +402,7 @@ const InnerOrderEditor: FC = ErrorBoundary.with(
         </Box>
 
         <RefundDialog open={refundOpen} onClose={() => setRefundOpen(false)} order={order} kind="order" />
+        {notifyOpen && <OrderNotificationDialog scope={{ kind: "order", orderId: order.id }} onClose={() => setNotifyOpen(false)} />}
       </Stack>
     );
   })

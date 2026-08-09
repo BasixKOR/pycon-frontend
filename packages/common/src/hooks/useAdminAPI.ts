@@ -11,6 +11,7 @@ import {
   importOrders,
   issueGoogleOAuth2AccessToken,
   orderImportTemplate,
+  previewOrderNotification,
   previewUserMerge,
   listAll,
   listDashboardCharts,
@@ -22,6 +23,7 @@ import {
   rejectModificationAudit,
   remove,
   removePrepared,
+  renderOrderNotification,
   renderSentTo,
   renderTemplate,
   resetUserPassword,
@@ -31,13 +33,14 @@ import {
   revertUserMerge,
   schema,
   selectables,
+  sendOrderNotification,
   signOut,
   update,
   updatePrepared,
   uploadPublicFile,
 } from "@frontend/common/apis/admin_api";
 import { BackendAPIClient } from "@frontend/common/apis/client";
-import { ChoicesResponse, DashboardChartDefinition, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
+import { ChoicesResponse, DashboardChartDefinition, OrderNotificationTarget, PublicFileSchema } from "@frontend/common/schemas/backendAdminAPI";
 
 import { useBackendContext } from "./useAPI";
 
@@ -69,6 +72,9 @@ const MUTATION_KEYS = {
   ADMIN_EXPORT_ORDERS: ["mutation", "admin", "export-orders"],
   ADMIN_IMPORT_ORDERS: ["mutation", "admin", "import-orders"],
   ADMIN_ORDER_IMPORT_TEMPLATE: ["mutation", "admin", "order-import-template"],
+  ADMIN_PREVIEW_ORDER_NOTIFICATION: ["mutation", "admin", "preview", "order-notification"],
+  ADMIN_RENDER_ORDER_NOTIFICATION: ["mutation", "admin", "render", "order-notification"],
+  ADMIN_SEND_ORDER_NOTIFICATION: ["mutation", "admin", "send", "order-notification"],
   ADMIN_PREVIEW_USER_MERGE: ["mutation", "admin", "preview", "user-merge"],
   ADMIN_REVERT_USER_MERGE: ["mutation", "admin", "revert", "user-merge"],
 };
@@ -309,6 +315,28 @@ export const useImportOrdersMutation = (client: BackendAPIClient) =>
   useMutation({
     mutationKey: [...MUTATION_KEYS.ADMIN_IMPORT_ORDERS],
     mutationFn: importOrders(client),
+    meta: { invalidates: [QUERY_KEYS.ADMIN_LIST] },
+  });
+
+export const usePreviewOrderNotificationMutation = (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_PREVIEW_ORDER_NOTIFICATION, target],
+    mutationFn: previewOrderNotification(client, target),
+    meta: { invalidates: [] },
+  });
+
+export const useRenderOrderNotificationMutation = (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_RENDER_ORDER_NOTIFICATION, target],
+    mutationFn: renderOrderNotification(client, target),
+    meta: { invalidates: [] },
+  });
+
+// 발송은 알림 이력(History) 을 새로 만드므로 admin list 캐시를 무효화한다.
+export const useSendOrderNotificationMutation = (client: BackendAPIClient, target: OrderNotificationTarget) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_SEND_ORDER_NOTIFICATION, target],
+    mutationFn: sendOrderNotification(client, target),
     meta: { invalidates: [QUERY_KEYS.ADMIN_LIST] },
   });
 
