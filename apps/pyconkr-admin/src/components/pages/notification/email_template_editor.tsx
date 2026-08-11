@@ -32,6 +32,7 @@ import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackba
 
 const APP = "notification";
 const RESOURCE = "emailnotificationtemplate";
+const MAX_RECOMMENDED_SUBJECT_LENGTH = 70;
 
 type EmailTemplateMetaFormData = {
   code: string;
@@ -118,9 +119,20 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
         return;
       }
       const editor_source = editorRef.current.exportJson();
+      const emailDocument = editorRef.current.exportEmailDocument();
+      const subject = emailDocument.meta.subject?.trim();
+      if (!subject) {
+        addSnackbar("에디터에서 메일 제목(subject)을 입력해주세요.", "error");
+        return;
+      }
+      if (subject.length > MAX_RECOMMENDED_SUBJECT_LENGTH) {
+        addSnackbar(`메일 제목이 ${subject.length}자입니다. 대부분의 메일 클라이언트에서 뒷부분이 잘립니다.`, "warning");
+      }
+
       // 저장 성공 시 쿼리가 reset되며 에디터가 initialDocument로 되돌아가므로, 방금 저장한 문서로 맞춰둡니다.
-      setInitialDocument(editorRef.current.exportEmailDocument());
-      const data = await editorRef.current.exportHTML();
+      setInitialDocument(emailDocument);
+      // 백엔드는 data의 렌더 결과를 그대로 발송 payload로 쓰므로 {title, body} JSON object여야 합니다.
+      const data = JSON.stringify({ title: subject, body: await editorRef.current.exportHTML() });
       const payload: EmailTemplatePayload = { ...meta, data, editor_source };
       if (id) {
         updateMutation.mutate(payload, {
@@ -192,7 +204,8 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
               </Button>
             </Stack>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-              변수는 {"{{ name }}"} 형식으로 사용합니다. 저장 시 EmailDocument JSON은 editor_source에, 렌더된 HTML은 data 필드에 기록됩니다.
+              변수는 {"{{ name }}"} 형식으로 사용합니다. 저장 시 EmailDocument JSON은 editor_source에, 에디터의 메일 제목과 렌더된 HTML은 data 필드에{" "}
+              {'{"title": ..., "body": ...}'} 형태로 기록됩니다.
             </Typography>
             <Box sx={{ height: 800, border: "1px solid", borderColor: "divider", borderRadius: 1, overflow: "hidden" }}>
               <MailEditor ref={editorRef} initialDocument={initialDocument} />

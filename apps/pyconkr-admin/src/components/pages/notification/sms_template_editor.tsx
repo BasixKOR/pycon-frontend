@@ -48,6 +48,19 @@ const isValidJson = (s: string): boolean => {
   }
 };
 
+// 백엔드는 data의 렌더 결과를 그대로 발송 payload로 쓰므로 body를 가진 JSON object여야 합니다.
+const validateTemplateData = (s: string): string | null => {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(s);
+  } catch {
+    return "올바른 JSON이 아닙니다.";
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return "JSON object여야 합니다.";
+  if (!(parsed as { body?: unknown }).body) return "body가 비어 있습니다.";
+  return null;
+};
+
 const InnerAdminSMSTemplateEditor: FC = ErrorBoundary.with(
   { fallback: ErrorFallback },
   Suspense.with({ fallback: <CircularProgress /> }, () => {
@@ -74,9 +87,14 @@ const InnerAdminSMSTemplateEditor: FC = ErrorBoundary.with(
 
     const isPending = createMutation.isPending || updateMutation.isPending;
     const jsonValid = isValidJson(contextJson);
+    const dataError = validateTemplateData(formData.data);
 
     const handleSubmit = () => {
       if (isPending) return;
+      if (dataError) {
+        addSnackbar(`data: ${dataError}`, "error");
+        return;
+      }
       if (id) {
         updateMutation.mutate(formData, {
           onSuccess: () => addSnackbar("수정했습니다.", "success"),
@@ -131,7 +149,12 @@ const InnerAdminSMSTemplateEditor: FC = ErrorBoundary.with(
             label="data"
             value={formData.data}
             onChange={(e) => setField("data", e.target.value)}
-            helperText={`SMS 본문. 변수는 {{ name }} 형식으로 사용. 현재 ${formData.data.length}자.`}
+            error={!!dataError}
+            helperText={
+              dataError
+                ? dataError
+                : `{"body": "..."} 형식의 JSON (MMS는 "title" 추가). 변수는 {{ name }} 형식으로 사용. 현재 ${formData.data.length}자.`
+            }
             multiline
             minRows={4}
             fullWidth
