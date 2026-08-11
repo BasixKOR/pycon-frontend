@@ -1,6 +1,7 @@
 import { CenteredPage, ErrorFallback, FallbackImage, LinkHandler, MDXRenderer } from "@frontend/common/components";
 import { useBackendClient, useSessionQuery } from "@frontend/common/hooks/useAPI";
 import { useCommonContext } from "@frontend/common/hooks/useCommonContext";
+import { KOREA_TIME_ZONE } from "@frontend/common/utils";
 import { Box, Chip, CircularProgress, Divider, Stack, styled, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DateTime } from "luxon";
@@ -174,15 +175,15 @@ export const PresentationDetailPage: FC = ErrorBoundary.with(
     const slideShowStr = language === "ko" ? "발표 슬라이드" : "Presentation Slideshow";
     const slideShowLinkStr = language === "ko" ? "링크" : "Link";
 
-    const datetimeLabel = language === "ko" ? "발표 시각" : "Presentation Time";
+    const datetimeLabel = language === "ko" ? "발표 시각 (KST)" : "Presentation Time (KST)";
     const datetimeSeparator = language === "ko" ? " ~ " : " - ";
     const minText = language === "ko" ? "분" : "min.";
 
     // 동일 시간별로 모아서 보여줌. 단, 방은 콤마(,)로 join해서 보여줌
     const scheduleMap: Record<string, string[]> = presentation.room_schedules.reduce(
       (acc, schedule) => {
-        const startAt = DateTime.fromISO(schedule.start_at).setLocale(language);
-        const endAt = DateTime.fromISO(schedule.end_at).setLocale(language);
+        const startAt = DateTime.fromISO(schedule.start_at, { zone: KOREA_TIME_ZONE }).setLocale(language);
+        const endAt = DateTime.fromISO(schedule.end_at, { zone: KOREA_TIME_ZONE }).setLocale(language);
         if (!startAt.isValid || !endAt.isValid) return acc; // 유효하지 않은 날짜는 무시
 
         const duration = Number.parseInt(endAt.diff(startAt, ["minutes"]).minutes.toString());

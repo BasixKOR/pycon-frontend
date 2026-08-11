@@ -1,5 +1,7 @@
 import { DateTime } from "luxon";
 
+export const KOREA_TIME_ZONE = "Asia/Seoul";
+
 export const toMs = (iso: string): number => DateTime.fromISO(iso).toMillis();
 export const toNaiveISO = (ms: number): string => DateTime.fromMillis(ms).toISO({ includeOffset: false })!;
 export const isoDateOf = (iso: string): string => DateTime.fromISO(iso).toISODate()!;

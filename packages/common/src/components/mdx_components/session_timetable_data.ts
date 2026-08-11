@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SessionSchema } from "@frontend/common/schemas/backendAPI";
+import { KOREA_TIME_ZONE } from "@frontend/common/utils";
 
 // 세로형 SessionTimeTable / 가로형 SessionTimeTableTransposed 가 공유하는 데이터 헬퍼·훅.
 
@@ -80,8 +81,14 @@ export const getRoomOrders = (data: SessionSchema[]): { [room: string]: number }
 const getConfStartEndTimePerDay: (data: SessionSchema[]) => {
   [date: string]: { start: DateTime; end: DateTime };
 } = (data) => {
-  const startTimes = data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.start_at))], [] as DateTime[]);
-  const endTimes = data.reduce((acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.end_at))], [] as DateTime[]);
+  const startTimes = data.reduce(
+    (acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.start_at, { zone: KOREA_TIME_ZONE }))],
+    [] as DateTime[]
+  );
+  const endTimes = data.reduce(
+    (acc, s) => [...acc, ...s.room_schedules.map((r) => DateTime.fromISO(r.end_at, { zone: KOREA_TIME_ZONE }))],
+    [] as DateTime[]
+  );
   const allTimes = [...startTimes, ...endTimes];
 
   const timesPerDay = allTimes.reduce(
@@ -130,8 +137,8 @@ export const getTimeTableData: (data: SessionSchema[]) => TimeTableData = (data)
   // Fill timeTableData with session data
   data.forEach((session) => {
     session.room_schedules.forEach((schedule) => {
-      const start = DateTime.fromISO(schedule.start_at);
-      const end = DateTime.fromISO(schedule.end_at);
+      const start = DateTime.fromISO(schedule.start_at, { zone: KOREA_TIME_ZONE });
+      const end = DateTime.fromISO(schedule.end_at, { zone: KOREA_TIME_ZONE });
 
       if (!start.isValid || !end.isValid) {
         console.warn(`Invalid start or end time for session ${session.id} in room ${schedule.room_name}`);

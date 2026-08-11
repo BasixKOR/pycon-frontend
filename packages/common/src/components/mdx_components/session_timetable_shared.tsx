@@ -36,6 +36,25 @@ export const HorizontalScrollNotice: FC<{ visible: boolean; language: "ko" | "en
   </Stack>
 );
 
+export const TimetableNotices: FC<{ language: "ko" | "en" }> = ({ language }) => (
+  <Stack alignItems="flex-end">
+    <Typography
+      variant="body2"
+      sx={{ textAlign: "right", fontSize: "0.6rem" }}
+      children={language === "ko" ? "모든 시간은 한국 표준시(KST) 기준입니다." : "All times are shown in Korea Standard Time (KST)."}
+    />
+    <Typography
+      variant="body2"
+      sx={{ textAlign: "right", fontSize: "0.6rem" }}
+      children={
+        language === "ko"
+          ? "* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."
+          : "* The list of sessions may change due to the speaker's circumstances."
+      }
+    />
+  </Stack>
+);
+
 export const SessionDateItemContainer = styled(Stack)({
   alignItems: "center",
   justifyContent: "center",

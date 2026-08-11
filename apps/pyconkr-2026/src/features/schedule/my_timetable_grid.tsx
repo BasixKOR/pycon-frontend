@@ -1,3 +1,4 @@
+import { KOREA_TIME_ZONE } from "@frontend/common/utils";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { DateTime } from "luxon";
@@ -105,7 +106,8 @@ const SessionCard: FC<{ placement: TimetablePlacement; color: string }> = ({ pla
           whiteSpace: "nowrap",
         }}
       >
-        {DateTime.fromMillis(placement.startMs).toFormat("HH:mm")}–{DateTime.fromMillis(placement.endMs).toFormat("HH:mm")}
+        {DateTime.fromMillis(placement.startMs, { zone: KOREA_TIME_ZONE }).toFormat("HH:mm")}–
+        {DateTime.fromMillis(placement.endMs, { zone: KOREA_TIME_ZONE }).toFormat("HH:mm")}
       </Typography>
       <Typography
         title={placement.title}
@@ -149,7 +151,7 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
   const placementsByDay = useMemo(() => {
     const grouped = new Map<string, TimetablePlacement[]>();
     placements.forEach((placement) => {
-      const day = DateTime.fromMillis(placement.startMs).toISODate() ?? "";
+      const day = DateTime.fromMillis(placement.startMs, { zone: KOREA_TIME_ZONE }).toISODate() ?? "";
       grouped.set(day, [...(grouped.get(day) ?? []), placement]);
     });
     return grouped;
@@ -161,10 +163,10 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
   const dayPlacements = placementsByDay.get(activeDay) ?? [];
   const morningPrograms = FIXED_MORNING[activeDay];
   const afternoonPrograms = FIXED_AFTERNOON[activeDay];
-  const dayStartMs = DateTime.fromISO(activeDay)
+  const dayStartMs = DateTime.fromISO(activeDay, { zone: KOREA_TIME_ZONE })
     .set({ hour: AFTERNOON_START_HOUR, minute: AFTERNOON_START_MINUTE, second: 0, millisecond: 0 })
     .toMillis();
-  const dayEndMs = DateTime.fromISO(`${activeDay}T${afternoonPrograms.at(-1)?.end}:00`).toMillis();
+  const dayEndMs = DateTime.fromISO(`${activeDay}T${afternoonPrograms.at(-1)?.end}:00`, { zone: KOREA_TIME_ZONE }).toMillis();
   const timeSlots = Array.from({ length: (dayEndMs - dayStartMs) / SLOT_MS }, (_, index) => dayStartMs + index * SLOT_MS);
 
   const selectDay = (day: string) =>
@@ -187,6 +189,10 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
         endIcon={<NorthEastRoundedIcon />}
         sx={{ alignSelf: "flex-end", fontWeight: 700, whiteSpace: "nowrap" }}
         children={isKo ? "발표 추가" : "Add session"}
+      />
+      <Typography
+        sx={{ alignSelf: "flex-end", color: "text.secondary", fontSize: { xs: "0.68rem", sm: "0.75rem" }, textAlign: "right" }}
+        children={isKo ? "모든 시간은 한국 표준시(KST) 기준입니다." : "All times are shown in Korea Standard Time (KST)."}
       />
 
       <Box sx={{ width: "100%", minWidth: 0, overflow: "hidden", border: "1px solid", borderColor: "divider", borderRadius: "0.75rem" }}>
@@ -212,7 +218,7 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
                 whiteSpace: "nowrap",
                 "&:hover": { backgroundColor: day === activeDay ? "primary.main" : "action.hover" },
               }}
-              children={`Day ${index + 1} · ${DateTime.fromISO(day).toFormat("M.d")}`}
+              children={`Day ${index + 1} · ${DateTime.fromISO(day, { zone: KOREA_TIME_ZONE }).toFormat("M.d")}`}
             />
           ))}
         </Stack>
@@ -331,7 +337,7 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
               }}
             >
               <Typography sx={{ color: "text.secondary", fontSize: { xs: "0.55rem", sm: "0.68rem" }, fontWeight: 700, lineHeight: 1 }}>
-                {DateTime.fromMillis(time).toFormat("H:mm")}
+                {DateTime.fromMillis(time, { zone: KOREA_TIME_ZONE }).toFormat("H:mm")}
               </Typography>
             </Stack>
           ))}
@@ -353,8 +359,12 @@ export const MyTimetableGrid: FC<{ placements: TimetablePlacement[] }> = ({ plac
           ))}
 
           {afternoonPrograms.map((program) => {
-            const startSlot = Math.round((DateTime.fromISO(`${activeDay}T${program.start}:00`).toMillis() - dayStartMs) / SLOT_MS);
-            const endSlot = Math.round((DateTime.fromISO(`${activeDay}T${program.end}:00`).toMillis() - dayStartMs) / SLOT_MS);
+            const startSlot = Math.round(
+              (DateTime.fromISO(`${activeDay}T${program.start}:00`, { zone: KOREA_TIME_ZONE }).toMillis() - dayStartMs) / SLOT_MS
+            );
+            const endSlot = Math.round(
+              (DateTime.fromISO(`${activeDay}T${program.end}:00`, { zone: KOREA_TIME_ZONE }).toMillis() - dayStartMs) / SLOT_MS
+            );
             return (
               <Stack
                 key={`${program.start}-${program.end}`}

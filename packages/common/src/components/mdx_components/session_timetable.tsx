@@ -10,7 +10,7 @@ import { CenteredPage } from "@frontend/common/components/centered_page";
 import { ErrorFallback } from "@frontend/common/components/error_handler";
 import { BackendAPI, Common } from "@frontend/common/hooks";
 import { SessionSchema } from "@frontend/common/schemas/backendAPI";
-import { getSessionDetailUrl } from "@frontend/common/utils";
+import { getSessionDetailUrl, KOREA_TIME_ZONE } from "@frontend/common/utils";
 
 import { getRoomOrders, getRooms, getTimeTableData, TIME_COL_WIDTH, useHorizontalOverflow } from "./session_timetable_data";
 import {
@@ -26,6 +26,7 @@ import {
   SessionTableScroll,
   SessionTableScrollWrapper,
   SessionTitle,
+  TimetableNotices,
 } from "./session_timetable_shared";
 import { StyledDivider } from "./styled_divider";
 
@@ -116,23 +117,20 @@ export const SessionTimeTable: FC<SessionTimeTablePropType> = ErrorBoundary.with
 
     let breakCount = 0;
 
-    const warningMessage =
-      language === "ko"
-        ? "* 발표 목록은 발표자 사정에 따라 변동될 수 있습니다."
-        : "* The list of sessions may change due to the speaker's circumstances.";
-
     return (
       <Stack direction="column" sx={{ width: "100%" }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: "100%", my: 0.5, gap: 1 }}>
           <HorizontalScrollNotice visible={canScrollLeft || canScrollRight} language={language} />
-          <Typography variant="body2" sx={{ textAlign: "right", fontSize: "0.6rem" }} children={warningMessage} />
+          <TimetableNotices language={language} />
         </Stack>
         <StyledDivider />
         {dates.length > 1 && (
           <>
             <Stack spacing={2} direction="row" justifyContent="center" alignItems="center">
               {dates.map((date, i) => {
-                const dateStr = DateTime.fromISO(date).setLocale(language).toLocaleString({ weekday: "long", month: "long", day: "numeric" });
+                const dateStr = DateTime.fromISO(date, { zone: KOREA_TIME_ZONE })
+                  .setLocale(language)
+                  .toLocaleString({ weekday: "long", month: "long", day: "numeric" });
                 return (
                   <Button
                     variant="text"

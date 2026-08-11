@@ -12,4 +12,4 @@ export { clamp, snapToStep, stepsBetween } from "./math";
 export { extractQueryParameters } from "./openapi";
 export { getSessionDetailUrl } from "./session";
 export { isFilledString, isHexColor, isValidHttpUrl, rtrim } from "./string";
-export { dayBoundsMs, dayTabLabel, eachDayISO, floorToMinute, formatMs, isoDateOf, toMs, toNaiveISO } from "./time";
+export { dayBoundsMs, dayTabLabel, eachDayISO, floorToMinute, formatMs, isoDateOf, KOREA_TIME_ZONE, toMs, toNaiveISO } from "./time";

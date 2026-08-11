@@ -1,7 +1,8 @@
 import { useBackendClient, useSessionsQuery } from "@frontend/common/hooks/useAPI";
-import { getSessionDetailUrl } from "@frontend/common/utils";
+import { getSessionDetailUrl, KOREA_TIME_ZONE } from "@frontend/common/utils";
 import { useShopClient, useUserStatus } from "@frontend/shop/hooks";
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { DateTime } from "luxon";
 import { FC, useEffect, useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -27,8 +28,8 @@ export const MyTimetablePage: FC = () => {
         ? (session.room_schedules.length === TRACKS.length ? session.room_schedules.slice(0, 1) : session.room_schedules).flatMap(
             (schedule): TimetablePlacement[] => {
               const track = TRACKS.find(({ roomOrder }) => roomOrder === schedule.room_order);
-              const startMs = Date.parse(schedule.start_at);
-              const endMs = Date.parse(schedule.end_at);
+              const startMs = DateTime.fromISO(schedule.start_at, { zone: KOREA_TIME_ZONE }).toMillis();
+              const endMs = DateTime.fromISO(schedule.end_at, { zone: KOREA_TIME_ZONE }).toMillis();
               if (!track || !Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs >= endMs) return [];
               return [
                 {
