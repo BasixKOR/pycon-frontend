@@ -118,9 +118,8 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
         addSnackbar("에디터가 아직 준비되지 않았습니다.", "error");
         return;
       }
-      const editor_source = editorRef.current.exportJson();
-      const emailDocument = editorRef.current.exportEmailDocument();
-      const subject = emailDocument.meta.subject?.trim();
+      const exportedDocument = editorRef.current.exportEmailDocument();
+      const subject = exportedDocument.meta.subject?.trim();
       if (!subject) {
         addSnackbar("에디터에서 메일 제목(subject)을 입력해주세요.", "error");
         return;
@@ -128,12 +127,21 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
       if (subject.length > MAX_RECOMMENDED_SUBJECT_LENGTH) {
         addSnackbar(`메일 제목이 ${subject.length}자입니다. 대부분의 메일 클라이언트에서 뒷부분이 잘립니다.`, "warning");
       }
+      // data.title과 editor_source의 제목이 어긋나지 않도록 trim한 제목으로 맞춥니다.
+      const emailDocument: EmailDocument = { ...exportedDocument, meta: { ...exportedDocument.meta, subject } };
+
+      let data: string;
+      try {
+        // 백엔드는 data의 렌더 결과를 그대로 발송 payload로 쓰므로 {title, body} JSON object여야 합니다.
+        data = JSON.stringify({ title: subject, body: await editorRef.current.exportHTML() });
+      } catch (e) {
+        addErrorSnackbar(e instanceof Error ? e : new Error(String(e)));
+        return;
+      }
 
       // 저장 성공 시 쿼리가 reset되며 에디터가 initialDocument로 되돌아가므로, 방금 저장한 문서로 맞춰둡니다.
       setInitialDocument(emailDocument);
-      // 백엔드는 data의 렌더 결과를 그대로 발송 payload로 쓰므로 {title, body} JSON object여야 합니다.
-      const data = JSON.stringify({ title: subject, body: await editorRef.current.exportHTML() });
-      const payload: EmailTemplatePayload = { ...meta, data, editor_source };
+      const payload: EmailTemplatePayload = { ...meta, data, editor_source: JSON.stringify(emailDocument, null, 2) };
       if (id) {
         updateMutation.mutate(payload, {
           onSuccess: () => addSnackbar("수정했습니다.", "success"),
