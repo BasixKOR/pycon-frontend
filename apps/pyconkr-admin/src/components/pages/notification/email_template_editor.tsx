@@ -6,10 +6,23 @@ import {
   useUpdateMutation,
 } from "@frontend/common/hooks/useAdminAPI";
 import { type EmailDocument, MailEditor, type MailEditorHandle, parseEmailDocument } from "@mu-software/mail-editor";
-import { Add, Close, Save, Visibility } from "@mui/icons-material";
-import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
+import { Add, Close, Save, UploadFile, Visibility } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { ErrorBoundary, Suspense } from "@suspensive/react";
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
@@ -29,7 +42,8 @@ type EmailTemplateMetaFormData = {
 
 type EmailTemplatePayload = EmailTemplateMetaFormData & {
   data: string;
-  editor_source: EmailDocument;
+  // 백엔드 editor_source는 TextField이므로 직렬화한 문자열로 전송합니다.
+  editor_source: string;
 };
 
 type EmailTemplateSchema = EmailTemplatePayload & {
@@ -57,7 +71,7 @@ const isValidJson = (s: string): boolean => {
 const toInitialDocument = (source: EmailTemplateSchema["editor_source"] | undefined): EmailDocument => {
   if (!source) return DEFAULT_INITIAL_DOCUMENT;
   try {
-    return typeof source === "string" ? parseEmailDocument(source) : source;
+    return parseEmailDocument(source);
   } catch {
     return DEFAULT_INITIAL_DOCUMENT;
   }
@@ -78,9 +92,13 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
       sent_from: retrievedData?.sent_from ?? "",
     }));
     const [contextJson, setContextJson] = useState("{}");
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [importJson, setImportJson] = useState("");
+    // MailEditor는 initialDocument가 바뀌거나 서스펜스에서 재개될 때 이 문서로 되돌아가므로,
+    // 불러오기/저장 때마다 최신 문서로 갱신해야 편집 내용이 유실되지 않습니다.
+    const [initialDocument, setInitialDocument] = useState<EmailDocument>(() => toInitialDocument(retrievedData?.editor_source));
 
     const editorRef = useRef<MailEditorHandle>(null);
-    const initialDocument = useMemo(() => toInitialDocument(retrievedData?.editor_source), [retrievedData?.editor_source]);
 
     const createMutation = useCreateMutation<EmailTemplatePayload>(backendAdminClient, APP, RESOURCE);
     const updateMutation = useUpdateMutation<EmailTemplatePayload>(backendAdminClient, APP, RESOURCE, id || "");
@@ -99,7 +117,9 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
         addSnackbar("에디터가 아직 준비되지 않았습니다.", "error");
         return;
       }
-      const editor_source = editorRef.current.exportEmailDocument();
+      const editor_source = editorRef.current.exportJson();
+      // 저장 성공 시 쿼리가 reset되며 에디터가 initialDocument로 되돌아가므로, 방금 저장한 문서로 맞춰둡니다.
+      setInitialDocument(editorRef.current.exportEmailDocument());
       const data = await editorRef.current.exportHTML();
       const payload: EmailTemplatePayload = { ...meta, data, editor_source };
       if (id) {
@@ -116,6 +136,18 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
           },
           onError: addErrorSnackbar,
         });
+      }
+    };
+
+    const handleImport = () => {
+      try {
+        // parseEmailDocument는 검증 실패 사유를 메시지에 담아 throw합니다.
+        setInitialDocument(parseEmailDocument(importJson));
+        setImportJson("");
+        setImportDialogOpen(false);
+        addSnackbar("JSON을 불러왔습니다. 저장해야 반영됩니다.", "success");
+      } catch (e) {
+        addErrorSnackbar(e instanceof Error ? e : new Error(String(e)));
       }
     };
 
@@ -153,9 +185,12 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
           />
 
           <Box>
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              본문 에디터
-            </Typography>
+            <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Typography variant="subtitle1">본문 에디터</Typography>
+              <Button size="small" variant="outlined" startIcon={<UploadFile />} onClick={() => setImportDialogOpen(true)}>
+                JSON으로 불러오기
+              </Button>
+            </Stack>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
               변수는 {"{{ name }}"} 형식으로 사용합니다. 저장 시 EmailDocument JSON은 editor_source에, 렌더된 HTML은 data 필드에 기록됩니다.
             </Typography>
@@ -220,6 +255,35 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
             {id ? "수정" : "새 객체 추가"}
           </Button>
         </Stack>
+
+        <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="md">
+          <DialogTitle>JSON으로 불러오기</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                EmailDocument JSON(에디터 하단 JSON 탭의 내용과 같은 형식)을 붙여넣어 본문을 통째로 교체합니다. 편집 중이던 내용은 사라지며, 저장해야
+                서버에 반영됩니다.
+              </Typography>
+              <TextField
+                label="EmailDocument JSON"
+                value={importJson}
+                onChange={(e) => setImportJson(e.target.value)}
+                placeholder='{"version": 1, "meta": {}, "styles": {}, "rows": [], "sampleValues": {}}'
+                multiline
+                minRows={12}
+                maxRows={24}
+                fullWidth
+                slotProps={{ input: { sx: { fontFamily: "monospace", fontSize: 12 } } }}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setImportDialogOpen(false)}>취소</Button>
+            <Button variant="contained" startIcon={<UploadFile />} onClick={handleImport} disabled={!importJson.trim()}>
+              불러오기
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     );
   })
