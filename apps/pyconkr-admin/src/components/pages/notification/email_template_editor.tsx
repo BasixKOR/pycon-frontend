@@ -8,6 +8,7 @@ import {
 import { type EmailDocument, MailEditor, type MailEditorHandle, parseEmailDocument } from "@mu-software/mail-editor";
 import { Add, Close, Save, UploadFile, Visibility } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -95,6 +96,7 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
     const [contextJson, setContextJson] = useState("{}");
     const [importDialogOpen, setImportDialogOpen] = useState(false);
     const [importJson, setImportJson] = useState("");
+    const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
     // MailEditor는 initialDocument가 바뀌거나 서스펜스에서 재개될 때 이 문서로 되돌아가므로,
     // 불러오기/저장 때마다 최신 문서로 갱신해야 편집 내용이 유실되지 않습니다.
     const [initialDocument, setInitialDocument] = useState<EmailDocument>(() => toInitialDocument(retrievedData?.editor_source));
@@ -111,6 +113,9 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
 
     const isPending = createMutation.isPending || updateMutation.isPending;
     const jsonValid = isValidJson(contextJson);
+    // editor_source 없이 data만 있는 템플릿(마이그레이션 seed 등)은 에디터가 기본 문서를 띄우므로,
+    // 그대로 저장하면 기존 본문 HTML이 기본 문서로 덮어씌워집니다.
+    const isEditorSourceMissing = !!id && !retrievedData?.editor_source?.trim() && !!retrievedData?.data?.trim();
 
     const handleSubmit = async () => {
       if (isPending) return;
@@ -159,6 +164,15 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
       }
     };
 
+    const handleSubmitClick = () => {
+      // 제목이 비어 있으면 어차피 handleSubmit이 저장 전에 막으므로, 확인창부터 띄우지 않습니다.
+      if (isEditorSourceMissing && editorRef.current?.exportEmailDocument().meta.subject?.trim()) {
+        setOverwriteDialogOpen(true);
+        return;
+      }
+      void handleSubmit();
+    };
+
     const handleImport = () => {
       try {
         // parseEmailDocument는 검증 실패 사유를 메시지에 담아 throw합니다.
@@ -203,6 +217,14 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
             helperText="발신 이메일 주소"
             fullWidth
           />
+
+          {isEditorSourceMissing && (
+            <Alert severity="warning">
+              이 템플릿에는 에디터 원본(editor_source)이 없어, 아래 에디터에는 저장된 본문이 아니라 기본 문서가 표시되고 있습니다. 이대로 저장하면
+              기존 본문(data)이 에디터 내용으로 덮어씌워집니다. 기존 본문을 유지하려면 저장하지 마시고, 새로 만드시려면 저장 시 확인창에서
+              진행해주세요.
+            </Alert>
+          )}
 
           <Box>
             <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
@@ -272,10 +294,33 @@ const InnerAdminEmailTemplateEditor: FC = ErrorBoundary.with(
           )}
         </Stack>
         <Stack direction="row" spacing={2} sx={{ justifyContent: "flex-end" }}>
-          <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isPending} startIcon={id ? <Save /> : <Add />}>
+          <Button variant="contained" color="primary" onClick={handleSubmitClick} disabled={isPending} startIcon={id ? <Save /> : <Add />}>
             {id ? "수정" : "새 객체 추가"}
           </Button>
         </Stack>
+
+        <Dialog open={overwriteDialogOpen} onClose={() => setOverwriteDialogOpen(false)} maxWidth="sm">
+          <DialogTitle>기존 본문을 덮어쓸까요?</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2">
+              이 템플릿에는 에디터 원본(editor_source)이 없어 에디터에 기본 문서가 표시되고 있습니다. 저장하면 기존 본문(data)이 지금 에디터에 있는
+              내용으로 대체되며, 되돌릴 수 없습니다.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOverwriteDialogOpen(false)}>취소</Button>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => {
+                setOverwriteDialogOpen(false);
+                void handleSubmit();
+              }}
+            >
+              덮어쓰고 저장
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="md">
           <DialogTitle>JSON으로 불러오기</DialogTitle>
