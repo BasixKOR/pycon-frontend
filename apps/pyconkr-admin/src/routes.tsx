@@ -13,6 +13,7 @@ import {
   FolderSpecial,
   Forum,
   Handshake,
+  HowToReg,
   LocalOffer,
   Login,
   ManageAccounts,
@@ -21,6 +22,7 @@ import {
   Person,
   Public,
   ReceiptLong,
+  Sell,
   Send,
   ShoppingBag,
   Sms,
@@ -47,10 +49,13 @@ import { AdminNotificationHistoryEditor } from "./components/pages/notification/
 import { AdminSMSTemplateEditor } from "./components/pages/notification/sms_template_editor";
 import { AdminCMSPageEditor } from "./components/pages/page/editor";
 import { AdminPresentationEditor } from "./components/pages/presentation/editor";
+import { RegistrationDeskConfigListPage } from "./components/pages/registration_desk/list";
 import { ShopCategoryGroupEditorPage } from "./components/pages/shop/category_group/editor";
 import { ShopCategoryGroupListPage } from "./components/pages/shop/category_group/list";
 import { ShopOrderEditorPage } from "./components/pages/shop/order/editor";
 import { ShopOrderListPage } from "./components/pages/shop/order/list";
+import { ShopOrderProductTagEditorPage } from "./components/pages/shop/order_product_tag/editor";
+import { ShopOrderProductTagListPage } from "./components/pages/shop/order_product_tag/list";
 import { ShopProductEditorPage } from "./components/pages/shop/product/editor";
 import { ShopProductListPage } from "./components/pages/shop/product/list";
 import { ShopTagListPage } from "./components/pages/shop/tag/list";
@@ -198,6 +203,27 @@ export const RouteDefinitions: RouteDef[] = [
     icon: ReceiptLong,
     title: "주문",
     route: "/shop/order",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "shop-order-product-tag",
+    icon: Sell,
+    title: "주문상품 태그",
+    app: "shop",
+    resource: "orderproductrelationtag",
+  },
+  {
+    type: "separator",
+    key: "registration-desk-separator",
+    title: "등록 데스크",
+  },
+  {
+    type: "autoAdminRouteDefinition",
+    key: "internal-api-registration-desk-config",
+    icon: HowToReg,
+    title: "등록 데스크 설정",
+    app: "internal_api",
+    resource: "registrationdeskconfig",
   },
   {
     type: "separator",
@@ -408,6 +434,10 @@ export const RegisteredRoutes = {
   "/shop/product/:id": <ShopProductEditorPage />,
   "/shop/order": <ShopOrderListPage />,
   "/shop/order/:id": <ShopOrderEditorPage />,
+  "/shop/orderproductrelationtag": <ShopOrderProductTagListPage />,
+  "/shop/orderproductrelationtag/create": <ShopOrderProductTagEditorPage />,
+  "/shop/orderproductrelationtag/:id": <ShopOrderProductTagEditorPage />,
+  "/internal_api/registrationdeskconfig": <RegistrationDeskConfigListPage />,
 };
 
 const ADMIN_DETAIL_RESOURCES: ReadonlySet<string> = new Set(

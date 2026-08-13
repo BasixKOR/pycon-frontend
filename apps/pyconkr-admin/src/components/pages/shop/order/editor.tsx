@@ -29,6 +29,7 @@ import { ORDER_PRODUCT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@apps/pyconkr-
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 import { OrderNotificationDialog } from "./notification_dialog";
+import { OrderProductTags } from "./product_tags";
 import { RefundDialog } from "./refund_dialog";
 import { OrderAdmin, SimpleCustomerInfo, SimpleOrderProductRelation } from "./types";
 
@@ -130,6 +131,8 @@ const OrderProductRow: FC<{ order: OrderAdmin; relation: SimpleOrderProductRelat
       <TableRow>
         <TableCell colSpan={6} sx={{ bgcolor: "action.hover", py: 1, pl: 4 }}>
           <Stack spacing={2}>
+            <Typography variant="subtitle2">태그</Typography>
+            <OrderProductTags relation={relation} />
             {relation.ticket_info && (
               <>
                 <Typography variant="subtitle2">참가자 정보</Typography>

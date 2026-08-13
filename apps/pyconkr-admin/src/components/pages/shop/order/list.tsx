@@ -1,5 +1,5 @@
 import { useBackendAdminClient, useListPaginatedQuery } from "@frontend/common/hooks/useAdminAPI";
-import { FileDownload, FileUpload, RestartAlt, Send } from "@mui/icons-material";
+import { FileDownload, FileUpload, LocalOffer, RestartAlt, Send } from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -27,6 +27,7 @@ import { PAYMENT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/
 import { OrderExportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/export_dialog";
 import { OrderImportDialog } from "@apps/pyconkr-admin/components/pages/shop/order/import_dialog";
 import { OrderNotificationDialog } from "@apps/pyconkr-admin/components/pages/shop/order/notification_dialog";
+import { OrderProductTagDialog } from "@apps/pyconkr-admin/components/pages/shop/order/tag_dialog";
 import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 
 import { OrderAdmin, PaymentStatus } from "./types";
@@ -105,6 +106,7 @@ const InnerOrderList: FC = ErrorBoundary.with(
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
     const [importDialogOpen, setImportDialogOpen] = useState(false);
     const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+    const [tagDialogOpen, setTagDialogOpen] = useState(false);
 
     // Re-sync local form state when the URL changes externally (browser back/forward, pagination).
     useEffect(() => {
@@ -291,6 +293,9 @@ const InnerOrderList: FC = ErrorBoundary.with(
           <Button variant="outlined" size="small" color="secondary" startIcon={<Send />} onClick={() => setNotificationDialogOpen(true)}>
             알림 발송
           </Button>
+          <Button variant="outlined" size="small" color="secondary" startIcon={<LocalOffer />} onClick={() => setTagDialogOpen(true)}>
+            태그 부착/해제
+          </Button>
         </Stack>
 
         <OrderImportDialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} />
@@ -299,6 +304,7 @@ const InnerOrderList: FC = ErrorBoundary.with(
         {notificationDialogOpen && (
           <OrderNotificationDialog scope={{ kind: "orderFilter", params: filterParams }} onClose={() => setNotificationDialogOpen(false)} />
         )}
+        {tagDialogOpen && <OrderProductTagDialog orderParams={filterParams} onClose={() => setTagDialogOpen(false)} />}
 
         <Table>
           <TableHead>

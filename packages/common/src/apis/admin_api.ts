@@ -10,6 +10,8 @@ import {
   OrderNotificationRequestSchema,
   OrderNotificationSendResultSchema,
   OrderNotificationTarget,
+  OrderProductTagAssignAction,
+  OrderProductTagAssignResultSchema,
   PageSectionBulkUpdateSchema,
   PageSectionSchema,
   PaginatedListResponse,
@@ -223,6 +225,13 @@ export const sendOrderNotification =
   (client: BackendAPIClient, target: OrderNotificationTarget) =>
   ({ params, data }: OrderNotificationArgs) =>
     client.post<OrderNotificationSendResultSchema, OrderNotificationRequestSchema>(orderNotificationUrl(target, "send"), data, { params });
+
+// 태그 부착/해제 대상도 body 가 아니라 OrderProductRelationAdminFilterSet query params 로 지정한다.
+// 백엔드는 조건이 하나도 없으면 400 — 실수로 전체가 태깅되는 것을 막기 위함이다.
+export const assignOrderProductTag =
+  (client: BackendAPIClient) =>
+  ({ tagId, action, params }: { tagId: string; action: OrderProductTagAssignAction; params: Record<string, string> }) =>
+    client.post<OrderProductTagAssignResultSchema, undefined>(`v1/admin-api/shop/orderproductrelationtag/${tagId}/${action}/`, undefined, { params });
 
 export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
 

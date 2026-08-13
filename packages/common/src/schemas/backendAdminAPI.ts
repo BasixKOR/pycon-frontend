@@ -272,6 +272,21 @@ export type OrderNotificationSendResultSchema = {
   sent_to_status_summary: { created: number; sending: number; sent: number; failed: number };
 };
 
+// 주문상품 운영 태그. code 는 등록 데스크(ROSA) 의 템플릿 매핑 키라 발급 후 바꾸지 않는다.
+export type OrderProductTagSchema = {
+  id: string;
+  str_repr: string;
+  code: string;
+  name: string;
+  priority: number;
+};
+
+export type OrderProductTagAssignAction = "assign" | "unassign";
+
+export type OrderProductTagAssignResultSchema = {
+  affected: number;
+};
+
 export type OpenAPIParameterSchema = {
   name: string;
   in: "query" | "path" | "header" | "cookie";

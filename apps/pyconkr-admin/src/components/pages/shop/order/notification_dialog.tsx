@@ -16,7 +16,6 @@ import {
   Alert,
   Box,
   Button,
-  Checkbox,
   Chip,
   CircularProgress,
   Dialog,
@@ -25,11 +24,8 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  FormControlLabel,
   InputLabel,
-  ListItemText,
   MenuItem,
-  OutlinedInput,
   Select,
   Stack,
   Tab,
@@ -48,11 +44,15 @@ import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { FC, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ChoicePicker } from "@apps/pyconkr-admin/components/elements/choice_picker";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
 import { CHANNEL_BY_VALUE, NOTIFICATION_CHANNELS, NotificationChannel } from "@apps/pyconkr-admin/components/pages/notification/channels";
-import { ORDER_PRODUCT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
-import { OrderProductStatus } from "@apps/pyconkr-admin/components/pages/shop/order/types";
+import {
+  EMPTY_PRODUCT_FILTER,
+  ProductFilterState,
+  productFilterParams,
+  toOrderProductParams,
+} from "@apps/pyconkr-admin/components/pages/shop/order/order_product_filters";
+import { ProductFilterFields } from "@apps/pyconkr-admin/components/pages/shop/order/product_filter_fields";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 const PREVIEW_ROW_LIMIT = 20;
@@ -76,38 +76,6 @@ const SEND_MODES: SendMode[] = [
   },
 ];
 
-// 백엔드 queryset 이 PURCHASED_OR_REFUNDED_STATUS 로 미리 좁히므로 pending 은 애초에 대상이 아니다.
-const SELECTABLE_OPR_STATUSES: OrderProductStatus[] = ["paid", "used", "refunded"];
-
-// 상품 단위 filterset(OrderProductRelationAdminFilterSet)은 주문 filterset 과 키가 다르다.
-// `status` 는 양쪽에 다 있지만 의미가 다르다 — 주문에선 결제 상태, 상품에선 상품 상태(pending/paid/used/refunded).
-// django-filter 는 모르는 키를 조용히 무시하므로, 넘길 키를 명시한 allowlist 로 둔다.
-// 주문 목록에 필터가 새로 생겨도 여기 없으면 자동으로 dropped 에 잡혀 경고로 노출된다 (대상이 몰래 넓어지지 않음).
-const ORDER_PRODUCT_PARAM_BY_ORDER_PARAM: Record<string, string> = {
-  id: "order_id",
-  user_id: "user_id",
-  user_unique_id: "user_unique_id",
-  name: "name",
-  email: "email",
-  imp_id: "imp_id",
-  status: "order_status",
-  first_paid_at_after: "first_paid_at_after",
-  first_paid_at_before: "first_paid_at_before",
-  product_id: "product_id",
-  category_id: "category_id",
-  category_group_id: "category_group_id",
-  event_id: "event_id",
-  // price_min/max 는 의도적으로 제외 — 주문에선 주문 총액, 상품에선 상품 단가라 뜻이 달라 그대로 넘기면 안 된다.
-};
-
-type ProductFilterState = {
-  productIds: (string | number)[];
-  statuses: OrderProductStatus[];
-  ticketOnly: boolean;
-};
-
-const EMPTY_PRODUCT_FILTER: ProductFilterState = { productIds: [], statuses: [], ticketOnly: false };
-
 /** 발송 대상 범위. 호출 위치(목록 / 주문 상세 / 주문 상품 행)마다 지정할 수 있는 범위가 다르다. */
 export type OrderNotificationScope =
   | { kind: "orderFilter"; params: Record<string, string> }
@@ -122,12 +90,6 @@ const SCOPE_TITLE: Record<OrderNotificationScope["kind"], string> = {
 
 // 특정 상품 1건을 지목한 경우엔 주문 단위 발송이 의미가 없다 (수신자가 주문자로 바뀌어 버린다).
 const modesForScope = (kind: OrderNotificationScope["kind"]): SendMode[] => (kind === "orderProduct" ? [SEND_MODES[1]] : SEND_MODES);
-
-const productFilterParams = (productFilter: ProductFilterState): Record<string, string> => ({
-  ...(productFilter.productIds.length ? { product_id: productFilter.productIds.join(",") } : {}),
-  ...(productFilter.statuses.length ? { status: productFilter.statuses.join(",") } : {}),
-  ...(productFilter.ticketOnly ? { is_ticket: "true" } : {}),
-});
 
 /** scope + 발송 단위 → 실제로 보낼 query params. `dropped` 는 상품 filterset 이 지원하지 않아 무시된 주문 필터 키. */
 const buildRequestParams = (
@@ -147,13 +109,7 @@ const buildRequestParams = (
       };
     case "orderFilter": {
       if (!isProductTarget) return { params: scope.params, dropped: [] };
-      const params: Record<string, string> = {};
-      const dropped: string[] = [];
-      for (const [key, value] of Object.entries(scope.params)) {
-        const mappedKey = ORDER_PRODUCT_PARAM_BY_ORDER_PARAM[key];
-        if (mappedKey) params[mappedKey] = value;
-        else dropped.push(key);
-      }
+      const { params, dropped } = toOrderProductParams(scope.params);
       return { params: { ...params, ...productFilterParams(productFilter) }, dropped };
     }
   }
@@ -186,68 +142,6 @@ const TargetSummary: FC<{ params: Record<string, string>; dropped: string[]; des
     </Stack>
   );
 };
-
-type ProductFilterFieldsProps = {
-  value: ProductFilterState;
-  onChange: (next: ProductFilterState) => void;
-};
-
-// ChoicePicker 는 caption 라벨을 컨트롤 위에 그리고 Select 는 라벨을 테두리에 얹기 때문에 두 컨트롤의 높이가 다르다.
-// 아래쪽 기준(flex-end)으로 맞추고 체크박스도 컨트롤 높이(small = 40px)에 고정해 세 필드의 밑선을 일치시킨다.
-const FILTER_CONTROL_HEIGHT = 40;
-
-const ProductFilterFields: FC<ProductFilterFieldsProps> = ({ value, onChange }) => (
-  <Stack spacing={1}>
-    <Typography variant="caption" color="text.secondary">
-      주문 목록에서 적용한 필터에 더해 상품 조건으로 좁힙니다.
-    </Typography>
-    <Stack direction="row" spacing={2} alignItems="flex-end" flexWrap="wrap" useFlexGap>
-      <Box sx={{ flex: 1, minWidth: 280 }}>
-        {/* selectables 를 suspense 로 조회하므로 자체 경계가 필요 — 없으면 다이얼로그 전체가 fallback 으로 교체된다.
-            fallback 도 같은 높이를 차지해야 로딩 완료 시 옆 필드들이 밀리지 않는다. */}
-        <Suspense
-          fallback={
-            <Box sx={{ height: FILTER_CONTROL_HEIGHT, display: "flex", alignItems: "center" }}>
-              <CircularProgress size={20} />
-            </Box>
-          }
-        >
-          <ChoicePicker
-            multiple
-            label="상품"
-            source={{ app: "shop", resource: "product" }}
-            value={value.productIds}
-            onChange={(productIds) => onChange({ ...value, productIds })}
-          />
-        </Suspense>
-      </Box>
-      <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel id="order-noti-opr-status">상품 상태</InputLabel>
-        <Select
-          labelId="order-noti-opr-status"
-          multiple
-          input={<OutlinedInput label="상품 상태" />}
-          value={value.statuses}
-          onChange={(e) => onChange({ ...value, statuses: e.target.value as OrderProductStatus[] })}
-          renderValue={(selected) => selected.map((s) => ORDER_PRODUCT_STATUS_LABEL[s].label).join(", ") || "전체"}
-        >
-          {SELECTABLE_OPR_STATUSES.map((s) => (
-            <MenuItem key={s} value={s}>
-              <Checkbox size="small" checked={value.statuses.includes(s)} />
-              <ListItemText primary={ORDER_PRODUCT_STATUS_LABEL[s].label} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControlLabel
-        sx={{ height: FILTER_CONTROL_HEIGHT, mr: 0 }}
-        control={<Checkbox size="small" checked={value.ticketOnly} onChange={(e) => onChange({ ...value, ticketOnly: e.target.checked })} />}
-        label="티켓 상품만"
-        slotProps={{ typography: { variant: "body2" } }}
-      />
-    </Stack>
-  </Stack>
-);
 
 // ErrorBoundary.with() 대신 명명 컴포넌트 + 인라인 경계 — HMR 시 입력 필드가 detach 되는 것을 막는다.
 const NotificationDialogBody: FC<NotificationDialogBodyProps> = ({ scope, onClose }) => {

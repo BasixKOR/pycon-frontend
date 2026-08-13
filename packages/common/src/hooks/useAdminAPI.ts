@@ -2,6 +2,7 @@ import { MutationMeta, useMutation, useQuery, useSuspenseQueries, useSuspenseQue
 
 import {
   approveModificationAudit,
+  assignOrderProductTag,
   bulkUpdateSections,
   create,
   exportOrders,
@@ -75,6 +76,7 @@ const MUTATION_KEYS = {
   ADMIN_PREVIEW_ORDER_NOTIFICATION: ["mutation", "admin", "preview", "order-notification"],
   ADMIN_RENDER_ORDER_NOTIFICATION: ["mutation", "admin", "render", "order-notification"],
   ADMIN_SEND_ORDER_NOTIFICATION: ["mutation", "admin", "send", "order-notification"],
+  ADMIN_ASSIGN_ORDER_PRODUCT_TAG: ["mutation", "admin", "assign", "order-product-tag"],
   ADMIN_PREVIEW_USER_MERGE: ["mutation", "admin", "preview", "user-merge"],
   ADMIN_REVERT_USER_MERGE: ["mutation", "admin", "revert", "user-merge"],
 };
@@ -338,6 +340,13 @@ export const useSendOrderNotificationMutation = (client: BackendAPIClient, targe
     mutationKey: [...MUTATION_KEYS.ADMIN_SEND_ORDER_NOTIFICATION, target],
     mutationFn: sendOrderNotification(client, target),
     meta: { invalidates: [QUERY_KEYS.ADMIN_LIST] },
+  });
+
+// 주문/주문상품 캐시가 태그를 품고 있으므로 기본 무효화(전체) 를 그대로 둔다.
+export const useAssignOrderProductTagMutation = (client: BackendAPIClient) =>
+  useMutation({
+    mutationKey: [...MUTATION_KEYS.ADMIN_ASSIGN_ORDER_PRODUCT_TAG],
+    mutationFn: assignOrderProductTag(client),
   });
 
 export const usePreviewUserMergeMutation = (client: BackendAPIClient) =>

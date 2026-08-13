@@ -39,6 +39,12 @@ export type SimpleTicketInfo = {
   contribution_message: string | null;
 };
 
+export type SimpleOrderProductTag = {
+  id: string;
+  code: string;
+  name: string;
+};
+
 export type SimpleOrderProductRelation = {
   id: string;
   product: SimpleProduct;
@@ -47,6 +53,7 @@ export type SimpleOrderProductRelation = {
   donation_price: number;
   options: SimpleOrderProductOptionRelation[];
   ticket_info: SimpleTicketInfo | null;
+  tags: SimpleOrderProductTag[];
 };
 
 export type SimplePaymentHistory = {

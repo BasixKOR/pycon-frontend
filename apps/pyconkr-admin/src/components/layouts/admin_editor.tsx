@@ -52,6 +52,7 @@ import { ChoicePicker } from "@apps/pyconkr-admin/components/elements/choice_pic
 import { ChoicePickerWidget } from "@apps/pyconkr-admin/components/elements/choice_picker_widget";
 import { ColorPickerWidget } from "@apps/pyconkr-admin/components/elements/color_picker_widget";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
+import { IMAGE_FILE_EXTENSIONS } from "@apps/pyconkr-admin/consts/file_extensions";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
@@ -167,6 +168,15 @@ const MDEditorField: Field = ErrorBoundary.with({ fallback: ErrorFallback }, ({ 
   );
 });
 
+const isImageUrl = (url: string): boolean => {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+    return IMAGE_FILE_EXTENSIONS.some((ext) => path.endsWith(`.${ext}`));
+  } catch {
+    return false;
+  }
+};
+
 type ReadOnlyValueFieldStateType = {
   loading: boolean;
   blob: Blob | null;
@@ -188,15 +198,18 @@ const ReadOnlyValueField: FC<{
 
   useEffect(() => {
     (async () => {
-      if (!(isString(value) && value.startsWith("http") && uiSchema?.[name]["ui:field"] === "file")) {
-        setFieldState((ps) => ({ ...ps, loading: false }));
-        return;
-      }
+      // ui:field 가 없는 필드도 있다 (`uiSchema[name]` 자체가 undefined) — 옵셔널 체이닝을 빼면 여기서 던지고
+      // loading 이 true 로 남아 스피너만 계속 돈다. fetch 실패도 마찬가지라 try/finally 로 반드시 내린다.
+      try {
+        if (!(isString(value) && value.startsWith("http") && uiSchema?.[name]?.["ui:field"] === "file")) return;
 
-      const blob = await (await fetch(value)).blob();
-      const blobText = await blob.text();
-      const objectUrl = URL.createObjectURL(blob);
-      setFieldState((ps) => ({ ...ps, loading: false, blob, blobText, objectUrl }));
+        const blob = await (await fetch(value)).blob();
+        const blobText = await blob.text();
+        const objectUrl = URL.createObjectURL(blob);
+        setFieldState((ps) => ({ ...ps, blob, blobText, objectUrl }));
+      } finally {
+        setFieldState((ps) => ({ ...ps, loading: false }));
+      }
     })();
   }, [value, name, uiSchema]);
 
@@ -219,6 +232,17 @@ const ReadOnlyValueField: FC<{
   }
 
   if (value === null || value === undefined) return "";
+  // ui:field 힌트가 없는 URL 값(예: logo_url). 이미지면 그대로 <img> 로 — blob fetch 와 달리 CORS 를 타지 않는다.
+  if (isString(value) && value.startsWith("http")) {
+    return (
+      <Stack spacing={1} alignItems="flex-start">
+        {isImageUrl(value) && <Box component="img" src={value} alt={name} sx={{ maxWidth: 300, maxHeight: 200, objectFit: "contain" }} />}
+        <a href={value} target="_blank" rel="noopener noreferrer">
+          {value}
+        </a>
+      </Stack>
+    );
+  }
   if (typeof value === "object") {
     return (
       <Box
