@@ -11,7 +11,7 @@ const DAYS = ["2026-08-15", "2026-08-16"] as const;
 
 export const TRACKS = [
   { key: "track1", label: "Track 1", location: "4층", rooms: "4142호, 4147호", roomOrder: 0, color: "#22b8cf" },
-  { key: "track2", label: "Track 2", location: "6층", rooms: "6141호, 6144호", roomOrder: 10, color: "#82c91e" },
+  { key: "track2", label: "Track 2", location: "5층", rooms: "5147호, 5145호", roomOrder: 10, color: "#82c91e" },
   { key: "track3", label: "Track 3", location: "원흥관", rooms: "E347, E350", roomOrder: 20, color: "#5c7cfa" },
   { key: "dongguk", label: "동국대 세션", location: "5143호", rooms: "", roomOrder: 30, color: "#20c997" },
 ] as const;
