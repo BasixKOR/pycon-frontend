@@ -28,7 +28,7 @@ import { usePaginationParams } from "@apps/pyconkr-admin/components/elements/pag
 import { PRODUCT_STATUS_LABEL } from "@apps/pyconkr-admin/components/pages/shop/_common/status_labels";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
-import { CategoryGroupAdminWithCategories, ProductAdmin, ProductCurrentStatus } from "./types";
+import { CategoryGroupAdminWithCategories, ProductCurrentStatus, ProductListAdmin } from "./types";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 const formatLeftoverStock = (leftover: number | null | undefined) => {
@@ -61,7 +61,7 @@ const InnerProductList: FC = ErrorBoundary.with(
     apiParams.page = String(page);
     apiParams.page_size = String(pageSize);
 
-    const productsQuery = useListPaginatedQuery<ProductAdmin>(client, "shop", "product", apiParams);
+    const productsQuery = useListPaginatedQuery<ProductListAdmin>(client, "shop", "product", apiParams);
     // 카테고리 매핑·필터에 전체 그룹이 필요하므로 그룹은 한 번에 받는다.
     const groupsQuery = useListPaginatedQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", { page_size: "200" });
 

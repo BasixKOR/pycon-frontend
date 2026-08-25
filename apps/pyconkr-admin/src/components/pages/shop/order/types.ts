@@ -81,3 +81,17 @@ export type OrderAdmin = {
   first_paid_at: string | null;
   latest_imp_id: string | null;
 };
+
+export type OrderListAdmin = {
+  id: string;
+  str_repr: string;
+  created_at: string;
+  updated_at: string;
+  name_ko: string;
+  name_en: string;
+  user: SimpleUser | null;
+  current_paid_price: number;
+  current_status: PaymentStatus;
+  first_paid_at: string | null;
+  latest_imp_id: string | null;
+};

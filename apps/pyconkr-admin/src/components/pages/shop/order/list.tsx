@@ -30,7 +30,7 @@ import { OrderNotificationDialog } from "@apps/pyconkr-admin/components/pages/sh
 import { OrderProductTagDialog } from "@apps/pyconkr-admin/components/pages/shop/order/tag_dialog";
 import { CategoryGroupAdminWithCategories } from "@apps/pyconkr-admin/components/pages/shop/product/types";
 
-import { OrderAdmin, PaymentStatus } from "./types";
+import { OrderListAdmin, PaymentStatus } from "./types";
 
 const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
@@ -113,7 +113,7 @@ const InnerOrderList: FC = ErrorBoundary.with(
       setFilters(readFilters(searchParams));
     }, [searchParams]);
 
-    const ordersQuery = useListPaginatedQuery<OrderAdmin>(client, "shop", "order", apiParams);
+    const ordersQuery = useListPaginatedQuery<OrderListAdmin>(client, "shop", "order", apiParams);
     const groupsQuery = useListPaginatedQuery<CategoryGroupAdminWithCategories>(client, "shop", "categorygroup", { page_size: "200" });
     const { count = 0, results: orders = [] } = ordersQuery.data ?? {};
     const groups = useMemo(() => groupsQuery.data.results, [groupsQuery.data]);

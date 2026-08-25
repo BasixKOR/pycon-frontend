@@ -72,6 +72,22 @@ export type ProductAdmin = {
   current_status: ProductCurrentStatus;
 };
 
+export type ProductListAdmin = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  str_repr: string;
+  name_ko: string;
+  name_en: string;
+  price: number;
+  stock: number;
+  category: string;
+  priority: number;
+  leftover_stock?: number | null;
+  sold_count?: number;
+  current_status: ProductCurrentStatus;
+};
+
 export type ProductCurrentStatus = "out_of_visible_period" | "out_of_orderable_period" | "active";
 
 export type TagAdmin = {

@@ -245,7 +245,6 @@ export type NotificationTemplateSchema = {
   code: string;
   title: string;
   description: string;
-  data: string;
   sent_from: string;
   template_variables: string[];
 };
