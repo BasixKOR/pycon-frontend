@@ -27,7 +27,7 @@ export const previewMeModAudit = (client: BackendAPIClient) => async () => clien
 
 export const signOut = (client: BackendAPIClient) => () => client.delete<void>("v1/participant-portal/user/signout/");
 
-export const listPublicFiles = (client: BackendAPIClient) => () => client.get<PublicFileSchema[]>("v1/participant-portal/public-file/");
+export const listPublicFiles = (client: BackendAPIClient) => () => client.getList<PublicFileSchema>("v1/participant-portal/public-file/");
 
 export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
   const formData = new FormData();
@@ -37,7 +37,8 @@ export const uploadPublicFile = (client: BackendAPIClient) => (file: File) => {
   });
 };
 
-export const listPresentations = (client: BackendAPIClient) => () => client.get<PresentationRetrieveSchema[]>("v1/participant-portal/presentation/");
+export const listPresentations = (client: BackendAPIClient) => () =>
+  client.getList<PresentationRetrieveSchema>("v1/participant-portal/presentation/");
 
 export const retrievePresentation = (client: BackendAPIClient, id: string) => () => {
   if (!id) return Promise.resolve(null);
@@ -53,7 +54,7 @@ export const patchPresentation = (client: BackendAPIClient) => (data: Presentati
   client.patch<PresentationRetrieveSchema, PresentationUpdateSchema>(`v1/participant-portal/presentation/${data.id}/`, data);
 
 export const listModificationAudits = (client: BackendAPIClient) => () =>
-  client.get<ModificationAuditSchema[]>("v1/participant-portal/modification-audit/");
+  client.getList<ModificationAuditSchema>("v1/participant-portal/modification-audit/");
 
 export const previewModificationAudit = (client: BackendAPIClient, id: string) => () => {
   try {
@@ -65,7 +66,7 @@ export const previewModificationAudit = (client: BackendAPIClient, id: string) =
 };
 
 export const retrieveModificationAudit = (client: BackendAPIClient, id: string) => () =>
-  client.get<ModificationAuditSchema[]>(`v1/participant-portal/modification-audit/${id}`);
+  client.getList<ModificationAuditSchema>(`v1/participant-portal/modification-audit/${id}`);
 
 export const cancelModificationAudit = (client: BackendAPIClient) => (data: ModificationAuditCancelRequestSchema) =>
   client.patch<ModificationAuditSchema, ModificationAuditCancelRequestSchema>(`v1/participant-portal/modification-audit/${data.id}/cancel/`, data);

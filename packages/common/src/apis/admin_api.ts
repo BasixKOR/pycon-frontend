@@ -125,7 +125,7 @@ export const saveTimetable =
 
 export const listSections = (client: BackendAPIClient, pageId: string) => () => {
   if (!pageId) return Promise.resolve([]);
-  return client.get<PageSectionSchema[]>(`v1/admin-api/cms/page/${pageId}/section/`);
+  return client.getList<PageSectionSchema>(`v1/admin-api/cms/page/${pageId}/section/`);
 };
 
 export const selectables = (client: BackendAPIClient, app: string, resource: string) => () =>
@@ -233,7 +233,7 @@ export const assignOrderProductTag =
   ({ tagId, action, params }: { tagId: string; action: OrderProductTagAssignAction; params: Record<string, string> }) =>
     client.post<OrderProductTagAssignResultSchema, undefined>(`v1/admin-api/shop/orderproductrelationtag/${tagId}/${action}/`, undefined, { params });
 
-export const listDashboardCharts = (client: BackendAPIClient) => () => client.get<DashboardChartDefinition[]>("v1/admin-api/dashboard/charts/");
+export const listDashboardCharts = (client: BackendAPIClient) => () => client.getList<DashboardChartDefinition>("v1/admin-api/dashboard/charts/");
 
 export const fetchDashboardChartData = (client: BackendAPIClient, endpoint: string) => (params: Record<string, unknown>) =>
   client.post<DashboardChartDataResponse, { params: Record<string, unknown> }>(endpoint, { params });

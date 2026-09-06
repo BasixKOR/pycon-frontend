@@ -44,13 +44,13 @@ export const retrieveSocialSession = (client: BackendAPIClient) => async (): Pro
   }
 };
 
-export const listEvents = (client: BackendAPIClient) => () => client.get<EventSchema[]>("v1/event/");
-export const listSiteMaps = (client: BackendAPIClient) => () => client.get<FlattenedSiteMapSchema[]>("v1/cms/sitemap/");
+export const listEvents = (client: BackendAPIClient) => () => client.getList<EventSchema>("v1/event/");
+export const listSiteMaps = (client: BackendAPIClient) => () => client.getList<FlattenedSiteMapSchema>("v1/cms/sitemap/");
 export const retrievePage = (client: BackendAPIClient) => (id: string) => client.get<PageSchema>(`v1/cms/page/${id}/`);
 export const listSponsors = (client: BackendAPIClient, params?: SponsorQueryParameterSchema) => () =>
-  client.get<SponsorTierSchema[]>("v1/event/sponsor/", { params });
+  client.getList<SponsorTierSchema>("v1/event/sponsor/", { params });
 export const listSessions = (client: BackendAPIClient, params?: SessionQueryParameterSchema) => () =>
-  client.get<SessionSchema[]>("v1/event/presentation/", { params });
+  client.getList<SessionSchema>("v1/event/presentation/", { params });
 export const retrieveSession = (client: BackendAPIClient) => (id: string) => {
   if (!id) return Promise.resolve(null);
   return client.get<SessionSchema>(`v1/event/presentation/${id}/`);

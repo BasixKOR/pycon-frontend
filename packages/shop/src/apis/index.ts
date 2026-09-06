@@ -65,7 +65,8 @@ export const retrieveUserInfo = (client: BackendAPIClient) => async () => {
  * 노출 중인 모든 상품의 목록을 가져옵니다.
  * @returns 노출 중인 모든 상품의 목록
  */
-export const listProducts = (client: BackendAPIClient) => (qs?: ProductListQueryParams) => client.get<Product[]>("v1/shop/products/", { params: qs });
+export const listProducts = (client: BackendAPIClient) => (qs?: ProductListQueryParams) =>
+  client.getList<Product>("v1/shop/products/", { params: qs });
 
 /**
  * 현재 사용자의 장바구니에 담긴 상품의 목록을 가져옵니다.
@@ -104,7 +105,7 @@ export const prepareCartOrder = (client: BackendAPIClient) => (data: CustomerInf
  * 고객의 모든 결제 내역을 가져옵니다.
  * @returns 고객의 모든 결제 내역
  */
-export const listOrders = (client: BackendAPIClient) => () => client.get<Order[]>("v1/shop/orders/");
+export const listOrders = (client: BackendAPIClient) => () => client.getList<Order>("v1/shop/orders/");
 
 /**
  * 결제 완료된 주문 내역에서 특정 상품을 환불 시도합니다.
@@ -137,4 +138,4 @@ export const issueCertificate = (client: BackendAPIClient) => (data: Certificate
 /**
  * 후원자 목록을 가져옵니다.
  */
-export const listPatrons = (client: BackendAPIClient, year: number) => () => client.get<Patron[]>("v1/shop/patron/", { params: { year } });
+export const listPatrons = (client: BackendAPIClient, year: number) => () => client.getList<Patron>("v1/shop/patron/", { params: { year } });

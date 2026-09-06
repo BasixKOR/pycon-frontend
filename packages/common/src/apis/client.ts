@@ -16,6 +16,7 @@ const HTML_RESPONSE_PATTERN = /^\s*<(!doctype|html)\b/i;
 // 그중 Cloudflare 봇 차단 인터스티셜("Just a moment...")은 링크 스캐너·크롤러에게만 뜨는 정상 동작이라 보고하지 않는다.
 const CLOUDFLARE_CHALLENGE_PATTERN = /cdn-cgi\/challenge-platform|_cf_chl_opt/i;
 const MAX_ERROR_DETAIL_LENGTH = 500;
+const MAX_RESPONSE_PREVIEW_LENGTH = 80;
 
 export class BackendAPIClientError extends Error {
   readonly name = "BackendAPIClientError";
@@ -54,6 +55,21 @@ export class BackendAPIClientError extends Error {
     return this.status === 401 || this.status === 403;
   }
 }
+
+/**
+ * 200 으로 왔지만 기대한 형태가 아닌 응답. SPA fallback(`2026.pycon.kr/v1/...` 이 index.html 을 200 으로 반환) 처럼
+ * 요청 자체는 성공한 것으로 보이는 경우가 있어 BackendAPIClientError 로는 잡히지 않는다.
+ * 그대로 두면 소비 지점에서 `X.map is not a function` 으로 터져 원인을 알 수 없으므로 여기서 끊는다.
+ */
+export class BackendAPIResponseShapeError extends Error {
+  readonly name = "BackendAPIResponseShapeError";
+}
+
+const describeResponseShape = (data: unknown): string => {
+  if (data === null) return "null";
+  if (!isString(data)) return typeof data;
+  return `string(${data.slice(0, MAX_RESPONSE_PREVIEW_LENGTH).replace(/\s+/g, " ").trim()})`;
+};
 
 const detectNonSchemaErrorType = (data: unknown): "cloudflare_challenge" | "html_response" | "axios_error" => {
   if (!isString(data) || !HTML_RESPONSE_PATTERN.test(data)) return "axios_error";
@@ -193,6 +209,12 @@ export class BackendAPIClient {
 
   async get<T, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T> {
     return (await this._safe_request_without_payload(this.backendAPI.get)<T, AxiosResponse<T>, D>(url, config)).data;
+  }
+  // 배열을 반환하는 목록 API 전용. 형태를 검증해 소비 지점의 `.map is not a function` 대신 원인을 알 수 있는 에러로 끊는다.
+  async getList<T, D = unknown>(url: string, config?: AxiosRequestConfig<D>): Promise<T[]> {
+    const data = await this.get<unknown, D>(url, config);
+    if (Array.isArray(data)) return data as T[];
+    throw new BackendAPIResponseShapeError(`${url} 응답이 배열이 아닙니다: ${describeResponseShape(data)}`);
   }
   async post<T, D>(url: string, data: D, config?: AxiosRequestConfig<D>): Promise<T> {
     return (await this._safe_request_with_payload(this.backendAPI.post)<T, AxiosResponse<T>, D>(url, data, config)).data;
