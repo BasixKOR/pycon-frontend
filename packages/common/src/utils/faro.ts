@@ -1,6 +1,8 @@
 import { getWebInstrumentations, initializeFaro, type Faro, type Instrumentation } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
+import { filterNoisyFaroExceptions } from "@frontend/common/utils/faro_noise";
+
 export interface InitFaroOptions {
   enabled: boolean;
   tracing?: boolean;
@@ -32,7 +34,7 @@ export function initFaro(options: InitFaroOptions): Faro | undefined {
   const instrumentations: Instrumentation[] = [...getWebInstrumentations()];
   if (tracing) instrumentations.push(new TracingInstrumentation({ instrumentationOptions }));
 
-  faro = initializeFaro({ url, app, instrumentations });
+  faro = initializeFaro({ url, app, instrumentations, beforeSend: filterNoisyFaroExceptions });
   return faro;
 }
 

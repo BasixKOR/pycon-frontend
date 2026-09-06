@@ -3,12 +3,19 @@ import { isString } from "remeda";
 
 import { ErrorResponseSchema, isObjectErrorResponseSchema } from "@frontend/common/schemas/backendAPI";
 import { getCookie } from "@frontend/common/utils/cookie";
+import { getFaro } from "@frontend/common/utils/faro";
 
 const DEFAULT_ERROR_MESSAGE = "알 수 없는 문제가 발생했습니다, 잠시 후 다시 시도해주세요.";
 const DEFAULT_ERROR_RESPONSE = {
   type: "unknown",
   errors: [{ code: "unknown", detail: DEFAULT_ERROR_MESSAGE, attr: null }],
 };
+// API 가 JSON 대신 HTML 을 돌려주는 경우가 있다. 본문을 그대로 message 로 쓰면 수 KB 짜리 에러/로그가 되므로
+// 사용자에겐 기본 문구를 보여주고 원인은 detail.type 에만 남긴다.
+const HTML_RESPONSE_PATTERN = /^\s*<(!doctype|html)\b/i;
+// 그중 Cloudflare 봇 차단 인터스티셜("Just a moment...")은 링크 스캐너·크롤러에게만 뜨는 정상 동작이라 보고하지 않는다.
+const CLOUDFLARE_CHALLENGE_PATTERN = /cdn-cgi\/challenge-platform|_cf_chl_opt/i;
+const MAX_ERROR_DETAIL_LENGTH = 500;
 
 export class BackendAPIClientError extends Error {
   readonly name = "BackendAPIClientError";
@@ -26,18 +33,7 @@ export class BackendAPIClientError extends Error {
 
       if (response) {
         status = response.status;
-        detail = isObjectErrorResponseSchema(response.data)
-          ? response.data
-          : {
-              type: "axios_error",
-              errors: [
-                {
-                  code: "unknown",
-                  detail: isString(response.data) ? response.data : DEFAULT_ERROR_MESSAGE,
-                  attr: null,
-                },
-              ],
-            };
+        detail = isObjectErrorResponseSchema(response.data) ? response.data : buildNonSchemaErrorDetail(response.data);
         message = detail.errors[0].detail || DEFAULT_ERROR_MESSAGE;
       }
     } else if (error instanceof Error) {
@@ -58,6 +54,43 @@ export class BackendAPIClientError extends Error {
     return this.status === 401 || this.status === 403;
   }
 }
+
+const detectNonSchemaErrorType = (data: unknown): "cloudflare_challenge" | "html_response" | "axios_error" => {
+  if (!isString(data) || !HTML_RESPONSE_PATTERN.test(data)) return "axios_error";
+  return CLOUDFLARE_CHALLENGE_PATTERN.test(data) ? "cloudflare_challenge" : "html_response";
+};
+
+const buildNonSchemaErrorDetail = (data: unknown): ErrorResponseSchema => {
+  const type = detectNonSchemaErrorType(data);
+  return {
+    type,
+    errors: [
+      {
+        code: "unknown",
+        detail: isString(data) && type === "axios_error" ? data.slice(0, MAX_ERROR_DETAIL_LENGTH) : DEFAULT_ERROR_MESSAGE,
+        attr: null,
+      },
+    ],
+  };
+};
+
+// BackendAPIClientError 는 Faro 노이즈 필터에서 일괄 제외된다(4xx·네트워크 오류는 알림 가치가 없음).
+// 실제로 확인이 필요한 서버 오류만 상태·엔드포인트 컨텍스트를 붙여 여기서 직접 보고한다.
+const reportServerError = (error: BackendAPIClientError): void => {
+  if (error.detail.type === "cloudflare_challenge") return;
+  if (error.status < 500 && error.detail.type !== "html_response") return;
+
+  const config = axios.isAxiosError(error.originalError) ? error.originalError.config : undefined;
+  getFaro()?.api.pushError(error, {
+    type: "BackendServerError",
+    context: {
+      status: String(error.status),
+      response_type: error.detail.type,
+      method: config?.method?.toUpperCase() ?? "UNKNOWN",
+      url: config?.url ?? "unknown",
+    },
+  });
+};
 
 export const formatBackendErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof BackendAPIClientError) {
@@ -139,7 +172,9 @@ export class BackendAPIClient {
       try {
         return await requestFunc<T, Resp, D>(url, config);
       } catch (error) {
-        throw new BackendAPIClientError(error);
+        const clientError = new BackendAPIClientError(error);
+        reportServerError(clientError);
+        throw clientError;
       }
     };
   }
@@ -149,7 +184,9 @@ export class BackendAPIClient {
       try {
         return await requestFunc<T, Resp, D>(url, data, config);
       } catch (error) {
-        throw new BackendAPIClientError(error);
+        const clientError = new BackendAPIClientError(error);
+        reportServerError(clientError);
+        throw clientError;
       }
     };
   }
