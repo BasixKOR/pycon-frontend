@@ -2,11 +2,13 @@ import { EnumOptionsType, WidgetProps } from "@rjsf/utils";
 import { FC, useMemo } from "react";
 
 import { ChoicePicker, ChoicePickerOption } from "@apps/pyconkr-admin/components/elements/choice_picker";
+import { UploadProfileName } from "@apps/pyconkr-admin/consts/file_extensions";
 
 export const ChoicePickerWidget: FC<WidgetProps> = (props) => {
-  const { id, value, label, schema, required, disabled, readonly, options, onChange } = props;
+  const { id, name, value, label, schema, required, disabled, readonly, options, formContext, onChange } = props;
   const choiceApp = options.choiceApp as string | undefined;
   const choiceResource = options.choiceResource as string | undefined;
+  const { fieldProps } = (formContext ?? {}) as { fieldProps?: Record<string, { uploadProfile?: UploadProfileName }> };
   const source = useMemo(() => (choiceApp && choiceResource ? { app: choiceApp, resource: choiceResource } : undefined), [choiceApp, choiceResource]);
 
   const pickerOptions = useMemo<ChoicePickerOption[]>(() => {
@@ -21,6 +23,7 @@ export const ChoicePickerWidget: FC<WidgetProps> = (props) => {
       label={label || schema.title}
       source={source}
       options={pickerOptions}
+      uploadProfile={fieldProps?.[name]?.uploadProfile}
       value={value ?? null}
       required={required}
       disabled={disabled || readonly}

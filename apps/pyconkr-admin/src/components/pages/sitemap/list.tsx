@@ -136,9 +136,10 @@ const InnerSiteMapList: FC<InnerSiteMapListProps> = ErrorBoundary.with(
 
     const disabled = deleteMutation.isPending;
     const editorId = state.editorSiteMapId === "add" ? undefined : state.editorSiteMapId;
-    const editorContext = {
-      domain_group: domainGroupId,
-      ...(state.parentSiteMapId ? { parent_sitemap: state.parentSiteMapId } : {}),
+    const editorFieldProps = {
+      domain_group: { value: domainGroupId, hidden: true },
+      parent_sitemap: { hidden: true, ...(state.parentSiteMapId ? { value: state.parentSiteMapId } : {}) },
+      order: { hidden: true },
     };
 
     const resetFlatSiteMap = () => setState((ps) => ({ ...ps, flatSiteMap: data }));
@@ -244,16 +245,7 @@ const InnerSiteMapList: FC<InnerSiteMapListProps> = ErrorBoundary.with(
             <Node node={nestedSiteMap} index={[0]} parentRoute="" depth={0} />
           </Stack>
           <Box sx={{ flexGrow: 1, width: "60%", height: "100%" }}>
-            {state.editorSiteMapId && (
-              <AdminEditor
-                app="cms"
-                resource="sitemap"
-                id={editorId}
-                onClose={closeEditor}
-                context={editorContext}
-                hidingFields={["domain_group", "parent_sitemap", "order"]}
-              />
-            )}
+            {state.editorSiteMapId && <AdminEditor app="cms" resource="sitemap" id={editorId} onClose={closeEditor} fieldProps={editorFieldProps} />}
           </Box>
         </Stack>
       </>

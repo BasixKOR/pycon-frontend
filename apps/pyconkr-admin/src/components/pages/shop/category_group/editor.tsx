@@ -258,13 +258,7 @@ export const ShopCategoryGroupEditorPage: FC = () => {
   const { id } = useParams<{ id?: string }>();
 
   return (
-    <AdminEditor
-      app="shop"
-      resource="categorygroup"
-      id={id}
-      hidingFields={["categories"]}
-      context={id ? undefined : ({ categories: [] } as unknown as Record<string, string>)}
-    >
+    <AdminEditor app="shop" resource="categorygroup" id={id} fieldProps={{ categories: { hidden: true, ...(id ? {} : { value: [] }) } }}>
       {id && <InnerChildCategoryList groupId={id} />}
     </AdminEditor>
   );

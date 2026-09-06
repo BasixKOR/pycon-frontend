@@ -45,14 +45,14 @@ import {
   useState,
 } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { isArray, isNonNullish, isObjectType, isString } from "remeda";
+import { isArray, isObjectType, isString } from "remeda";
 
 import { BackendAdminSignInGuard } from "@apps/pyconkr-admin/components/elements/admin_signin_guard";
 import { ChoicePicker } from "@apps/pyconkr-admin/components/elements/choice_picker";
 import { ChoicePickerWidget } from "@apps/pyconkr-admin/components/elements/choice_picker_widget";
 import { ColorPickerWidget } from "@apps/pyconkr-admin/components/elements/color_picker_widget";
 import { ErrorFallback } from "@apps/pyconkr-admin/components/elements/error_fallback";
-import { IMAGE_FILE_EXTENSIONS } from "@apps/pyconkr-admin/consts/file_extensions";
+import { IMAGE_FILE_EXTENSIONS, UploadProfileName } from "@apps/pyconkr-admin/consts/file_extensions";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 type EditorFormDataEventType = IChangeEvent<Record<string, string>, RJSFSchema, { [k in string]: unknown }>;
@@ -64,9 +64,19 @@ export type FieldLinkTarget = {
   app: string;
   resource: string;
 };
+export type AdminEditorFieldProps = {
+  value?: unknown;
+  hidden?: boolean;
+  /**
+   * Render an "open in new tab" link next to the value pointing at the editor route for the
+   * referenced object. Currently applies to the read-only field table only.
+   * The field's current value is used as the target id.
+   */
+  link?: FieldLinkTarget;
+  uploadProfile?: UploadProfileName;
+};
+
 type AdminEditorPropsType = PropsWithChildren<{
-  hidingFields?: string[];
-  context?: Record<string, unknown>;
   onCreated?: (data: Record<string, string>) => void;
   onClose?: () => void;
   beforeSubmit?: onSubmitType;
@@ -75,12 +85,7 @@ type AdminEditorPropsType = PropsWithChildren<{
   notDeletable?: boolean;
   extraReadOnlyData?: Record<string, ReactNode>;
   extraActions?: ButtonProps[];
-  /**
-   * For each field, render an "open in new tab" link next to the value pointing at the editor route
-   * for that field's referenced object. Currently applies to the read-only field table only.
-   * The field's current value is used as the target id.
-   */
-  fieldLinks?: Record<string, FieldLinkTarget>;
+  fieldProps?: Record<string, AdminEditorFieldProps>;
 }>;
 
 const processFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -269,8 +274,6 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       app,
       resource,
       id,
-      hidingFields,
-      context,
       onCreated,
       onClose,
       beforeSubmit,
@@ -279,7 +282,7 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       extraReadOnlyData,
       notModifiable,
       notDeletable,
-      fieldLinks,
+      fieldProps,
       children,
     }) => {
       const navigate = useNavigate();
@@ -303,18 +306,38 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
       const deleteMutation = useRemoveMutation(backendAdminClient, app, resource, id || "undefined");
       const submitMutation = id ? modifyMutation : createMutation;
 
+      const hiddenFields = useMemo(
+        () =>
+          new Set(
+            Object.entries(fieldProps ?? {})
+              .filter(([, { hidden }]) => hidden)
+              .map(([fieldName]) => fieldName)
+          ),
+        [fieldProps]
+      );
+
+      const initialFieldValues = useMemo(
+        () =>
+          Object.fromEntries(
+            Object.entries(fieldProps ?? {})
+              .filter(([, { value }]) => value !== undefined)
+              .map(([fieldName, { value }]) => [fieldName, value])
+          ) as Record<string, string>,
+        [fieldProps]
+      );
+
       useEffect(() => {
         (async () => {
           if (!id) {
-            setFormData((context ?? {}) as Record<string, string>);
+            setFormData(initialFieldValues);
             return;
           }
 
           const initialData = await retrieve<Record<string, string>>(backendAdminClient, app, resource, id)();
-          setFormData({ ...initialData, ...context } as Record<string, string>);
+          setFormData({ ...initialData, ...initialFieldValues });
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [app, resource, id, context]);
+      }, [app, resource, id, initialFieldValues]);
 
       const onSubmitButtonClick: MouseEventHandler<HTMLButtonElement> = () => formRef.current && formRef.current.submit();
 
@@ -352,9 +375,9 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
 
       const goToCreateNew = () => navigate(`/${app}/${resource}/create`);
 
-      if (isNonNullish(hidingFields) && isObjectType(schemaInfo.schema.properties)) {
+      if (hiddenFields.size && isObjectType(schemaInfo.schema.properties)) {
         schemaInfo.schema.properties = Object.entries(schemaInfo.schema.properties || {})
-          .filter(([key]) => !hidingFields.includes(key))
+          .filter(([key]) => !hiddenFields.has(key))
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {} as RJSFSchema);
       }
 
@@ -432,7 +455,7 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
                     </TableHead>
                     <TableBody>
                       {Object.keys(readOnlySchema.properties || {}).map((key) => {
-                        const link = fieldLinks?.[key];
+                        const link = fieldProps?.[key]?.link;
                         const value = languageFilteredFormData?.[key];
                         const showLink = link && value !== null && value !== undefined && value !== "";
                         const field = <ReadOnlyValueField name={key} value={value} uiSchema={uiSchema} />;
@@ -465,7 +488,7 @@ const InnerAdminEditor: FC<AppResourceIdType & AdminEditorPropsType> = ErrorBoun
                 formData={languageFilteredFormData}
                 liveValidate
                 focusOnFirstError
-                formContext={{ readonlyAsDisabled: true }}
+                formContext={{ readonlyAsDisabled: true, fieldProps }}
                 onChange={({ formData }) => appendFormDataState(formData)}
                 onSubmit={onSubmitFunc}
                 disabled={disabled}

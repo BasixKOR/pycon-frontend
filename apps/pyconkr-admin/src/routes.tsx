@@ -409,7 +409,12 @@ export const RegisteredRoutes = {
     />
   ),
   "/allauth/socialaccount/:id": (
-    <AdminEditorModifyRoutePage app="allauth" resource="socialaccount" notModifiable fieldLinks={{ user: { app: "user", resource: "userext" } }} />
+    <AdminEditorModifyRoutePage
+      app="allauth"
+      resource="socialaccount"
+      notModifiable
+      fieldProps={{ user: { link: { app: "user", resource: "userext" } } }}
+    />
   ),
   "/allauth/emailaddress": <AdminList app="allauth" resource="emailaddress" hideCreatedAt hideUpdatedAt />,
   "/dashboard": <DashboardPage />,

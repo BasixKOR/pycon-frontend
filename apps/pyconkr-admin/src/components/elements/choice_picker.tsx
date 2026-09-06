@@ -38,6 +38,7 @@ import {
 import { ErrorBoundary, Suspense } from "@suspensive/react";
 import { DragEvent, FC, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
+import { DEFAULT_UPLOAD_PROFILE, UPLOAD_PROFILES, UploadProfileName } from "@apps/pyconkr-admin/consts/file_extensions";
 import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackbar";
 
 export type ChoicePickerOption = {
@@ -52,6 +53,7 @@ type BaseProps = {
   options?: ChoicePickerOption[]; // enum(비관계형 choices) 폴백. source 지정 시 selectables 결과로 대체됨
   source?: { app: string; resource: string };
   optionFilter?: (option: ChoicePickerOption) => boolean; // source 조회 결과 사전 필터 (예: 확장자)
+  uploadProfile?: UploadProfileName;
   required?: boolean;
   disabled?: boolean;
 };
@@ -172,6 +174,7 @@ type ImplProps = {
   metaSchema?: ChoiceMetaSchema;
   persistKey?: string;
   publicFile?: boolean;
+  uploadProfile?: UploadProfileName;
   required?: boolean;
   disabled?: boolean;
   multiple: boolean;
@@ -186,6 +189,7 @@ const ChoicePickerImpl: FC<ImplProps> = ({
   metaSchema,
   persistKey,
   publicFile,
+  uploadProfile,
   required,
   disabled,
   multiple,
@@ -384,7 +388,7 @@ const ChoicePickerImpl: FC<ImplProps> = ({
         ) : null}
         <DialogContent dividers sx={{ height: "80vh", display: "flex", flexDirection: "column" }}>
           {publicFile && tab === 1 ? (
-            <PublicFileUploadPanel onUploaded={commitFromTab} />
+            <PublicFileUploadPanel profile={uploadProfile ?? DEFAULT_UPLOAD_PROFILE} onUploaded={commitFromTab} />
           ) : (
             <Stack spacing={1.5} sx={{ flex: 1, minHeight: 0 }}>
               <TextField autoFocus size="small" fullWidth label="이름 검색" value={titleQuery} onChange={(e) => setTitleQuery(e.target.value)} />
@@ -546,6 +550,7 @@ const ResolvedChoicePicker: FC<ChoicePickerProps & { metaSchema?: ChoiceMetaSche
     metaSchema: props.metaSchema,
     persistKey: props.persistKey,
     publicFile: props.publicFile,
+    uploadProfile: props.uploadProfile,
     required: props.required,
     disabled: props.disabled,
   };
@@ -646,7 +651,8 @@ const ImagePreview: FC<{ id: string }> = ErrorBoundary.with(
   )
 );
 
-const PublicFileUploadPanel: FC<{ onUploaded: (id: string) => void }> = ({ onUploaded }) => {
+const PublicFileUploadPanel: FC<{ profile: UploadProfileName; onUploaded: (id: string) => void }> = ({ profile, onUploaded }) => {
+  const { accept, description, isAllowed } = UPLOAD_PROFILES[profile];
   const client = useBackendAdminClient();
   const upload = useUploadPublicFileMutation(client);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -664,18 +670,21 @@ const PublicFileUploadPanel: FC<{ onUploaded: (id: string) => void }> = ({ onUpl
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  const pickFile = useCallback((f: File | null | undefined) => {
-    if (!f) return;
-    if (f.size === 0) {
-      addSnackbar("선택한 파일의 크기가 0입니다.", "error");
-      return;
-    }
-    if (!(f.type.startsWith("image/") || f.type === "application/json")) {
-      addSnackbar("이미지 또는 JSON 파일만 업로드할 수 있습니다.", "error");
-      return;
-    }
-    setFile(f);
-  }, []);
+  const pickFile = useCallback(
+    (f: File | null | undefined) => {
+      if (!f) return;
+      if (f.size === 0) {
+        addSnackbar("선택한 파일의 크기가 0입니다.", "error");
+        return;
+      }
+      if (!isAllowed(f)) {
+        addSnackbar(description, "error");
+        return;
+      }
+      setFile(f);
+    },
+    [description, isAllowed]
+  );
 
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -700,7 +709,7 @@ const PublicFileUploadPanel: FC<{ onUploaded: (id: string) => void }> = ({ onUpl
       <input
         ref={inputRef}
         type="file"
-        accept="image/*,application/json"
+        accept={accept}
         hidden
         onChange={(e) => {
           pickFile(e.target.files?.[0]);
@@ -741,7 +750,7 @@ const PublicFileUploadPanel: FC<{ onUploaded: (id: string) => void }> = ({ onUpl
           클릭해서 파일을 선택하거나 이 영역에 끌어다 놓으세요.
         </Typography>
         <Typography variant="caption" color="text.secondary" component="p">
-          이미지 또는 JSON 파일만 업로드할 수 있습니다.
+          {description}
         </Typography>
         {file && (
           <Typography variant="body2" sx={{ mt: 1 }}>

@@ -24,7 +24,12 @@ import { addErrorSnackbar, addSnackbar } from "@apps/pyconkr-admin/utils/snackba
 
 import { MergeDirection, MergedObjectsTable } from "./components";
 
-const HIDDEN_FIELDS = ["source", "target", "merged_objects", "reverted_at", "updated_at", "updated_by", "deleted_at", "deleted_by", "str_repr"];
+const HIDDEN_FIELD_PROPS = Object.fromEntries(
+  ["source", "target", "merged_objects", "reverted_at", "updated_at", "updated_by", "deleted_at", "deleted_by", "str_repr"].map((fieldName) => [
+    fieldName,
+    { hidden: true },
+  ])
+);
 
 const InnerAdminUserMergeDetail: FC<{ id: string }> = ({ id }) => {
   const client = useBackendAdminClient();
@@ -72,7 +77,7 @@ const InnerAdminUserMergeDetail: FC<{ id: string }> = ({ id }) => {
         id={id}
         notModifiable
         notDeletable
-        hidingFields={HIDDEN_FIELDS}
+        fieldProps={HIDDEN_FIELD_PROPS}
         extraActions={extraActions}
         extraReadOnlyData={extraReadOnlyData}
       >

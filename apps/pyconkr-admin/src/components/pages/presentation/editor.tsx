@@ -390,7 +390,13 @@ export const AdminPresentationEditor: FC = ErrorBoundary.with(
     };
 
     return (
-      <AdminEditor app="event" resource="presentation" id={id} afterSubmit={onPresentationSubmit}>
+      <AdminEditor
+        app="event"
+        resource="presentation"
+        id={id}
+        afterSubmit={onPresentationSubmit}
+        fieldProps={{ public_slideshow_file: { uploadProfile: "slideshow" } }}
+      >
         {id ? (
           <Stack sx={{ mb: 2 }} spacing={2}>
             <Fieldset legend="스케줄 정보">

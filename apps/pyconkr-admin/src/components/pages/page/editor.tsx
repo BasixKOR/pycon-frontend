@@ -157,7 +157,7 @@ export const AdminCMSPageEditor: FC = ErrorBoundary.with(
         app="cms"
         resource="page"
         id={id}
-        context={id ? undefined : { show_bottom_sponsor_banner: true }}
+        fieldProps={id ? undefined : { show_bottom_sponsor_banner: { value: true } }}
         extraActions={[openOnSiteButton]}
         afterSubmit={onSubmit}
       >
